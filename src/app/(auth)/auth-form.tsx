@@ -9,9 +9,32 @@ type Props = {
   mode: "login" | "signup";
   action: (prev: AuthFormState, fd: FormData) => Promise<AuthFormState>;
   signupEnabled: boolean;
+  /** Sign-in with a display code (TV or wall screen, read-only). */
+  codeAction?: (prev: AuthFormState, fd: FormData) => Promise<AuthFormState>;
 };
 
-export function AuthForm({ mode, action, signupEnabled }: Props) {
+function CodeForm({ action }: { action: NonNullable<Props["codeAction"]> }) {
+  const [state, formAction, pending] = useActionState(action, undefined);
+  return (
+    <form action={formAction} className="mt-8 border-t border-border pt-6">
+      <p className="text-[13px] font-medium">TV or display screen</p>
+      <p className="mt-1 text-xs text-muted">Enter your display code to open a read-only view.</p>
+      <div className="mt-3 flex gap-2">
+        <Input name="code" aria-label="Display code" placeholder="Display code" autoComplete="off" autoCapitalize="none" spellCheck={false} required className="min-w-0 flex-1" />
+        <Button type="submit" size="lg" loading={pending}>
+          Open
+        </Button>
+      </div>
+      {state?.error && (
+        <p role="alert" className="mt-3 rounded-lg bg-danger-soft px-3 py-2 text-xs text-danger">
+          {state.error}
+        </p>
+      )}
+    </form>
+  );
+}
+
+export function AuthForm({ mode, action, signupEnabled, codeAction }: Props) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const f = state?.fields ?? {};
   return (
@@ -52,6 +75,7 @@ export function AuthForm({ mode, action, signupEnabled }: Props) {
           {mode === "login" ? "Sign in" : "Create workspace"}
         </Button>
       </form>
+      {mode === "login" && codeAction && <CodeForm action={codeAction} />}
       <p className="mt-6 text-center text-xs text-muted">
         {mode === "login" ? (
           signupEnabled ? (

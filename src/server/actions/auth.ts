@@ -119,3 +119,35 @@ export async function signOutAction() {
   await destroySession();
   redirect("/login");
 }
+
+/**
+ * Display code: signs a screen (a TV, a wall display) in to a read-only view. The code
+ * belongs to a separate "display" user with the viewer role, so a screen that is signed in
+ * this way can watch everything but cannot change settings, approve, send or spend. Only a
+ * hash of the code is stored. Attempts are rate limited per address and overall.
+ */
+export async function signInWithCodeAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const code = String(formData.get("code") ?? "").trim();
+  if (code.length < 8 || code.length > 64) return { error: "Enter your display code." };
+  const ip = await clientIp();
+  try {
+    await Promise.all([rateLimit(`code-login:${ip ?? "unknown"}`, 8, 900), rateLimit("code-login:all", 60, 900)]);
+  } catch (e) {
+    if (e instanceof RateLimitError) return { error: e.message };
+    throw e;
+  }
+  const displays = await db().select().from(schema.users).where(eq(schema.users.authProvider, "code")).limit(25);
+  let match: (typeof displays)[number] | null = null;
+  // Check every display user so the time taken does not reveal which one matched.
+  for (const u of displays) if (u.passwordHash && (await verifyPassword(code, u.passwordHash))) match = u;
+  if (!displays.length) await verifyPassword(code, "scrypt$AAAAAAAAAAAAAAAAAAAAAA$AAAA");
+  if (!match) {
+    await audit({ organizationId: null, userId: null, action: "auth.code_login_failed", ip });
+    return { error: "That code is not valid." };
+  }
+  const [membership] = await db().select({ organizationId: schema.organizationMembers.organizationId }).from(schema.organizationMembers).where(eq(schema.organizationMembers.userId, match.id)).limit(1);
+  if (!membership) return { error: "That code is not valid." };
+  await Promise.all([db().update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, match.id)), createSession(match.id, membership.organizationId, 90)]);
+  await audit({ organizationId: membership.organizationId, userId: match.id, action: "auth.code_login", ip });
+  redirect("/");
+}

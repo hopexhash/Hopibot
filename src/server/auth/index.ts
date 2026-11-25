@@ -38,7 +38,7 @@ export async function clientIp(): Promise<string | null> {
 
 // ───────────── Local provider sessions ─────────────
 
-export async function createSession(userId: string, organizationId: string | null) {
+export async function createSession(userId: string, organizationId: string | null, days = SESSION_DAYS) {
   const token = randomToken(32);
   const h = await headers();
   await db()
@@ -47,7 +47,7 @@ export async function createSession(userId: string, organizationId: string | nul
       userId,
       organizationId,
       tokenHash: sha256(token),
-      expiresAt: new Date(Date.now() + SESSION_DAYS * 86400_000),
+      expiresAt: new Date(Date.now() + days * 86400_000),
       ip: await clientIp(),
       userAgent: h.get("user-agent")?.slice(0, 300) ?? null,
     });
@@ -57,7 +57,7 @@ export async function createSession(userId: string, organizationId: string | nul
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: SESSION_DAYS * 86400,
+    maxAge: days * 86400,
   });
 }
 
