@@ -1,12 +1,13 @@
 import "../guard";
 import { and, desc, eq, max } from "drizzle-orm";
-import { INTEGRITY_PATTERNS, siteSpecSchema, TEMPLATE_INFO, type SiteSpec, type TemplateKey } from "@/lib/site-spec";
+import { INTEGRITY_PATTERNS, siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
+import { getDesign } from "@/sites/designs";
 import { slugify } from "@/lib/utils";
 import { renderSite } from "@/sites/render";
 import { randomToken, sha1 } from "../crypto";
 import { db, schema } from "../db";
 import { getOrgSettings } from "../org";
-import { templateFor } from "./mock-spec";
+import { designFor } from "./mock-spec";
 
 type Business = typeof schema.businesses.$inferSelect;
 
@@ -27,7 +28,7 @@ function safeHref(href: string, sectionIds: Set<string>, fallback: string) {
  * - section ids are unique and URL-safe;
  * - images are either generated artwork or explicitly authorised HTTPS images.
  */
-export function enforceSpec(input: SiteSpec, b: Business, verifiedEmail: string | null): SiteSpec {
+export function enforceSpec(input: SiteSpec, b: Business, verifiedEmail: string | null, verifiedText = ""): SiteSpec {
   const spec = siteSpecSchema.parse(structuredClone(input));
   spec.business = {
     ...spec.business,
@@ -39,6 +40,12 @@ export function enforceSpec(input: SiteSpec, b: Business, verifiedEmail: string 
     openingHours: b.openingHours?.length ? b.openingHours : null,
     email: verifiedEmail,
   };
+  // Testimonials are only kept when the exact quote appears in verified research and has an https source.
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
+  const verified = norm(verifiedText);
+  spec.sections = spec.sections
+    .map((s) => (s.type === "testimonials" ? { ...s, items: s.items.filter((q) => /^https:\/\//.test(q.sourceUrl) && q.quote.length > 20 && verified.includes(norm(q.quote))) } : s))
+    .filter((s) => s.type !== "testimonials" || s.items.length > 0);
   const used = new Set<string>(["top", "main"]);
   for (const s of spec.sections) {
     let id = slugify(s.id || s.type, 30) || s.type;
@@ -50,14 +57,18 @@ export function enforceSpec(input: SiteSpec, b: Business, verifiedEmail: string 
   const fallback = `#${contact}`;
   spec.hero.primaryCta.href = safeHref(spec.hero.primaryCta.href, used, fallback);
   if (spec.hero.secondaryCta) spec.hero.secondaryCta.href = safeHref(spec.hero.secondaryCta.href, used, fallback);
-  for (const s of spec.sections) if (s.type === "cta") s.cta.href = safeHref(s.cta.href, used, fallback);
+  for (const s of spec.sections) {
+    if (s.type === "cta") s.cta.href = safeHref(s.cta.href, used, fallback);
+    if (s.type === "order") for (const ch of s.channels) ch.href = ch.href.startsWith("tel:") ? (b.phone ? `tel:${b.phone.replace(/[^\d+]/g, "")}` : fallback) : safeHref(ch.href, used, fallback);
+  }
   // tel: links must use the verified phone number only.
   const fixTel = (c: { href: string } | null) => {
     if (c && c.href.startsWith("tel:")) c.href = b.phone ? `tel:${b.phone.replace(/[^\d+]/g, "")}` : fallback;
   };
   fixTel(spec.hero.primaryCta);
   fixTel(spec.hero.secondaryCta);
-  spec.images = spec.images.filter((i) => i.license === "generated" || (i.license === "authorised" && /^https:\/\//.test(i.src)));
+  // Stock photos must come with a credit line; authorised images must be https.
+  spec.images = spec.images.filter((i) => i.license === "generated" || (/^https:\/\//.test(i.src) && (i.license === "authorised" || Boolean(i.credit))));
   if (!spec.meta.description) spec.meta.description = `${b.name}${b.city ? ` — ${b.city}` : ""}`;
   return siteSpecSchema.parse(spec);
 }
@@ -93,7 +104,7 @@ export async function ensureProject(organizationId: string, b: Business) {
   const slug = `${slugify(b.name.replace(/\[MOCK\]/g, "mock"), 36) || "site"}-${randomToken(4).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5)}`;
   const [created] = await db()
     .insert(schema.websiteProjects)
-    .values({ organizationId, businessId: b.id, templateKey: templateFor(b.category), slug, status: "generating" })
+    .values({ organizationId, businessId: b.id, templateKey: designFor(b), slug, status: "generating" })
     .returning();
   return created;
 }
@@ -166,8 +177,7 @@ export async function getVersionFile(versionId: string, path: string) {
   return f ?? null;
 }
 
-export function defaultTheme(category: string): SiteSpec["theme"] {
-  const template = templateFor(category) as TemplateKey;
-  const info = TEMPLATE_INFO[template];
-  return { template, primary: info.primary, accent: info.accent, mode: info.mode, font: "Poppins", radius: info.radius };
+export function defaultTheme(b: { category: string; name: string }): SiteSpec["theme"] {
+  const d = getDesign(designFor(b));
+  return { template: d.legacy, design: d.key, primary: d.palette.primary, accent: d.palette.accent, mode: d.mode, font: d.fonts.display, radius: d.radius };
 }

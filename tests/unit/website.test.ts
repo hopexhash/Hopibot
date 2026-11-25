@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { siteSpecSchema } from "@/lib/site-spec";
 import { renderSite } from "@/sites/render";
+import { selectDesign } from "@/lib/design-select";
+import { buildBlueprintSpec } from "@/lib/site-blueprints";
+import { DESIGNS } from "@/sites/designs";
+import { fontFilesInHtml } from "@/sites/fonts";
+import { existsSync } from "node:fs";
 import { contrast } from "@/sites/theme";
 import { themeVars } from "@/sites/theme";
 import { autoFix } from "@/server/agents/website-builder";
@@ -41,9 +46,74 @@ describe("SiteSpec templates", () => {
     for (const c of BUSINESS_CATEGORIES) {
       const spec = buildMockSpec({ ...biz(), category: c.key });
       const v = themeVars(spec.theme);
-      expect(contrast(v["--accent-text"], v["--surface"])).toBeGreaterThanOrEqual(4.5);
-      expect(contrast(v["--muted"], v["--surface"])).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(v["--accent-text"], v["--bg-alt"])).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(v["--muted"], v["--bg-alt"])).toBeGreaterThanOrEqual(4.5);
     }
+  });
+});
+
+describe("template library", () => {
+  const sample = { name: "Voorbeeld", category: "local_service", city: "Rotterdam", phone: "+31 10 123 4567", address: "Kade 1", openingHours: ["Maandag: 10:00 – 18:00"], googleMapsUrl: "https://maps.google.com/?cid=1" };
+
+  it("has at least 20 designs, each with its own identity", () => {
+    expect(DESIGNS.length).toBeGreaterThanOrEqual(20);
+    expect(new Set(DESIGNS.map((d) => d.key)).size).toBe(DESIGNS.length);
+    // No two designs share the same combination of typeface, palette and page structure.
+    const identity = DESIGNS.map((d) => `${d.fonts.display}|${d.palette.bg}|${d.palette.accent}|${d.v.hero}|${d.v.nav}`);
+    expect(new Set(identity).size).toBe(DESIGNS.length);
+    const required = ["luxury-restaurant", "modern-italian", "turkish-restaurant", "sushi", "burger", "pizzeria", "coffee-shop", "bakery", "street-food", "fine-dining", "asian-fusion", "food-truck", "barbershop", "hair-salon", "beauty-salon", "car-detailing", "garage", "construction", "cleaning", "landscaping"];
+    for (const k of required) expect(DESIGNS.some((d) => d.key === k)).toBe(true);
+  });
+
+  it("renders every design to a valid, self-contained page with readable colours", () => {
+    for (const d of DESIGNS) {
+      const spec = buildBlueprintSpec(sample, d.key);
+      expect(() => siteSpecSchema.parse(spec)).not.toThrow();
+      const html = renderSite(spec, { agencyName: "Agency", seedKey: d.key, assetBase: "assets/" })[0].content;
+      expect(html).toContain(`d-${d.key}`);
+      expect(html).toContain('class="demo-bar"');
+      expect((html.match(/<h1[\s>]/g) ?? []).length).toBe(1);
+      expect(html).not.toMatch(/fonts\.googleapis|fonts\.gstatic|https?:\/\/[^"']*\.(js|css)/);
+      // Every referenced font file is shipped with the app.
+      const fonts = fontFilesInHtml(html);
+      expect(fonts.length).toBeGreaterThan(0);
+      for (const f of fonts) expect(existsSync(`public/site-assets/fonts/${f}`), `${d.key}: ${f}`).toBe(true);
+      // Ids are unique (forms can appear twice on a page).
+      const ids = [...html.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
+      expect(new Set(ids).size, d.key).toBe(ids.length);
+      const v = themeVars(spec.theme);
+      expect(contrast(v["--accent-text"], v["--bg-alt"]), d.key).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(v["--muted"], v["--bg-alt"]), d.key).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(v["--text"], v["--bg"]), d.key).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(v["--on-accent"], v["--accent"]), d.key).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("blueprints never contain prices, ratings or award claims", () => {
+    for (const d of DESIGNS) expect(contentIntegrityIssues(buildBlueprintSpec(sample, d.key), ""), d.key).toHaveLength(0);
+  });
+
+  it("selects a design from the category and refines it with name signals", () => {
+    expect(selectDesign({ category: "restaurant", name: "Sushi Hana" }).design.key).toBe("sushi");
+    expect(selectDesign({ category: "restaurant", name: "Pizzeria Da Marco" }).design.key).toBe("pizzeria");
+    expect(selectDesign({ category: "restaurant", name: "De Gouden Lepel" }).design.key).toBe("luxury-restaurant");
+    expect(selectDesign({ category: "hair_salon", name: "The Gents Barbershop" }).design.key).toBe("barbershop");
+    expect(selectDesign({ category: "car_repair", name: "Garage Jansen" }).design.key).toBe("garage");
+    // A name signal never moves a business to another sector.
+    expect(selectDesign({ category: "car_repair", name: "Pizza Auto Service" }).design.key).toBe("garage");
+    expect(selectDesign({ category: "local_service", name: "Hoveniersbedrijf Groen" }).design.key).toBe("landscaping");
+  });
+
+  it("drops testimonials that are not verbatim in verified research", () => {
+    const spec = buildMockSpec(biz());
+    spec.sections.push({ type: "testimonials", id: "reviews", title: "Reviews", items: [
+      { quote: "Heerlijk gegeten, we komen zeker terug!", author: "Anna", source: "Website", sourceUrl: "https://example.com/reviews" },
+      { quote: "Dit citaat is door niemand geschreven.", author: "Niemand", source: "Website", sourceUrl: "https://example.com/reviews" },
+    ] });
+    const kept = enforceSpec(spec, biz(), null, "… Heerlijk gegeten,  we komen zeker terug! …");
+    const t = kept.sections.find((s) => s.type === "testimonials");
+    expect(t && t.type === "testimonials" ? t.items.map((i) => i.author) : []).toEqual(["Anna"]);
+    expect(enforceSpec(spec, biz(), null, "").sections.some((s) => s.type === "testimonials")).toBe(false);
   });
 });
 

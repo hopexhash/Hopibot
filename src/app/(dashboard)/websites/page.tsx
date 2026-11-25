@@ -7,7 +7,7 @@ import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Card, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
-import { TEMPLATE_INFO, type TemplateKey } from "@/lib/site-spec";
+import { designName, DESIGNS } from "@/sites/designs";
 import { timeAgo } from "@/lib/utils";
 import { requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
@@ -67,22 +67,28 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
       <Card className="mb-6 p-5">
         <GenerateForm businesses={candidates.map((c) => ({ ...c, city: c.city ?? "" }))} />
       </Card>
-      <Section title="Design systems" description="Each category has its own design system. Generated sites are composed from these, never copied from competitors.">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {(Object.keys(TEMPLATE_INFO) as TemplateKey[]).map((k) => {
-            const t = TEMPLATE_INFO[k];
-            return (
-              <div key={k} className="overflow-hidden rounded-xl border border-border bg-surface">
-                <div className="h-14" style={{ background: `linear-gradient(135deg, ${t.primary}, ${t.accent})` }} />
-                <div className="p-3">
-                  <p className="text-[13px] font-semibold">
-                    {t.name} <span className="font-normal text-muted">· {k}</span>
-                  </p>
-                  <p className="mt-0.5 line-clamp-2 text-xs text-muted">{t.description}</p>
-                </div>
+      <Section
+        title="Template library"
+        description={`${DESIGNS.length} designs, each with its own typography, palette, layout and features. The right one is chosen automatically per business.`}
+        actions={
+          <Link href="/websites/templates" className="text-[13px] font-medium text-accent hover:underline">
+            Open the library →
+          </Link>
+        }
+      >
+        <div className="flex gap-2.5 overflow-x-auto pb-2">
+          {DESIGNS.slice(0, 12).map((t) => (
+            <Link key={t.key} href={`/websites/templates#${t.key}`} className="w-40 flex-none overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border-strong">
+              <div className="flex h-16 items-end gap-1 p-2" style={{ background: t.palette.bg }}>
+                <span className="h-4 w-4 rounded-full" style={{ background: t.palette.accent }} />
+                <span className="h-4 w-4 rounded-full" style={{ background: t.palette.primary, outline: "1px solid rgba(128,128,128,.4)" }} />
+                <span className="ml-auto text-[11px] font-semibold" style={{ color: t.palette.ink }}>
+                  {t.name}
+                </span>
               </div>
-            );
-          })}
+              <p className="truncate px-2.5 py-2 text-xs text-muted">{t.industry}</p>
+            </Link>
+          ))}
         </div>
       </Section>
       <Section title="Projects">
@@ -119,7 +125,7 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
                     </Link>
                     <span className="text-xs text-muted">{business.city}</span>
                   </TD>
-                  <TD className="text-muted">{TEMPLATE_INFO[pr.templateKey as TemplateKey]?.name ?? pr.templateKey}</TD>
+                  <TD className="text-muted">{designName(pr.templateKey)}</TD>
                   <TD>
                     <StatusBadge status={pr.status} />
                   </TD>

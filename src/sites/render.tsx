@@ -1,7 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
 import { SiteDocument, type RenderOptions } from "./site";
-import { fontFaces, SITE_CSS } from "./styles";
+import { designFonts, designForSpec } from "./designs";
+import { fontFaces } from "./fonts";
+import { siteCss } from "./styles";
 
 const SITE_JS = `(function(){var d=document.documentElement;d.classList.add('js');
 var els=[].slice.call(document.querySelectorAll('.reveal'));
@@ -9,12 +11,11 @@ if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es
 var t=document.getElementById('menu-toggle');
 document.querySelectorAll('.nav a').forEach(function(a){a.addEventListener('click',function(){if(t)t.checked=false})});
 var mb=document.querySelector('.menu-btn');if(mb&&t){mb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();t.checked=!t.checked}})}
+document.querySelectorAll('[data-ba] input').forEach(function(i){var b=i.parentNode;i.addEventListener('input',function(){b.style.setProperty('--pos',i.value+'%')})});
 document.querySelectorAll('[data-demo-form]').forEach(function(f){f.addEventListener('submit',function(e){e.preventDefault();var s=f.querySelector('.form-status');if(s){s.textContent=s.getAttribute('data-done');s.classList.add('show')}f.reset();})});
 })();`;
 
 export type RenderedFile = { path: string; content: string; contentType: string };
-
-export const FONT_FILES = ["poppins", "inter"].flatMap((f) => [400, 500, 600, 700].map((w) => `${f}-latin-${w}-normal.woff2`));
 
 /**
  * Renders a SiteSpec to a self-contained static site.
@@ -23,7 +24,8 @@ export const FONT_FILES = ["poppins", "inter"].flatMap((f) => [400, 500, 600, 70
  */
 export function renderSite(spec: SiteSpec, opts: RenderOptions & { assetBase: string }): RenderedFile[] {
   const valid = siteSpecSchema.parse(spec);
-  const css = fontFaces(opts.assetBase) + SITE_CSS;
+  const design = designForSpec(valid.theme);
+  const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.key);
   const markup = renderToStaticMarkup(<SiteDocument spec={valid} opts={opts} css={css} script={SITE_JS} />);
   const html = `<!DOCTYPE html>${markup}`;
   return [

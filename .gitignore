@@ -47,3 +47,4 @@ dump.rdb
 /.samples/
 /test-results/
 /playwright-report/
+public/site-assets/templates/

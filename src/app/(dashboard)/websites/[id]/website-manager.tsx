@@ -24,7 +24,8 @@ import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Dialog, Field, Input, MockBadge, ScoreRing, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@/components/ui";
 import { QC_PASS_SCORE } from "@/lib/constants";
-import { TEMPLATE_INFO, type SiteSpec, type TemplateKey } from "@/lib/site-spec";
+import type { SiteSpec } from "@/lib/site-spec";
+import { designName } from "@/sites/designs";
 import { cn, timeAgo } from "@/lib/utils";
 import {
   deleteWebsiteAction,
@@ -128,7 +129,7 @@ export function WebsiteManager({
             <Link href={`/businesses/${business.id}`} className="hover:text-accent">
               Business profile
             </Link>
-            · {TEMPLATE_INFO[project.templateKey as TemplateKey]?.name} design system · v{current?.versionNo ?? 0} · updated {timeAgo(project.updatedAt)}
+            · {designName(project.templateKey)} design · v{current?.versionNo ?? 0} · updated {timeAgo(project.updatedAt)}
           </span>
         }
         actions={

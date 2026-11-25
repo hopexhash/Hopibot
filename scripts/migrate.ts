@@ -10,14 +10,14 @@ async function main() {
   const database = drizzle(sql);
   await migrate(database, { migrationsFolder: "./drizzle" });
   // Seed/refresh the design-system registry (website_templates) from code.
-  const { TEMPLATE_INFO } = await import("../src/lib/site-spec");
-  for (const [key, t] of Object.entries(TEMPLATE_INFO)) {
+  const { DESIGNS } = await import("../src/sites/designs");
+  for (const t of DESIGNS) {
     await sql`
       INSERT INTO website_templates (key, category, name, description, design_tokens, sections)
-      VALUES (${key}, ${key}, ${t.name}, ${t.description},
-        ${JSON.stringify({ primary: t.primary, accent: t.accent, mode: t.mode, radius: t.radius, heroLayout: t.heroLayout })}::jsonb,
-        ${JSON.stringify(["hero", "about", "services", "features", "gallery", "hours", "faq", "cta", "contact"])}::jsonb)
-      ON CONFLICT (key) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, design_tokens = EXCLUDED.design_tokens`;
+      VALUES (${t.key}, ${t.industry}, ${t.name}, ${t.description},
+        ${JSON.stringify({ palette: t.palette, fonts: t.fonts, mode: t.mode, radius: t.radius, variants: t.v })}::jsonb,
+        ${JSON.stringify(t.features)}::jsonb)
+      ON CONFLICT (key) DO UPDATE SET category = EXCLUDED.category, name = EXCLUDED.name, description = EXCLUDED.description, design_tokens = EXCLUDED.design_tokens, sections = EXCLUDED.sections`;
   }
   await sql.end();
   console.log("Migrations applied.");

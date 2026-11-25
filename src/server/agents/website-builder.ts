@@ -1,24 +1,33 @@
 import "../guard";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { siteSpecSchema, TEMPLATE_INFO, type SiteSpec } from "@/lib/site-spec";
+import { selectDesign } from "@/lib/design-select";
+import { siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
+import { DESIGN_KEYS, getDesign } from "@/sites/designs";
+import { FONT_FAMILIES } from "@/sites/fonts";
 import { db, schema } from "../db";
 import { claudeStructured } from "../integrations/anthropic";
 import { IntegrationUnavailableError } from "../integrations/credentials";
 import { advanceStage } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
-import { buildMockSpec, templateFor } from "../website/mock-spec";
+import { buildMockSpec } from "../website/mock-spec";
 import { enforceSpec, ensureProject, saveVersion } from "../website/service";
 
-const SPEC_GUIDE = `You produce a SiteSpec JSON document that our React templates render into a website.
-- theme.template is fixed by the business category (you will be told which). Pick primary/accent hex colours that suit the brand (keep the template defaults unless the brand suggests otherwise), mode light/dark, font Poppins or Inter, radius.
-- Image references: use "art:hero", "art:about", "art:g1".."art:g6" for generated artwork. Only reference keys from "images" if they are already present with license "authorised".
-- hero.layout: "split", "fullbleed" or "centered". Headlines: short, specific, benefit-led, max ~10 words.
-- Sections: choose 6–9 that serve the brief. Always include a "contact" section (showForm true) and an "about" section. Use "menu" only for food businesses and never include prices. Use "hours" when opening hours exist.
+const SPEC_GUIDE = `You produce a SiteSpec JSON document that our design system renders into a website.
+- The design (theme.design) is chosen for you and fixed. It defines typography, layout and atmosphere; write copy that fits its voice.
+- theme.primary / theme.accent: keep the design's colours unless the business has clear brand colours of its own (then use those, keeping strong contrast). theme.font, mode and radius: keep as given.
+- You receive a starting blueprint for this design. Personalise it with the verified facts and research: rewrite headline, texts, services/menu and FAQ so they are specific to this business. Keep the section order unless the brief needs otherwise.
+- Image references: use "art:hero", "art:about", "art:g1".."art:g6" for generated artwork. Only reference keys from "images" if they are already present.
+- Headlines: short, specific, benefit-led, max ~8 words. Large display designs need very short headlines.
+- Sections available: about, services, menu, features, process, gallery, hours, faq, cta, contact, packages, team, booking, beforeafter, order, testimonials. Choose 6–10. Always include "about" and "contact".
+- "menu" only for food businesses. "booking" kinds: reservation (restaurants), appointment (salons, garages, clinics), quote (trades), order (takeaway).
+- Prices (menu price, service price, package price): ONLY when the exact price appears in the verified data; otherwise null. Never estimate.
+- "team": only real people named in the verified data; otherwise omit the section.
+- "testimonials": only verbatim quotes that appear in the verified research, with their public source URL; otherwise omit the section. They are removed automatically if they cannot be verified.
 - Section ids: short, lowercase, in the site language (e.g. "diensten", "contact").
 - CTA hrefs must be in-page anchors to section ids ("#contact"), or "tel:" with the verified phone.
-- Write all copy in the business's language. Be concrete and warm, avoid clichés, avoid filler.
-- NEVER invent testimonials, reviews, ratings, awards, certifications, prices, years of experience, team names, guarantees or opening hours. Do not claim facts that are not in the verified data; describe services in general terms when unverified.
+- Write all copy in the business's language. Be concrete and warm, avoid clichés, avoid filler and superlatives.
+- NEVER invent reviews, ratings, awards, certifications, prices, years of experience, team names, guarantees, statistics or opening hours. Describe services in general terms when unverified.
 - Business contact details are filled in by the system from verified data; you may leave them null.`;
 
 async function loadBusinessAndResearch(ctx: AgentContext) {
@@ -141,7 +150,11 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
     : await ensureProject(ctx.organizationId, b);
   if (!project) throw new Error("Website project not found");
   await db().update(schema.websiteProjects).set({ status: "generating", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
-  const template = templateFor(b.category);
+  // Design selection: an operator's/previous choice on the project wins, else category + research signals.
+  const researchText = research ? JSON.stringify(research.profile).slice(0, 4000) : "";
+  const chosen = DESIGN_KEYS.includes(project.templateKey) ? { design: getDesign(project.templateKey), reason: "kept from the project" } : selectDesign({ category: b.category, name: b.name, text: researchText });
+  const design = chosen.design;
+  if (project.templateKey !== design.key) await db().update(schema.websiteProjects).set({ templateKey: design.key }).where(eq(schema.websiteProjects.id, project.id));
 
   let spec: SiteSpec;
   let changeSummary: string;
@@ -152,10 +165,10 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   if (type === "generate_website") {
     if (isMock || !research) {
       if (!research) await ctx.log("warn", "No research found — building from verified listing data only.");
-      spec = buildMockSpec(b);
+      spec = buildMockSpec(b, design.key);
       changeSummary = isMock ? "Initial version (MOCK — generated from templates without Claude)." : "Initial version from listing data.";
     } else {
-      await ctx.log("info", `Generating website with the "${TEMPLATE_INFO[template].name}" design system.`);
+      await ctx.log("info", `Generating website with the "${design.name}" design (${design.industry}) — ${chosen.reason}.`);
       const res = await claudeStructured({
         ctx: ctx.usage,
         operation: "generate_website",
@@ -165,8 +178,11 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         maxTokens: 32000,
         system: `You are the Website Builder Agent of a premium web design agency.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}`,
         prompt: [
-          `Template (fixed): ${template} — ${TEMPLATE_INFO[template].description}`,
-          `Template default colours: primary ${TEMPLATE_INFO[template].primary}, accent ${TEMPLATE_INFO[template].accent}, mode ${TEMPLATE_INFO[template].mode}.`,
+          `Design (fixed): ${design.key} "${design.name}" for ${design.industry} — ${design.description}`,
+          `Design defaults: primary ${design.palette.primary}, accent ${design.palette.accent}, mode ${design.mode}, font ${design.fonts.display}, radius ${design.radius}.`,
+          `Features this design supports: ${design.features.join("; ")}.`,
+          "Starting blueprint (personalise this; do not keep generic sample items when verified data offers real ones):",
+          JSON.stringify(buildMockSpec(b, design.key)),
           "Verified business record:",
           JSON.stringify({ name: b.name, category: b.category, city: b.city, address: b.address, phone: b.phone, openingHours: b.openingHours }, null, 2),
           "Research profile (verified facts are marked; treat assumptions as unconfirmed):",
@@ -231,9 +247,9 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
     throw new Error(`Unknown builder task type ${type}`);
   }
 
-  // Template is tied to the category; guardrails restore verified facts and safe links.
-  spec.theme.template = template;
-  const finalSpec = enforceSpec(spec, b, verifiedEmail);
+  // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
+  spec.theme = { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
+  const finalSpec = enforceSpec(spec, b, verifiedEmail, researchText);
   const version = await saveVersion({
     organizationId: ctx.organizationId,
     projectId: project.id,

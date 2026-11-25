@@ -126,6 +126,15 @@ export async function runQc(input: {
       await page.goto(`${ORIGIN}/index.html`, { waitUntil: "load", timeout: 30000 });
       metrics[`${vp.name}LoadMs`] = Date.now() - t0;
       await page.waitForTimeout(250);
+      // Below-the-fold images are lazy: load them all before judging whether any is broken.
+      await page.evaluate(async () => {
+        const imgs = Array.from(document.images);
+        for (const i of imgs) i.loading = "eager";
+        await Promise.race([
+          Promise.all(imgs.map((i) => (i.complete ? null : new Promise((res) => ((i.onload = res), (i.onerror = res)))))),
+          new Promise((res) => setTimeout(res, 8000)),
+        ]);
+      });
 
       // Structural/layout checks.
       const layout = await page.evaluate(() => {
@@ -204,14 +213,22 @@ export async function runQc(input: {
       if (vp.name === "desktop") {
         const form = await page.$("form[data-demo-form]");
         if (form) {
-          const unlabeled = await page.$$eval("form input, form textarea", (els) => els.filter((e) => !document.querySelector(`label[for="${e.id}"]`)).length);
+          const unlabeled = await page.$$eval("form input, form textarea, form select", (els) => els.filter((e) => !document.querySelector(`label[for="${e.id}"]`)).length);
           if (unlabeled) add({ code: "form_labels", severity: "major", message: `${unlabeled} form field(s) without a label` });
-          await page.fill("#f-name", "QC Test");
-          await page.fill("#f-email", "qc@example.com");
-          await page.fill("#f-msg", "Automated quality-control test.");
-          await page.click("form[data-demo-form] button[type=submit]");
+          // Fill whatever fields this form has (contact, booking, quote and order forms differ).
+          await form.evaluate((f) => {
+            for (const el of Array.from(f.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select"))) {
+              if (el instanceof HTMLSelectElement) el.selectedIndex = Math.min(1, el.options.length - 1);
+              else if (el.type === "email") el.value = "qc@example.com";
+              else if (el.type === "date") el.value = "2030-01-15";
+              else if (el.type === "time") el.value = "18:30";
+              else if (el.type === "tel") el.value = "+31101234567";
+              else el.value = "Automated quality-control test";
+            }
+          });
+          await form.evaluate((f) => (f as HTMLFormElement).requestSubmit());
           await page.waitForTimeout(150);
-          const feedback = await page.$eval(".form-status", (el) => el.classList.contains("show"));
+          const feedback = await form.$eval(".form-status", (el) => el.classList.contains("show"));
           check("form: shows demonstration feedback on submit", feedback);
           if (!feedback) add({ code: "form_submit", severity: "major", message: "Contact form gives no feedback on submit" });
         }

@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { and, eq } from "drizzle-orm";
 import { QC_PASS_SCORE } from "@/lib/constants";
-import { FONT_FILES } from "@/sites/render";
+import { fontFilesInHtml } from "@/sites/fonts";
 import { db, schema } from "../db";
 import { AgentError } from "../integrations/anthropic";
 import { pushSiteToGithub } from "../integrations/github";
@@ -15,7 +15,9 @@ import type { AgentContext, AgentHandler } from "../orchestrator/types";
 async function siteFiles(versionId: string) {
   const rows = await db().select().from(schema.websiteFiles).where(eq(schema.websiteFiles.versionId, versionId));
   const files = rows.filter((r) => !r.path.startsWith("_qc/")).map((r) => ({ path: r.path, content: Buffer.from(r.content, "utf8") }));
-  for (const f of FONT_FILES) {
+  // Ship only the font files this site's design references.
+  const html = rows.find((r) => r.path === "index.html")?.content ?? "";
+  for (const f of fontFilesInHtml(html)) {
     files.push({ path: `assets/fonts/${f}`, content: await readFile(path.join(process.cwd(), "public", "site-assets", "fonts", f)) });
   }
   return files;

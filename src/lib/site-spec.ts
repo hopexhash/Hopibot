@@ -2,19 +2,21 @@ import { z } from "zod";
 
 /**
  * SiteSpec: the complete, validated description of a generated website.
- * Templates render it; Claude produces and edits it. There is intentionally no
- * testimonial/review section type, so invented reviews cannot be expressed.
+ * Designs render it; Claude produces and edits it. Testimonials can only be expressed
+ * with a public source, and the server drops any that are not found in verified research.
  */
 
 export const TEMPLATE_KEYS = ["restaurant", "dental", "construction", "automotive", "beauty", "realestate", "corporate", "service"] as const;
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
 export const ICONS = [
-  "star", "heart", "shield", "clock", "phone", "map", "leaf", "spark", "tool", "home", "car", "user", "check", "award-free", "calendar", "chat", "coffee", "utensils", "tooth", "scissors", "bolt", "drop", "key", "chart", "globe", "sun",
+  "star", "heart", "shield", "clock", "phone", "map", "leaf", "spark", "tool", "home", "car", "user", "check", "award-free", "calendar", "chat", "coffee", "utensils", "tooth", "scissors", "bolt", "drop", "key", "chart", "globe", "sun", "truck", "flame", "bag", "bike", "brush", "ruler", "camera", "sprout", "wine", "gift",
 ] as const;
 
 const text = (max: number) => z.string().trim().max(max);
 const cta = z.object({ label: text(40), href: text(300) });
+/** Prices are only ever shown when they come from the business's own verified material. */
+const price = text(24).nullable();
 const imageRef = z.string().max(80).describe("Key of an image in `images`, or 'art:<motif>' for generated artwork");
 
 export const siteSpecSchema = z.object({
@@ -26,10 +28,12 @@ export const siteSpecSchema = z.object({
   }),
   theme: z.object({
     template: z.enum(TEMPLATE_KEYS),
+    /** Key of a design in the template library (src/sites/designs.ts). Absent on legacy specs. */
+    design: z.string().max(40).optional(),
     primary: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     mode: z.enum(["light", "dark"]),
-    font: z.enum(["Poppins", "Inter"]),
+    font: z.string().max(40),
     radius: z.enum(["sharp", "soft", "round"]),
   }),
   business: z.object({
@@ -62,6 +66,8 @@ export const siteSpecSchema = z.object({
     secondaryCta: cta.nullable(),
     image: imageRef,
     layout: z.enum(["split", "fullbleed", "centered"]),
+    /** Short hand-written style note or sticker text; only some designs show it. */
+    note: text(48).optional(),
   }),
   sections: z
     .array(
@@ -72,14 +78,14 @@ export const siteSpecSchema = z.object({
           id: text(30),
           title: text(80),
           intro: text(300),
-          items: z.array(z.object({ title: text(60), description: text(220), icon: z.enum(ICONS) })).min(1).max(9),
+          items: z.array(z.object({ title: text(60), description: text(220), icon: z.enum(ICONS), price: price.optional(), duration: text(24).nullable().optional() })).min(1).max(12),
         }),
         z.object({
           type: z.literal("menu"),
           id: text(30),
           title: text(80),
           intro: text(300),
-          categories: z.array(z.object({ name: text(50), items: z.array(z.object({ name: text(60), description: text(160) })).max(8) })).max(5),
+          categories: z.array(z.object({ name: text(50), items: z.array(z.object({ name: text(60), description: text(160), price: price.optional(), tags: z.array(text(20)).max(3).optional() })).max(10) })).max(6),
           note: text(200),
         }),
         z.object({
@@ -95,26 +101,59 @@ export const siteSpecSchema = z.object({
         z.object({ type: z.literal("faq"), id: text(30), title: text(80), items: z.array(z.object({ q: text(140), a: text(500) })).min(1).max(8) }),
         z.object({ type: z.literal("cta"), id: text(30), title: text(90), body: text(240), cta }),
         z.object({ type: z.literal("contact"), id: text(30), title: text(80), body: text(300), showForm: z.boolean(), showMap: z.boolean() }),
+        z.object({
+          type: z.literal("packages"),
+          id: text(30),
+          title: text(80),
+          intro: text(300),
+          items: z.array(z.object({ name: text(50), price, unit: text(30), description: text(200), features: z.array(text(80)).max(8), featured: z.boolean() })).min(1).max(4),
+          note: text(200),
+        }),
+        z.object({
+          type: z.literal("team"),
+          id: text(30),
+          title: text(80),
+          intro: text(300),
+          members: z.array(z.object({ name: text(60), role: text(60), bio: text(240), image: imageRef })).min(1).max(6),
+        }),
+        z.object({
+          type: z.literal("booking"),
+          id: text(30),
+          title: text(80),
+          body: text(300),
+          kind: z.enum(["reservation", "appointment", "quote", "order"]),
+          options: z.array(text(60)).max(10),
+        }),
+        z.object({
+          type: z.literal("beforeafter"),
+          id: text(30),
+          title: text(80),
+          intro: text(300),
+          pairs: z.array(z.object({ before: imageRef, after: imageRef, caption: text(120) })).min(1).max(4),
+        }),
+        z.object({
+          type: z.literal("order"),
+          id: text(30),
+          title: text(80),
+          body: text(300),
+          channels: z.array(z.object({ label: text(40), description: text(160), href: text(300), icon: z.enum(ICONS) })).min(1).max(4),
+        }),
+        z.object({
+          type: z.literal("testimonials"),
+          id: text(30),
+          title: text(80),
+          /** Only genuine quotes: every item needs a public source and is dropped unless verified. */
+          items: z.array(z.object({ quote: text(400), author: text(80), source: text(60), sourceUrl: text(400) })).min(1).max(6),
+        }),
       ]),
     )
     .min(2)
-    .max(12),
+    .max(14),
   footer: z.object({ blurb: text(240) }),
 });
 
 export type SiteSpec = z.infer<typeof siteSpecSchema>;
 export type SiteSection = SiteSpec["sections"][number];
-
-export const TEMPLATE_INFO: Record<TemplateKey, { name: string; description: string; primary: string; accent: string; mode: "light" | "dark"; radius: "sharp" | "soft" | "round"; heroLayout: "split" | "fullbleed" | "centered" }> = {
-  restaurant: { name: "Maison", description: "Dark, warm and atmospheric with gold accents — for restaurants, cafés and hotels.", primary: "#1c1917", accent: "#c8a165", mode: "dark", radius: "soft", heroLayout: "fullbleed" },
-  dental: { name: "Clarity", description: "Bright, calm and reassuring with soft teal — for dental and medical practices.", primary: "#0f766e", accent: "#38bdf8", mode: "light", radius: "round", heroLayout: "split" },
-  construction: { name: "Foundation", description: "Bold, solid and confident with strong contrast — for builders and renovators.", primary: "#1e293b", accent: "#f97316", mode: "light", radius: "sharp", heroLayout: "split" },
-  automotive: { name: "Torque", description: "Dark, technical and precise with a racing accent — for garages and dealers.", primary: "#111827", accent: "#ef4444", mode: "dark", radius: "sharp", heroLayout: "fullbleed" },
-  beauty: { name: "Bloom", description: "Airy, elegant and soft — for salons, hairdressers and beauty studios.", primary: "#7c3f58", accent: "#e8a5b8", mode: "light", radius: "round", heroLayout: "centered" },
-  realestate: { name: "Estate", description: "Refined navy and gold, editorial layout — for real estate agencies.", primary: "#0f1f3d", accent: "#c9a227", mode: "light", radius: "sharp", heroLayout: "split" },
-  corporate: { name: "Vector", description: "Crisp, modern gradients — for gyms, consultancies and corporate services.", primary: "#312e81", accent: "#6366f1", mode: "light", radius: "soft", heroLayout: "centered" },
-  service: { name: "Trust", description: "Friendly, clear and dependable — for plumbers, electricians and local services.", primary: "#1d4ed8", accent: "#10b981", mode: "light", radius: "soft", heroLayout: "split" },
-};
 
 /** Words that suggest invented social proof or credentials. Flagged by QC content checks. */
 export const INTEGRITY_PATTERNS: { re: RegExp; label: string }[] = [
