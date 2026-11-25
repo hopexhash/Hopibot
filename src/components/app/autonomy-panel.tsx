@@ -52,7 +52,7 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
   return (
     <section className="panel brackets relative mb-5 overflow-hidden p-5 sm:p-7">
       <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden />
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="relative flex flex-col gap-5">
         <div className="min-w-0">
           <p className="hud-label text-accent/80">Autonomous mode</p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -86,7 +86,7 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
             </Link>
           </div>
           <p className="mt-2 text-[15px] font-medium leading-snug first-letter:uppercase">{status.objective.text}</p>
-          <ol className={cn("mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 xl:grid-cols-6", status.objective.stages.length === 0 && "hidden")}>
+          <ol className={cn("mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3", status.objective.stages.length === 0 && "hidden")}>
             {status.objective.stages.map((s, i) => {
               const pct = s.target ? Math.min(100, Math.round((s.value / s.target) * 100)) : s.value > 0 ? 100 : 0;
               return (
@@ -122,7 +122,7 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
         </ul>
       )}
 
-      <div className="relative mt-5 grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
+      <div className="relative mt-5 grid grid-cols-2 gap-2.5 md:grid-cols-3">
         <Stat icon={<Radar />} label="Discovered (24 h)" value={t.discovered} sub={`limit ${status.limits.discovery} per day`} />
         <Stat icon={<UserCheck />} label="Qualified (24 h)" value={t.qualified} />
         <Stat icon={<Globe />} label="Websites generated (24 h)" value={t.websites} sub={`limit ${status.limits.websites} per day`} />

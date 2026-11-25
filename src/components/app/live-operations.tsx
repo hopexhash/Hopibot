@@ -266,12 +266,19 @@ export function LiveOperations({
   initialState,
   agent: fixedAgent,
   showAgents = true,
+  agentCards = true,
+  tall = false,
   className,
 }: {
   initial: LiveEvent[];
   initialState?: CommandCenterState;
   agent?: string;
+  /** Show how many agents are working in the header and the idle line in the feed. */
   showAgents?: boolean;
+  /** Show the agent overview inside this panel (false when it is rendered separately). */
+  agentCards?: boolean;
+  /** On wide screens, let the feed fill the height of the window (used beside the autonomy card). */
+  tall?: boolean;
   className?: string;
 }) {
   const [items, setItems] = useState<LiveEvent[]>(initial);
@@ -474,7 +481,7 @@ export function LiveOperations({
         )}
       </div>
 
-      {showAgents && agents.length > 0 && (
+      {showAgents && agentCards && agents.length > 0 && (
         <div className="border-b border-border sm:grid sm:grid-cols-3 sm:gap-2 sm:p-4 lg:grid-cols-4 2xl:grid-cols-7">
           {agents.map((a) => (
             <AgentCard key={a.key} a={a} nowSec={now} />
@@ -537,7 +544,7 @@ export function LiveOperations({
       </div>
 
       <div
-        className="max-h-[62vh] overflow-y-auto overscroll-contain bg-[rgba(1,4,3,0.55)] sm:max-h-[560px]"
+        className={cn("max-h-[62vh] overflow-y-auto overscroll-contain bg-[rgba(1,4,3,0.55)] sm:max-h-[560px]", tall && "xl:max-h-[calc(100vh-19rem)] xl:min-h-[420px]")}
         aria-live="polite"
       >
         {showAgents && !filtered && agents.length > 0 && working === 0 && (
@@ -670,6 +677,24 @@ export function LiveOperations({
             {loadingMore ? "Loading…" : "Load earlier activity"}
           </button>
         )}
+      </div>
+    </section>
+  );
+}
+
+/** The compact overview of all agents as its own panel (used beside the feed on wide screens). */
+export function LiveAgents({ initialState, className }: { initialState?: CommandCenterState; className?: string }) {
+  const cc = useCommandCenter(initialState);
+  const now = useNow(true);
+  const agents = cc.data?.agents ?? [];
+  if (!agents.length) return null;
+  return (
+    <section className={cn("panel mb-5 min-w-0 overflow-hidden", className)} aria-label="Agents">
+      <h2 className="border-b border-border px-4 py-3 text-[13px] font-semibold tracking-[0.12em] sm:px-5">AGENTS</h2>
+      <div className="sm:grid sm:grid-cols-3 sm:gap-2 sm:p-4 lg:grid-cols-4">
+        {agents.map((a) => (
+          <AgentCard key={a.key} a={a} nowSec={now} />
+        ))}
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { Bot, CircleDollarSign, Euro, Globe, MailCheck, MailOpen, Megaphone, Repeat, Rocket, ShieldCheck, Target, TrendingUp, Trophy, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { LiveOperations } from "@/components/app/live-operations";
+import { LiveAgents, LiveOperations } from "@/components/app/live-operations";
 import { ApprovalList } from "@/components/app/approval-list";
 import { AutonomyPanel } from "@/components/app/autonomy-panel";
 import { getAutonomyStatus } from "@/server/orchestrator/autopilot";
@@ -94,13 +94,19 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
         </div>
       </div>
 
-      {/* The agency runs by itself; a manual objective is the secondary action. */}
-      <AutonomyPanel status={autonomy} canAdmin={hasRole(auth.role, "admin")}>
-        <ObjectiveDialog key={sp.objective ?? "closed"} label="Manual objective" variant="secondary" />
-      </AutonomyPanel>
-
-      {/* What every agent is doing right now: real events only. */}
-      <LiveOperations initial={activity} initialState={cc} />
+      {/* Wide screens (desktop, TV): the live feed sits beside the autonomy card, on the first screen.
+          Phones: autonomy card, agents, then the feed. */}
+      <div className="xl:grid xl:grid-cols-[minmax(0,1.25fr)_minmax(420px,1fr)] xl:items-start xl:gap-4">
+        <div className="min-w-0">
+          {/* The agency runs by itself; a manual objective is the secondary action. */}
+          <AutonomyPanel status={autonomy} canAdmin={hasRole(auth.role, "admin")}>
+            <ObjectiveDialog key={sp.objective ?? "closed"} label="Manual objective" variant="secondary" />
+          </AutonomyPanel>
+          <LiveAgents initialState={cc} />
+        </div>
+        {/* What every agent is doing right now: real events only. */}
+        <LiveOperations initial={activity} initialState={cc} agentCards={false} tall className="xl:sticky xl:top-20" />
+      </div>
 
       <Onboarding steps={steps} />
 
