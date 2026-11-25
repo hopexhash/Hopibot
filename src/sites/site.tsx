@@ -74,6 +74,19 @@ const T = {
     submit: { reservation: "Reservering aanvragen", appointment: "Afspraak aanvragen", quote: "Offerte aanvragen", order: "Bestelling plaatsen" },
     kick: { about: "Over ons", services: "Diensten", menu: "Menukaart", features: "Waarom wij", process: "Werkwijze", gallery: "Impressie", hours: "Bezoek ons", faq: "Vragen", contact: "Contact", packages: "Pakketten", team: "Team", booking: "Plannen", beforeafter: "Voor & na", order: "Bestellen", testimonials: "Ervaringen", cta: "" },
   },
+  fr: {
+    demoA: "Démonstration",
+    demoB: (agency: string, biz: string) => ` — un concept de design créé par ${agency}. Ceci n'est pas le site officiel de ${biz}.`,
+    menu: "Menu", skip: "Aller au contenu", phone: "Téléphone", email: "E-mail", address: "Adresse", hours: "Heures d'ouverture",
+    hoursTbc: "Les heures d'ouverture restent à confirmer.", name: "Nom", message: "Message", send: "Envoyer le message",
+    formNote: "Ceci est une démonstration : le formulaire n'envoie aucune donnée.", formDone: "Merci ! Ceci est une démonstration — rien n'a été envoyé.",
+    route: "Itinéraire", contact: "Contact", explore: "Découvrir", rights: "Concept de design", call: "Appeler", today: "Aujourd'hui",
+    date: "Date", time: "Heure", guests: "Nombre de personnes", service: "Service", choose: "Faites un choix", pickup: "À emporter", delivery: "Livraison",
+    how: "Comment souhaitez-vous commander ?", notes: "Remarques", before: "Avant", after: "Après", example: "Aperçu d'exemple — vos propres photos viendront ici",
+    onRequest: "Sur demande", popular: "Le plus choisi", source: "Source", slider: "Comparer avant et après", persons: "personnes",
+    submit: { reservation: "Demander une réservation", appointment: "Demander un rendez-vous", quote: "Demander un devis", order: "Passer commande" },
+    kick: { about: "À propos", services: "Services", menu: "La carte", features: "Pourquoi nous", process: "Notre méthode", gallery: "Impressions", hours: "Nous rendre visite", faq: "Questions", contact: "Contact", packages: "Formules", team: "Équipe", booking: "Réserver", beforeafter: "Avant & après", order: "Commander", testimonials: "Avis", cta: "" },
+  },
   en: {
     demoA: "Demonstration",
     demoB: (agency: string, biz: string) => ` — a design concept created by ${agency}. This is not the official website of ${biz}.`,
@@ -118,7 +131,7 @@ function Head({ kicker, title, intro }: { kicker?: string; title: string; intro?
   return (
     <div className="section-head reveal">
       {kicker ? <span className="kicker">{kicker}</span> : null}
-      <h2>{title}</h2>
+      <h2>{em(title)}</h2>
       {intro ? <p>{intro}</p> : null}
     </div>
   );
@@ -129,6 +142,12 @@ function hoursRows(lines: string[]) {
     const i = l.indexOf(":");
     return i > 0 ? [l.slice(0, i), l.slice(i + 1).trim()] : [l, ""];
   });
+}
+
+/** Headlines may mark one phrase with *asterisks*: it is set in the accent colour (and italic in serif designs). */
+function em(text: string): ReactNode {
+  const parts = text.split(/\*([^*]+)\*/);
+  return parts.length === 1 ? text : parts.map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part));
 }
 
 const tel = (p: string) => `tel:${p.replace(/[^\d+]/g, "")}`;
@@ -216,7 +235,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
             </div>
             <div className="about-copy reveal">
               <span className="kicker">{kick}</span>
-              <h2>{s.title}</h2>
+              <h2>{em(s.title)}</h2>
               {s.paragraphs.map((p, j) => (
                 <p key={j}>{p}</p>
               ))}
@@ -424,7 +443,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
           <div className="wrap">
             <div className="cta-band reveal">
               <div>
-                <h2>{s.title}</h2>
+                <h2>{em(s.title)}</h2>
                 <p>{s.body}</p>
               </div>
               <a className="btn btn-primary" href={s.cta.href}>
@@ -670,10 +689,46 @@ function Hero({ c }: { c: Ctx }) {
   const copy = (
     <>
       <span className="eyebrow">{h.eyebrow}</span>
-      <h1>{h.headline}</h1>
+      <h1>{em(h.headline)}</h1>
       <p className="lead">{h.subheadline}</p>
     </>
   );
+  // Service strip under photographic heroes: the first services with their icons.
+  const stripItems = firstList && "items" in firstList ? firstList.items.slice(0, 4) : [];
+  const strip =
+    stripItems.length >= 3 ? (
+      <div className="hero-strip">
+        <ul className="wrap">
+          {stripItems.map((x) => (
+            <li key={x.title}>
+              <span className="ic">
+                <Icon name={x.icon} />
+              </span>
+              <span>
+                <b>{x.title}</b>
+                <small>{x.description}</small>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+  const facts = [h.eyebrow, b.city, ...(spec.sections.find((s) => s.type === "about")?.type === "about" ? (spec.sections.find((s) => s.type === "about") as { highlights: string[] }).highlights : []), b.phone].filter(Boolean) as string[];
+  const ticker =
+    facts.length >= 3 ? (
+      <div className="ticker" aria-hidden="true">
+        <div>
+          {[0, 1, 2, 3].map((k) => (
+            <span key={k}>
+              {facts.map((f, j) => (
+                <b key={j}>{f}</b>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+    ) : null;
+  const wordmark = b.name.replace(/\[MOCK\]\s*/g, "").replace(/^(restaurant|ristorante|pizzeria|bakkerij|boulangerie|barbershop|kapsalon|salon|garage|caf[eé]|koffiebar|eetcaf[eé]|bistro|brasserie|hoveniers?|bouwbedrijf|trattoria|osteria)\s+/i, "").trim();
   const cls = `hero hero-${variant}`;
   switch (variant) {
     case "cinema":
@@ -689,6 +744,7 @@ function Hero({ c }: { c: Ctx }) {
             </div>
             {meta}
           </div>
+          {strip}
         </section>
       );
     case "editorial":
@@ -697,7 +753,7 @@ function Hero({ c }: { c: Ctx }) {
           <div className="wrap">
             <div className="reveal ed-top">
               <span className="eyebrow">{h.eyebrow}</span>
-              <h1>{h.headline}</h1>
+              <h1>{em(h.headline)}</h1>
             </div>
             <div className="ed-grid">
               <div className="hero-media reveal">
@@ -819,6 +875,51 @@ function Hero({ c }: { c: Ctx }) {
           </div>
         </section>
       );
+    case "wordmark":
+      return (
+        <section id="top" className={`${cls} on-image`}>
+          <div className="hero-bg">
+            <Img c={c} refKey={h.image} variant={1} w={1800} h={1100} eager />
+          </div>
+          <div className="wrap wm-top">
+            <span className="eyebrow">{h.eyebrow}</span>
+            {b.city && <span className="eyebrow">{b.city}</span>}
+          </div>
+          <p className="wm" data-fit aria-hidden="true">
+            {wordmark || b.name}
+          </p>
+          <div className="wrap wm-bottom">
+            <div className="reveal hero-copy">
+              <h1>{em(h.headline)}</h1>
+              <p className="lead">{h.subheadline}</p>
+            </div>
+            <div className="reveal wm-cta">
+              {actions}
+              {meta}
+            </div>
+          </div>
+          {ticker}
+        </section>
+      );
+    case "collage":
+      return (
+        <section id="top" className={cls}>
+          <div className="wrap collage-grid">
+            <div className="reveal hero-copy">
+              {copy}
+              {actions}
+              {meta}
+            </div>
+            <div className="collage reveal">
+              <Img c={c} refKey={h.image} variant={1} w={900} h={1150} eager className="cg-a" />
+              <Img c={c} refKey="art:side1" variant={2} w={700} h={700} className="cg-b" />
+              <Img c={c} refKey="art:side2" variant={3} w={700} h={860} className="cg-c" />
+              {h.note && <span className="hand">{h.note}</span>}
+            </div>
+          </div>
+          {ticker}
+        </section>
+      );
     case "centered":
       return (
         <section id="top" className={cls}>
@@ -916,7 +1017,7 @@ export function SiteDocument({ spec, opts, css, script }: { spec: SiteSpec; opts
         <style dangerouslySetInnerHTML={{ __html: css }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       </head>
-      <body className={`d-${design.key} m-${design.mode} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
+      <body className={`d-${design.key} m-${design.mode} hv-${v.hero} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
         <a className="skip" href="#main">
           {t.skip}
         </a>

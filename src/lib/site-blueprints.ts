@@ -1,5 +1,7 @@
 import type { ICONS, SiteSection, SiteSpec } from "@/lib/site-spec";
-import { getDesign } from "@/sites/designs";
+import { languageFor } from "@/lib/markets";
+import { hashString } from "@/sites/art";
+import { getDesign, variationCount } from "@/sites/designs";
 
 /**
  * Default content per design. Blueprints are fact-safe: they describe what this kind of
@@ -45,7 +47,7 @@ const SERVICE_NOTE = "Tarieven op aanvraag — in de definitieve website tonen w
 const BLUEPRINTS: Record<string, Blueprint> = {
   "luxury-restaurant": {
     eyebrow: "Restaurant",
-    headline: (n, c) => `Een avond om te onthouden${c ? ` in ${c}` : ""}`,
+    headline: (n, c) => `Een avond om *te onthouden*${c ? ` in ${c}` : ""}`,
     sub: "Verfijnde gerechten, een zorgvuldig samengestelde wijnkaart en een tafel die voor u klaarstaat. Bekijk de kaart en reserveer uw avond.",
     cta: "Reserveer een tafel",
     offer: {
@@ -68,7 +70,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "modern-italian": {
     eyebrow: "Cucina italiana",
-    headline: () => "Aan tafel, zoals in Italië",
+    headline: () => "Aan tafel, zoals in *Italië*",
     sub: "Verse pasta, eerlijke ingrediënten en een tafel vol gezelligheid. Bekijk de kaart, reserveer of bestel om af te halen.",
     cta: "Reserveer een tafel",
     offer: {
@@ -92,7 +94,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "turkish-restaurant": {
     eyebrow: "Turkse keuken",
-    headline: (n) => `Hoş geldiniz bij ${n}`,
+    headline: (n) => `*Hoş geldiniz* bij ${n}`,
     sub: "Mezze om te delen, vlees van de houtskoolgrill en vers gebakken brood. Kom met familie en vrienden en schuif aan.",
     cta: "Reserveer een tafel",
     offer: {
@@ -115,7 +117,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   sushi: {
     eyebrow: "Sushi & Japanse keuken",
-    headline: () => "Sushi, met precisie gemaakt",
+    headline: () => "Sushi, met *precisie* gemaakt",
     sub: "Vers gesneden vis, perfect gekookte rijst en rust op het bord. Reserveer een tafel of bestel om af te halen.",
     cta: "Bestel online",
     offer: {
@@ -139,7 +141,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   burger: {
     eyebrow: "Burgers & friet",
-    headline: () => "Grote trek? Wij regelen het",
+    headline: () => "Grote trek? *Wij regelen het*",
     sub: "Sappige burgers, krokante friet en ijskoude drankjes. Eet bij ons, haal af of laat het thuisbezorgen.",
     cta: "Bestel nu",
     note: "Vers van de grill",
@@ -162,7 +164,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   pizzeria: {
     eyebrow: "Pizzeria",
-    headline: (n) => `Pizza uit de oven van ${n}`,
+    headline: () => `Pizza, *vers uit de oven*`,
     sub: "Krokante bodem, tomatensaus met karakter en royaal belegd. Afhalen, bezorgen of gezellig bij ons aan tafel.",
     cta: "Bestel je pizza",
     offer: {
@@ -207,7 +209,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   bakery: {
     eyebrow: "Bakkerij & patisserie",
-    headline: (n) => `Vers gebakken, elke ochtend bij ${n}`,
+    headline: () => `Vers gebakken, *elke ochtend*`,
     sub: "Knapperig brood, boterzacht gebak en taarten voor elk moment. Kom langs of bestel uw taart vooruit.",
     cta: "Bestel een taart",
     note: "elke dag vers!",
@@ -230,7 +232,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "street-food": {
     eyebrow: "Street food",
-    headline: () => "Straatvoedsel met lef",
+    headline: () => "Straatvoedsel *met lef*",
     sub: "Grote smaken, snel klaar en gemaakt om met je handen te eten. Kom langs of bestel.",
     cta: "Bestel nu",
     note: "Hot & fresh",
@@ -253,7 +255,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "fine-dining": {
     eyebrow: "Fine dining",
-    headline: () => "Een avond in gangen",
+    headline: () => "Een avond in *gangen*",
     sub: "Een avond die zich gang voor gang ontvouwt. Reserveer uw tafel en laat u verrassen.",
     cta: "Reserveer",
     offer: {
@@ -276,7 +278,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "asian-fusion": {
     eyebrow: "Asian fusion",
-    headline: (n) => `${n}: waar smaken elkaar ontmoeten`,
+    headline: () => `Waar smaken *elkaar ontmoeten*`,
     sub: "Gerechten om te delen, geïnspireerd op keukens uit heel Azië. Reserveer een tafel of bestel voor thuis.",
     cta: "Reserveer een tafel",
     offer: {
@@ -321,7 +323,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   barbershop: {
     eyebrow: "Barbershop",
-    headline: () => "Scherp geknipt, strak geschoren",
+    headline: () => "Scherp geknipt, *strak geschoren*",
     sub: "Knippen, scheren en baardverzorging door vakmensen. Boek je afspraak online en loop strak de deur uit.",
     cta: "Boek een afspraak",
     offer: {
@@ -340,7 +342,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "hair-salon": {
     eyebrow: "Kapsalon",
-    headline: () => "Haar dat bij u past",
+    headline: () => "Haar dat *bij u past*",
     sub: "Knippen, kleuren en stylen met persoonlijk advies. Maak een afspraak en neem een moment voor uzelf.",
     cta: "Maak een afspraak",
     offer: {
@@ -359,7 +361,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "beauty-salon": {
     eyebrow: "Schoonheidssalon",
-    headline: (n) => `Even helemaal tot rust bij ${n}`,
+    headline: () => `Even helemaal *tot rust*`,
     sub: "Gezichtsbehandelingen, nagels, wimpers en meer. Boek uw behandeling en gun uzelf een moment van verzorging.",
     cta: "Boek een behandeling",
     note: "tijd voor jezelf",
@@ -378,7 +380,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   "car-detailing": {
     eyebrow: "Car detailing",
-    headline: () => "Showroomglans voor uw auto",
+    headline: () => "*Showroomglans* voor uw auto",
     sub: "Van grondige reiniging tot lakcorrectie en coating. Kies een pakket of vraag een offerte aan voor uw auto.",
     cta: "Vraag een offerte aan",
     offer: {
@@ -401,7 +403,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   garage: {
     eyebrow: "Autogarage",
-    headline: () => "Uw auto in goede handen",
+    headline: () => "Uw auto in *goede handen*",
     sub: "Onderhoud, reparatie en APK. Duidelijk advies vooraf en een afspraak op een moment dat u past.",
     cta: "Plan een afspraak",
     offer: {
@@ -420,7 +422,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   construction: {
     eyebrow: "Bouw & renovatie",
-    headline: () => "Van plan tot oplevering",
+    headline: () => "Van plan tot *oplevering*",
     sub: "Nieuwbouw, verbouw en renovatie. Bespreek uw project en vraag vrijblijvend een offerte aan.",
     cta: "Vraag een offerte aan",
     offer: {
@@ -439,7 +441,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   cleaning: {
     eyebrow: "Schoonmaakbedrijf",
-    headline: (n) => `Altijd een schone ruimte met ${n}`,
+    headline: () => `Altijd een *schone* ruimte`,
     sub: "Schoonmaak voor kantoren, woningen en opleveringen. Vraag in een minuut een vrijblijvende offerte aan.",
     cta: "Gratis offerte aanvragen",
     offer: {
@@ -458,7 +460,7 @@ const BLUEPRINTS: Record<string, Blueprint> = {
   },
   landscaping: {
     eyebrow: "Hoveniersbedrijf",
-    headline: (n) => `Een tuin om in te leven, door ${n}`,
+    headline: () => `Een tuin om *in te leven*`,
     sub: "Tuinontwerp, aanleg en onderhoud. Van eerste schets tot een tuin die elk seizoen mooier wordt.",
     cta: "Vraag een offerte aan",
     offer: {
@@ -545,10 +547,12 @@ export type BlueprintBusiness = {
   address: string | null;
   openingHours: string[] | null;
   googleMapsUrl: string | null;
+  country?: string | null;
+  postalCode?: string | null;
 };
 
 /** Deterministic, fact-safe SiteSpec for a design: used in mock mode and as the base Claude personalises. */
-export function buildBlueprintSpec(b: BlueprintBusiness, designKey: string): SiteSpec {
+export function buildBlueprintSpec(b: BlueprintBusiness, designKey: string, variation?: number): SiteSpec {
   const design = getDesign(designKey);
   const bp = BLUEPRINTS[design.key] ?? BLUEPRINTS["local-service"];
   const city = b.city ?? "";
@@ -598,10 +602,11 @@ export function buildBlueprintSpec(b: BlueprintBusiness, designKey: string): Sit
     meta: {
       title: `${b.name}${city ? ` | ${city}` : ""}`.slice(0, 70),
       description: `${b.name}${city ? ` in ${city}` : ""}. ${bp.sub}`.slice(0, 160),
-      lang: "nl",
+      // Blueprint copy is Dutch; the language flag follows the location so the AI writes French sites in Wallonia and Brussels.
+      lang: languageFor({ country: b.country ?? "Netherlands", city: b.city, postalCode: b.postalCode, address: b.address }),
       keywords: [city, design.industry].filter(Boolean),
     },
-    theme: { template: design.legacy, design: design.key, primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius },
+    theme: { template: design.legacy, design: design.key, variation: variation ?? hashString(b.name) % variationCount(design), primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius },
     business: { name: b.name, tagline: bp.eyebrow, phone: b.phone, email: null, address: b.address, city: b.city, mapsUrl: b.googleMapsUrl, openingHours: b.openingHours },
     images: [],
     hero: {

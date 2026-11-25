@@ -8,7 +8,7 @@ import type { FontFamily } from "./fonts";
  */
 
 export type NavVariant = "bar" | "stacked" | "pill" | "block" | "minimal";
-export type HeroVariant = "cinema" | "split" | "centered" | "editorial" | "poster" | "frame" | "minimal" | "panel" | "card";
+export type HeroVariant = "cinema" | "split" | "centered" | "editorial" | "poster" | "frame" | "minimal" | "panel" | "card" | "wordmark" | "collage";
 export type HeadVariant = "left" | "center" | "ornament" | "number" | "tape";
 export type ServicesVariant = "cards" | "pricelist" | "rows" | "tiles";
 export type MenuVariant = "list" | "cards" | "board" | "rows" | "courses";
@@ -46,6 +46,8 @@ export type Design = {
   };
   palette: { bg: string; alt: string; surface: string; ink: string; text: string; muted: string; primary: string; accent: string; footer: string; footerInk: string };
   v: { nav: NavVariant; hero: HeroVariant; head: HeadVariant; services: ServicesVariant; menu: MenuVariant; gallery: GalleryVariant; about: AboutVariant; cta: CtaVariant; footer: FooterVariant; button: ButtonVariant };
+  /** Alternative layouts of the same identity: each generated site picks one, so two businesses in one industry never get the same page. */
+  alts?: Partial<Design["v"]>[];
   art: ArtScene;
   /** What a site built on this design can do for the business (shown on demo pages and in the factory). */
   features: string[];
@@ -64,6 +66,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Cormorant", body: "Jost", weight: 400, italic: true, tracking: "0", scale: 1.22, lineHeight: 1.02 },
     palette: { bg: "#0c0b0a", alt: "#131110", surface: "#171513", ink: "#f4ede0", text: "#cfc6b6", muted: "#9c9282", primary: "#1a1714", accent: "#c6a15b", footer: "#070605", footerInk: "#a59b8a" },
     v: { nav: "stacked", hero: "cinema", head: "ornament", services: "rows", menu: "list", gallery: "strip", about: "overlap", cta: "full", footer: "centered", button: "outline" },
+    alts: [{ hero: "wordmark", nav: "minimal", gallery: "mosaic", about: "statement" }, { hero: "collage", nav: "bar", head: "number", menu: "courses" }],
     art: "finedining",
     features: ["Digital menu card", "Table reservation form", "Private dining enquiries", "Opening hours & route", "Atmosphere gallery"],
     upsells: ["booking", "menu", "copywriting", "photography", "multilingual"],
@@ -75,6 +78,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Playfair Display", body: "DM Sans", weight: 500, italic: true, tracking: "-0.02em", scale: 1.1, lineHeight: 1.02 },
     palette: { bg: "#f6f0e4", alt: "#efe6d4", surface: "#fbf7ee", ink: "#231a14", text: "#4a3f35", muted: "#75685b", primary: "#3f4d2c", accent: "#c8402a", footer: "#231a14", footerInk: "#cbbfae" },
     v: { nav: "bar", hero: "editorial", head: "number", services: "rows", menu: "list", gallery: "mosaic", about: "statement", cta: "band", footer: "big", button: "pill" },
+    alts: [{ hero: "wordmark", nav: "minimal", about: "overlap", gallery: "strip" }, { hero: "collage", head: "left", menu: "cards" }],
     art: "italian",
     features: ["Digital menu with courses", "Table reservations", "Takeaway & delivery links", "Opening hours & route", "Story of the kitchen"],
     upsells: ["menu", "booking", "ordering", "gbp", "multilingual"],
@@ -86,6 +90,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Marcellus", body: "Manrope", weight: 400, tracking: "0.005em", scale: 1.02, lineHeight: 1.1 },
     palette: { bg: "#f5ecdc", alt: "#ecdfc8", surface: "#fbf5ea", ink: "#0f3b3a", text: "#3d4a45", muted: "#66716b", primary: "#0f3b3a", accent: "#b04e26", footer: "#0b2a29", footerInk: "#b9cbc4" },
     v: { nav: "stacked", hero: "frame", head: "ornament", services: "tiles", menu: "cards", gallery: "mosaic", about: "split", cta: "full", footer: "columns", button: "solid" },
+    alts: [{ hero: "cinema", nav: "bar", menu: "list", about: "overlap" }, { hero: "collage", services: "cards", gallery: "strip" }],
     art: "mezze",
     features: ["Digital menu by course", "Group & family reservations", "Takeaway ordering links", "Opening hours & route", "Photo gallery"],
     upsells: ["menu", "ordering", "booking", "whatsapp", "multilingual"],
@@ -97,6 +102,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Sora", body: "Sora", weight: 300, tracking: "-0.035em", scale: 1, lineHeight: 1.08 },
     palette: { bg: "#f7f5f0", alt: "#efece4", surface: "#ffffff", ink: "#15171a", text: "#3a3d42", muted: "#6b6f76", primary: "#15171a", accent: "#d33a2c", footer: "#15171a", footerInk: "#aeb1b6" },
     v: { nav: "minimal", hero: "minimal", head: "number", services: "rows", menu: "rows", gallery: "grid", about: "statement", cta: "card", footer: "columns", button: "underline" },
+    alts: [{ hero: "wordmark", gallery: "strip", menu: "list" }, { hero: "collage", about: "split", cta: "full" }],
     art: "sushi",
     features: ["Numbered digital menu", "Online ordering links", "Table reservations", "Delivery & pickup info", "Opening hours & route"],
     upsells: ["ordering", "menu", "booking", "photography", "analytics"],
@@ -108,6 +114,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Anton", body: "Space Grotesk", accent: "Permanent Marker", weight: 400, upper: true, tracking: "0.005em", scale: 1.32, lineHeight: 0.94 },
     palette: { bg: "#ffc629", alt: "#fff6dc", surface: "#fffdf6", ink: "#141210", text: "#2b2622", muted: "#5c544b", primary: "#141210", accent: "#e23d28", footer: "#141210", footerInk: "#d8cfbf" },
     v: { nav: "pill", hero: "poster", head: "tape", services: "cards", menu: "cards", gallery: "polaroid", about: "split", cta: "full", footer: "big", button: "hard" },
+    alts: [{ hero: "cinema", nav: "bar", gallery: "grid", about: "statement" }, { hero: "collage", menu: "board", cta: "band" }],
     art: "burger",
     features: ["Menu cards with combos", "Order for pickup & delivery", "Location & opening hours", "Promotions strip", "Social photo wall"],
     upsells: ["ordering", "menu", "whatsapp", "gbp", "analytics"],
@@ -119,6 +126,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Alfa Slab One", body: "Rubik", weight: 400, tracking: "-0.005em", scale: 0.96, lineHeight: 1.06 },
     palette: { bg: "#fff8ef", alt: "#f9ecd9", surface: "#ffffff", ink: "#2a1410", text: "#4d3b34", muted: "#786860", primary: "#1f6b45", accent: "#b3261e", footer: "#2a1410", footerInk: "#d9c9bb" },
     v: { nav: "bar", hero: "split", head: "tape", services: "cards", menu: "list", gallery: "grid", about: "split", cta: "band", footer: "columns", button: "pill" },
+    alts: [{ hero: "cinema", head: "center", menu: "cards", gallery: "mosaic" }, { hero: "wordmark", nav: "minimal", about: "statement" }],
     art: "pizza",
     features: ["Pizza menu with sizes", "Order for pickup & delivery", "Delivery area & times", "Opening hours & route", "Deals section"],
     upsells: ["ordering", "menu", "whatsapp", "gbp", "seo"],
@@ -130,6 +138,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "DM Serif Display", body: "DM Sans", weight: 400, tracking: "-0.01em", scale: 1.06, lineHeight: 1.06 },
     palette: { bg: "#efe6da", alt: "#e6dacb", surface: "#f8f2e9", ink: "#2b1d16", text: "#4c3c33", muted: "#74645a", primary: "#2b1d16", accent: "#a8632a", footer: "#2b1d16", footerInk: "#cdbfb2" },
     v: { nav: "pill", hero: "centered", head: "center", services: "tiles", menu: "board", gallery: "strip", about: "centered", cta: "card", footer: "centered", button: "pill" },
+    alts: [{ hero: "collage", nav: "bar", head: "left", menu: "list", about: "split" }, { hero: "wordmark", nav: "minimal", gallery: "mosaic" }],
     art: "coffee",
     features: ["Drinks & food board", "Opening hours & route", "Beans and brewing story", "Workspace & wifi info", "Catering enquiries"],
     upsells: ["menu", "gbp", "photography", "logo", "analytics"],
@@ -141,6 +150,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Fraunces", body: "Outfit", accent: "Caveat", weight: 500, tracking: "-0.025em", scale: 1.04, lineHeight: 1.04 },
     palette: { bg: "#fbeee6", alt: "#f6e0d4", surface: "#fffaf6", ink: "#3b1e24", text: "#5a3f43", muted: "#836a6c", primary: "#3b1e24", accent: "#b8455b", footer: "#3b1e24", footerInk: "#dcc8c6" },
     v: { nav: "bar", hero: "frame", head: "center", services: "tiles", menu: "cards", gallery: "polaroid", about: "overlap", cta: "card", footer: "centered", button: "pill" },
+    alts: [{ hero: "wordmark", nav: "minimal", gallery: "mosaic", about: "split" }, { hero: "split", head: "left", menu: "list", gallery: "grid" }],
     art: "bakery",
     features: ["Daily assortment", "Order cakes in advance", "Pick-up times", "Opening hours & route", "Custom cake enquiries"],
     upsells: ["ordering", "menu", "photography", "whatsapp", "gbp"],
@@ -152,6 +162,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Bebas Neue", body: "Space Grotesk", accent: "Permanent Marker", weight: 400, upper: true, tracking: "0.015em", scale: 1.42, lineHeight: 0.92 },
     palette: { bg: "#101010", alt: "#171717", surface: "#1c1c1c", ink: "#f6f6f1", text: "#cfcfc8", muted: "#9a9a92", primary: "#c6ff3d", accent: "#ff3d7f", footer: "#080808", footerInk: "#a3a39b" },
     v: { nav: "bar", hero: "poster", head: "tape", services: "cards", menu: "board", gallery: "grid", about: "statement", cta: "full", footer: "big", button: "hard" },
+    alts: [{ hero: "cinema", menu: "cards", gallery: "polaroid" }, { hero: "collage", about: "split", cta: "band" }],
     art: "street",
     features: ["Menu board", "Order for pickup & delivery", "Location & opening hours", "Events & catering", "Social photo wall"],
     upsells: ["ordering", "menu", "whatsapp", "gbp", "photography"],
@@ -163,6 +174,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Italiana", body: "Jost", weight: 400, tracking: "0.01em", scale: 1.12, lineHeight: 1.06 },
     palette: { bg: "#f4f1ea", alt: "#ebe6db", surface: "#faf8f3", ink: "#1d1d1b", text: "#45433e", muted: "#716d64", primary: "#1d1d1b", accent: "#8a6d47", footer: "#1d1d1b", footerInk: "#b9b3a6" },
     v: { nav: "minimal", hero: "centered", head: "center", services: "rows", menu: "courses", gallery: "strip", about: "statement", cta: "card", footer: "centered", button: "underline" },
+    alts: [{ hero: "wordmark", gallery: "grid", about: "overlap" }, { hero: "cinema", nav: "stacked", head: "ornament", menu: "list" }],
     art: "finedining",
     features: ["Tasting menu by course", "Reservation requests", "Private dining", "Wine pairing section", "Opening hours & route"],
     upsells: ["booking", "copywriting", "photography", "multilingual", "menu"],
@@ -174,6 +186,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Syne", body: "Manrope", weight: 700, tracking: "-0.035em", scale: 1, lineHeight: 1.02 },
     palette: { bg: "#150d1e", alt: "#1b1227", surface: "#221733", ink: "#fbf5ff", text: "#d5c9e2", muted: "#a394b5", primary: "#2ee6a6", accent: "#ff4d8d", footer: "#0d0814", footerInk: "#a99bb9" },
     v: { nav: "pill", hero: "split", head: "left", services: "cards", menu: "cards", gallery: "mosaic", about: "split", cta: "card", footer: "columns", button: "pill" },
+    alts: [{ hero: "wordmark", nav: "minimal", menu: "rows", gallery: "strip" }, { hero: "collage", head: "number", about: "statement" }],
     art: "fusion",
     features: ["Shared-plates menu", "Table reservations", "Order for pickup & delivery", "Cocktail list", "Opening hours & route"],
     upsells: ["booking", "ordering", "menu", "photography", "analytics"],
@@ -185,6 +198,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Rubik", body: "Rubik", accent: "Permanent Marker", weight: 800, upper: true, tracking: "-0.02em", scale: 1.02, lineHeight: 0.98 },
     palette: { bg: "#f4f7ff", alt: "#e6edff", surface: "#ffffff", ink: "#0f1f5c", text: "#34406e", muted: "#626c93", primary: "#2f5bff", accent: "#ff7a1a", footer: "#0f1f5c", footerInk: "#c3ccf0" },
     v: { nav: "pill", hero: "poster", head: "tape", services: "tiles", menu: "board", gallery: "polaroid", about: "split", cta: "band", footer: "columns", button: "hard" },
+    alts: [{ hero: "cinema", nav: "bar", menu: "cards", gallery: "grid" }, { hero: "collage", head: "left", cta: "full" }],
     art: "truck",
     features: ["Where to find us", "Short menu board", "Book the truck for events", "Catering quote form", "Social photo wall"],
     upsells: ["booking", "whatsapp", "gbp", "logo", "menu"],
@@ -198,6 +212,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Oswald", body: "Manrope", weight: 600, upper: true, tracking: "0.02em", scale: 1.12, lineHeight: 1 },
     palette: { bg: "#0e0e0e", alt: "#151413", surface: "#1a1917", ink: "#efe8d8", text: "#c9c2b3", muted: "#989183", primary: "#efe8d8", accent: "#b08d57", footer: "#070707", footerInk: "#a19a8c" },
     v: { nav: "bar", hero: "card", head: "left", services: "pricelist", menu: "list", gallery: "grid", about: "split", cta: "full", footer: "columns", button: "solid" },
+    alts: [{ hero: "cinema", nav: "minimal", head: "center", gallery: "mosaic", about: "overlap" }, { hero: "collage", head: "number", services: "cards", gallery: "strip" }],
     art: "barber",
     features: ["Services & price list", "Online appointment booking", "Barber profiles", "Opening hours & route", "Cuts gallery"],
     upsells: ["booking", "gbp", "whatsapp", "photography", "seo"],
@@ -209,6 +224,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Cormorant", body: "Jost", weight: 500, tracking: "-0.01em", scale: 1.2, lineHeight: 1.02 },
     palette: { bg: "#faf7f4", alt: "#f1ebe5", surface: "#ffffff", ink: "#34261f", text: "#55463e", muted: "#7c6d64", primary: "#5a4636", accent: "#a8705c", footer: "#34261f", footerInk: "#cfc2b8" },
     v: { nav: "minimal", hero: "editorial", head: "left", services: "pricelist", menu: "list", gallery: "mosaic", about: "overlap", cta: "card", footer: "centered", button: "underline" },
+    alts: [{ hero: "collage", nav: "bar", services: "rows", gallery: "strip" }, { hero: "wordmark", head: "center", about: "statement" }],
     art: "hair",
     features: ["Treatments & price list", "Online appointment booking", "Stylist profiles", "Opening hours & route", "Lookbook gallery"],
     upsells: ["booking", "photography", "gbp", "copywriting", "whatsapp"],
@@ -220,6 +236,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Playfair Display", body: "Plus Jakarta Sans", weight: 500, tracking: "-0.02em", scale: 1.02, lineHeight: 1.08 },
     palette: { bg: "#fbf3f5", alt: "#f5e6ea", surface: "#ffffff", ink: "#4a1f35", text: "#5f4250", muted: "#866b78", primary: "#6b2c4a", accent: "#c0567c", footer: "#3a1629", footerInk: "#dcc5d0" },
     v: { nav: "stacked", hero: "frame", head: "center", services: "tiles", menu: "list", gallery: "mosaic", about: "centered", cta: "card", footer: "centered", button: "pill" },
+    alts: [{ hero: "collage", nav: "bar", head: "left", services: "pricelist", about: "overlap" }, { hero: "cinema", nav: "minimal", gallery: "strip" }],
     art: "beauty",
     features: ["Treatment menu", "Online appointment booking", "Gift vouchers enquiry", "Opening hours & route", "Results gallery"],
     upsells: ["booking", "photography", "gbp", "whatsapp", "copywriting"],
@@ -231,6 +248,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Unbounded", body: "Manrope", weight: 600, tracking: "-0.035em", scale: 0.8, lineHeight: 1.1 },
     palette: { bg: "#07090c", alt: "#0c1015", surface: "#11161d", ink: "#f2f6fa", text: "#c2cad4", muted: "#8e98a5", primary: "#22d3ee", accent: "#22d3ee", footer: "#040507", footerInk: "#9aa4b1" },
     v: { nav: "pill", hero: "panel", head: "left", services: "cards", menu: "list", gallery: "grid", about: "split", cta: "full", footer: "columns", button: "solid" },
+    alts: [{ hero: "cinema", nav: "minimal", head: "center", gallery: "mosaic" }, { hero: "wordmark", services: "rows", head: "number", about: "statement" }],
     art: "detailing",
     features: ["Detailing packages", "Before & after gallery", "Quote request form", "Online booking", "Service area & hours"],
     upsells: ["booking", "photography", "gbp", "seo", "whatsapp"],
@@ -242,6 +260,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Barlow Condensed", body: "Inter", weight: 700, upper: true, tracking: "0.005em", scale: 1.26, lineHeight: 0.98 },
     palette: { bg: "#f2f3f5", alt: "#e6e8ec", surface: "#ffffff", ink: "#111827", text: "#374151", muted: "#5d6675", primary: "#111827", accent: "#d9261c", footer: "#0b0f17", footerInk: "#aab2bf" },
     v: { nav: "block", hero: "panel", head: "number", services: "rows", menu: "list", gallery: "grid", about: "split", cta: "band", footer: "columns", button: "solid" },
+    alts: [{ hero: "cinema", nav: "bar", services: "cards", head: "left" }, { hero: "collage", services: "tiles", about: "overlap" }],
     art: "garage",
     features: ["Service overview", "Appointment request", "MOT / inspection reminders", "Opening hours & route", "Workshop gallery"],
     upsells: ["booking", "gbp", "seo", "whatsapp", "email"],
@@ -253,6 +272,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Big Shoulders Display", body: "Archivo", weight: 800, upper: true, tracking: "0.005em", scale: 1.3, lineHeight: 0.96 },
     palette: { bg: "#ecebe7", alt: "#e1dfd9", surface: "#f8f7f4", ink: "#171717", text: "#3b3a37", muted: "#65635d", primary: "#171717", accent: "#f5b301", footer: "#111111", footerInk: "#b5b3ab" },
     v: { nav: "block", hero: "split", head: "number", services: "tiles", menu: "list", gallery: "mosaic", about: "statement", cta: "full", footer: "big", button: "solid" },
+    alts: [{ hero: "cinema", services: "rows", gallery: "grid" }, { hero: "wordmark", nav: "minimal", services: "cards", about: "overlap" }],
     art: "construction",
     features: ["Project portfolio", "Service categories", "Quote request form", "How we work", "Service area"],
     upsells: ["seo", "photography", "copywriting", "gbp", "email"],
@@ -264,6 +284,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Plus Jakarta Sans", body: "Plus Jakarta Sans", weight: 800, tracking: "-0.035em", scale: 0.98, lineHeight: 1.06 },
     palette: { bg: "#ffffff", alt: "#eef7fd", surface: "#ffffff", ink: "#0f2a43", text: "#3a5068", muted: "#5f748a", primary: "#0f2a43", accent: "#0b84c6", footer: "#0f2a43", footerInk: "#b9cbdc" },
     v: { nav: "bar", hero: "card", head: "center", services: "cards", menu: "list", gallery: "grid", about: "split", cta: "band", footer: "columns", button: "pill" },
+    alts: [{ hero: "split", head: "left", services: "tiles", cta: "card" }, { hero: "collage", services: "rows", about: "overlap" }],
     art: "cleaning",
     features: ["Instant quote request", "Service packages", "How it works", "Service area", "Frequently asked questions"],
     upsells: ["seo", "gbp", "whatsapp", "booking", "analytics"],
@@ -275,6 +296,7 @@ export const DESIGNS: Design[] = [
     fonts: { display: "Fraunces", body: "Manrope", weight: 400, tracking: "-0.03em", scale: 1.08, lineHeight: 1.04 },
     palette: { bg: "#f2efe4", alt: "#e7e3d3", surface: "#faf8f0", ink: "#1f3527", text: "#3f5144", muted: "#677567", primary: "#1f3527", accent: "#5b8a3a", footer: "#172a1e", footerInk: "#b7c6b6" },
     v: { nav: "bar", hero: "cinema", head: "left", services: "tiles", menu: "list", gallery: "mosaic", about: "overlap", cta: "full", footer: "columns", button: "pill" },
+    alts: [{ hero: "collage", head: "number", services: "rows", gallery: "strip" }, { hero: "wordmark", nav: "minimal", about: "statement", gallery: "grid" }],
     art: "garden",
     features: ["Garden portfolio", "Design & maintenance services", "Quote request form", "How we work", "Service area"],
     upsells: ["photography", "seo", "gbp", "copywriting", "whatsapp"],
@@ -346,9 +368,14 @@ export function getDesign(key: string | undefined | null, legacy?: TemplateKey):
   return (key && BY_KEY.get(key)) || BY_KEY.get(LEGACY_DESIGN[legacy ?? "service"])!;
 }
 
-export function designForSpec(theme: { design?: string; template: TemplateKey }): Design {
-  return getDesign(theme.design, theme.template);
+export function designForSpec(theme: { design?: string; template: TemplateKey; variation?: number }): Design {
+  const base = getDesign(theme.design, theme.template);
+  const alt = theme.variation ? base.alts?.[(theme.variation - 1) % (base.alts.length || 1)] : undefined;
+  return alt ? { ...base, v: { ...base.v, ...alt } } : base;
 }
+
+/** Number of distinct layouts a design offers (primary + alternatives). */
+export const variationCount = (d: Design) => 1 + (d.alts?.length ?? 0);
 
 export function designName(key: string) {
   const x = BY_KEY.get(key) ?? BY_KEY.get(LEGACY_DESIGN[key as TemplateKey] ?? "");

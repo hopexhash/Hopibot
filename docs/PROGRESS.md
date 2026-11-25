@@ -107,3 +107,25 @@ desktop widths before it was committed.
   list of steps; conditions and delays are not supported.
 * OpenAI, Gmail and Cloudflare integrations.
 * Profit converts API costs with one configurable USD to EUR rate, not daily rates.
+
+## HOPEXBOT upgrade (website engine, sales, markets)
+
+**Built and verified locally (104 tests, browser QC 100/100 on all 64 page variations, phone + desktop screenshots reviewed)**
+- Template library: 24 designs (12 food, 8 services, 4 general), each with its own typography (28 self-hosted families), palette and layout; 20 industry designs have 3 layout variations each (primary + 2), including monumental wordmark heroes, collage heroes, service strips and info tickers. Library page: `/websites/templates`.
+- New sections: packages, team, booking/reservation/quote/order forms, before/after slider, order channels, source-verified testimonials, optional verified prices. Accent-phrase headlines.
+- Design selection engine (category + name/research signals), fact-safe Dutch blueprints, French UI strings for generated sites.
+- Demo page `/d/<slug>`: device preview, measured opportunity report, packages (€299/€499/€799), care plans (€49/€79/€149), add-ons, order form. Prices editable in Settings → Pricing and always computed server-side.
+- 15-stage sales pipeline; demo-view and order tracking; orders table.
+- Permission-based outreach: basis/source/proof per business, re-checked at send time; rules for NL and BE; HTML email version.
+- Market restriction: Netherlands and Belgium only, enforced in planning, discovery (region code + per-result country check), lead saving, agent tools, settings and outreach.
+- Autopilot (Settings → Autopilot): hours, days, cities, industries, daily discovery/website limits; runs from the worker tick; drafts emails only.
+
+**Implemented but NOT verified against the live service from the build sandbox**
+- Pexels stock photography (Integrations → Pexels photos). The sandbox cannot reach pexels.com, so photo search was never exercised live. Use the Test button after adding a key. Without a key, sites use illustrations.
+- Stripe Checkout sessions for demo-page orders (order → checkout → webhook marks paid). Without Stripe, orders are stored as requests and the agency is notified.
+- Autopilot end to end (needs the hosted worker and Google Maps key).
+
+**Not built yet**
+- Country filter and per-country reporting in the dashboard; Belgian-specific legal/consumer texts and cookie notices on demo pages; French blueprint copy (French sites rely on the AI writer) and French demo-page strings.
+- Model routing to cheaper models per task, cost estimate before each generation, screenshot comparison in QC, single-section regeneration.
+- Multi-page websites (sites are rich single pages), real booking/ordering back-ends (forms are demonstrations until an add-on is sold).

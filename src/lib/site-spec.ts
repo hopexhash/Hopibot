@@ -30,6 +30,8 @@ export const siteSpecSchema = z.object({
     template: z.enum(TEMPLATE_KEYS),
     /** Key of a design in the template library (src/sites/designs.ts). Absent on legacy specs. */
     design: z.string().max(40).optional(),
+    /** Which layout variation of the design to use (0 = the design's primary look). */
+    variation: z.number().int().min(0).max(9).optional(),
     primary: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     mode: z.enum(["light", "dark"]),

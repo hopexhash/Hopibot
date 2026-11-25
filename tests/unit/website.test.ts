@@ -4,7 +4,7 @@ import { siteSpecSchema } from "@/lib/site-spec";
 import { renderSite } from "@/sites/render";
 import { selectDesign } from "@/lib/design-select";
 import { buildBlueprintSpec } from "@/lib/site-blueprints";
-import { DESIGNS } from "@/sites/designs";
+import { designForSpec, DESIGNS, variationCount } from "@/sites/designs";
 import { fontFilesInHtml } from "@/sites/fonts";
 import { existsSync } from "node:fs";
 import { contrast } from "@/sites/theme";
@@ -86,6 +86,22 @@ describe("template library", () => {
       expect(contrast(v["--muted"], v["--bg-alt"]), d.key).toBeGreaterThanOrEqual(4.5);
       expect(contrast(v["--text"], v["--bg"]), d.key).toBeGreaterThanOrEqual(4.5);
       expect(contrast(v["--on-accent"], v["--accent"]), d.key).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("offers several layouts per industry and renders each one", () => {
+    const industry = DESIGNS.filter((d) => d.group !== "general");
+    for (const d of industry) {
+      expect(variationCount(d), d.key).toBeGreaterThanOrEqual(3);
+      const heroes = new Set<string>();
+      for (let v = 0; v < variationCount(d); v++) {
+        const spec = buildBlueprintSpec(sample, d.key, v);
+        heroes.add(designForSpec(spec.theme).v.hero);
+        const html = renderSite(spec, { agencyName: "Agency", seedKey: d.key, assetBase: "assets/" })[0].content;
+        expect((html.match(/<h1[\s>]/g) ?? []).length, `${d.key}#${v}`).toBe(1);
+      }
+      // Variations are different page structures, not recolours.
+      expect(heroes.size, d.key).toBe(variationCount(d));
     }
   });
 

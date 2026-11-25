@@ -1,4 +1,5 @@
-// Dev utility: renders every design with sample data to ./.samples for visual review.
+// Dev utility: renders every design (and each of its layout variations) with sample data
+// to ./.samples for visual review: <key>.html, <key>-2.html, <key>-3.html
 import { mkdirSync, writeFileSync } from "node:fs";
 import { buildBlueprintSpec } from "../src/lib/site-blueprints";
 import { DESIGNS } from "../src/sites/designs";
@@ -13,6 +14,7 @@ const NAMES: Record<string, string> = {
   cleaning: "Schoon & Fris", landscaping: "Hoveniers Groenrijk", clinic: "Tandartspraktijk Centrum", estate: "Makelaardij Maas", studio: "Studio Fit", "local-service": "Loodgieter Bakker",
 };
 const only = process.argv[2];
+let count = 0;
 for (const d of DESIGNS) {
   if (only && d.key !== only) continue;
   const spec = buildBlueprintSpec(
@@ -20,14 +22,20 @@ for (const d of DESIGNS) {
       name: NAMES[d.key] ?? d.name,
       category: "local_service",
       city: "Rotterdam",
+      country: "Netherlands",
       phone: "+31 10 123 4567",
       address: "Witte de Withstraat 1, 3012 BL Rotterdam",
       openingHours: ["Maandag: Gesloten", "Dinsdag – Vrijdag: 10:00 – 22:00", "Zaterdag: 10:00 – 23:00", "Zondag: 12:00 – 21:00"],
       googleMapsUrl: "https://maps.google.com/?q=Rotterdam",
     },
     d.key,
+    0,
   );
-  const files = renderSite(spec, { agencyName: "Sample Agency", seedKey: d.key, assetBase: "../public/site-assets/" });
-  writeFileSync(`.samples/${d.key}.html`, files[0].content);
-  console.log(`rendered ${d.key} (${(files[0].content.length / 1024).toFixed(0)} KB)`);
+  for (let v = 0; v < 1 + (d.alts?.length ?? 0); v++) {
+    spec.theme.variation = v;
+    const out = renderSite(spec, { agencyName: "Sample Agency", seedKey: `${d.key}${v || ""}`, assetBase: "../public/site-assets/" });
+    writeFileSync(`.samples/${d.key}${v ? `-${v + 1}` : ""}.html`, out[0].content);
+    count++;
+  }
 }
+console.log(`rendered ${count} pages`);

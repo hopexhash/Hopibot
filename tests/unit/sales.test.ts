@@ -4,6 +4,7 @@ import { renderEmailHtml } from "@/lib/email-html";
 import { isSupportedCountry, languageFor, marketCountry, resolveMarket } from "@/lib/markets";
 import { opportunityScore } from "@/lib/opportunity";
 import { assessOutreach } from "@/lib/outreach-compliance";
+import { nextBatch, withinWorkingHours } from "@/server/orchestrator/autopilot";
 import { parseObjectiveHeuristically } from "@/server/orchestrator/planner";
 
 describe("market restriction (Netherlands and Belgium only)", () => {
@@ -16,8 +17,8 @@ describe("market restriction (Netherlands and Belgium only)", () => {
   });
 
   it("never plans discovery outside the supported markets", () => {
-    expect(parseObjectiveHeuristically("Find 20 restaurants in Berlin, Germany").discovery.country).toBe("Netherlands");
-    expect(parseObjectiveHeuristically("Find 20 bakeries in Antwerp, Belgium").discovery.country).toBe("Belgium");
+    expect(parseObjectiveHeuristically("Find 20 restaurants in Berlin, Germany").discovery!.country).toBe("Netherlands");
+    expect(parseObjectiveHeuristically("Find 20 bakeries in Antwerp, Belgium").discovery!.country).toBe("Belgium");
   });
 
   it("chooses the language from the location", () => {
@@ -27,6 +28,23 @@ describe("market restriction (Netherlands and Belgium only)", () => {
     expect(languageFor({ country: "Belgium", city: "Charleroi" })).toBe("fr");
     expect(languageFor({ country: "Belgium", city: "Bruxelles", postalCode: "1000" })).toBe("fr");
     expect(languageFor({ country: "Belgium", city: "Brussel", postalCode: "1000", ownText: "Welkom bij onze zaak — openingsuren" })).toBe("nl");
+  });
+});
+
+describe("autopilot limits", () => {
+  const base = { enabled: true, startHour: 8, endHour: 20, days: [1, 2, 3, 4, 5], country: "Netherlands" as const, cities: ["Rotterdam", "Utrecht"], categories: ["restaurant", "barbershop"], dailyDiscoveryLimit: 12, dailyWebsiteLimit: 3 };
+  it("never plans beyond the daily allowance and rotates cities and industries", () => {
+    expect(nextBatch(base, { discovered: 0, websites: 0 }, 0)).toEqual({ city: "Rotterdam", category: "restaurant", limit: 10, topN: 2 });
+    expect(nextBatch(base, { discovered: 10, websites: 2 }, 1)).toEqual({ city: "Utrecht", category: "restaurant", limit: 2, topN: 1 });
+    expect(nextBatch(base, { discovered: 4, websites: 3 }, 2)).toMatchObject({ city: "Rotterdam", category: "barbershop", topN: 0 });
+    expect(nextBatch(base, { discovered: 12, websites: 0 }, 3)).toBeNull();
+    expect(nextBatch({ ...base, enabled: false }, { discovered: 0, websites: 0 }, 0)).toBeNull();
+    expect(nextBatch({ ...base, cities: [] }, { discovered: 0, websites: 0 }, 0)).toBeNull();
+  });
+  it("only works inside the configured hours (Amsterdam time)", () => {
+    expect(withinWorkingHours(base, new Date("2026-11-25T10:00:00Z"))).toBe(true); // Wednesday 11:00
+    expect(withinWorkingHours(base, new Date("2026-11-25T21:30:00Z"))).toBe(false); // 22:30
+    expect(withinWorkingHours(base, new Date("2026-11-28T10:00:00Z"))).toBe(false); // Saturday
   });
 });
 

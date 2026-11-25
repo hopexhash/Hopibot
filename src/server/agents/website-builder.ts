@@ -11,6 +11,7 @@ import { IntegrationUnavailableError } from "../integrations/credentials";
 import { advanceStage } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
 import { buildMockSpec } from "../website/mock-spec";
+import { attachStockPhotos } from "../website/photos";
 import { enforceSpec, ensureProject, saveVersion } from "../website/service";
 
 const SPEC_GUIDE = `You produce a SiteSpec JSON document that our design system renders into a website.
@@ -249,6 +250,16 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
 
   // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
   spec.theme = { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
+  // Real photography: with Pexels connected, image slots get licensed photos that match the design.
+  if (type === "generate_website" && (await ctx.mode("pexels")) === "live") {
+    try {
+      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug);
+      spec = r.spec;
+      await ctx.log("info", `Added ${r.added} licensed stock photo(s) from Pexels.`);
+    } catch (err) {
+      await ctx.log("warn", `Stock photos could not be loaded (${(err as Error).message.slice(0, 120)}) — using illustrations.`);
+    }
+  }
   const finalSpec = enforceSpec(spec, b, verifiedEmail, researchText);
   const version = await saveVersion({
     organizationId: ctx.organizationId,

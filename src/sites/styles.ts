@@ -204,6 +204,55 @@ p{margin:0}
 .hc-title{display:block;font-family:var(--font-heading);font-weight:var(--heading-weight);font-style:var(--heading-style);text-transform:var(--heading-case);letter-spacing:var(--heading-track);font-size:calc(var(--hs)*24px);color:var(--heading);margin-bottom:18px;line-height:1.1}
 .hero-card .form{background:none;border:0;box-shadow:none;padding:0}
 
+/* wordmark: the business name as a monumental logotype over photography */
+.hero-wordmark{isolation:isolate;padding:0;display:flex;flex-direction:column;min-height:min(96vh,940px)}
+.hero-wordmark::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25) 38%,rgba(0,0,0,.9))}
+.wm-top{display:flex;justify-content:space-between;gap:16px;padding-top:34px}
+.wm-top .eyebrow{margin:0}
+.wm{position:relative;z-index:2;margin:auto 0 0;padding:0 32px;font-family:var(--font-heading);font-weight:var(--heading-weight);font-style:normal;text-transform:uppercase;letter-spacing:-0.02em;line-height:.86;color:#fff;white-space:nowrap;font-size:17vw;text-align:center;opacity:0;transition:opacity .6s}
+.wm.fitted{opacity:1}
+.no-js .wm{opacity:1}
+.wm::first-letter{color:#fff}
+.wm-bottom{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:end;padding-top:34px;padding-bottom:44px}
+.hero-wordmark h1{font-size:calc(var(--hs)*clamp(24px,2.7vw,38px));line-height:1.14;max-width:560px}
+.hero-wordmark .lead{margin-top:14px;font-size:16px;max-width:480px}
+.wm-cta .hero-actions{margin-top:0;justify-content:flex-end}
+.wm-cta .hero-meta{margin-top:20px;justify-content:flex-end}
+.ticker{position:relative;z-index:2;overflow:hidden;border-top:1px solid rgba(255,255,255,.2);border-bottom:1px solid var(--line-strong);padding:17px 0;white-space:nowrap}
+.hero-collage .ticker{border-top-color:var(--line-strong);margin-top:72px}
+.ticker>div{display:inline-flex;animation:marq 46s linear infinite}
+.ticker span{display:inline-flex}
+.ticker b{font-family:var(--font-heading);font-style:var(--heading-style);font-weight:var(--heading-weight);font-size:calc(var(--hs)*21px);letter-spacing:var(--heading-track);padding:0 26px;display:inline-flex;align-items:center;gap:52px;color:inherit}
+.on-image .ticker b{color:#fff}
+.ticker b::after{content:"";width:9px;height:9px;background:var(--accent);transform:rotate(45deg);flex:none}
+
+/* collage: asymmetric, layered imagery */
+.hero-collage{padding:84px 0 0}
+.collage-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:center}
+.collage{position:relative;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto;gap:16px}
+.collage img{width:100%;height:100%;object-fit:cover;border-radius:var(--r-md)}
+.cg-a{grid-row:1/3;aspect-ratio:9/11.5}
+.cg-b{aspect-ratio:1/1;margin-top:44px}
+.cg-c{aspect-ratio:7/8.6}
+.collage .hand{right:6%;top:-10px}
+
+/* service strip under photographic heroes */
+.hero-strip{position:relative;z-index:3;width:100%;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line)}
+.hero-strip ul{list-style:none;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;padding-top:0;padding-bottom:0}
+.hero-strip li{display:flex;gap:14px;align-items:center;padding:22px 22px 22px 0;margin-right:22px;border-right:1px solid var(--line)}
+.hero-strip li:last-child{border-right:0;margin-right:0}
+.hero-strip .ic{width:42px;height:42px;flex:none;display:grid;place-items:center;color:var(--accent-text);background:none}
+.hero-strip .ic svg{width:28px;height:28px}
+.hero-strip b{display:block;font-family:var(--font-heading);font-weight:var(--heading-weight);font-style:normal;text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--heading)}
+.hero-strip small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4;color:var(--muted);margin-top:3px}
+.hero-cinema{flex-direction:column;align-items:stretch;justify-content:flex-end}
+.hero-cinema>.wrap{margin-top:auto}
+
+/* accent phrase in headlines */
+h1 em,h2 em{font-style:italic;color:var(--accent-text);font-weight:inherit}
+.on-image h1 em,.cta-sec.v-full h2 em{color:var(--accent)}
+.m-light .on-image h1 em{color:color-mix(in srgb,var(--accent) 55%,#fff)}
+
 /* About */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:76px;align-items:center}
 .about-media{position:relative}
@@ -484,7 +533,7 @@ p{margin:0}
 /* Reveal animations (progressive enhancement) */
 .js .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
 .js .reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.js .reveal{opacity:1;transform:none;transition:none}.marquee>div{animation:none}*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.js .reveal{opacity:1;transform:none;transition:none}.marquee>div,.ticker>div{animation:none}*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 
 /* Responsive */
 @media (max-width:1080px){
@@ -512,6 +561,10 @@ p{margin:0}
   .svc.v-rows .svc-body{grid-template-columns:1fr;gap:8px}
   .menu-sec.v-rows .menu-cat{grid-template-columns:1fr;gap:6px}
   .hand{right:-6px;font-size:24px}
+  .collage-grid,.wm-bottom{grid-template-columns:1fr;gap:40px}
+  .wm-cta .hero-actions,.wm-cta .hero-meta{justify-content:flex-start}
+  .hero-strip li{border-right:0;margin-right:0;border-bottom:1px solid var(--line);padding:16px 0}
+  .hero-strip li:last-child{border-bottom:0}
   .poster-grid{padding-bottom:56px}
   .hero-poster .hero-media{max-width:420px;margin:0 auto 12px}
 }
@@ -558,6 +611,13 @@ p{margin:0}
   .mbar .btn{min-height:50px;padding:0 18px;font-size:15px;overflow:hidden;text-overflow:ellipsis}
   .btn-hard .mbar .btn{box-shadow:3px 3px 0 var(--heading)}
   .hero-card .hero-card{padding:22px}
+  .wm{padding:0 16px}
+  .hero-wordmark{min-height:88vh}
+  .wm-top{padding-top:22px}
+  .hero-collage{padding-top:56px}
+  .hero-collage .ticker{margin-top:48px}
+  .cg-b{margin-top:22px}
+  .ticker b{font-size:calc(var(--hs)*17px);padding:0 18px;gap:36px}
   .ba-grid{grid-template-columns:1fr}
   .packages{grid-template-columns:1fr}
 }

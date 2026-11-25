@@ -31,6 +31,16 @@ export const INTEGRATIONS = [
     docs: "https://hunter.io/api-keys",
   },
   {
+    key: "pexels",
+    name: "Pexels photos",
+    description: "Licensed, realistic photography for generated websites. Without it, sites use illustrations.",
+    secretLabel: "API key",
+    configFields: [],
+    envVar: "PEXELS_API_KEY",
+    usedBy: ["website_builder"],
+    docs: "https://www.pexels.com/api/",
+  },
+  {
     key: "vercel",
     name: "Vercel",
     description: "Preview deployments for generated websites.",
