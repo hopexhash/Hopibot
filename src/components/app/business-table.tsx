@@ -33,6 +33,7 @@ import {
   suppressBusinessesAction,
 } from "@/server/actions/businesses";
 import { runPipelineAction } from "@/server/actions/orchestrator";
+import { QualificationBadge } from "./qualification";
 import { StatusBadge } from "./status";
 
 export type BusinessTableRow = {
@@ -44,6 +45,8 @@ export type BusinessTableRow = {
   websiteStatus: string;
   websiteQuality: number | null;
   leadScore: number | null;
+  qualification: string | null;
+  redesignScore: number | null;
   researchStatus: string;
   pipelineStage: string;
   email: string | null;
@@ -200,8 +203,8 @@ export function BusinessTable({
         <div className="rounded-xl border border-dashed border-border">
           <EmptyState
             icon={<Building2 />}
-            title="No businesses match"
-            description="Adjust the filters or run a discovery campaign."
+            title="No leads here yet"
+            description="Only businesses whose website genuinely needs a redesign appear here. Choose “Rejected websites” or “Everything” in the first filter to see what was turned down, and why."
             action={
               <Button asChild variant="primary">
                 <Link href="/discovery">Discover leads</Link>
@@ -259,8 +262,13 @@ export function BusinessTable({
                         {r.city ? ` · ${r.city}` : ""}
                       </span>
                     </span>
-                    <ScoreRing score={r.leadScore} />
+                    <ScoreRing score={r.redesignScore ?? r.leadScore} />
                   </span>
+                  {r.qualification && (
+                    <span className="mt-2.5 block">
+                      <QualificationBadge value={r.qualification} />
+                    </span>
+                  )}
                   <span className="mt-2.5 block truncate text-[13px] text-muted">
                     {r.email ?? "No contact email"}
                   </span>
@@ -299,6 +307,7 @@ export function BusinessTable({
                 <TH>
                   <SortHeader label="Business" k="name" />
                 </TH>
+                <TH>Qualification</TH>
                 <TH>Category</TH>
                 <TH>
                   <SortHeader label="Location" k="city" />
@@ -306,7 +315,7 @@ export function BusinessTable({
                 <TH>Website</TH>
                 <TH>Contact email</TH>
                 <TH className="text-center">
-                  <SortHeader label="Lead score" k="score" />
+                  <SortHeader label="Redesign score" k="redesign" />
                 </TH>
                 <TH className="text-center">
                   <SortHeader label="Site quality" k="quality" />
@@ -339,6 +348,13 @@ export function BusinessTable({
                       {r.isMock && <MockBadge />}
                     </Link>
                   </TD>
+                  <TD>
+                    {r.qualification ? (
+                      <QualificationBadge value={r.qualification} />
+                    ) : (
+                      <span className="text-xs text-muted">Not assessed</span>
+                    )}
+                  </TD>
                   <TD className="whitespace-nowrap text-muted">
                     {categoryLabel(r.category)}
                   </TD>
@@ -369,7 +385,7 @@ export function BusinessTable({
                     {r.email ?? "—"}
                   </TD>
                   <TD className="text-center">
-                    <ScoreRing score={r.leadScore} />
+                    <ScoreRing score={r.redesignScore ?? r.leadScore} />
                   </TD>
                   <TD className="tabular text-center text-muted">
                     {r.websiteQuality ?? "—"}

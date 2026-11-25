@@ -1,5 +1,6 @@
 import "../guard";
-import { and, asc, count, desc, eq, gte, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
+import { LEAD_QUALIFICATIONS, QUALIFICATIONS, REJECTED_QUALIFICATIONS } from "@/lib/qualification";
 import { z } from "zod";
 import { db, schema } from "../db";
 
@@ -13,7 +14,9 @@ export const businessFilterSchema = z.object({
   research: z.enum(["not_started", "in_progress", "done", "failed"]).optional(),
   campaign: z.string().uuid().optional(),
   mock: z.enum(["include", "exclude", "only"]).optional(),
-  sort: z.enum(["name", "score", "quality", "created", "city"]).default("created"),
+  /** leads (default): qualified, high-priority, needs review and manually added. rejected: everything the engine turned down. all: everything. Or one exact qualification. */
+  view: z.enum(["leads", "rejected", "all", ...QUALIFICATIONS]).default("leads"),
+  sort: z.enum(["name", "score", "quality", "redesign", "created", "city"]).default("created"),
   dir: z.enum(["asc", "desc"]).default("desc"),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(10).max(200).default(50),
@@ -39,6 +42,10 @@ function where(orgId: string, f: BusinessFilters) {
   if (f.campaign) conds.push(eq(b.campaignId, f.campaign));
   if (f.mock === "exclude") conds.push(eq(b.isMock, false));
   if (f.mock === "only") conds.push(eq(b.isMock, true));
+  // A search by name always looks through everything, so a rejected business can still be found.
+  if (f.view === "leads" && !f.q) conds.push(or(inArray(b.qualification, LEAD_QUALIFICATIONS), and(isNull(b.qualification), or(eq(b.source, "manual"), sql`EXISTS (SELECT 1 FROM leads l WHERE l.business_id = ${b.id} AND l.qualified)`)))!);
+  else if (f.view === "rejected") conds.push(inArray(b.qualification, REJECTED_QUALIFICATIONS));
+  else if (f.view !== "all" && f.view !== "leads") conds.push(eq(b.qualification, f.view));
   return and(...conds)!;
 }
 
@@ -46,6 +53,7 @@ const SORT = {
   name: schema.businesses.name,
   score: schema.businesses.leadScore,
   quality: schema.businesses.websiteQuality,
+  redesign: schema.businesses.redesignScore,
   created: schema.businesses.createdAt,
   city: schema.businesses.city,
 } as const;
@@ -69,6 +77,8 @@ export async function listBusinesses(orgId: string, f: BusinessFilters) {
         websiteStatus: b.websiteStatus,
         websiteQuality: b.websiteQuality,
         leadScore: b.leadScore,
+        qualification: b.qualification,
+        redesignScore: b.redesignScore,
         researchStatus: b.researchStatus,
         pipelineStage: b.pipelineStage,
         phone: b.phone,

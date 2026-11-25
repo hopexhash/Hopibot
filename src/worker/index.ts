@@ -6,6 +6,8 @@ import { executeTask } from "@/server/orchestrator/executor";
 import { queueName, type TaskJob } from "@/server/orchestrator/queue";
 import { recoverTasks, runScheduler } from "@/server/orchestrator/recovery";
 import { closeQcBrowser } from "@/server/qc/run-qc";
+import { closeInspectionBrowser } from "@/server/inspection/inspect-site";
+import { backfillInspections } from "@/server/inspection/backfill";
 import { createRedis } from "@/server/redis";
 import { processCampaigns } from "@/server/campaigns/service";
 import { runAutopilot } from "@/server/orchestrator/autopilot";
@@ -74,6 +76,8 @@ async function main() {
       if (sent.queued) log(`campaigns: queued ${sent.queued} email(s)`);
       const auto = await runAutopilot();
       if (auto.started) log(`autopilot: started ${auto.started} batch(es)`);
+      const backfilled = await backfillInspections();
+      if (backfilled) log(`qualification: queued ${backfilled} existing website(s) for inspection`);
     } catch (err) {
       log("maintenance tick failed", (err as Error).message);
     } finally {
@@ -88,6 +92,7 @@ async function main() {
     await connection.del(`agencyos:worker:${WORKER_ID}`).catch(() => {});
     await Promise.allSettled(workers.map((w) => w.close()));
     await closeQcBrowser();
+    await closeInspectionBrowser();
     await connection.quit().catch(() => {});
     await closeDb();
     process.exit(0);

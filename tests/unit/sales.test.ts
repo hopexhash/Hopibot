@@ -118,3 +118,60 @@ describe("HTML email", () => {
     expect(html).not.toMatch(/<script|<img/i);
   });
 });
+
+import { classify, computeRedesignScore, isConcreteProblem, measuredNeeds, type AiAssessment, type Measured } from "@/lib/qualification";
+import { mockInspection } from "@/server/inspection/qualify";
+
+describe("website redesign qualification", () => {
+  const good = mockInspection("https://good.example", 0);
+  const broken = mockInspection("https://broken.example", 3);
+  const twoProblems = { approach: true, problems: ["The footer still displays Copyright 2019 and the phone layout scrolls sideways by 240px.", "The mobile navigation overlaps the business logo on a 390px screen."], reasoning: "Visible problems." };
+
+  it("never qualifies a professional-looking site, whatever the technical findings", () => {
+    const m: Measured = { ...good.measured, https: false, legacyMarkup: ["jQuery 1.12", "table-based layout"], brokenNavLinks: ["/a", "/b"], navLinksChecked: 4, copyrightYear: 2016, loadMs: 9000, mobileLoadMs: 9000, ctaCount: 0 };
+    const ai: AiAssessment = { ...good.assessment, verdict: "excellent", ratings: { mobile: 0, visual: 0, structure: 0, freshness: 8, technical: 9, conversion: 6 } };
+    const s = computeRedesignScore(m, ai);
+    expect(s.score).toBeLessThan(25);
+    expect(s.exclusion).toBeTruthy();
+    expect(classify(s.score, twoProblems).qualification).toBe("excellent");
+  });
+
+  it("caps a modern site below the lead range", () => {
+    const s = computeRedesignScore(good.measured, { ...good.assessment, verdict: "modern", ratings: { mobile: 4, visual: 5, structure: 5, freshness: 9, technical: 9, conversion: 9 } });
+    expect(s.score).toBeLessThan(40);
+    expect(classify(s.score, twoProblems).qualification).toBe("good");
+  });
+
+  it("does not let a 'looks fine' verdict hide a measurably broken phone layout", () => {
+    const s = computeRedesignScore(broken.measured, { ...broken.assessment, verdict: "modern" });
+    expect(s.exclusion).toBeNull();
+  });
+
+  it("scores a visibly broken, dated site as a strong lead and reports what was measured", () => {
+    const s = computeRedesignScore(broken.measured, broken.assessment);
+    expect(s.score).toBeGreaterThanOrEqual(70);
+    expect(measuredNeeds(broken.measured).mobile.findings.join(" ")).toMatch(/scrolls sideways/);
+    expect(["qualified", "high_priority"]).toContain(classify(s.score, twoProblems).qualification);
+  });
+
+  it("requires the independent verification and two concrete problems", () => {
+    expect(classify(80, { approach: false, problems: [], reasoning: "Looks professional." }).qualification).toBe("rejected");
+    expect(classify(80, { approach: true, problems: ["The website could look more modern.", "The website uses WordPress."], reasoning: "x" }).qualification).toBe("rejected");
+    expect(classify(80, null).qualification).toBe("review");
+    expect(classify(80, twoProblems).qualification).toBe("qualified");
+    expect(classify(90, twoProblems).qualification).toBe("high_priority");
+  });
+
+  it("keeps 55–69 at 'needs review' at best and never qualifies below 55", () => {
+    expect(classify(62, twoProblems).qualification).toBe("review");
+    expect(classify(50, twoProblems).qualification).toBe("average");
+    expect(classify(30, twoProblems).qualification).toBe("good");
+    expect(classify(10, twoProblems).qualification).toBe("excellent");
+  });
+
+  it("rejects generic remarks as problems", () => {
+    expect(isConcreteProblem("The website could benefit from animations.")).toBe(false);
+    expect(isConcreteProblem("The website uses WordPress.")).toBe(false);
+    expect(isConcreteProblem("The mobile navigation overlaps the business logo, and the page needs horizontal scrolling.")).toBe(true);
+  });
+});

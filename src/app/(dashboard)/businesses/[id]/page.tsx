@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { ContactPermission } from "@/components/app/contact-permission";
+import { WebsiteInspectionCard } from "@/components/app/website-inspection";
 import { assessOutreach } from "@/lib/outreach-compliance";
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -65,6 +66,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          <WebsiteInspectionCard business={b} />
           <Card>
             <CardHeader>
               <div>

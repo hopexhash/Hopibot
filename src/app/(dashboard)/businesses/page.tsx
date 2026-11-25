@@ -16,10 +16,21 @@ export default async function BusinessesPage({ searchParams }: { searchParams: P
   return (
     <>
       <SubNav section="/pipeline" />
-      <PageHeader eyebrow="Business" title="All leads" description="Every business in your CRM as a sortable list. Tick rows to run agents on several leads at once." actions={<AddLeadButton />} />
+      <PageHeader eyebrow="Business" title="All leads" description="Businesses whose website genuinely needs a redesign. Websites that already look good are rejected and kept out of this list." actions={<AddLeadButton />} />
       <FilterBar
         searchPlaceholder="Search name, address or website…"
         filters={[
+          {
+            key: "view",
+            label: "Leads only",
+            options: [
+              { value: "high_priority", label: "High-priority leads" },
+              { value: "qualified", label: "Qualified leads" },
+              { value: "review", label: "Needs review" },
+              { value: "rejected", label: "Rejected websites" },
+              { value: "all", label: "Everything" },
+            ],
+          },
           { key: "category", label: "All categories", options: BUSINESS_CATEGORIES.map((c) => ({ value: c.key, label: c.label })) },
           { key: "city", label: "All cities", options: cities.map((c) => ({ value: c, label: c })) },
           { key: "stage", label: "All stages", options: PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label })) },

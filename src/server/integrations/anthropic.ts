@@ -57,6 +57,8 @@ export async function claudeStructured<S extends z.ZodType>(opts: {
   schema: S;
   system: string;
   prompt: string;
+  /** Images shown to Claude before the prompt (e.g. screenshots). */
+  images?: { mediaType: "image/jpeg" | "image/png"; data: string; label?: string }[];
   model?: string | null;
   effort?: Effort | null;
   maxTokens?: number;
@@ -116,7 +118,20 @@ export async function claudeStructured<S extends z.ZodType>(opts: {
       .join("");
   };
 
-  const first: Anthropic.Beta.Messages.BetaMessageParam[] = [{ role: "user", content: opts.prompt }];
+  const first: Anthropic.Beta.Messages.BetaMessageParam[] = [
+    {
+      role: "user",
+      content: opts.images?.length
+        ? [
+            ...opts.images.flatMap((img) => [
+              ...(img.label ? [{ type: "text" as const, text: img.label }] : []),
+              { type: "image" as const, source: { type: "base64" as const, media_type: img.mediaType, data: img.data } },
+            ]),
+            { type: "text" as const, text: opts.prompt },
+          ]
+        : opts.prompt,
+    },
+  ];
   let text: string;
   try {
     text = await call(first);

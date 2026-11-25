@@ -129,3 +129,18 @@ desktop widths before it was committed.
 - Country filter and per-country reporting in the dashboard; Belgian-specific legal/consumer texts and cookie notices on demo pages; French blueprint copy (French sites rely on the AI writer) and French demo-page strings.
 - Model routing to cheaper models per task, cost estimate before each generation, screenshot comparison in QC, single-section regeneration.
 - Multi-page websites (sites are rich single pages), real booking/ordering back-ends (forms are demonstrations until an add-on is sold).
+
+## Website redesign qualification (lead quality engine)
+
+Businesses with a website only become leads when the site genuinely needs a redesign.
+
+- `src/server/inspection/inspect-site.ts` — real browser (Playwright) at 1440px and 390px: screenshots plus measurements (viewport, sideways overflow, small text, menu button, load time, copyright year, placeholder text, broken images and nav links, HTTPS, contact options).
+- `src/lib/qualification.ts` — redesign score 0–100 (mobile 25, visual 25, structure 15, freshness 10, technical 10, conversion 10, performance 5), fixed thresholds, hard exclusion for professional-looking sites, decision rules.
+- `src/server/inspection/assess.ts` — visual assessment of the screenshots, and an independent verification that must name two concrete problems. Owner feedback is included as calibration examples.
+- `src/server/inspection/qualify.ts` — order of work: owner feedback (free) → browser (free) → assessment → verification only from 55 points. Every decision is stored in `website_inspections` and logged.
+- Integrated in the Lead Discovery agent (autopilot included). Existing leads are inspected by the worker (`backfill.ts`); "Inspect website" re-runs it on request.
+- Dashboard: qualification badge, "Leads only / Rejected / Everything" filter, inspection card with screenshots, scores, problems, explanation and the four feedback buttons.
+
+Verified: scoring and decision rules (unit tests), browser inspection against local test pages, mock pipeline end to end.
+Not verified in the sandbox: the two AI calls with a live key, and inspection of real external websites.
+Not built: screenshots as calibration examples (feedback is text-only), a settings screen for thresholds (fixed on purpose).

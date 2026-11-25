@@ -17,7 +17,7 @@ export async function getKpis(orgId: string, minScore: number) {
     SELECT
       (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND erased_at IS NULL AND NOT is_mock) AS businesses,
       (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND is_mock) AS mock_businesses,
-      (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND lead_score >= ${minScore}) AS qualified,
+      (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.business_id = businesses.id AND l.qualified)) AS qualified,
       (SELECT count(*) FROM website_projects p JOIN businesses b ON b.id = p.business_id
         WHERE p.organization_id = ${orgId} AND p.deleted_at IS NULL AND p.current_version_id IS NOT NULL AND NOT b.is_mock) AS websites,
       (SELECT count(*) FROM website_projects p JOIN businesses b ON b.id = p.business_id
@@ -112,7 +112,7 @@ export async function getRangeTotals(
   const [r] = await q(sql`
       SELECT
         (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS leads,
-        (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND lead_score >= ${minScore} AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS qualified,
+        (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND EXISTS (SELECT 1 FROM leads l WHERE l.business_id = businesses.id AND l.qualified) AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS qualified,
         (SELECT count(*) FROM website_versions v WHERE v.organization_id = ${orgId} AND v.version_no = 1 AND NOT v.is_mock AND v.created_at >= ${from}::timestamptz AND v.created_at < ${to}::timestamptz) AS websites,
         (SELECT count(*) FROM deployments d JOIN website_projects p ON p.id = d.project_id JOIN businesses b ON b.id = p.business_id
           WHERE d.organization_id = ${orgId} AND d.status = 'ready' AND NOT d.is_mock AND NOT b.is_mock AND d.ready_at >= ${from}::timestamptz AND d.ready_at < ${to}::timestamptz) AS deployments,

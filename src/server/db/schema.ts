@@ -178,6 +178,11 @@ export const businesses = pgTable(
     /** Proof of consent: free text or a link to the stored evidence. */
     permissionProof: text("permission_proof"),
     permissionAt: timestamp("permission_at", { withTimezone: true }),
+    /** Redesign qualification (see lib/qualification): excellent | good | average | rejected | review | qualified | high_priority | no_email | not_inspected. Null = never assessed (manual leads, businesses without a website). */
+    qualification: text("qualification"),
+    /** 0–100: how badly the current website needs a redesign. */
+    redesignScore: integer("redesign_score"),
+    inspectedAt: timestamp("inspected_at", { withTimezone: true }),
     dedupeKey: text("dedupe_key").notNull(),
     source: text("source").notNull().default("google_places"),
     sourceData: jsonb("source_data").$type<Record<string, unknown> | null>(),
@@ -194,6 +199,7 @@ export const businesses = pgTable(
     index("businesses_org_stage").on(t.organizationId, t.pipelineStage),
     index("businesses_org_score").on(t.organizationId, t.leadScore),
     index("businesses_org_created").on(t.organizationId, t.createdAt),
+    index("businesses_org_qualification").on(t.organizationId, t.qualification),
   ],
 );
 
@@ -895,4 +901,60 @@ export const demoEvents = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("demo_events_org_created").on(t.organizationId, t.createdAt), index("demo_events_project").on(t.projectId, t.type)],
+);
+
+// ───────────────────────── Website inspection & qualification ─────────────────────────
+
+/** One real-browser inspection of a business's existing website, with the decision and why. */
+export const websiteInspections = pgTable(
+  "website_inspections",
+  {
+    id: id(),
+    organizationId: orgId(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    qualification: text("qualification").notNull(),
+    redesignScore: integer("redesign_score").notNull(),
+    /** Points per area (higher = bigger problem): mobile, visual, structure, freshness, technical, conversion, performance. */
+    areaScores: jsonb("area_scores").$type<Record<string, number>>().notNull(),
+    measured: jsonb("measured").$type<Record<string, unknown>>().notNull(),
+    problems: jsonb("problems").$type<{ area: string; problem: string; evidence: string }[]>().notNull(),
+    opportunities: jsonb("opportunities").$type<string[]>().notNull(),
+    /** Why it was accepted or rejected, in plain language. */
+    explanation: text("explanation").notNull(),
+    summary: text("summary"),
+    verdict: text("verdict"),
+    verification: jsonb("verification").$type<{ approach: boolean; problems: string[]; reasoning: string } | null>(),
+    /** JPEG screenshots, base64. Never selected in list queries. */
+    desktopShot: text("desktop_shot"),
+    mobileShot: text("mobile_shot"),
+    costUsd: money("cost_usd"),
+    isMock: boolean("is_mock").notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (t) => [index("website_inspections_business").on(t.businessId, t.createdAt), index("website_inspections_org").on(t.organizationId, t.createdAt)],
+);
+
+/** The owner's own judgement of a website; used as calibration examples for future assessments. */
+export const websiteFeedback = pgTable(
+  "website_feedback",
+  {
+    id: id(),
+    organizationId: orgId(),
+    businessId: uuid("business_id").references(() => businesses.id, { onDelete: "set null" }),
+    domain: text("domain").notNull(),
+    businessName: text("business_name"),
+    /** excellent | modern | average | needs_redesign */
+    classification: text("classification").notNull(),
+    /** What the AI had concluded when the owner corrected or confirmed it. */
+    aiQualification: text("ai_qualification"),
+    aiScore: integer("ai_score"),
+    aiSummary: text("ai_summary"),
+    note: text("note"),
+    createdBy: uuid("created_by"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("website_feedback_org_domain").on(t.organizationId, t.domain), index("website_feedback_org_created").on(t.organizationId, t.createdAt)],
 );

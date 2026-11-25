@@ -107,7 +107,7 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
     integrationMode(organizationId, "anthropic"),
     checkBudget(organizationId),
     db().select({ n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), gt(b.createdAt, dayStart))),
-    db().select({ n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), gt(b.createdAt, dayStart), sql`${b.leadScore} >= ${settings.minLeadScore}`)),
+    db().select({ n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), gt(b.createdAt, dayStart), sql`EXISTS (SELECT 1 FROM leads l WHERE l.business_id = ${b.id} AND l.qualified)`)),
     db().select({ n: sql<number>`count(*)::int` }).from(schema.websiteProjects).where(and(eq(schema.websiteProjects.organizationId, organizationId), gt(schema.websiteProjects.createdAt, dayStart))),
     db().select({ n: sql<number>`count(*)::int` }).from(schema.deployments).where(and(eq(schema.deployments.organizationId, organizationId), eq(schema.deployments.status, "ready"), gt(schema.deployments.createdAt, dayStart))),
     // Open opportunities: real businesses with a finished demo that have not bought yet.

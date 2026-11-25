@@ -2,7 +2,7 @@ import "../guard";
 import { resolveMarket, UnsupportedMarketError } from "@/lib/markets";
 import { AgentError } from "../integrations/anthropic";
 import { and, eq, or, sql } from "drizzle-orm";
-import { BUSINESS_CATEGORIES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, categoryLabel } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
 import { auditWebsite, extractEmails, mockAudit, type WebsiteAudit } from "../audit/website-audit";
 import { belongsToBusiness, isGenericEmail } from "./contact-research";
@@ -16,6 +16,8 @@ import { discoveryParamsSchema } from "../orchestrator/runs";
 import { advanceStage, notify } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { dedupeKey, domainOf, scoreLead } from "../scoring/lead-score";
+import { isQualifiedLead, QUALIFICATION_META, type Qualification } from "@/lib/qualification";
+import { qualifyWebsite } from "../inspection/qualify";
 
 /**
  * When Google lists no website we do not assume there is none. We probe a few likely
@@ -46,7 +48,39 @@ async function probeForWebsite(name: string, city: string | null): Promise<strin
   return null;
 }
 
+/**
+ * Inspects the website of a business that is already in the CRM (leads found before the
+ * qualification engine existed, or a re-check you asked for) and applies the decision.
+ */
+const inspectExisting: AgentHandler = async (ctx) => {
+  const [b] = await db()
+    .select()
+    .from(schema.businesses)
+    .where(and(eq(schema.businesses.id, ctx.task.businessId ?? ""), eq(schema.businesses.organizationId, ctx.organizationId)));
+  if (!b) throw new AgentError("Business not found.", "NOT_FOUND", false);
+  if (!b.websiteUrl || b.websiteStatus !== "has_website") return { status: "completed", output: { skipped: "This business has no reachable website to inspect." } };
+  const [email] = await db()
+    .select({ id: schema.businessContacts.id })
+    .from(schema.businessContacts)
+    .where(and(eq(schema.businessContacts.businessId, b.id), eq(schema.businessContacts.type, "email")))
+    .limit(1);
+  const forced = Boolean((ctx.task.input as { force?: boolean }).force);
+  if (ctx.settings.requireEmail && !email && !forced) {
+    await db().update(schema.businesses).set({ qualification: "no_email" }).where(eq(schema.businesses.id, b.id));
+    await db().update(schema.leads).set({ qualified: false, status: "new" }).where(eq(schema.leads.businessId, b.id));
+    await ctx.log("info", `${b.name} — ${QUALIFICATION_META.no_email.badge}: no public email address, so the website was not inspected.`);
+    return { status: "completed", output: { qualification: "no_email" } };
+  }
+  const mock = b.isMock || (await ctx.mode("anthropic")) === "mock";
+  const q = await qualifyWebsite({ organizationId: ctx.organizationId, usage: { ...ctx.usage, businessId: b.id }, mock, log: ctx.log }, { id: b.id, name: b.name, category: categoryLabel(b.category), url: b.websiteUrl });
+  const ok = isQualifiedLead(q.qualification) && (!ctx.settings.requireEmail || Boolean(email));
+  await db().update(schema.leads).set({ qualified: ok, status: ok ? "qualified" : "new" }).where(eq(schema.leads.businessId, b.id));
+  if (ok) await advanceStage(b.id, "QUALIFIED", ctx.organizationId);
+  return { status: "completed", output: { qualification: q.qualification, redesignScore: q.score, costUsd: q.costUsd } };
+};
+
 export const leadFinder: AgentHandler = async (ctx) => {
+  if (ctx.task.type === "inspect_website") return inspectExisting(ctx);
   const input = ctx.task.input as { params: unknown; topN?: number; actions?: string[]; campaignId?: string | null };
   const params = discoveryParamsSchema.parse(input.params);
   const category = BUSINESS_CATEGORIES.find((c) => c.key === params.category)!;
@@ -88,6 +122,9 @@ export const leadFinder: AgentHandler = async (ctx) => {
   let noEmail = 0;
   const requireEmail = ctx.settings.requireEmail;
   const qualified: { id: string; score: number }[] = [];
+  const decisions: Record<string, number> = {};
+  let inspectionCost = 0;
+  const aiMock = isMock || (await ctx.mode("anthropic")) === "mock";
 
   for (const place of places) {
     if (found >= params.limit) break;
@@ -220,8 +257,30 @@ export const leadFinder: AgentHandler = async (ctx) => {
           .onConflictDoNothing();
       }
     }
+    // Website qualification: a business with a website is only a lead when a real-browser
+    // inspection shows that the site genuinely needs a redesign. Businesses that cannot be
+    // emailed are not inspected at all, so no browser time or AI call is spent on them.
+    let qualification: Qualification | null = null;
+    let redesignScore: number | null = null;
+    if (websiteStatus === "has_website" && websiteUrl) {
+      if (requireEmail && !hasEmail) {
+        qualification = "no_email";
+        await db().update(schema.businesses).set({ qualification }).where(eq(schema.businesses.id, business.id));
+      } else {
+        await ctx.heartbeat();
+        const q = await qualifyWebsite(
+          { organizationId: ctx.organizationId, usage: { ...ctx.usage, businessId: business.id }, mock: aiMock, log: ctx.log },
+          { id: business.id, name: place.name, category: category.label, url: websiteUrl, mockSeed: found },
+        );
+        qualification = q.qualification;
+        redesignScore = q.score;
+        inspectionCost += q.costUsd;
+      }
+      decisions[qualification] = (decisions[qualification] ?? 0) + 1;
+    }
     // A lead only qualifies when it can actually be emailed (Settings → Autopilot → require email).
-    const isQualified = scored.score >= minScore && (!requireEmail || hasEmail);
+    // With a website: the redesign qualification decides. Without one: the lead score decides.
+    const isQualified = (qualification ? isQualifiedLead(qualification) : scored.score >= minScore) && (!requireEmail || hasEmail);
     await db()
       .insert(schema.leads)
       .values({ organizationId: ctx.organizationId, businessId: business.id, campaignId: input.campaignId ?? null, qualified: isQualified, status: isQualified ? "qualified" : "new" })
@@ -244,13 +303,13 @@ export const leadFinder: AgentHandler = async (ctx) => {
         .onConflictDoNothing();
     }
     if (isQualified) {
-      qualified.push({ id: business.id, score: scored.score });
+      qualified.push({ id: business.id, score: redesignScore ?? scored.score });
       await advanceStage(business.id, "QUALIFIED", ctx.organizationId);
     }
-    await ctx.log("info", `Discovered ${place.name} — score ${scored.score}${isQualified ? " (qualified)" : requireEmail && !hasEmail && scored.score >= minScore ? " (not qualified: no public email address)" : ""}`, {
-      businessId: business.id,
-      websiteStatus,
-    });
+    if (!qualification || qualification === "no_email") {
+      const why = qualification === "no_email" ? `${QUALIFICATION_META.no_email.badge}: no public email address, so the website was not inspected` : `no website (${websiteStatus}), lead score ${scored.score}${isQualified ? " (qualified)" : requireEmail && !hasEmail ? " (not qualified: no public email address)" : " (not qualified)"}`;
+      await ctx.log("info", `Discovered ${place.name} — ${why}`, { businessId: business.id, websiteStatus });
+    }
   }
 
   if (input.campaignId) {
@@ -259,6 +318,11 @@ export const leadFinder: AgentHandler = async (ctx) => {
       .set({ found, qualified: qualified.length, duplicates, status: "COMPLETED", completedAt: new Date(), isMock })
       .where(eq(schema.discoveryCampaigns.id, input.campaignId));
   }
+
+  const summary = Object.entries(decisions)
+    .map(([k, n]) => `${n} × ${QUALIFICATION_META[k as Qualification].badge}`)
+    .join(", ");
+  if (summary) await ctx.log("info", `Website qualification: ${summary}. AI cost for inspections: $${inspectionCost.toFixed(3)}.`);
 
   // Hand the best prospects to the rest of the pipeline.
   let actions: string[] = input.actions ?? [];
@@ -280,10 +344,10 @@ export const leadFinder: AgentHandler = async (ctx) => {
   }
 
   if (qualified.length && !isMock) {
-    await notify(ctx.organizationId, `${qualified.length} new qualified lead${qualified.length === 1 ? "" : "s"}`, `Found in ${params.city} (${found} businesses checked).`, "/businesses?minScore=" + minScore, "success");
+    await notify(ctx.organizationId, `${qualified.length} new qualified lead${qualified.length === 1 ? "" : "s"}`, `Found in ${params.city} (${found} businesses checked).`, "/businesses", "success");
   }
   return {
     status: "completed",
-    output: { found, qualified: qualified.length, withoutEmail: noEmail, duplicates, skippedClosed, pipelineStarted: actions.length ? top.length : 0, mock: isMock },
+    output: { found, qualified: qualified.length, websiteDecisions: decisions, inspectionCostUsd: Math.round(inspectionCost * 1000) / 1000, withoutEmail: noEmail, duplicates, skippedClosed, pipelineStarted: actions.length ? top.length : 0, mock: isMock },
   };
 };
