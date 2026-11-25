@@ -5,6 +5,10 @@ import { SubNav } from "@/components/app/sidebar";
 import { PageHeader } from "@/components/app/page";
 import { BUSINESS_CATEGORIES, PIPELINE_STAGES, WEBSITE_STATUS_LABEL } from "@/lib/constants";
 import { hasRole, requireAuth } from "@/server/auth";
+import Link from "next/link";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { REJECTED_QUALIFICATIONS } from "@/lib/qualification";
+import { db, schema } from "@/server/db";
 import { distinctCities, listBusinesses, parseBusinessFilters } from "@/server/queries/businesses";
 
 export const metadata = { title: "All leads" };
@@ -12,7 +16,16 @@ export const metadata = { title: "All leads" };
 export default async function BusinessesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const auth = await requireAuth();
   const filters = parseBusinessFilters(await searchParams);
-  const [{ rows, total }, cities] = await Promise.all([listBusinesses(auth.org.id, filters), distinctCities(auth.org.id)]);
+  const b = schema.businesses;
+  const [{ rows, total }, cities, counts] = await Promise.all([
+    listBusinesses(auth.org.id, filters),
+    distinctCities(auth.org.id),
+    db().select({ q: b.qualification, n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, auth.org.id), isNull(b.erasedAt), eq(b.isMock, false))).groupBy(b.qualification),
+  ]);
+  const count = (keys: string[]) => counts.filter((c) => c.q && keys.includes(c.q)).reduce((n, c) => n + c.n, 0);
+  const checked = counts.reduce((n, c) => n + c.n, 0);
+  const goodSites = count(["excellent", "good", "average", "rejected"]);
+  const rejected = count(REJECTED_QUALIFICATIONS);
   return (
     <>
       <SubNav section="/pipeline" />
@@ -40,6 +53,18 @@ export default async function BusinessesPage({ searchParams }: { searchParams: P
           { key: "mock", label: "Real + mock", options: [{ value: "exclude", label: "Real data only" }, { value: "only", label: "Mock only" }] },
         ]}
       />
+      {filters.view === "leads" && checked > 0 && (
+        <p className="mb-4 rounded-xl border border-border bg-[rgba(3,8,6,0.5)] px-4 py-3 text-[13.5px] leading-relaxed text-muted">
+          <b className="font-semibold text-foreground">{checked}</b> businesses checked so far: <b className="font-semibold text-foreground">{count(["qualified", "high_priority", "website_down"])}</b> qualified,{" "}
+          <b className="font-semibold text-foreground">{count(["review"])}</b> need your review, <b className="font-semibold text-foreground">{goodSites}</b> turned down because their website is already good,{" "}
+          <b className="font-semibold text-foreground">{count(["no_email"])}</b> without a public email.{" "}
+          {rejected > 0 && (
+            <Link href="/businesses?view=rejected" className="font-medium text-accent hover:underline">
+              See what was turned down and why →
+            </Link>
+          )}
+        </p>
+      )}
       <BusinessTable rows={rows} total={total} page={filters.page} pageSize={filters.pageSize} canAdmin={hasRole(auth.role, "admin")} />
     </>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Search, WifiOff } from "lucide-react";
+import { ChevronRight, Maximize2, Minimize2, Search, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ACTIVITY_CATEGORIES, categoryTag } from "@/lib/activity";
@@ -11,7 +11,9 @@ import type {
   AgentLiveState,
   CommandCenterState,
 } from "@/server/queries/command-center";
+import type { AutonomyStatus } from "@/server/orchestrator/autopilot";
 import type { ActivityEntry } from "@/server/queries/metrics";
+import { LogoMark } from "./sidebar";
 import { useCommandCenter, useNow } from "./live";
 
 export type LiveEvent = ActivityEntry;
@@ -293,6 +295,38 @@ export function LiveOperations({
   const first = useRef(true);
   const cc = useCommandCenter(initialState);
   const now = useNow(true);
+
+  // Full screen (desktop and TV): the browser's own full-screen mode when it has one,
+  // otherwise the feed simply covers the whole window.
+  const panel = useRef<HTMLElement>(null);
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    const onChange = () => {
+      if (!document.fullscreenElement) setFull(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFull(false);
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+  const toggleFull = async () => {
+    if (full) {
+      setFull(false);
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      return;
+    }
+    setFull(true);
+    try {
+      await panel.current?.requestFullscreen?.();
+    } catch {
+      // No full-screen support (some TV browsers): the fixed overlay below is used instead.
+    }
+  };
   const agents = cc.data?.agents ?? [];
 
   const base = useMemo(() => {
@@ -437,9 +471,14 @@ export function LiveOperations({
 
   return (
     <section
-      className={cn("panel relative mb-5 min-w-0 overflow-hidden", className)}
+      ref={panel}
+      className={cn("panel relative mb-5 min-w-0 overflow-hidden", full ? "fixed inset-0 z-[100] m-0 h-screen w-screen overflow-hidden rounded-none border-0 bg-background" : className)}
       aria-label="Live operations"
     >
+      {full ? (
+        <TvWall items={items} agents={agents} newestPerTask={newestPerTask} nowMs={nowMs} offline={Boolean(offline)} onExit={toggleFull} />
+      ) : (
+        <>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-4 py-3.5 sm:px-5">
         <span className="relative flex h-2.5 w-2.5">
           <span
@@ -479,6 +518,17 @@ export function LiveOperations({
             </span>
           )
         )}
+        <span className="flex-1" />
+        {/* Desktop and TV only: phones already show the feed full width. */}
+        <button
+          type="button"
+          onClick={toggleFull}
+          aria-pressed={full}
+          className="hidden h-9 items-center gap-2 rounded-lg border border-border px-3 text-[12px] font-semibold uppercase tracking-[0.07em] text-muted transition-colors hover:border-accent hover:text-accent lg:flex"
+        >
+          {full ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          {full ? "Exit full screen" : "Full screen"}
+        </button>
       </div>
 
       {showAgents && agentCards && agents.length > 0 && (
@@ -544,7 +594,7 @@ export function LiveOperations({
       </div>
 
       <div
-        className={cn("max-h-[62vh] overflow-y-auto overscroll-contain bg-[rgba(1,4,3,0.55)] sm:max-h-[560px]", tall && "xl:max-h-[calc(100vh-19rem)] xl:min-h-[420px]")}
+        className={cn("overflow-y-auto overscroll-contain bg-[rgba(1,4,3,0.55)]", full ? "min-h-0 flex-1" : "max-h-[62vh] sm:max-h-[560px]", !full && tall && "xl:max-h-[calc(100vh-19rem)] xl:min-h-[420px]")}
         aria-live="polite"
       >
         {showAgents && !filtered && agents.length > 0 && working === 0 && (
@@ -621,7 +671,8 @@ export function LiveOperations({
                     </div>
                     <p
                       className={cn(
-                        "mt-1 break-words text-[13.5px] leading-snug",
+                        "mt-1 break-words leading-snug",
+                        full ? "text-[18px]" : "text-[13.5px]",
                         tone === "failed"
                           ? "text-danger"
                           : dim
@@ -678,6 +729,8 @@ export function LiveOperations({
           </button>
         )}
       </div>
+        </>
+      )}
     </section>
   );
 }
@@ -697,5 +750,199 @@ export function LiveAgents({ initialState, className }: { initialState?: Command
         ))}
       </div>
     </section>
+  );
+}
+
+/* ─────────── TV / wall display ─────────── */
+
+const TV_W = 1920;
+const TV_H = 1080;
+
+/**
+ * The full-screen wall view. It is laid out for a 1920×1080 canvas and scaled to the real
+ * screen, so it fills a TV exactly whatever its resolution (HD, 4K) or browser zoom.
+ */
+function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { items: LiveEvent[]; agents: AgentLiveState[]; newestPerTask: Map<string, number>; nowMs: number; offline: boolean; onExit: () => void }) {
+  const [scale, setScale] = useState(1);
+  const [status, setStatus] = useState<AutonomyStatus | null>(null);
+  useEffect(() => {
+    const fit = () => setScale(Math.min(window.innerWidth / TV_W, window.innerHeight / TV_H));
+    fit();
+    window.addEventListener("resize", fit);
+    document.addEventListener("fullscreenchange", fit);
+    return () => {
+      window.removeEventListener("resize", fit);
+      document.removeEventListener("fullscreenchange", fit);
+    };
+  }, []);
+  useEffect(() => {
+    let stop = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/autonomy", { cache: "no-store" });
+        if (res.ok && !stop) setStatus((await res.json()) as AutonomyStatus);
+      } catch {
+        // Keep the last known numbers; the feed header shows the lost connection.
+      }
+    };
+    void load();
+    const iv = setInterval(load, 10_000);
+    return () => {
+      stop = true;
+      clearInterval(iv);
+    };
+  }, []);
+
+  const now = nowMs ? new Date(nowMs) : null;
+  const time = now ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(now) : "--:--:--";
+  const date = now ? new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(now) : "";
+  const working = agents.filter((a) => a.status === "running").length;
+  const allOffline = agents.length > 0 && agents.every((a) => a.status === "offline");
+  const state = !status ? null : status.state === "working" ? { label: "ACTIVE · WORKING", tone: "completed" as Tone } : status.state === "paused" ? { label: "PAUSED", tone: "done" as Tone } : status.state === "blocked" ? { label: "CANNOT RUN", tone: "failed" as Tone } : status.state === "limit_reached" ? { label: "DAILY LIMIT REACHED", tone: "waiting" as Tone } : status.state === "off_hours" ? { label: "OUTSIDE WORKING HOURS", tone: "done" as Tone } : { label: "ACTIVE · STANDING BY", tone: "completed" as Tone };
+  const t = status?.today;
+  const numbers = status && t
+    ? [
+        { label: "Discovered today", value: String(t.discovered), sub: `limit ${status.limits.discovery}` },
+        { label: "Qualified leads", value: String(t.qualified), sub: "last 24 hours" },
+        { label: "Websites built", value: String(t.websites), sub: `limit ${status.limits.websites}` },
+        { label: "Deployed", value: String(t.deployed), sub: "last 24 hours" },
+        { label: "Cost today", value: `$${t.costUsd.toFixed(2)}`, sub: `limit $${status.limits.dailyUsd}` },
+        { label: "In queue", value: String(status.tasks.waiting), sub: `${status.tasks.approval} need approval` },
+      ]
+    : [];
+  // As many events as fit: the newest are always at the top.
+  const rows = items.slice(0, 10);
+
+  return (
+    <div className="absolute left-1/2 top-1/2" style={{ width: TV_W, height: TV_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
+      <div className="flex h-full w-full flex-col gap-6 p-9">
+        <header className="flex flex-none items-center gap-6">
+          <LogoMark animated className="h-[72px] w-[72px] flex-none drop-shadow-[0_0_14px_rgba(0,255,120,0.55)]" />
+          <div className="min-w-0">
+            <p className="text-[15px] font-semibold tracking-[0.3em] text-accent/80">HOPI BOT</p>
+            <h2 className="text-[38px] font-semibold leading-none tracking-[0.08em]">LIVE OPERATIONS</h2>
+          </div>
+          {state && (
+            <span className={cn("ml-4 flex items-center gap-3 rounded-full border-2 px-6 py-2.5 text-[20px] font-semibold tracking-[0.06em]", TONE[state.tone].pill)}>
+              <span className={cn("h-3.5 w-3.5 rounded-full", TONE[state.tone].dot, status?.state === "working" && "animate-pulse-dot")} />
+              {state.label}
+            </span>
+          )}
+          {offline && <span className="text-[20px] font-medium text-danger">Connection lost. Reconnecting…</span>}
+          <span className="flex-1" />
+          <div className="text-right">
+            <p className="tabular font-mono text-[64px] font-semibold leading-none tracking-tight text-foreground" suppressHydrationWarning>
+              {time}
+            </p>
+            <p className="mt-1.5 text-[19px] text-muted" suppressHydrationWarning>
+              {date}
+            </p>
+          </div>
+          <button type="button" onClick={onExit} className="flex h-14 flex-none items-center gap-2.5 rounded-xl border border-border px-5 text-[16px] font-semibold uppercase tracking-[0.07em] text-muted transition-colors hover:border-accent hover:text-accent">
+            <Minimize2 className="h-5 w-5" /> Exit
+          </button>
+        </header>
+
+        <div className="grid min-h-0 flex-1 grid-cols-[800px_minmax(0,1fr)] gap-6">
+          <div className="flex min-h-0 flex-col gap-5">
+            <div className="panel flex-none p-6">
+              <p className="text-[14px] font-semibold uppercase tracking-[0.16em] text-accent/80">{status?.objective ? (status.objective.active ? "Current objective" : "Last objective") : "Objective"}</p>
+              <p className="mt-2 line-clamp-2 min-h-[2.6em] text-[24px] font-medium leading-snug first-letter:uppercase">{status?.objective?.text ?? (status ? "No objective yet." : "Loading…")}</p>
+              {status?.objective && status.objective.stages.length > 0 && (
+                <ol className="mt-5 grid grid-cols-3 gap-x-6 gap-y-4">
+                  {status.objective.stages.map((s) => {
+                    const pct = s.target ? Math.min(100, Math.round((s.value / s.target) * 100)) : s.value > 0 ? 100 : 0;
+                    return (
+                      <li key={s.key} className="min-w-0">
+                        <p className="truncate text-[13px] font-semibold uppercase tracking-[0.1em] text-muted">{s.label}</p>
+                        <p className="mt-1 truncate text-[15px] text-muted">
+                          <b className="tabular text-[30px] font-semibold leading-none text-foreground">{s.value}</b>
+                          {s.target ? <span className="tabular"> / {s.target}</span> : null}
+                        </p>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-3">
+                          <div className={cn("h-full rounded-full transition-all duration-700", s.value > 0 ? "bg-accent" : "bg-transparent")} style={{ width: `${pct}%` }} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </div>
+
+            <div className="grid flex-none grid-cols-3 gap-4">
+              {numbers.map((n) => (
+                <div key={n.label} className="panel px-5 py-3">
+                  <p className="truncate text-[14px] text-muted">{n.label}</p>
+                  <p className="tabular mt-1 text-[36px] font-semibold leading-none">{n.value}</p>
+                  <p className="mt-1.5 truncate text-[13px] text-subtle">{n.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="panel flex min-h-0 flex-1 flex-col overflow-hidden">
+              <p className="flex-none border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
+                Agents <span className="ml-2 font-normal normal-case tracking-normal text-muted">{allOffline ? "no worker online" : working ? `${working} working now` : "all idle"}</span>
+              </p>
+              <ul className="flex min-h-0 flex-1 flex-col justify-between py-1">
+                {agents.map((a) => {
+                  const st = AGENT_STATE[a.status];
+                  const tone = TONE[st.tone];
+                  return (
+                    <li key={a.key} className="flex min-h-0 flex-1 items-center gap-4 border-b border-[rgba(0,255,120,0.06)] px-6 last:border-0">
+                      <span className={cn("h-3 w-3 flex-none rounded-full", tone.dot, a.status === "running" && "animate-pulse-dot")} />
+                      <span className="w-[130px] flex-none truncate text-[17px] font-semibold uppercase tracking-[0.06em]">{AGENT_META[a.key].short}</span>
+                      <span className={cn("w-[150px] flex-none truncate text-[13px] font-semibold tracking-[0.06em]", tone.text)}>{st.label}</span>
+                      <span className="min-w-0 flex-1 truncate text-[16px] text-muted">
+                        {a.status === "running" && a.subject ? <span className="text-foreground">{a.subject.name}: </span> : null}
+                        {agentLine(a)}
+                      </span>
+                      <span className="tabular flex-none text-[15px] text-accent/90">✓ {a.completed30d}</span>
+                      <span className={cn("tabular w-[52px] flex-none text-[15px]", a.failed30d ? "text-danger/90" : "text-subtle")}>✕ {a.failed30d}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
+          <div className="panel flex min-h-0 flex-col overflow-hidden">
+            <p className="flex flex-none items-center gap-3 border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
+              <span className="relative flex h-3 w-3">
+                <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-60", offline ? "bg-danger" : "animate-ping bg-accent")} />
+                <span className={cn("relative inline-flex h-3 w-3 rounded-full", offline ? "bg-danger" : "bg-accent")} />
+              </span>
+              Activity feed
+            </p>
+            <ol className="min-h-0 flex-1 overflow-hidden bg-[rgba(1,4,3,0.55)]">
+              {rows.length === 0 && <li className="px-6 py-10 text-[20px] text-muted">No activity recorded yet.</li>}
+              <AnimatePresence initial={false}>
+                {rows.map((e) => {
+                  const tone = toneOf(e, newestPerTask, nowMs || new Date(e.createdAt).getTime());
+                  const tn = TONE[tone];
+                  const dim = tone === "done" || tone === "stale";
+                  return (
+                    <motion.li key={e.id} layout="position" initial={{ opacity: 0, backgroundColor: "rgba(0,255,120,0.12)" }} animate={{ opacity: 1, backgroundColor: "rgba(0,255,120,0)" }} transition={{ duration: 0.9 }} className="border-b border-[rgba(0,255,120,0.06)] px-6 py-3">
+                      <div className="flex items-center gap-3 font-mono text-[15px]">
+                        <time className="tabular flex-none text-subtle" dateTime={e.createdAt} suppressHydrationWarning>
+                          {clock(e.createdAt)}
+                        </time>
+                        <span className={cn("min-w-0 truncate font-semibold tracking-[0.04em]", dim ? "text-muted" : tn.text)}>[{categoryTag(e.category)}]</span>
+                        {e.businessName && <span className="min-w-0 truncate font-sans text-muted">{e.businessName}</span>}
+                        <span className="flex-1" />
+                        <span className={cn("flex flex-none items-center gap-2 rounded border px-2 py-0.5 text-[12px] font-semibold tracking-[0.08em]", tn.pill)}>
+                          <span className={cn("h-2 w-2 rounded-full", tn.dot, tone === "running" && "animate-pulse-dot")} />
+                          {tn.label}
+                        </span>
+                      </div>
+                      <p className={cn("mt-1 truncate text-[19px] leading-snug", tone === "failed" ? "text-danger" : dim ? "text-muted" : "text-foreground")}>{e.message}</p>
+                    </motion.li>
+                  );
+                })}
+              </AnimatePresence>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
