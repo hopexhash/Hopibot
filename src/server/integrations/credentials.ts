@@ -30,11 +30,23 @@ export async function getCredential(organizationId: string, provider: Integratio
   const envConfig = Object.fromEntries(
     Object.entries(ENV_CONFIG[provider] ?? {}).filter(([, v]) => typeof v === "string" && v.length > 0),
   ) as Record<string, string>;
+  // A secret saved under a different APP_ENCRYPTION_KEY cannot be read. Treat it as
+  // "not connected" (the key has to be entered again) instead of failing the whole page.
+  const open = (v: string) => {
+    try {
+      return decryptSecret(v);
+    } catch {
+      return null;
+    }
+  };
   const storedConfig = Object.fromEntries(
-    Object.entries(row?.config ?? {}).map(([k, v]) => [k, typeof v === "string" && v.startsWith("enc:") ? decryptSecret(v.slice(4)) : v]),
+    Object.entries(row?.config ?? {})
+      .map(([k, v]) => [k, typeof v === "string" && v.startsWith("enc:") ? open(v.slice(4)) : v])
+      .filter(([, v]) => v !== null),
   );
   if (row?.encryptedSecret) {
-    return { secret: decryptSecret(row.encryptedSecret), config: { ...envConfig, ...storedConfig }, source: "database" };
+    const secret = open(row.encryptedSecret);
+    if (secret) return { secret, config: { ...envConfig, ...storedConfig }, source: "database" };
   }
   const meta = INTEGRATIONS.find((i) => i.key === provider);
   const envSecret = meta ? process.env[meta.envVar] : undefined;
