@@ -3,7 +3,8 @@ import { ArrowLeft, Check, ShieldCheck, SquareTerminal, X } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActivityFeed } from "@/components/app/activity-feed";
-import { AGENT_ICON, AGENT_STATUS } from "@/components/app/agent-meta";
+import { AgentMascot } from "@/components/app/agent-mascot";
+import { AGENT_STATUS } from "@/components/app/agent-meta";
 import { LinkTabs, StatCard } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Progress } from "@/components/ui";
@@ -53,7 +54,6 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
   const total = s.completed + s.failed;
   const meta = AGENT_META[k];
   const caps = AGENT_CAPABILITIES[k];
-  const Icon = AGENT_ICON[k];
   const st = AGENT_STATUS[live.status];
   const canAdmin = hasRole(auth.role, "admin");
   const cfg = row.config;
@@ -87,9 +87,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
       </Link>
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-3.5">
-          <div className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border", live.status === "running" ? "border-[rgba(0,255,120,0.4)] bg-accent-soft text-accent" : "border-border bg-surface-2 text-muted")}>
-            <Icon className="h-6 w-6" strokeWidth={1.6} />
-          </div>
+          <AgentMascot agent={k} status={live.status} size={84} className="-my-2" />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[24px] font-semibold leading-tight tracking-tight">{meta.name}</h1>

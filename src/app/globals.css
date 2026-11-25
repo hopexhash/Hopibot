@@ -299,6 +299,172 @@ main .flex > .flex-1 {
   fill: var(--muted) !important;
 }
 
+/* ── Agent mascots: small living characters (see components/app/agent-mascot.tsx) ── */
+.msc {
+  overflow: visible;
+  flex: none;
+}
+.msc * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.msc-bob {
+  animation: msc-bob 3.2s ease-in-out infinite;
+  animation-delay: var(--msc-delay, 0s);
+}
+.msc-shadow {
+  animation: msc-shadow 3.2s ease-in-out infinite;
+  animation-delay: var(--msc-delay, 0s);
+}
+/* Blink: a quick squeeze every few seconds, each character on its own rhythm. */
+.msc-eyes {
+  animation: msc-blink 4.6s infinite;
+  animation-delay: calc(var(--msc-delay, 0s) * 1.7);
+}
+/* Idle glance: the eyes wander now and then. */
+.msc-pupils {
+  animation: msc-glance 7s ease-in-out infinite;
+  animation-delay: var(--msc-delay, 0s);
+}
+.msc-tool {
+  transform-origin: bottom left;
+  animation: msc-sway 3.6s ease-in-out infinite;
+  animation-delay: var(--msc-delay, 0s);
+}
+.msc-ping {
+  animation: msc-ping 2.4s ease-out infinite;
+}
+.msc-twinkle {
+  animation: msc-twinkle 2.2s ease-in-out infinite;
+}
+.msc-flame {
+  opacity: 0;
+  transform-origin: top center;
+}
+/* Working: quicker hop, eyes dart, tool busy. */
+.msc-work .msc-bob {
+  animation: msc-hop 0.7s ease-in-out infinite;
+}
+.msc-work .msc-shadow {
+  animation: msc-shadow 0.7s ease-in-out infinite;
+}
+.msc-work .msc-pupils {
+  animation: msc-dart 1.3s ease-in-out infinite;
+}
+.msc-work .msc-tool {
+  animation: msc-busy 0.45s ease-in-out infinite;
+}
+.msc-work .msc-ping {
+  animation-duration: 0.9s;
+}
+.msc-work .msc-flame {
+  opacity: 1;
+  animation: msc-flame 0.18s ease-in-out infinite alternate;
+}
+/* Waiting: looks up at the three dots. */
+.msc-wait .msc-pupils {
+  animation: none;
+  transform: translate(1.6px, -2.6px);
+}
+.msc-dots circle {
+  animation: msc-dot 1.2s ease-in-out infinite;
+}
+.msc-dots circle:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.msc-dots circle:nth-child(3) {
+  animation-delay: 0.36s;
+}
+/* Asleep: slow breathing, floating z's. */
+.msc-sleep .msc-bob {
+  animation: msc-breathe 4.2s ease-in-out infinite;
+  transform-origin: bottom center;
+  filter: saturate(0.55) brightness(0.85);
+}
+.msc-sleep .msc-tool,
+.msc-sleep .msc-ping,
+.msc-sleep .msc-twinkle {
+  animation: none;
+}
+.msc-zzz text {
+  animation: msc-zzz 2.8s ease-in-out infinite;
+}
+.msc-zzz text:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.msc-zzz text:nth-child(3) {
+  animation-delay: 1s;
+}
+/* Dizzy: wobbles after a failed task. */
+.msc-dizzy .msc-bob {
+  animation: msc-wobble 1.1s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+@keyframes msc-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes msc-hop {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  40% { transform: translateY(-6px) scaleY(1.03); }
+  80% { transform: translateY(0) scaleY(0.96); }
+}
+@keyframes msc-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.35; }
+  50% { transform: scaleX(0.86); opacity: 0.22; }
+}
+@keyframes msc-blink {
+  0%, 44%, 48%, 92%, 96%, 100% { transform: scaleY(1); }
+  46%, 94% { transform: scaleY(0.08); }
+}
+@keyframes msc-glance {
+  0%, 30%, 100% { transform: translate(0, 0); }
+  36%, 52% { transform: translate(-2.6px, 0.6px); }
+  60%, 76% { transform: translate(2.2px, -1px); }
+  84% { transform: translate(0, 0); }
+}
+@keyframes msc-dart {
+  0%, 100% { transform: translate(-2.4px, 1px); }
+  50% { transform: translate(2.4px, 1px); }
+}
+@keyframes msc-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes msc-busy {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(10deg); }
+}
+@keyframes msc-ping {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes msc-twinkle {
+  0%, 100% { transform: scale(0.7) rotate(0deg); opacity: 0.6; }
+  50% { transform: scale(1.15) rotate(45deg); opacity: 1; }
+}
+@keyframes msc-flame {
+  from { transform: scaleY(0.8); }
+  to { transform: scaleY(1.25); }
+}
+@keyframes msc-dot {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+@keyframes msc-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.03, 0.97); }
+}
+@keyframes msc-zzz {
+  0% { transform: translate(-4px, 6px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(4px, -8px); opacity: 0; }
+}
+@keyframes msc-wobble {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

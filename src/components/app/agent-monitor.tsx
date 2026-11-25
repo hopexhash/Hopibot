@@ -11,7 +11,8 @@ import { AGENT_META, type AgentKey } from "@/lib/constants";
 import { cn, formatUsd, timeAgo } from "@/lib/utils";
 import { stopAgentAction, toggleAgentAction } from "@/server/actions/agents";
 import type { AgentLiveState, CommandCenterState } from "@/server/queries/command-center";
-import { AGENT_ICON, AGENT_STATUS } from "./agent-meta";
+import { AgentMascot, mascotName } from "./agent-mascot";
+import { AGENT_STATUS } from "./agent-meta";
 import { useCommandCenter, useNow } from "./live";
 
 function fmtRuntime(startIso: string | null, nowSec: number) {
@@ -36,7 +37,6 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
   const [pending, start] = useTransition();
   const [confirmStop, setConfirmStop] = useState(false);
   const st = AGENT_STATUS[a.status];
-  const Icon = AGENT_ICON[a.key];
   const running = a.status === "running";
   const pct = a.progress ? Math.round((a.progress.done / a.progress.total) * 100) : null;
   const remaining = a.progress ? a.progress.total - a.progress.done : a.pending + a.running;
@@ -71,10 +71,10 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
       aria-label={`${a.name}: ${st.label}`}
     >
       <header className="flex items-start gap-3">
-        <div className={cn("relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border", running ? "border-[rgba(0,255,120,0.4)] bg-accent-soft text-accent" : "border-border bg-surface-2 text-muted")}>
-          <Icon className="h-5 w-5" strokeWidth={1.75} />
+        <div className="relative -mt-1 shrink-0" title={`${mascotName(a.key)} — ${st.label}`}>
+          <AgentMascot agent={a.key} status={a.status} size={60} />
           <span
-            className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#091710]", a.online && a.enabled ? "bg-accent" : a.enabled ? "bg-danger" : "bg-subtle", a.online && a.enabled && "animate-pulse-dot text-accent")}
+            className={cn("absolute bottom-0.5 right-0 h-3 w-3 rounded-full border-2 border-[#091710]", a.online && a.enabled ? "bg-accent" : a.enabled ? "bg-danger" : "bg-subtle", a.online && a.enabled && "animate-pulse-dot text-accent")}
             title={a.online ? "Worker online" : "No worker connected"}
           />
         </div>
