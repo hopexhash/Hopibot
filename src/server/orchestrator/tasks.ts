@@ -42,6 +42,16 @@ export async function createTask(
   opts: { enqueue?: boolean } = {},
 ): Promise<{ task: TaskRow; created: boolean }> {
   const scheduledAt = new Date(Date.now() + (spec.delayMs ?? 0));
+  // Attempts default to the agent's configured retry limit (+1 for the first attempt).
+  let maxAttempts = spec.maxAttempts;
+  if (maxAttempts == null) {
+    const [cfg] = await db()
+      .select({ maxRetries: schema.agentConfigurations.maxRetries })
+      .from(schema.agentConfigurations)
+      .innerJoin(schema.agents, eq(schema.agents.id, schema.agentConfigurations.agentId))
+      .where(and(eq(schema.agents.organizationId, organizationId), eq(schema.agents.key, spec.agentKey)));
+    maxAttempts = (cfg?.maxRetries ?? 2) + 1;
+  }
   const [inserted] = await db()
     .insert(schema.agentTasks)
     .values({
@@ -55,7 +65,7 @@ export async function createTask(
       dependsOn: spec.dependsOn ?? [],
       idempotencyKey: spec.idempotencyKey,
       priority: spec.priority ?? 5,
-      maxAttempts: spec.maxAttempts ?? 3,
+      maxAttempts,
       scheduledAt,
     })
     .onConflictDoNothing({ target: [schema.agentTasks.organizationId, schema.agentTasks.idempotencyKey] })

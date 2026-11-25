@@ -29,11 +29,14 @@
   --shadow-sm: 0 1px 2px rgba(16, 16, 24, 0.05);
   --shadow-md: 0 1px 2px rgba(16, 16, 24, 0.04), 0 6px 20px -6px rgba(16, 16, 24, 0.1);
   --shadow-lg: 0 24px 60px -20px rgba(16, 16, 24, 0.25);
-  --chart-1: #5b5bd6;
-  --chart-2: #0ea5e9;
-  --chart-3: #14b8a6;
-  --chart-4: #f59e0b;
-  --chart-5: #ec4899;
+  /* Validated categorical order (dataviz reference palette), light steps */
+  --chart-1: #257de0;
+  --chart-2: #f47230;
+  --chart-3: #00b894;
+  --chart-4: #f2a600;
+  --chart-5: #ee7fac;
+  --chart-grid: #ececf0;
+  --chart-axis: #8a8a96;
 }
 
 .dark {
@@ -62,11 +65,14 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
-  --chart-1: #8b8bf5;
-  --chart-2: #38bdf8;
-  --chart-3: #2dd4bf;
-  --chart-4: #fbbf24;
-  --chart-5: #f472b6;
+  /* Same hues, dark steps */
+  --chart-1: #338ced;
+  --chart-2: #e76624;
+  --chart-3: #00a888;
+  --chart-4: #d28e05;
+  --chart-5: #e24d8b;
+  --chart-grid: #23232b;
+  --chart-axis: #7b7b88;
 }
 
 @theme inline {

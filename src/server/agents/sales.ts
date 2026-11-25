@@ -1,5 +1,5 @@
 import "../guard";
-import { and, desc, eq, ne, or } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { categoryLabel } from "@/lib/constants";
 import type { OrgSettings } from "@/lib/settings";
@@ -10,7 +10,8 @@ import { IntegrationUnavailableError } from "../integrations/credentials";
 import { sendEmail } from "../integrations/resend";
 import { advanceStage, notify } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
-import { createApproval } from "../orchestrator/executor";
+import { createApproval } from "../orchestrator/control";
+import { isSuppressed } from "../suppression";
 
 const draftSchema = z.object({
   subject: z.string().max(120).describe("Honest, specific subject. No clickbait, no fake urgency, no 'Re:'/'Fwd:'."),
@@ -37,17 +38,6 @@ export function complianceFooter(lang: string, s: OrgSettings, unsubscribeUrl: s
 
 export function unsubscribeUrl(token: string) {
   return `${process.env.APP_URL ?? "http://localhost:3000"}/u/${token}`;
-}
-
-export async function isSuppressed(organizationId: string, email: string) {
-  const e = email.toLowerCase();
-  const domain = e.split("@")[1] ?? "";
-  const rows = await db()
-    .select({ id: schema.suppressionList.id })
-    .from(schema.suppressionList)
-    .where(and(eq(schema.suppressionList.organizationId, organizationId), or(eq(schema.suppressionList.email, e), eq(schema.suppressionList.domain, domain))))
-    .limit(1);
-  return rows.length > 0;
 }
 
 async function draftIntro(ctx: AgentContext) {
@@ -242,7 +232,8 @@ async function sendApproved(ctx: AgentContext) {
       replyTo: s.replyToEmail || s.senderEmail,
       subject: email.subject,
       text: email.bodyText,
-      unsubscribeUrl: unsubscribeUrl(email.unsubscribeToken),
+      // Header uses the RFC 8058 one-click endpoint; the body links to the confirmation page.
+      unsubscribeUrl: `${process.env.APP_URL ?? "http://localhost:3000"}/api/unsubscribe/${email.unsubscribeToken}`,
       unsubscribeMailto: s.replyToEmail || s.senderEmail,
       tags: { email_id: email.id, kind: email.kind },
     });

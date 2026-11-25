@@ -30,13 +30,16 @@ export async function getCredential(organizationId: string, provider: Integratio
   const envConfig = Object.fromEntries(
     Object.entries(ENV_CONFIG[provider] ?? {}).filter(([, v]) => typeof v === "string" && v.length > 0),
   ) as Record<string, string>;
+  const storedConfig = Object.fromEntries(
+    Object.entries(row?.config ?? {}).map(([k, v]) => [k, typeof v === "string" && v.startsWith("enc:") ? decryptSecret(v.slice(4)) : v]),
+  );
   if (row?.encryptedSecret) {
-    return { secret: decryptSecret(row.encryptedSecret), config: { ...envConfig, ...row.config }, source: "database" };
+    return { secret: decryptSecret(row.encryptedSecret), config: { ...envConfig, ...storedConfig }, source: "database" };
   }
   const meta = INTEGRATIONS.find((i) => i.key === provider);
   const envSecret = meta ? process.env[meta.envVar] : undefined;
-  if (envSecret) return { secret: envSecret, config: { ...envConfig, ...(row?.config ?? {}) }, source: "environment" };
-  return { secret: null, config: { ...envConfig, ...(row?.config ?? {}) }, source: "none" };
+  if (envSecret) return { secret: envSecret, config: { ...envConfig, ...storedConfig }, source: "environment" };
+  return { secret: null, config: { ...envConfig, ...storedConfig }, source: "none" };
 }
 
 export function mockModeAllowed() {

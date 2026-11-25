@@ -125,10 +125,7 @@ export async function executeTask(taskId: string): Promise<"ran" | "skipped" | "
           return null;
         }
       }
-      const { task: created, created: isNew } = await createTask(task.organizationId, task.runId, {
-        maxAttempts: undefined,
-        ...spec,
-      });
+      const { task: created, created: isNew } = await createTask(task.organizationId, task.runId, spec);
       if (isNew) await log("debug", `Scheduled ${spec.agentKey} → ${spec.type}`, { taskId: created.id });
       return created;
     },

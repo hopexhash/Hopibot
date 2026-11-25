@@ -2,6 +2,7 @@
 
 import { Bell, LogOut, Monitor, Moon, Sun, Wand2 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 import { Button, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger } from "@/components/ui";
@@ -53,6 +54,7 @@ export function Topbar({
   counts: Record<string, number>;
   notifications: Notification[];
 }) {
+  const pathname = usePathname();
   const unread = notifications.filter((n) => !n.readAt).length;
   const initials = (user.name ?? user.email)
     .split(/\s+/)
@@ -64,11 +66,13 @@ export function Topbar({
     <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-4 backdrop-blur sm:px-6">
       <MobileNav orgName={orgName} counts={counts} />
       <div className="flex-1" />
-      <Button asChild variant="primary" size="sm" className="h-8">
-        <Link href="/?objective=1">
-          <Wand2 /> <span className="hidden sm:inline">New objective</span>
-        </Link>
-      </Button>
+      {pathname !== "/" && (
+        <Button asChild variant="primary" size="sm" className="h-8">
+          <Link href="/?objective=1">
+            <Wand2 /> <span className="hidden sm:inline">New objective</span>
+          </Link>
+        </Button>
+      )}
       <DropdownMenu>
         <DropdownTrigger asChild>
           <Button variant="ghost" size="icon" aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`} className="relative">
