@@ -1,4 +1,4 @@
-# AgencyOS AI
+# HOPI Bot
 
 An autonomous website agency platform. Seven specialised AI agents, coordinated by a
 central orchestrator, discover local businesses, research them, build and test a

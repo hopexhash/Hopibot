@@ -18,10 +18,10 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "AgencyOS AI", template: "%s · AgencyOS AI" },
+  title: { default: "HOPI Bot", template: "%s · HOPI Bot" },
   description: "Autonomous AI website agency — command center.",
   robots: { index: false, follow: false },
-  appleWebApp: { capable: true, title: "AgencyOS", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "HOPI Bot", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

@@ -47,7 +47,7 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
     <>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <div className="hud-label text-accent/80">AGENCYOS AI {"//"} COMMAND CENTER</div>
+          <div className="hud-label text-accent/80">HOPI BOT {"//"} COMMAND CENTER</div>
           <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight sm:text-[30px]">
             Welcome back, <span className="text-accent glow-text">{auth.user.name?.split(" ")[0] ?? "operator"}</span>
           </h1>

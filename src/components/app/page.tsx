@@ -59,9 +59,9 @@ export function StatCard({
 
 export function Section({ title, description, actions, children, className }: { title: string; description?: string; actions?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("mb-8", className)}>
+    <section className={cn("mb-8 min-w-0", className)}>
       <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <h2 className="mono text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground"><span className="text-accent">›</span> {title}</h2>
           {description && <p className="text-xs text-muted">{description}</p>}
         </div>

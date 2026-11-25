@@ -92,7 +92,7 @@ export function Kanban({ deals: initial }: { deals: Deal[] }) {
 
   return (
     <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="-mx-3.5 flex gap-3 overflow-x-auto px-3.5 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         {PIPELINE_STAGES.map((s) => (
           <Column key={s.key} stage={s.key} label={s.label} deals={deals.filter((d) => d.stage === s.key)} />
         ))}

@@ -18,7 +18,7 @@ export function AuthForm({ mode, action, signupEnabled }: Props) {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">{mode === "login" ? "Welcome back" : "Create your agency"}</h1>
       <p className="mt-1.5 text-[13px] text-muted">
-        {mode === "login" ? "Sign in to your AgencyOS workspace." : "Set up a workspace for your website agency."}
+        {mode === "login" ? "Sign in to your HOPI Bot workspace." : "Set up a workspace for your website agency."}
       </p>
       <form action={formAction} className="mt-8 space-y-4">
         {mode === "signup" && (
@@ -56,7 +56,7 @@ export function AuthForm({ mode, action, signupEnabled }: Props) {
         {mode === "login" ? (
           signupEnabled ? (
             <>
-              New to AgencyOS?{" "}
+              New to HOPI Bot?{" "}
               <Link className="font-medium text-accent hover:underline" href="/signup">
                 Create a workspace
               </Link>

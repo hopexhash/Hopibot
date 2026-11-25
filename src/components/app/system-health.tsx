@@ -24,7 +24,7 @@ export function SystemHealth({ initial, detailed = false }: { initial: { checks:
     <div className="panel flex h-full flex-col p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="mono text-[11.5px] font-semibold uppercase tracking-[0.16em]">
-          <span className="text-accent">›</span> AgencyOS System Health
+          <span className="text-accent">›</span> HOPI Bot System Health
         </h3>
         <span className="mono text-[10px] text-subtle">{error ? <span className="text-danger">stale</span> : timeAgo(h.checkedAt)}</span>
       </div>

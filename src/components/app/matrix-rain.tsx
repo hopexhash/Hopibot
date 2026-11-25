@@ -55,7 +55,7 @@ export function MatrixRain() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    const isSmall = window.innerWidth < 640;
+    const isSmall = document.documentElement.clientWidth < 640;
     const font = isSmall ? 13 : 15;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let w = 0;
@@ -78,7 +78,7 @@ export function MatrixRain() {
       };
     };
     const resize = () => {
-      w = window.innerWidth;
+      w = document.documentElement.clientWidth;
       h = window.innerHeight;
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);

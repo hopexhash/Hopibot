@@ -149,7 +149,7 @@ export async function safeFetch(
         dispatcher: getDispatcher(),
         signal: controller.signal,
         headers: {
-          "user-agent": "AgencyOS-AuditBot/1.0 (+website quality audit)",
+          "user-agent": "HOPIBot-Audit/1.0 (+website quality audit)",
           accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5",
           "accept-language": "nl,en;q=0.8",
         },

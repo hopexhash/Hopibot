@@ -93,7 +93,7 @@ export function LogoMark({ className }: { className?: string }) {
       </defs>
       <path d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" fill="none" stroke="url(#lg)" strokeWidth="1.6" />
       <path d="M16 8 23 12v8l-7 4-7-4v-8Z" fill="rgba(0,255,102,0.12)" stroke="#00ff66" strokeWidth="1.2" />
-      <path d="M12.5 19.5 16 11l3.5 8.5M13.8 16.6h4.4" fill="none" stroke="#e8f5ec" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12.7 11.5v9M19.3 11.5v9M12.7 16h6.6" fill="none" stroke="#e8f5ec" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="16" cy="2" r="1.3" fill="#00ff66" />
       <circle cx="29" cy="22.5" r="1.3" fill="#00ff66" />
       <circle cx="3" cy="22.5" r="1.3" fill="#00ff66" />
@@ -103,11 +103,11 @@ export function LogoMark({ className }: { className?: string }) {
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 px-1" aria-label="AgencyOS AI — Command Center">
+    <Link href="/" className="flex items-center gap-2.5 px-1" aria-label="HOPI Bot — Command Center">
       <LogoMark className="h-9 w-9 shrink-0 drop-shadow-[0_0_8px_rgba(0,255,102,0.45)]" />
       {!collapsed && (
         <div className="min-w-0 leading-none">
-          <div className="mono text-[14px] font-bold tracking-[0.22em] text-foreground">AGENCYOS</div>
+          <div className="mono text-[14px] font-bold tracking-[0.22em] text-foreground">HOPI BOT</div>
           <div className="mono mt-1 text-[9.5px] tracking-[0.3em] text-accent/80">AI OPERATIONS</div>
         </div>
       )}

@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       return new Response(text, {
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
-          "Content-Disposition": `attachment; filename="agencyos-logs-${new Date().toISOString().slice(0, 19).replace(/:/g, "")}.log"`,
+          "Content-Disposition": `attachment; filename="hopibot-logs-${new Date().toISOString().slice(0, 19).replace(/:/g, "")}.log"`,
           "Cache-Control": "no-store",
         },
       });

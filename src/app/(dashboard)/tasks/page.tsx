@@ -31,7 +31,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
   return (
     <>
       <PageHeader eyebrow="AI OPERATIONS // TASK QUEUE" title="Task Queue" description="Every task the orchestrator has scheduled. Retry failed work or cancel what has not started." />
-      <div className="-mx-4 mb-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <div className="-mx-3.5 mb-4 flex gap-1.5 overflow-x-auto px-3.5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {[undefined, ...STATUSES].map((s) => (
           <Link
             key={s ?? "all"}

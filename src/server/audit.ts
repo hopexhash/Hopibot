@@ -24,6 +24,6 @@ export async function audit(entry: {
       });
   } catch (err) {
     // Audit failures must be visible but must not break the user's action.
-    console.error("[audit] failed to write audit log", entry.action, err);
+    console.error("[audit] failed to write audit log", entry.action, (err as Error).message?.replace(/\nparams:[\s\S]*$/, ""), ((err as Error).cause as Error | undefined)?.message ?? "");
   }
 }

@@ -1,6 +1,6 @@
 # Deployment
 
-AgencyOS runs as **two processes from one codebase**: the Next.js web app and the agent
+HOPI Bot runs as **two processes from one codebase**: the Next.js web app and the agent
 worker. Both connect to the same Postgres and Redis.
 
 | Component | Recommended host | Notes |
@@ -49,8 +49,8 @@ Integration keys may be set as env vars or per organisation on the Integrations 
 ## 4. Worker
 
 ```bash
-docker build -f Dockerfile.worker -t agencyos-worker .
-docker run --env-file .env agencyos-worker
+docker build -f Dockerfile.worker -t hopibot-worker .
+docker run --env-file .env hopibot-worker
 ```
 
 * Scale by running more replicas; tasks are claimed with a compare-and-set, so replicas

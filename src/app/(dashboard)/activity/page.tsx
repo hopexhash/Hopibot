@@ -14,7 +14,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
   return (
     <>
       <PageHeader eyebrow="AI OPERATIONS // LIVE ACTIVITY" title="Live Activity" description="Real agent logs as they are written. Filter by agent, search, pause, copy or download." />
-      <Terminal key={valid} initial={logs} initialAgent={valid} height="min(68dvh, 720px)" title="AGENCYOS://TERMINAL" />
+      <Terminal key={valid} initial={logs} initialAgent={valid} height="min(68dvh, 720px)" title="HOPIBOT://TERMINAL" />
     </>
   );
 }

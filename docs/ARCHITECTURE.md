@@ -1,4 +1,4 @@
-# AgencyOS AI — Architecture
+# HOPI Bot — Architecture
 
 ## 1. Starting point
 

@@ -46,10 +46,10 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
         <MobileNav counts={counts} />
         <Link href="/" className="flex min-w-0 items-center gap-2 lg:hidden">
           <LogoMark className="h-7 w-7 shrink-0" />
-          <span className="mono truncate text-[12.5px] font-bold tracking-[0.18em]">AGENCYOS</span>
+          <span className="mono truncate text-[12.5px] font-bold tracking-[0.18em]">HOPI BOT</span>
         </Link>
         <div className="mono hidden min-w-0 truncate text-[12px] font-semibold tracking-[0.2em] text-muted lg:block">
-          <span className="text-foreground">AGENCYOS AI</span> <span className="text-accent/70">{"//"}</span> COMMAND CENTER
+          <span className="text-foreground">HOPI BOT</span> <span className="text-accent/70">{"//"}</span> COMMAND CENTER
         </div>
         <div className="flex-1" />
 

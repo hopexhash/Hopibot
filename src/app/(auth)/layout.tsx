@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { LogoMark } from "@/components/app/sidebar";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -6,10 +6,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-10 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight">AgencyOS AI</span>
+            <LogoMark className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,255,102,0.45)]" />
+            <span className="mono text-[15px] font-bold tracking-[0.2em]">HOPI BOT</span>
           </div>
           {children}
         </div>
