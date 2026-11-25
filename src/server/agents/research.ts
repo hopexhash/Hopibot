@@ -1,4 +1,5 @@
 import "../guard";
+import { stageEvent, stageLabel } from "@/lib/website-stages";
 import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { categoryLabel } from "@/lib/constants";
@@ -125,6 +126,7 @@ export const research: AgentHandler = async (ctx) => {
     .where(and(eq(schema.businesses.id, businessId), eq(schema.businesses.organizationId, ctx.organizationId)));
   if (!b) throw new Error("Business not found");
   await db().update(schema.businesses).set({ researchStatus: "in_progress" }).where(eq(schema.businesses.id, b.id));
+  await ctx.log("info", `${stageLabel(1)}: reading the listing and the current website of ${b.name}`, stageEvent(1, "running"));
 
   const mode = await ctx.mode("anthropic");
   if (mode === "unavailable") throw new IntegrationUnavailableError("anthropic");
@@ -203,6 +205,7 @@ Agency instructions from the operator: ${ctx.config.instructions || "(none)"}`,
   });
   await db().update(schema.businesses).set({ researchStatus: "done", updatedAt: new Date() }).where(eq(schema.businesses.id, b.id));
   await advanceStage(b.id, "ANALYSED", ctx.organizationId);
+  await ctx.log("info", `${stageLabel(1)}: profile and website brief written`, stageEvent(1, "completed"));
   await ctx.log("info", `Research complete: ${result.profile.verifiedFacts.length} verified facts, ${result.profile.assumptions.length} assumptions, ${result.profile.missingInformation.length} gaps.`);
 
   await continuePipeline(ctx, { businessId: b.id, next: (ctx.task.input.next as string[]) ?? [] });

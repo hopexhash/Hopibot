@@ -2,6 +2,10 @@ import "../guard";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { selectDesign } from "@/lib/design-select";
+import { industryProfile } from "@/lib/industry-intel";
+import { stageEvent, stageLabel } from "@/lib/website-stages";
+import { DIRECTIONS, finalizeIdentity, fingerprintOf, seedOf } from "@/sites/identity";
+import { fallbackBrief, planCreative, recentFingerprints, type CreativeBrief } from "../website/creative";
 import { siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
 import { DESIGN_KEYS, getDesign } from "@/sites/designs";
 import { FONT_FAMILIES } from "@/sites/fonts";
@@ -15,12 +19,12 @@ import { attachStockPhotos } from "../website/photos";
 import { enforceSpec, ensureProject, saveVersion } from "../website/service";
 
 const SPEC_GUIDE = `You produce a SiteSpec JSON document that our design system renders into a website.
-- The design (theme.design) is chosen for you and fixed. It defines typography, layout and atmosphere; write copy that fits its voice.
-- theme.primary / theme.accent: keep the design's colours unless the business has clear brand colours of its own (then use those, keeping strong contrast). theme.font, mode and radius: keep as given.
-- You receive a starting blueprint for this design. Personalise it with the verified facts and research: rewrite headline, texts, services/menu and FAQ so they are specific to this business. Keep the section order unless the brief needs otherwise.
-- Image references: use "art:hero", "art:about", "art:g1".."art:g6" for generated artwork. Only reference keys from "images" if they are already present.
-- Headlines: short, specific, benefit-led, max ~8 words. Large display designs need very short headlines.
-- Sections available: about, services, menu, features, process, gallery, hours, faq, cta, contact, packages, team, booking, beforeafter, order, testimonials. Choose 6–10. Always include "about" and "contact".
+- The creative brief decides the brand identity and the page structure. Build exactly the sections it lists, in that order (you may drop one when the verified data cannot fill it honestly). Do not add sections by habit.
+- theme: copy the values given under "Theme to use". The identity is applied by the system.
+- Image references: "art:hero" for the hero, "art:about" for an about section, "art:g1".."art:g6" in a gallery, "art:show" for a showcase. Only reference keys from "images" if they are already present.
+- Headlines: short, specific and concrete, max ~8 words; mark at most one key phrase with *asterisks* for emphasis. Write like a good copywriter for this exact business, not like a template: no "Welcome to", no "Quality and service", no filler.
+- "statement": one confident sentence (max ~16 words) expressing what this business stands for, grounded in the research. "showcase": a short caption for a full-width photograph.
+- Sections available: about, services, menu, features, process, gallery, hours, faq, cta, statement, showcase, contact, packages, team, booking, beforeafter, order, testimonials.
 - "menu" only for food businesses. "booking" kinds: reservation (restaurants), appointment (salons, garages, clinics), quote (trades), order (takeaway).
 - Prices (menu price, service price, package price): ONLY when the exact price appears in the verified data; otherwise null. Never estimate.
 - "team": only real people named in the verified data; otherwise omit the section.
@@ -123,14 +127,14 @@ export function autoFix(spec: SiteSpec, issues: { code: string; detail?: string 
   return { spec: s, fixed };
 }
 
-async function spawnQc(ctx: AgentContext, businessId: string, projectId: string, versionId: string, next: string[], iteration: number) {
+async function spawnQc(ctx: AgentContext, businessId: string, projectId: string, versionId: string, next: string[], iteration: number, visualRound = 0) {
   const runKey = ctx.task.runId ?? `adhoc-${ctx.task.id}`;
   await ctx.spawn({
     agentKey: "quality_control",
     type: "test_website",
     businessId,
     projectId,
-    input: { versionId, next, iteration },
+    input: { versionId, next, iteration, visualRound },
     idempotencyKey: `${runKey}:qc:${businessId}:${versionId}`,
     priority: 4,
   });
@@ -138,7 +142,7 @@ async function spawnQc(ctx: AgentContext, businessId: string, projectId: string,
 
 export const websiteBuilder: AgentHandler = async (ctx) => {
   const type = ctx.task.type;
-  const input = ctx.task.input as { next?: string[]; iteration?: number; instruction?: string; spec?: unknown; issues?: { code: string; message: string; detail?: string }[] };
+  const input = ctx.task.input as { next?: string[]; iteration?: number; instruction?: string; spec?: unknown; issues?: { code: string; message: string; detail?: string }[]; weaknesses?: { area: string; problem: string; fix: string }[]; visualRound?: number };
   // The builder always triggers QC itself, so an explicit "qc" step is consumed here.
   const next = (input.next ?? []).filter((a) => a !== "qc");
   const iteration = input.iteration ?? 0;
@@ -163,13 +167,42 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   let createdBy = "agent";
   let qcAttempts = 0;
 
+  let brief: CreativeBrief | null = null;
+  const stage = (n: number, detail: string, status: "running" | "completed" | "warning" = "running") => ctx.log("info", `${stageLabel(n)}: ${detail}`, stageEvent(n, status));
+  const photoProvider = type !== "generate_website" && type !== "refine_design" ? null : (await ctx.mode("pexels")) === "live" ? "pexels" : (await ctx.mode("unsplash")) === "live" ? "unsplash" : null;
+
   if (type === "generate_website") {
+    const profile = industryProfile(b.category);
+    await stage(2, `${b.name} is a ${profile.label}. Visitors want to ${profile.goal}.`, "completed");
+    const recent = await recentFingerprints(ctx.organizationId);
+    await stage(3, recent.length ? `comparing with the ${recent.length} most recent sites so this one looks different` : "first site with a brand identity");
     if (isMock || !research) {
       if (!research) await ctx.log("warn", "No research found — building from verified listing data only.");
-      spec = buildMockSpec(b, design.key);
-      changeSummary = isMock ? "Initial version (MOCK — generated from templates without Claude)." : "Initial version from listing data.";
+      brief = fallbackBrief(b, design.key, recent, Boolean(photoProvider));
     } else {
-      await ctx.log("info", `Designing the website with the "${design.name}" design (${design.industry}) — ${chosen.reason}.`, { kind: "website.generating", status: "running" });
+      await ctx.heartbeat();
+      const planned = await planCreative(ctx.usage, { business: b, baseDesign: design.key, research, recent, photos: Boolean(photoProvider), model: ctx.config.model });
+      brief = planned.brief;
+      if (planned.source === "fallback") await ctx.log("warn", `Creative direction could not be generated (${planned.note}); using the built-in direction for this industry.`);
+    }
+    // Decide against the very latest state: another site may have been planned in the meantime.
+    const latest = await recentFingerprints(ctx.organizationId);
+    brief.identity = finalizeIdentity(brief.identity, seedOf(b.name), latest, { photos: Boolean(photoProvider), category: design.key });
+    const id = brief.identity;
+    await ctx.log("debug", "identity decided", { kind: "website.stage", stage: 4, status: "info", fingerprint: fingerprintOf(id, design.key) });
+    await stage(3, `${id.personality || "identity defined"} — ${id.fonts.display} with ${id.fonts.body}, accent ${id.colors.accent} on ${id.colors.background}`, "completed");
+    await stage(4, `${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction}, "${id.layout.hero}" opening. ${brief.rationale}`.slice(0, 400), "completed");
+    await stage(5, brief.architecture.map((s) => s.type).join(" → "), "completed");
+
+    if (isMock || !research) {
+      // Without Claude the copy comes from the fact-safe blueprint, arranged as the brief planned it.
+      const base = buildMockSpec(b, design.key);
+      const order = brief.architecture.map((s) => s.type as string);
+      const kept = order.map((t) => base.sections.find((s) => s.type === t)).filter((s): s is SiteSpec["sections"][number] => Boolean(s));
+      spec = { ...base, sections: kept.length >= 2 ? kept : base.sections };
+      changeSummary = isMock ? "Initial version (MOCK — copy from templates, identity from the built-in direction engine)." : "Initial version from listing data.";
+    } else {
+      await stage(7, `writing ${brief.architecture.length} sections for the "${id.layout.hero}" composition`);
       const res = await claudeStructured({
         ctx: ctx.usage,
         operation: "generate_website",
@@ -177,13 +210,13 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: (ctx.config.effort as "high") ?? "high",
         maxTokens: 32000,
-        system: `You are the Website Builder Agent of a premium web design agency.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}`,
+        system: `You are the senior designer and copywriter of a premium web design agency, building one website from a creative brief.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}`,
         prompt: [
-          `Design (fixed): ${design.key} "${design.name}" for ${design.industry} — ${design.description}`,
-          `Design defaults: primary ${design.palette.primary}, accent ${design.palette.accent}, mode ${design.mode}, font ${design.fonts.display}, radius ${design.radius}.`,
-          `Features this design supports: ${design.features.join("; ")}.`,
-          "Starting blueprint (personalise this; do not keep generic sample items when verified data offers real ones):",
-          JSON.stringify(buildMockSpec(b, design.key)),
+          "Creative brief (decided by the creative director; follow it):",
+          JSON.stringify({ positioning: brief.positioning, audience: brief.audience, experience: brief.experience, direction: id.direction, personality: id.personality, heroComposition: id.layout.hero, sections: brief.architecture }, null, 2),
+          `Theme to use: design "${design.key}", template "${design.legacy}", primary ${id.colors.primary}, accent ${id.colors.accent}, mode ${design.mode}, font "${id.fonts.display}", radius ${id.radius}.`,
+          `Industry context (${profile.label}): the usual booking kind is "${profile.booking}". ${photoProvider ? "Real photographs will be placed in the image slots." : "No photographs are available: do not create gallery or showcase sections."}`,
+          `Hero composition "${id.layout.hero}": ${["wordmark", "stack", "minimal", "poster"].includes(id.layout.hero) ? "the headline is set very large, keep it to 3–6 words" : "keep the headline under 8 words"}.`,
           "Verified business record:",
           JSON.stringify({ name: b.name, category: b.category, city: b.city, address: b.address, phone: b.phone, openingHours: b.openingHours }, null, 2),
           "Research profile (verified facts are marked; treat assumptions as unconfirmed):",
@@ -193,8 +226,38 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         ].join("\n"),
       });
       spec = res.data;
-      changeSummary = `Initial version generated by ${res.model}.`;
+      changeSummary = `Initial version generated by ${res.model} in the ${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction} direction.`;
+      await stage(7, `${spec.sections.length} sections written`, "completed");
     }
+    spec.theme.identity = id;
+  } else if (type === "refine_design") {
+    // Visual refinement: the reviewer looked at real screenshots; apply its concrete findings once.
+    const cur = await currentSpec(project.id);
+    if (!cur) throw new Error("No version to refine");
+    qcAttempts = cur.qcAttempts;
+    const weaknesses = (input.weaknesses ?? []).slice(0, 6);
+    await stage(10, `applying ${weaknesses.length} finding(s) from the visual review`);
+    if (isMock || !weaknesses.length) {
+      spec = cur.spec;
+      changeSummary = "Visual review: no changes applied.";
+    } else {
+      const res = await claudeStructured({
+        ctx: ctx.usage,
+        operation: "refine_website",
+        schema: improveSchema,
+        model: ctx.config.model,
+        effort: "medium",
+        maxTokens: 32000,
+        system: `You are the senior designer of a premium web design agency. A reviewer looked at screenshots of the rendered site and listed its weakest points. Fix exactly those points by editing the spec: copy, section order or choice, and theme.identity (layout variants, fonts, colours, density). Keep everything that works. Never add unverified claims.\n${SPEC_GUIDE}\nLayout variants available — hero: cinema, split, centered, editorial, poster, frame, minimal, panel, card, wordmark, collage, stack, offset; services: cards, pricelist, rows, tiles, index, bento; gallery: mosaic, strip, grid, polaroid, scroller, bento; about: split, overlap, centered, statement; head: left, center, ornament, number, tape; cta: band, full, card.`,
+        prompt: `Current SiteSpec:\n${JSON.stringify(cur.spec)}\n\nFindings from the visual review of the rendered site:\n${JSON.stringify(weaknesses, null, 2)}\n\nReturn the improved spec and a one-sentence change summary.`,
+      });
+      spec = res.data.spec;
+      if (!spec.theme.identity) spec.theme.identity = cur.spec.theme.identity;
+      // Photographs already chosen stay with the site.
+      spec.images = cur.spec.images;
+      changeSummary = `Visual refinement: ${res.data.changeSummary}`;
+    }
+    await stage(10, changeSummary.slice(0, 300), "completed");
   } else if (type === "fix_issues") {
     const cur = await currentSpec(project.id);
     if (!cur) throw new Error("No version to fix");
@@ -215,6 +278,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         prompt: `Current SiteSpec:\n${JSON.stringify(spec)}\n\nQuality-control issues to fix:\n${JSON.stringify(remaining, null, 2)}\n\nReturn the corrected spec and a one-sentence change summary.`,
       });
       spec = res.data.spec;
+      spec.theme.identity = cur.spec.theme.identity;
       changeSummary = `QC fixes: ${[...auto.fixed, res.data.changeSummary].join("; ")}`;
     } else {
       changeSummary = `QC fixes${isMock ? " (MOCK, deterministic)" : ""}: ${auto.fixed.join(", ") || "no automatic fix available"}.`;
@@ -238,6 +302,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         prompt: `Current SiteSpec:\n${JSON.stringify(cur.spec)}\n\nRequested change (from the agency operator):\n${instruction}\n\nReturn the modified spec and a short change summary.`,
       });
       spec = res.data.spec;
+      if (!spec.theme.identity) spec.theme.identity = cur.spec.theme.identity;
       changeSummary = res.data.changeSummary;
     }
   } else if (type === "apply_edit") {
@@ -250,16 +315,18 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
 
   // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
   spec.theme = { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
-  // Real photography: with Pexels or Unsplash connected, image slots get licensed photos that match the design.
-  const photoProvider = type !== "generate_website" ? null : (await ctx.mode("pexels")) === "live" ? "pexels" : (await ctx.mode("unsplash")) === "live" ? "unsplash" : null;
-  if (photoProvider) {
+  // Real photography: with Pexels or Unsplash connected, image slots get licensed photos chosen for this business.
+  if (photoProvider && type === "generate_website") {
+    await stage(6, `searching ${photoProvider === "pexels" ? "Pexels" : "Unsplash"} for ${brief ? Object.values(brief.imagery).filter(Boolean).slice(0, 2).join(", ") : "matching photographs"}`);
     try {
-      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug, photoProvider);
+      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug, photoProvider, brief?.imagery);
       spec = r.spec;
-      await ctx.log("info", `Added ${r.added} licensed stock photo(s) from ${photoProvider === "pexels" ? "Pexels" : "Unsplash"}.`);
+      await stage(6, `${r.added} licensed photograph(s) placed`, "completed");
     } catch (err) {
-      await ctx.log("warn", `Stock photos could not be loaded (${(err as Error).message.slice(0, 120)}) — using illustrations.`);
+      await stage(6, `photographs could not be loaded (${(err as Error).message.slice(0, 120)}); the site is built typography-led`, "warning");
     }
+  } else if (type === "generate_website") {
+    await stage(6, "no photo source is connected, so this site is designed with typography and colour only", "completed");
   }
   const finalSpec = enforceSpec(spec, b, verifiedEmail, researchText);
   const version = await saveVersion({
@@ -277,7 +344,9 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   if (type === "generate_website") await notifyEvent(ctx.organizationId, "websiteGenerated", `Website generated for ${b.name}`, changeSummary.slice(0, 200), `/websites/${project.id}`, "success");
   await ctx.log("info", `Website version ${version.versionNo} built: ${changeSummary}`, { projectId: project.id, versionId: version.id, kind: "website.generated", status: "completed" });
 
+  if (type === "generate_website" || type === "refine_design") await stage(8, `version ${version.versionNo} rendered for phone, tablet and desktop`, "completed");
+
   // Every new version is tested before it can be marked ready.
-  await spawnQc(ctx, b.id, project.id, version.id, next, iteration);
+  await spawnQc(ctx, b.id, project.id, version.id, next, iteration, type === "refine_design" ? (input.visualRound ?? 1) : (input.visualRound ?? 0));
   return { status: "completed", output: { projectId: project.id, versionId: version.id, versionNo: version.versionNo, mock: isMock } };
 };

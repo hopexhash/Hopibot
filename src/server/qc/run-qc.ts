@@ -243,8 +243,40 @@ export async function runQc(input: {
       await page.evaluate(() => document.querySelectorAll(".reveal").forEach((e) => e.classList.add("in")));
       const shot = await page.screenshot({ type: "jpeg", quality: 55, fullPage: false });
       screenshots[vp.name] = `data:image/jpeg;base64,${shot.toString("base64")}`;
+      // The visual review judges the whole page, not only the first screen: a long capture of
+      // the desktop and the phone layout (height capped so the image stays reviewable).
+      if (vp.name !== "tablet") {
+        // Captured as consecutive parts: one very tall image would be scaled down until the text is unreadable.
+        const h = await page.evaluate(() => document.documentElement.scrollHeight);
+        const part = vp.name === "desktop" ? 1500 : 1400;
+        for (let k = 0; k < 3 && k * part < h; k++) {
+          const piece = await page.screenshot({ type: "jpeg", quality: 50, fullPage: true, clip: { x: 0, y: k * part, width: vp.width, height: Math.min(part, h - k * part) } });
+          screenshots[`${vp.name}_part${k + 1}`] = `data:image/jpeg;base64,${piece.toString("base64")}`;
+        }
+      }
     } catch (err) {
       add({ code: "load_failed", severity: "critical", message: `Page failed to load: ${(err as Error).message.slice(0, 160)}`, viewport: vp.name });
+    } finally {
+      await context.close();
+    }
+  }
+
+  // Layout must hold at every common width, not only the three main ones.
+  {
+    const context = await b.newContext({ viewport: { width: 375, height: 800 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await serveFiles(page, files, []);
+    try {
+      await page.goto(`${ORIGIN}/index.html`, { waitUntil: "load", timeout: 30000 });
+      for (const width of [375, 430, 768, 1024, 1920]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.waitForTimeout(120);
+        const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        if (over > 2) add({ code: "horizontal_overflow", severity: width < 800 ? "critical" : "major", message: `Page is ${over}px wider than a ${width}px screen`, viewport: `${width}px` });
+        check(`${width}px: no horizontal overflow`, over <= 2);
+      }
+    } catch {
+      // The main viewport pass already reports a page that cannot load.
     } finally {
       await context.close();
     }

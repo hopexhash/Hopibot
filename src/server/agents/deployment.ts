@@ -9,6 +9,7 @@ import { AgentError } from "../integrations/anthropic";
 import { pushSiteToGithub } from "../integrations/github";
 import { vercelAddDomain, vercelDeploy, vercelGetDeployment } from "../integrations/vercel";
 import { continuePipeline } from "../orchestrator/pipeline";
+import { stageEvent, stageLabel } from "@/lib/website-stages";
 import { advanceStage, notifyEvent } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
 
@@ -143,6 +144,7 @@ export const deployment: AgentHandler = async (ctx) => {
     await db().update(schema.websiteProjects).set({ previewUrl: url, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
     if (!production) await advanceStage(project.businessId, "QUALITY_APPROVED", ctx.organizationId);
     await ctx.log("info", `${production ? "Website published" : "Deployment completed successfully"}: ${url}`, { kind: "deploy.done", status: "completed", url });
+    await ctx.log("info", `${stageLabel(11)}: ${production ? "published" : "preview online"} at ${url}`, { ...stageEvent(11, "completed"), url });
     await notifyEvent(ctx.organizationId, "deployed", production ? "A website was published" : "A website preview is ready", url, `/websites/${project.id}`, "success");
     if (!production) await continuePipeline(ctx, { businessId: project.businessId, projectId: project.id, next: (ctx.task.input.next as string[]) ?? [] });
     return { status: "completed", output: { deploymentId: row.id, url, provider } };

@@ -73,12 +73,23 @@ async function pool(organizationId: string, provider: PhotoProvider, query: stri
  * Photos already supplied by the business (license "authorised") are never replaced.
  * `seed` makes two businesses on the same design get different photos.
  */
-export async function attachStockPhotos(organizationId: string, spec: SiteSpec, scene: ArtScene, seed: string, provider: PhotoProvider = "pexels"): Promise<{ spec: SiteSpec; added: number }> {
-  const dir = DIRECTION[scene] ?? DIRECTION.service;
+export async function attachStockPhotos(
+  organizationId: string,
+  spec: SiteSpec,
+  scene: ArtScene,
+  seed: string,
+  provider: PhotoProvider = "pexels",
+  /** Search phrases chosen for this business by the creative direction; they replace the industry defaults. */
+  queries?: Partial<Record<"hero" | "about" | "gallery" | "detail", string>>,
+): Promise<{ spec: SiteSpec; added: number }> {
+  const base = DIRECTION[scene] ?? DIRECTION.service;
+  const q = (k: "hero" | "about" | "gallery" | "detail") => (queries?.[k] && queries[k]!.trim().length >= 3 ? queries[k]!.trim() : base[k]);
+  const dir = { hero: q("hero"), about: q("about"), gallery: q("gallery"), detail: q("detail") };
   const refs = new Set<string>([spec.hero.image, "art:about2", "art:cta", "art:side1", "art:side2"]);
   for (const s of spec.sections) {
     if (s.type === "about") refs.add(s.image);
     if (s.type === "gallery") s.images.forEach((r) => refs.add(r));
+    if (s.type === "showcase") refs.add(s.image);
     if (s.type === "services") s.items.forEach((_, j) => refs.add(`art:svc${j}`));
     if (s.type === "beforeafter") continue; // before/after must be the business's own photos
   }
@@ -105,12 +116,13 @@ export async function attachStockPhotos(organizationId: string, spec: SiteSpec, 
   let n = 0;
   for (const ref of refs) {
     if (has.has(ref) || images.length >= 20) continue;
-    const source = ref === spec.hero.image || ref === "art:cta" ? hero : ref.startsWith("art:about") || ref.startsWith("art:side") ? about : ref.startsWith("art:svc") ? detail : gallery;
+    const isShowcase = spec.sections.some((x) => x.type === "showcase" && x.image === ref);
+    const source = ref === spec.hero.image || ref === "art:cta" || isShowcase ? hero : ref.startsWith("art:about") || ref.startsWith("art:side") ? about : ref.startsWith("art:svc") ? detail : gallery;
     // When one search runs out of photos, the others fill in: a site never mixes photos and illustrations.
     const p = pick(source, n) ?? pick(gallery, n) ?? pick(detail, n) ?? pick(hero, n) ?? pick(about, n);
     if (!p) continue;
     n++;
-    images.push({ key: ref, src: ref === spec.hero.image ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / ${p.source}` });
+    images.push({ key: ref, src: ref === spec.hero.image || isShowcase ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / ${p.source}` });
     placed.push(p);
   }
   if (provider === "unsplash") void reportUnsplashUse(organizationId, placed);

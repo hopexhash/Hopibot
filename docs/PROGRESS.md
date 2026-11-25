@@ -154,3 +154,20 @@ Not built: screenshots as calibration examples (feedback is text-only), a settin
 - Notification preferences: Settings → Autopilot → Notifications. Activity is kept for 90 days.
 
 Not built: Supabase Realtime (the app has no browser Supabase client; cursor polling is used instead), a separate SEO agent (SEO checks are part of quality control), push/email notifications (in-app bell only).
+
+## Website generation engine v3 (brand identity per business)
+
+Pipeline (website builder + quality control), each stage reported as an event:
+1. Research (research agent) → 2. Industry and audience (`lib/industry-intel.ts`, 19 profiles covering 42 categories)
+→ 3–5. Creative direction (`server/website/creative.ts`): brand strategy, identity, page structure, photo search phrases; compared with the most recent sites so it differs
+→ 6. Photographs chosen with the brief's phrases, or typography-led when none are available
+→ 7. Site written inside the brief → 8. Rendered → 9. Browser QC at seven widths
+→ 10. Visual review of real screenshots (`server/qc/visual-review.ts`), seven scores, one refinement round at most → 11. Deploy.
+
+- Identity (`sites/identity.ts`): 15 directions, each with its own type pairings, palettes and composition options; `applyIdentity` turns it into a renderable design with contrast correction.
+- Renderer: 13 hero compositions plus 5 typographic openings, statement and showcase sections, index/bento services, scroller/bento galleries.
+- Dashboard: "How this website was made" on the website page (eleven stages and the review scores).
+
+Verified here: rendering of all directions at 390/768/1440px without overflow, the mock pipeline end to end, unit and integration tests.
+Not verified in the sandbox: the three AI calls (creative direction, writing, visual review) with a live key.
+Not built: AI-generated images, multi-page sites, page transitions between pages, a template library page for the new directions.

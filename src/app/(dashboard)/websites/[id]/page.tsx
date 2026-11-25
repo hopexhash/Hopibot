@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { siteSpecSchema } from "@/lib/site-spec";
 import { hasRole, requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
+import { WebsiteProgress } from "@/components/app/website-progress";
 import { WebsiteManager } from "./website-manager";
 
 export const metadata = { title: "Website" };
@@ -43,7 +44,10 @@ export default async function WebsitePage({ params }: { params: Promise<{ id: st
   const current = versions.find((v) => v.id === project.currentVersionId) ?? versions[0];
   const spec = current ? siteSpecSchema.safeParse(current.spec) : null;
 
+  const visual = ((versions.find((v) => v.id === project.currentVersionId) ?? versions[0])?.qcReport as { visual?: Parameters<typeof WebsiteProgress>[0]["visual"] } | null)?.visual ?? null;
   return (
+    <>
+    <WebsiteProgress businessId={business.id} organizationId={auth.org.id} status={project.status} visual={visual} />
     <WebsiteManager
       project={{ id: project.id, slug: project.slug, status: project.status, approvalStatus: project.approvalStatus, qualityScore: project.qualityScore, templateKey: project.templateKey, currentVersionId: project.currentVersionId, previewUrl: project.previewUrl, updatedAt: project.updatedAt.toISOString() }}
       business={{ id: business.id, name: business.name, city: business.city, stage: business.pipelineStage, isMock: business.isMock }}
@@ -53,5 +57,6 @@ export default async function WebsitePage({ params }: { params: Promise<{ id: st
       publishApproval={pendingPublish ?? null}
       canAdmin={hasRole(auth.role, "admin")}
     />
+    </>
   );
 }

@@ -192,3 +192,59 @@ describe("stock photo fit", () => {
     expect(fitPhotos(list, "barber", "hero")).toHaveLength(2);
   });
 });
+
+import { applyIdentity, getDesign } from "@/sites/designs";
+import { DIRECTION_KEYS, finalizeIdentity, fingerprintOf, presetIdentity, seedOf, type Fingerprint } from "@/sites/identity";
+import { industryProfile } from "@/lib/industry-intel";
+
+describe("brand identity engine", () => {
+  it("builds a readable design from every direction's presets", () => {
+    for (const direction of DIRECTION_KEYS) {
+      for (const seed of [1, 7, 23]) {
+        const d = applyIdentity(getDesign("garage"), presetIdentity(direction, seed, "plain"));
+        expect(contrast(d.palette.text, d.palette.bg), `${direction} text`).toBeGreaterThanOrEqual(6.9);
+        expect(contrast(d.palette.ink, d.palette.bg), `${direction} headings`).toBeGreaterThanOrEqual(7);
+        expect(d.skin).toBe("plain");
+      }
+    }
+  });
+
+  it("repairs unknown fonts and unreadable colours instead of rendering them", () => {
+    const raw = presetIdentity("swiss", 3, "plain");
+    raw.fonts.display = "Comic Papyrus";
+    raw.colors.ink = "#f0f0f0";
+    raw.colors.background = "#ffffff";
+    const id = finalizeIdentity(raw, 3);
+    const d = applyIdentity(getDesign("clinic"), id);
+    expect(id.fonts.display).not.toBe("Comic Papyrus");
+    expect(contrast(d.palette.ink, d.palette.bg)).toBeGreaterThanOrEqual(7);
+  });
+
+  it("does not repeat the previous site's opening for the same industry", () => {
+    const recent: Fingerprint[] = [];
+    const heroes: string[] = [];
+    for (const name of ["Barber One", "Barber Two", "Barber Three", "Barber Four"]) {
+      const seed = seedOf(name);
+      const id = finalizeIdentity(presetIdentity("swiss", seed, "plain", recent), seed, recent, { category: "barbershop" });
+      heroes.push(id.layout.hero);
+      recent.unshift(fingerprintOf(id, "barbershop"));
+    }
+    for (let i = 1; i < heroes.length; i++) expect(heroes[i]).not.toBe(heroes[i - 1]);
+  });
+
+  it("plans no image-dependent layouts when there are no photographs", () => {
+    for (const direction of DIRECTION_KEYS) {
+      const id = finalizeIdentity(presetIdentity(direction, 5, "plain"), 5, [], { photos: false });
+      expect(["tiles", "bento"]).not.toContain(id.layout.services);
+      expect(id.layout.cta).not.toBe("full");
+    }
+  });
+
+  it("knows every business category and offers several directions for each", () => {
+    for (const c of BUSINESS_CATEGORIES) {
+      const p = industryProfile(c.key);
+      expect(p.directions.length, c.key).toBeGreaterThanOrEqual(5);
+      expect(p.essentials.length).toBeGreaterThan(0);
+    }
+  });
+});
