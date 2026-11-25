@@ -50,6 +50,44 @@ export async function recordUsage(
       .set({ costUsd: sql`${schema.agentTasks.costUsd} + ${entry.costUsd}` })
       .where(eq(schema.agentTasks.id, ctx.taskId));
   }
+  if (!entry.isMock && entry.costUsd > 0) await warnIfNearLimit(ctx.organizationId).catch(() => {});
+}
+
+/**
+ * Leaves one notification per day (per limit) when spend crosses the warning threshold or
+ * the limit itself. Reaching a limit also pauses paid agents (see the executor).
+ */
+async function warnIfNearLimit(organizationId: string) {
+  const settings = await getOrgSettings(organizationId);
+  const [daily, monthly] = await Promise.all([spendSince(organizationId, startOfUtcDay()), spendSince(organizationId, startOfUtcMonth())]);
+  const checks = [
+    { scope: "daily", spent: daily, limit: settings.dailySpendLimitUsd, since: startOfUtcDay() },
+    { scope: "monthly", spent: monthly, limit: settings.monthlySpendLimitUsd, since: startOfUtcMonth() },
+  ];
+  for (const c of checks) {
+    if (!c.limit) continue;
+    const pct = (c.spent / c.limit) * 100;
+    if (pct < settings.budgetWarnPct) continue;
+    const reached = pct >= 100;
+    const title = reached ? `The ${c.scope} spending limit is reached` : `${Math.floor(pct)}% of the ${c.scope} spending limit is used`;
+    // One "warning" and one "reached" notification per period at most.
+    const marker = reached ? `The ${c.scope} spending limit is reached` : `of the ${c.scope} spending limit is used`;
+    const [existing] = await db()
+      .select({ id: schema.notifications.id })
+      .from(schema.notifications)
+      .where(and(eq(schema.notifications.organizationId, organizationId), eq(schema.notifications.kind, "budget"), gte(schema.notifications.createdAt, c.since), sql`${schema.notifications.title} LIKE ${`%${marker}%`}`))
+      .limit(1);
+    if (existing) continue;
+    await db()
+      .insert(schema.notifications)
+      .values({
+        organizationId,
+        kind: "budget",
+        title,
+        body: reached ? `$${c.spent.toFixed(2)} of $${c.limit} spent. Paid agents are paused and will ask for approval.` : `$${c.spent.toFixed(2)} of $${c.limit} spent. Agents pause automatically at 100%.`,
+        href: "/costs",
+      });
+  }
 }
 
 async function spendSince(organizationId: string, since: Date, agentKey?: string) {

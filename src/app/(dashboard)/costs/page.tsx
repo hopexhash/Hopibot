@@ -1,36 +1,68 @@
+import { sql } from "drizzle-orm";
+import { TriangleAlert } from "lucide-react";
+import Link from "next/link";
 import { ChartCard } from "@/components/app/charts";
 import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { Card, CardContent, CardHeader, CardTitle, Progress } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { AGENT_META, type AgentKey } from "@/lib/constants";
-import { formatNumber, formatUsd } from "@/lib/utils";
+import { cn, formatNumber, formatUsd } from "@/lib/utils";
 import { hasRole, requireAuth } from "@/server/auth";
 import { checkBudget, startOfUtcMonth } from "@/server/costs/usage";
 import { MODEL_PRICING, UNIT_PRICING } from "@/server/costs/pricing";
+import { db } from "@/server/db";
 import { getCostBreakdown, getDailySeries, getUnitEconomics } from "@/server/queries/metrics";
 import { LimitsForm } from "./limits-form";
 
-export const metadata = { title: "Costs & Usage" };
+export const metadata = { title: "AI costs" };
 
 export default async function CostsPage() {
   const auth = await requireAuth();
-  const [budget, breakdown, daily, unit] = await Promise.all([
-    checkBudget(auth.org.id),
-    getCostBreakdown(auth.org.id, startOfUtcMonth()),
-    getDailySeries(auth.org.id, 30),
-    getUnitEconomics(auth.org.id),
+  const orgId = auth.org.id;
+  const [budget, breakdown, daily, unit, topRuns, topSites, topCustomers] = await Promise.all([
+    checkBudget(orgId),
+    getCostBreakdown(orgId, startOfUtcMonth()),
+    getDailySeries(orgId, 30),
+    getUnitEconomics(orgId),
+    // The most expensive individual executions, websites and customers (real spend only).
+    db().execute(sql`
+      SELECT t.id, t.agent_key, t.type, t.cost_usd, t.created_at, b.name AS business, t.input->>'customAgentName' AS custom
+      FROM agent_tasks t LEFT JOIN businesses b ON b.id = t.business_id
+      WHERE t.organization_id = ${orgId} AND t.cost_usd > 0 AND t.created_at > now() - interval '30 days'
+      ORDER BY t.cost_usd DESC LIMIT 8`) as unknown as Promise<Record<string, unknown>[]>,
+    db().execute(sql`
+      SELECT p.id, b.name, coalesce(sum(u.cost_usd), 0) AS cost, count(u.id) AS calls
+      FROM website_projects p JOIN businesses b ON b.id = p.business_id
+      JOIN api_usage u ON u.project_id = p.id AND NOT u.is_mock
+      WHERE p.organization_id = ${orgId} GROUP BY p.id, b.name ORDER BY cost DESC LIMIT 8`) as unknown as Promise<Record<string, unknown>[]>,
+    db().execute(sql`
+      SELECT b.id, b.name, b.pipeline_stage, coalesce(sum(u.cost_usd), 0) AS cost
+      FROM businesses b JOIN api_usage u ON u.business_id = b.id AND NOT u.is_mock
+      WHERE b.organization_id = ${orgId} AND b.erased_at IS NULL GROUP BY b.id, b.name, b.pipeline_stage ORDER BY cost DESC LIMIT 8`) as unknown as Promise<Record<string, unknown>[]>,
   ]);
+  const warn = auth.org.settings.budgetWarnPct;
   const usd = (v: number | null) => (v == null ? "—" : formatUsd(v));
   const dailyPct = budget.daily.limit ? (budget.daily.spent / budget.daily.limit) * 100 : 0;
   const monthPct = budget.monthly.limit ? (budget.monthly.spent / budget.monthly.limit) * 100 : 0;
-  const tone = (p: number) => (p >= 100 ? "danger" : p >= 80 ? "warning" : "accent") as "danger" | "warning" | "accent";
+  const tone = (p: number) => (p >= 100 ? "danger" : p >= warn ? "warning" : "accent") as "danger" | "warning" | "accent";
+  const worst = Math.max(dailyPct, monthPct);
   const tokens = breakdown.byProvider.filter((p) => p.provider === "anthropic").reduce((a, p) => ({ in: a.in + p.inputTokens, out: a.out + p.outputTokens, cache: a.cache + p.cacheTokens }), { in: 0, out: 0, cache: 0 });
 
   return (
     <>
       <SubNav section="/analytics" />
-      <PageHeader title="Costs & Usage" description="Every paid API call is metered. When a limit is reached, paid agents pause and ask for approval instead of spending." />
+      <PageHeader eyebrow="Intelligence" title="AI costs" description="Every paid call your agents make is recorded here. When a limit is reached, agents stop spending and ask you first, so the bill can never run away." />
+      {worst >= warn && (
+        <div className={cn("mb-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-[13.5px] leading-relaxed", worst >= 100 ? "border-[rgba(255,77,97,0.3)] bg-danger-soft text-danger" : "border-[rgba(255,191,71,0.3)] bg-warning-soft text-warning")}>
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            {worst >= 100
+              ? "A spending limit is reached. Agents that cost money are paused and will ask for your approval before each task. Raise the limit below, or wait for the next day or month."
+              : `You have used ${Math.floor(worst)}% of a spending limit. Agents pause automatically at 100%.`}
+          </span>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-5">
           <p className="text-xs font-medium text-muted">Today (UTC)</p>
@@ -46,7 +78,7 @@ export default async function CostsPage() {
         </Card>
         <Card className="p-5">
           <p className="mb-3 text-xs font-medium text-muted">Spending limits</p>
-          <LimitsForm daily={auth.org.settings.dailySpendLimitUsd} monthly={auth.org.settings.monthlySpendLimitUsd} canAdmin={hasRole(auth.role, "admin")} />
+          <LimitsForm daily={auth.org.settings.dailySpendLimitUsd} monthly={auth.org.settings.monthlySpendLimitUsd} warnPct={warn} canAdmin={hasRole(auth.role, "admin")} />
         </Card>
       </div>
 
@@ -61,7 +93,9 @@ export default async function CostsPage() {
           <StatCard label="Total API cost" value={formatUsd(unit.totalCost)} tone="danger" />
           <StatCard label="Claude tokens (month)" value={formatNumber(tokens.in + tokens.out)} sub={`${formatNumber(tokens.in)} in · ${formatNumber(tokens.out)} out · ${formatNumber(tokens.cache)} cached`} />
         </div>
-        <p className="mt-2 text-[11px] text-muted">Revenue is recorded in EUR and API costs in USD; margin uses the nominal values without currency conversion.</p>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-subtle">
+          Claude costs are calculated from the exact token counts the API reports for each call, at published prices (confirmed usage). Google Places, Hunter and Resend are counted per call at a list price (estimates; your contract may differ). Your provider invoices are always the final word.
+        </p>
       </Section>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -88,6 +122,51 @@ export default async function CostsPage() {
         </Card>
       </div>
 
+      <div className="mt-8 grid gap-4 xl:grid-cols-3">
+        <Section title="Most expensive runs" description="Single tasks, last 30 days." className="mb-0">
+          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+            {topRuns.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No paid runs yet.</p>}
+            {topRuns.map((r) => (
+              <div key={String(r.id)} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                <div className="min-w-0">
+                  <p className="truncate text-[13.5px] font-medium">{r.custom ? String(r.custom) : (AGENT_META[String(r.agent_key) as AgentKey]?.name ?? String(r.agent_key))}</p>
+                  <p className="truncate text-[12px] text-subtle">
+                    {String(r.type).replace(/_/g, " ")}
+                    {r.business ? ` · ${String(r.business)}` : ""}
+                  </p>
+                </div>
+                <span className="tabular shrink-0 text-[13.5px] font-medium">{formatUsd(Number(r.cost_usd))}</span>
+              </div>
+            ))}
+          </Card>
+        </Section>
+        <Section title="Cost per website" description="All API spend tied to one site." className="mb-0">
+          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+            {topSites.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No website costs recorded yet.</p>}
+            {topSites.map((r) => (
+              <Link key={String(r.id)} href={`/websites/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-[rgba(0,255,120,0.035)]">
+                <span className="min-w-0 truncate text-[13.5px] font-medium">{String(r.name)}</span>
+                <span className="tabular shrink-0 text-[13.5px] font-medium">{formatUsd(Number(r.cost))}</span>
+              </Link>
+            ))}
+          </Card>
+        </Section>
+        <Section title="Cost per lead or customer" description="Everything spent on one business." className="mb-0">
+          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+            {topCustomers.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No per-lead costs recorded yet.</p>}
+            {topCustomers.map((r) => (
+              <Link key={String(r.id)} href={`/businesses/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-[rgba(0,255,120,0.035)]">
+                <span className="min-w-0">
+                  <span className="block truncate text-[13.5px] font-medium">{String(r.name)}</span>
+                  <span className="block text-[12px] text-subtle">{r.pipeline_stage === "WON" ? "Customer" : "Lead"}</span>
+                </span>
+                <span className="tabular shrink-0 text-[13.5px] font-medium">{formatUsd(Number(r.cost))}</span>
+              </Link>
+            ))}
+          </Card>
+        </Section>
+      </div>
+
       <Section className="mt-8" title="Usage by provider and operation" description="This month.">
         <Table>
           <THead>
@@ -111,7 +190,10 @@ export default async function CostsPage() {
             )}
             {breakdown.byProvider.map((p, i) => (
               <TR key={i}>
-                <TD className="font-medium">{p.provider}</TD>
+                <TD className="font-medium">
+                  {p.provider}
+                  <span className="ml-2 text-[11.5px] font-normal text-subtle">{p.provider === "anthropic" ? "confirmed usage" : "estimated"}</span>
+                </TD>
                 <TD className="text-muted">{p.operation}</TD>
                 <TD className="text-muted">{p.model ?? "—"}</TD>
                 <TD className="tabular text-right">{formatNumber(p.calls)}</TD>

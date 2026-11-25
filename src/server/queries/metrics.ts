@@ -77,11 +77,39 @@ export type PeriodTotals = {
  * Totals for the last `days` days and for the `days` before that, so the dashboard can show
  * real period-over-period change. Mock rows are excluded everywhere.
  */
-export async function getPeriodComparison(orgId: string, minScore: number, days = 30): Promise<{ current: PeriodTotals; previous: PeriodTotals; days: number }> {
-  const one = async (fromDays: number, toDays: number): Promise<PeriodTotals> => {
-    const from = new Date(Date.now() - fromDays * 86_400_000).toISOString();
-    const to = new Date(Date.now() - toDays * 86_400_000).toISOString();
-    const [r] = await q(sql`
+export async function getPeriodComparison(
+  orgId: string,
+  minScore: number,
+  days = 30,
+): Promise<{ current: PeriodTotals; previous: PeriodTotals; days: number }> {
+  const day = 86_400_000;
+  const [current, previous] = await Promise.all([
+    getRangeTotals(
+      orgId,
+      minScore,
+      new Date(Date.now() - days * day),
+      new Date(),
+    ),
+    getRangeTotals(
+      orgId,
+      minScore,
+      new Date(Date.now() - 2 * days * day),
+      new Date(Date.now() - days * day),
+    ),
+  ]);
+  return { current, previous, days };
+}
+
+/** Totals between two instants. Mock rows are excluded everywhere. */
+export async function getRangeTotals(
+  orgId: string,
+  minScore: number,
+  fromDate: Date,
+  toDate: Date,
+): Promise<PeriodTotals> {
+  const from = fromDate.toISOString();
+  const to = toDate.toISOString();
+  const [r] = await q(sql`
       SELECT
         (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS leads,
         (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND lead_score >= ${minScore} AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS qualified,
@@ -99,23 +127,107 @@ export async function getPeriodComparison(orgId: string, minScore: number, days 
         (SELECT count(*) FROM agent_tasks WHERE organization_id = ${orgId} AND status = 'FAILED' AND completed_at >= ${from}::timestamptz AND completed_at < ${to}::timestamptz) AS tasks_failed,
         (SELECT count(*) FROM workflow_runs WHERE organization_id = ${orgId} AND NOT is_mock AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS runs
     `);
-    return {
-      leads: num(r.leads),
-      qualified: num(r.qualified),
-      websites: num(r.websites),
-      deployments: num(r.deployments),
-      emailsSent: num(r.emails_sent),
-      emailsOpened: num(r.emails_opened),
-      customers: num(r.customers),
-      revenueCents: num(r.revenue_cents),
-      cost: num(r.cost),
-      tasksDone: num(r.tasks_done),
-      tasksFailed: num(r.tasks_failed),
-      runs: num(r.runs),
-    };
+  return {
+    leads: num(r.leads),
+    qualified: num(r.qualified),
+    websites: num(r.websites),
+    deployments: num(r.deployments),
+    emailsSent: num(r.emails_sent),
+    emailsOpened: num(r.emails_opened),
+    customers: num(r.customers),
+    revenueCents: num(r.revenue_cents),
+    cost: num(r.cost),
+    tasksDone: num(r.tasks_done),
+    tasksFailed: num(r.tasks_failed),
+    runs: num(r.runs),
   };
-  const [current, previous] = await Promise.all([one(days, 0), one(days * 2, days)]);
-  return { current, previous, days };
+}
+
+/** Daily series between two dates (at most 400 points; longer ranges are grouped by week). */
+export async function getRangeSeries(
+  orgId: string,
+  fromDate: Date,
+  toDate: Date,
+) {
+  const days = Math.ceil((toDate.getTime() - fromDate.getTime()) / 86_400_000);
+  const step = days > 120 ? "1 week" : "1 day";
+  const fmt = days > 120 ? "DD Mon" : "DD Mon";
+  const rows = await q(sql`
+    WITH d AS (
+      SELECT g AS start, g + ${step}::interval AS stop
+      FROM generate_series(date_trunc('day', ${fromDate.toISOString()}::timestamptz), ${toDate.toISOString()}::timestamptz, ${step}::interval) g
+    )
+    SELECT to_char(d.start, ${fmt}) AS label,
+      (SELECT count(*) FROM businesses b WHERE b.organization_id = ${orgId} AND NOT b.is_mock AND b.created_at >= d.start AND b.created_at < d.stop) AS leads,
+      (SELECT count(*) FROM website_versions v WHERE v.organization_id = ${orgId} AND v.version_no = 1 AND NOT v.is_mock AND v.created_at >= d.start AND v.created_at < d.stop) AS websites,
+      (SELECT count(*) FROM sales_emails e WHERE e.organization_id = ${orgId} AND e.status = 'sent' AND NOT e.is_mock AND e.sent_at >= d.start AND e.sent_at < d.stop) AS emails,
+      (SELECT coalesce(sum(cost_usd), 0) FROM api_usage u WHERE u.organization_id = ${orgId} AND u.created_at >= d.start AND u.created_at < d.stop) AS cost,
+      (SELECT coalesce(sum(amount_cents), 0) FROM payments p WHERE p.organization_id = ${orgId} AND p.status = 'paid' AND p.paid_at >= d.start AND p.paid_at < d.stop) AS revenue_cents
+    FROM d ORDER BY d.start`);
+  return rows.map((r) => ({
+    label: String(r.label),
+    leads: num(r.leads),
+    websites: num(r.websites),
+    emails: num(r.emails),
+    cost: Number(num(r.cost).toFixed(4)),
+    revenue: num(r.revenue_cents) / 100,
+  }));
+}
+
+export type Financials = {
+  revenueEur: number;
+  apiByProviderUsd: { provider: string; cost: number; calls: number }[];
+  aiUsd: number;
+  emailUsd: number;
+  otherApiUsd: number;
+  expensesByCategoryEur: { category: string; amount: number }[];
+  expensesEur: number;
+};
+
+/**
+ * Money in and out between two instants: payments received, metered API spend by provider
+ * and hand-entered operating expenses. API spend is USD, the rest EUR; the caller converts.
+ */
+export async function getFinancials(
+  orgId: string,
+  fromDate: Date,
+  toDate: Date,
+): Promise<Financials> {
+  const from = fromDate.toISOString();
+  const to = toDate.toISOString();
+  const [[rev], api, exp] = await Promise.all([
+    q(
+      sql`SELECT coalesce(sum(amount_cents), 0) AS cents FROM payments WHERE organization_id = ${orgId} AND status = 'paid' AND paid_at >= ${from}::timestamptz AND paid_at < ${to}::timestamptz`,
+    ),
+    q(
+      sql`SELECT provider, coalesce(sum(cost_usd), 0) AS cost, count(*) AS calls FROM api_usage WHERE organization_id = ${orgId} AND NOT is_mock AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz GROUP BY provider ORDER BY cost DESC`,
+    ),
+    q(
+      sql`SELECT category, coalesce(sum(amount_cents), 0) AS cents FROM expenses WHERE organization_id = ${orgId} AND incurred_on >= ${from}::timestamptz AND incurred_on < ${to}::timestamptz GROUP BY category ORDER BY cents DESC`,
+    ),
+  ]);
+  const apiByProviderUsd = api.map((r) => ({
+    provider: String(r.provider),
+    cost: num(r.cost),
+    calls: num(r.calls),
+  }));
+  const sum = (pred: (p: string) => boolean) =>
+    apiByProviderUsd
+      .filter((p) => pred(p.provider))
+      .reduce((a, p) => a + p.cost, 0);
+  const expensesByCategoryEur = exp.map((r) => ({
+    category: String(r.category),
+    amount: num(r.cents) / 100,
+  }));
+  return {
+    revenueEur: num(rev.cents) / 100,
+    apiByProviderUsd,
+    aiUsd: sum((p) => p === "anthropic"),
+    emailUsd: sum((p) => p === "resend"),
+    otherApiUsd: sum((p) => p !== "anthropic" && p !== "resend"),
+    expensesByCategoryEur,
+    expensesEur: expensesByCategoryEur.reduce((a, e) => a + e.amount, 0),
+  };
 }
 
 /** Daily series for the last `days` days. Mock rows are counted in their own column. */
@@ -152,7 +264,11 @@ export async function getMonthlyRevenue(orgId: string, months = 12) {
       (SELECT coalesce(sum(cost_usd), 0) FROM api_usage u WHERE u.organization_id = ${orgId} AND date_trunc('month', u.created_at) = m.month) AS cost
     FROM m ORDER BY m.month
   `);
-  return rows.map((r) => ({ label: String(r.label), revenue: num(r.revenue_cents) / 100, cost: Number(num(r.cost).toFixed(2)) }));
+  return rows.map((r) => ({
+    label: String(r.label),
+    revenue: num(r.revenue_cents) / 100,
+    cost: Number(num(r.cost).toFixed(2)),
+  }));
 }
 
 export async function getAgentStats(orgId: string, sinceDays = 30) {
@@ -182,7 +298,18 @@ export async function getAgentStats(orgId: string, sinceDays = 30) {
         cost: num(r.cost),
       },
     ]),
-  ) as Record<string, { completed: number; failed: number; running: number; pending: number; waiting: number; avgMs: number | null; cost: number }>;
+  ) as Record<
+    string,
+    {
+      completed: number;
+      failed: number;
+      running: number;
+      pending: number;
+      waiting: number;
+      avgMs: number | null;
+      cost: number;
+    }
+  >;
 }
 
 export async function getFunnel(orgId: string) {
@@ -229,7 +356,11 @@ export async function getCostBreakdown(orgId: string, since: Date) {
       cacheTokens: num(r.cache_tokens),
       cost: num(r.cost),
     })),
-    byAgent: byAgent.map((r) => ({ agentKey: String(r.agent_key), cost: num(r.cost), calls: num(r.calls) })),
+    byAgent: byAgent.map((r) => ({
+      agentKey: String(r.agent_key),
+      cost: num(r.cost),
+      calls: num(r.calls),
+    })),
   };
 }
 
@@ -259,7 +390,12 @@ export async function getUnitEconomics(orgId: string) {
     costPerCustomer: per(total, num(r.customers)),
     revenuePerCustomer: per(revenue, num(r.customers)),
     grossMargin: revenue > 0 ? (revenue - total) / revenue : null,
-    counts: { leads: num(r.leads), websites: num(r.websites), deployments: num(r.deployments), customers: num(r.customers) },
+    counts: {
+      leads: num(r.leads),
+      websites: num(r.websites),
+      deployments: num(r.deployments),
+      customers: num(r.customers),
+    },
   };
 }
 
@@ -276,8 +412,18 @@ export type ActivityEntry = {
 };
 
 /** Human-readable activity (agent_logs joined to the business the task was about). */
-export async function getActivity(orgId: string, limit = 40, afterId?: number, filter: { agent?: string; level?: string } = {}): Promise<ActivityEntry[]> {
-  const levels = filter.level === "error" ? ["error"] : filter.level === "warn" ? ["warn", "error"] : ["info", "warn", "error"];
+export async function getActivity(
+  orgId: string,
+  limit = 40,
+  afterId?: number,
+  filter: { agent?: string; level?: string } = {},
+): Promise<ActivityEntry[]> {
+  const levels =
+    filter.level === "error"
+      ? ["error"]
+      : filter.level === "warn"
+        ? ["warn", "error"]
+        : ["info", "warn", "error"];
   const rows = await q(sql`
     SELECT l.id, l.agent_key, l.level, l.message, l.created_at, l.task_id, l.run_id, t.business_id, b.name AS business_name
     FROM agent_logs l

@@ -153,3 +153,42 @@ export function LinkTabs({ tabs, current, href }: { tabs: { key: string; label: 
     </div>
   );
 }
+
+/** Period selector for analytics pages. Plain links and a GET form, so it works without JavaScript. */
+export function RangePicker({ path, current, from, to }: { path: string; current: string; from: string; to: string }) {
+  const presets = [
+    { key: "today", label: "Today" },
+    { key: "7d", label: "7 days" },
+    { key: "30d", label: "30 days" },
+    { key: "90d", label: "90 days" },
+    { key: "year", label: "This year" },
+  ];
+  return (
+    <div className="mb-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+      <div className="-mx-3.5 flex gap-1.5 overflow-x-auto px-3.5 sm:mx-0 sm:px-0" role="group" aria-label="Period">
+        {presets.map((p) => (
+          <Link
+            key={p.key}
+            href={`${path}?range=${p.key}`}
+            aria-current={current === p.key ? "true" : undefined}
+            className={cn(
+              "flex h-10 shrink-0 items-center rounded-xl border px-3.5 text-[13px] font-medium transition-colors",
+              current === p.key ? "border-[rgba(0,255,120,0.45)] bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+            )}
+          >
+            {p.label}
+          </Link>
+        ))}
+      </div>
+      <form method="get" action={path} className="flex items-center gap-2">
+        <input type="hidden" name="range" value="custom" />
+        <input type="date" name="from" defaultValue={from} aria-label="From date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-[#050d09] px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-[rgba(0,255,120,0.45)]" : "border-border-strong")} />
+        <span className="text-[12px] text-subtle">to</span>
+        <input type="date" name="to" defaultValue={to} aria-label="To date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-[#050d09] px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-[rgba(0,255,120,0.45)]" : "border-border-strong")} />
+        <button type="submit" className="h-10 shrink-0 rounded-xl border border-border bg-surface-2 px-3.5 text-[13px] font-medium hover:border-border-strong hover:text-accent">
+          Apply
+        </button>
+      </form>
+    </div>
+  );
+}
