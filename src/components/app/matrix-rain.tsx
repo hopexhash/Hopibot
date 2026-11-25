@@ -56,6 +56,9 @@ export function MatrixRain() {
     if (!ctx) return;
 
     const isSmall = document.documentElement.clientWidth < 640;
+    // On phones the content fills the whole screen, so stray glyphs show through the page
+    // and read as a rendering glitch rather than as a backdrop.
+    if (isSmall) return;
     const font = isSmall ? 13 : 15;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let w = 0;

@@ -5,10 +5,20 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 
-export type FilterDef = { key: string; label: string; options: { value: string; label: string }[] };
+export type FilterDef = {
+  key: string;
+  label: string;
+  options: { value: string; label: string }[];
+};
 
 /** URL-driven filters: every change updates the query string so views are shareable. */
-export function FilterBar({ filters, searchPlaceholder = "Search…" }: { filters: FilterDef[]; searchPlaceholder?: string }) {
+export function FilterBar({
+  filters,
+  searchPlaceholder = "Search…",
+}: {
+  filters: FilterDef[];
+  searchPlaceholder?: string;
+}) {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -23,14 +33,17 @@ export function FilterBar({ filters, searchPlaceholder = "Search…" }: { filter
     router.replace(`${pathname}?${next}`);
   };
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   const active = filters.some((f) => sp.get(f.key)) || sp.get("q");
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
-      <div className="relative w-full sm:w-64">
+    <div className="mb-4 grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+      <div className="relative col-span-2 sm:w-64">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
         <Input
           value={q}
@@ -46,7 +59,13 @@ export function FilterBar({ filters, searchPlaceholder = "Search…" }: { filter
         />
       </div>
       {filters.map((f) => (
-        <Select key={f.key} aria-label={f.label} value={sp.get(f.key) ?? ""} onChange={(e) => set(f.key, e.target.value)} className="w-auto min-w-36">
+        <Select
+          key={f.key}
+          aria-label={f.label}
+          value={sp.get(f.key) ?? ""}
+          onChange={(e) => set(f.key, e.target.value)}
+          className="min-w-0 truncate sm:w-auto sm:min-w-36"
+        >
           <option value="">{f.label}</option>
           {f.options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -59,6 +78,7 @@ export function FilterBar({ filters, searchPlaceholder = "Search…" }: { filter
         <Button
           variant="ghost"
           size="sm"
+          className="col-span-2 sm:col-span-1"
           onClick={() => {
             setQ("");
             router.replace(pathname);
