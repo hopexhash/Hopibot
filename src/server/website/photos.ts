@@ -37,6 +37,26 @@ const DIRECTION: Record<ArtScene, { hero: string; about: string; gallery: string
   service: { hero: "tradesman working home repair", about: "plumber electrician working tools", gallery: "home repair tools work", detail: "toolbox tools close up" },
 };
 
+/**
+ * Search engines return loosely related photos (a hotel lobby for "restaurant interior").
+ * For food businesses a photo is only used when its own description fits the slot.
+ */
+const FOOD_SCENES = new Set<ArtScene>(["finedining", "italian", "mezze", "sushi", "burger", "pizza", "coffee", "bakery", "street", "fusion", "truck"]);
+const FOOD_FIT = {
+  hero: /restaurant|dining|bistro|caf[eé]|coffee shop|bar\b|tables?\b|interior|pizzeria|bakery|food truck|market|terrace|oven/i,
+  about: /chef|cook|barista|baker|kitchen|preparing|making|pouring|plating|grill|dough|hands/i,
+  gallery: /food|dish|plate|meal|pasta|pizza|sushi|burger|coffee|bread|pastr|dessert|salad|steak|cake|croissant|ramen|taco|bowl|fish|meat|cocktail|wine|soup|sandwich|fries|latte|espresso|kebab|mezze|noodle|dumpling/i,
+};
+const FOOD_MISFIT = /hotel|lobby|bedroom|office|laptop|phone|wedding|conference|hospital|classroom|bathroom|sink\b/i;
+
+export function fitPhotos(list: StockPhoto[], scene: ArtScene, slot: "hero" | "about" | "gallery" | "detail"): StockPhoto[] {
+  if (!FOOD_SCENES.has(scene)) return list;
+  const ok = list.filter((p) => !FOOD_MISFIT.test(p.alt));
+  const want = slot === "detail" ? new RegExp(`${FOOD_FIT.gallery.source}|${FOOD_FIT.hero.source}`, "i") : FOOD_FIT[slot];
+  const fit = ok.filter((p) => want.test(p.alt));
+  return fit.length >= 2 ? fit : ok;
+}
+
 const cache = new Map<string, { at: number; photos: StockPhoto[] }>();
 
 async function pool(organizationId: string, provider: PhotoProvider, query: string, orientation: "landscape" | "portrait" | "square") {
@@ -64,7 +84,11 @@ export async function attachStockPhotos(organizationId: string, spec: SiteSpec, 
   }
   const has = new Set(spec.images.filter((i) => i.license !== "generated").map((i) => i.key));
   const offset = hashString(seed);
-  const [hero, about, gallery, detail] = await Promise.all([pool(organizationId, provider, dir.hero, "landscape"), pool(organizationId, provider, dir.about, "portrait"), pool(organizationId, provider, dir.gallery, "square"), pool(organizationId, provider, dir.detail, "landscape")]);
+  const [heroRaw, aboutRaw, galleryRaw, detailRaw] = await Promise.all([pool(organizationId, provider, dir.hero, "landscape"), pool(organizationId, provider, dir.about, "portrait"), pool(organizationId, provider, dir.gallery, "square"), pool(organizationId, provider, dir.detail, "landscape")]);
+  const hero = fitPhotos(heroRaw, scene, "hero");
+  const about = fitPhotos(aboutRaw, scene, "about");
+  const gallery = fitPhotos(galleryRaw, scene, "gallery");
+  const detail = fitPhotos(detailRaw, scene, "detail");
   const used = new Set<number | string>();
   const placed: StockPhoto[] = [];
   const pick = (list: StockPhoto[], n: number) => {
@@ -82,8 +106,10 @@ export async function attachStockPhotos(organizationId: string, spec: SiteSpec, 
   for (const ref of refs) {
     if (has.has(ref) || images.length >= 20) continue;
     const source = ref === spec.hero.image || ref === "art:cta" ? hero : ref.startsWith("art:about") || ref.startsWith("art:side") ? about : ref.startsWith("art:svc") ? detail : gallery;
-    const p = pick(source.length ? source : gallery, n++);
+    // When one search runs out of photos, the others fill in: a site never mixes photos and illustrations.
+    const p = pick(source, n) ?? pick(gallery, n) ?? pick(detail, n) ?? pick(hero, n) ?? pick(about, n);
     if (!p) continue;
+    n++;
     images.push({ key: ref, src: ref === spec.hero.image ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / ${p.source}` });
     placed.push(p);
   }

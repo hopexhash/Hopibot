@@ -178,3 +178,17 @@ describe("guardrails", () => {
     expect(what).toEqual(expect.arrayContaining(["meta title", "removed unverified claim"]));
   });
 });
+
+import { fitPhotos } from "@/server/website/photos";
+
+describe("stock photo fit", () => {
+  const photo = (id: number, alt: string) => ({ id, alt, src: "https://x/y", srcSmall: "https://x/y", photographer: "A", pageUrl: "https://x", width: 1, height: 1, source: "Unsplash" as const });
+  it("drops photos that do not show a restaurant for a restaurant hero", () => {
+    const list = [photo(1, "A hotel lobby with dark seating areas"), photo(2, "Restaurant dining tables with plants"), photo(3, "Cozy bistro interior at night"), photo(4, "A dark kitchen with a window and a sink")];
+    expect(fitPhotos(list, "finedining", "hero").map((p) => p.id)).toEqual([2, 3]);
+  });
+  it("leaves other industries untouched", () => {
+    const list = [photo(1, "A hotel lobby"), photo(2, "Barber cutting hair")];
+    expect(fitPhotos(list, "barber", "hero")).toHaveLength(2);
+  });
+});

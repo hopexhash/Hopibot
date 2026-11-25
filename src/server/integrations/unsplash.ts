@@ -31,7 +31,8 @@ export async function searchUnsplash(organizationId: string, q: { query: string;
   const cred = await getCredential(organizationId, "unsplash");
   if (!cred.secret) throw new IntegrationUnavailableError("unsplash");
   const params = new URLSearchParams({ query: q.query, per_page: String(Math.min(30, q.count ?? 20)), content_filter: "high" });
-  if (q.orientation) params.set("orientation", q.orientation === "square" ? "squarish" : q.orientation);
+  // "Squarish" photos are rare on Unsplash; square slots are cropped by the layout instead.
+  if (q.orientation && q.orientation !== "square") params.set("orientation", q.orientation);
   const json = (await call(cred.secret, `https://api.unsplash.com/search/photos?${params}`)) as { results?: Raw[] };
   void touchIntegrationSuccess(organizationId, "unsplash");
   return (json.results ?? []).map((p) => ({

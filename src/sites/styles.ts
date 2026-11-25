@@ -459,6 +459,10 @@ h1 em,h2 em{font-style:italic;color:var(--accent-text);font-weight:inherit}
 .form .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form label{display:block;font-size:13.5px;font-weight:600;color:var(--heading);margin-bottom:8px}
 .form input,.form textarea,.form select{width:100%;min-height:50px;border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--bg);color:var(--heading);padding:12px 14px;font:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s;color-scheme:light dark}
+.form>*,.form .row>*{min-width:0}
+.form input,.form textarea,.form select{max-width:100%;box-sizing:border-box}
+.form input[type=date],.form input[type=time],.form input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;min-width:0;text-align:left;line-height:1.4}
+.form input::-webkit-date-and-time-value{text-align:left;min-height:1.4em}
 .m-dark .form input,.m-dark .form textarea,.m-dark .form select{color-scheme:dark}
 .form textarea{min-height:120px;resize:vertical}
 .form.compact textarea{min-height:76px}
