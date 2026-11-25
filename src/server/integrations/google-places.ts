@@ -62,7 +62,7 @@ type RawPlace = {
 };
 
 function mapPlace(p: RawPlace): PlaceResult {
-  const comp = (type: string) => p.addressComponents?.find((c) => c.types.includes(type))?.longText ?? null;
+  const comp = (type: string) => p.addressComponents?.find((c) => c.types?.includes(type))?.longText ?? null;
   return {
     placeId: p.id,
     name: p.displayName?.text ?? "Unknown",
