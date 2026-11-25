@@ -1,7 +1,7 @@
 import "../guard";
 import { Queue } from "bullmq";
 import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
-import { redis } from "../redis";
+import { redis, withTimeout } from "../redis";
 
 export type TaskJob = { taskId: string; organizationId: string };
 
@@ -41,7 +41,7 @@ export async function enqueue(task: {
   const delay = Math.max(0, task.scheduledAt.getTime() - Date.now());
   // Deterministic job id: re-enqueueing the same scheduling of a task is a no-op.
   const jobId = `${task.id}_${task.attempts}_${task.scheduledAt.getTime()}`;
-  await getQueue(agent).add(agent, { taskId: task.id, organizationId: task.organizationId }, { jobId, delay, priority: task.priority });
+  await withTimeout(getQueue(agent).add(agent, { taskId: task.id, organizationId: task.organizationId }, { jobId, delay, priority: task.priority }), 5000, "Queue");
 }
 
 export async function queueCounts() {

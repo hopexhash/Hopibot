@@ -7,7 +7,7 @@ import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
 import { INTEGRATIONS, type IntegrationKey } from "@/lib/integrations-meta";
 import { db, schema } from "./db";
 import { getCredential, mockModeAllowed } from "./integrations/credentials";
-import { redis } from "./redis";
+import { redis, withTimeout } from "./redis";
 import { eq } from "drizzle-orm";
 
 export const WORKER_ID = `${os.hostname()}-${process.pid}-${randomUUID().slice(0, 6)}`;
@@ -27,11 +27,11 @@ export async function liveWorkers(): Promise<{ ok: boolean; workers: WorkerBeat[
     const keys: string[] = [];
     let cursor = "0";
     do {
-      const [next, batch] = await r.scan(cursor, "MATCH", "agencyos:worker:*", "COUNT", 100);
+      const [next, batch] = await withTimeout(r.scan(cursor, "MATCH", "agencyos:worker:*", "COUNT", 100));
       cursor = next;
       keys.push(...batch);
     } while (cursor !== "0" && keys.length < 500);
-    const raw = keys.length ? await r.mget(...keys) : [];
+    const raw = keys.length ? await withTimeout(r.mget(...keys)) : [];
     const workers = raw.filter(Boolean).map((v) => JSON.parse(v!) as WorkerBeat);
     const covered = AGENT_KEYS.filter((a) => workers.some((w) => w.agents.includes(a)));
     return { ok: true, workers, covered };

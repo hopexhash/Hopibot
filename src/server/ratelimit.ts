@@ -1,5 +1,5 @@
 import "./guard";
-import { redis } from "./redis";
+import { redis, withTimeout } from "./redis";
 
 export class RateLimitError extends Error {
   constructor(public retryAfterSeconds: number) {
@@ -18,8 +18,8 @@ export async function rateLimit(key: string, limit: number, windowSeconds: numbe
   try {
     const r = redis();
     if (r.status !== "ready") throw new Error("redis not ready");
-    const count = await r.incr(bucket);
-    if (count === 1) await r.expire(bucket, windowSeconds);
+    const count = await withTimeout(r.incr(bucket), 1000);
+    if (count === 1) void r.expire(bucket, windowSeconds).catch(() => {});
     if (count > limit) throw new RateLimitError(windowSeconds);
     return;
   } catch (err) {
