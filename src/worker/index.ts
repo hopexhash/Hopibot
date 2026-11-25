@@ -7,6 +7,7 @@ import { queueName, type TaskJob } from "@/server/orchestrator/queue";
 import { recoverTasks, runScheduler } from "@/server/orchestrator/recovery";
 import { closeQcBrowser } from "@/server/qc/run-qc";
 import { createRedis } from "@/server/redis";
+import { processCampaigns } from "@/server/campaigns/service";
 import { publishHeartbeat, WORKER_ID } from "@/server/health";
 
 /**
@@ -68,6 +69,8 @@ async function main() {
     try {
       await recoverTasks();
       await runScheduler();
+      const sent = await processCampaigns();
+      if (sent.queued) log(`campaigns: queued ${sent.queued} email(s)`);
     } catch (err) {
       log("maintenance tick failed", (err as Error).message);
     } finally {

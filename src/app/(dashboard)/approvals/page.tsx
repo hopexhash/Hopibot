@@ -109,6 +109,9 @@ export default async function ApprovalsPage() {
         isMock: false,
       };
     }
+    if (p.kind === "launch_campaign") {
+      return { ...base, reviewHref: `/campaigns/${p.subjectId}`, facts: typeof p.payload.dailyLimit === "number" ? [{ label: "Daily limit", value: `${p.payload.dailyLimit} emails` }] : [], preview: null, consequence: "Open the campaign to read the real email preview and confirm the compliance checks. Approving there starts the sending.", isMock: false };
+    }
     return { ...base, reviewHref: null, facts: [], preview: null, consequence: "Review the request carefully before deciding.", isMock: false };
   });
 

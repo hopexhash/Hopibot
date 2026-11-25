@@ -12,7 +12,7 @@ import { hasRole, requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
 import type { WebsiteAudit } from "@/server/audit/website-audit";
 import type { ResearchOutput } from "@/server/agents/research";
-import { QuickActions, StageControls } from "./business-actions";
+import { QuickActions, StageControls, TaskList } from "./business-actions";
 
 export const metadata = { title: "Business" };
 
@@ -22,13 +22,14 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const [b] = await db().select().from(schema.businesses).where(and(eq(schema.businesses.id, id), eq(schema.businesses.organizationId, auth.org.id)));
   if (!b) notFound();
-  const [score, research, contacts, projects, emails, activities] = await Promise.all([
+  const [score, research, contacts, projects, emails, activities, crmTasks] = await Promise.all([
     db().select().from(schema.leadScores).where(eq(schema.leadScores.businessId, b.id)).orderBy(desc(schema.leadScores.createdAt)).limit(1),
     db().select().from(schema.businessResearch).where(eq(schema.businessResearch.businessId, b.id)).orderBy(desc(schema.businessResearch.createdAt)).limit(1),
     db().select().from(schema.businessContacts).where(eq(schema.businessContacts.businessId, b.id)),
     db().select().from(schema.websiteProjects).where(eq(schema.websiteProjects.businessId, b.id)).orderBy(desc(schema.websiteProjects.createdAt)),
     db().select().from(schema.salesEmails).where(eq(schema.salesEmails.businessId, b.id)).orderBy(desc(schema.salesEmails.createdAt)),
     db().select().from(schema.crmActivities).where(eq(schema.crmActivities.businessId, b.id)).orderBy(desc(schema.crmActivities.createdAt)).limit(50),
+    db().select().from(schema.crmTasks).where(eq(schema.crmTasks.businessId, b.id)).orderBy(desc(schema.crmTasks.createdAt)).limit(50),
   ]);
   const audit = b.websiteAudit as (WebsiteAudit & { error?: string }) | null;
   const r = research[0] as (typeof research)[number] | undefined;
@@ -39,7 +40,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
   if (b.erasedAt) {
     return (
       <>
-        <PageHeader title={b.name} eyebrow={<Link href="/businesses">← Businesses</Link>} />
+        <PageHeader title={b.name} eyebrow={<Link href="/businesses">← All leads</Link>} />
         <Card>
           <EmptyState icon={<FileQuestion />} title="Data erased" description={`Personal data for this business was erased on ${formatDate(b.erasedAt)} following a GDPR request. It is on the suppression list and will not be contacted.`} />
         </Card>
@@ -357,7 +358,15 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Activity</CardTitle>
+              <CardTitle>Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TaskList businessId={b.id} tasks={crmTasks.map((t) => ({ id: t.id, title: t.title, dueAt: t.dueAt?.toISOString() ?? null, doneAt: t.doneAt?.toISOString() ?? null }))} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
             </CardHeader>
             <CardContent>
               {activities.length === 0 ? (

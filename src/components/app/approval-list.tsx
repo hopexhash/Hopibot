@@ -40,9 +40,9 @@ export function ApprovalList({ approvals }: { approvals: Approval[] }) {
               {a.kind.replace(/_/g, " ")} · {timeAgo(a.createdAt)}
             </p>
           </div>
-          {a.kind === "send_email" ? (
+          {a.kind === "send_email" || a.kind === "launch_campaign" ? (
             <Button asChild size="sm">
-              <Link href={`/emails/${a.subjectId}`}>Review</Link>
+              <Link href={a.kind === "send_email" ? `/emails/${a.subjectId}` : `/campaigns/${a.subjectId}`}>Review</Link>
             </Button>
           ) : (
             <div className="flex gap-1">

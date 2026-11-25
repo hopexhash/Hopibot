@@ -18,6 +18,7 @@ export async function decideApprovalAction(approvalId: string, approve: boolean,
       if (!a) throw new UserError("Approval not found.");
       if (a.status !== "pending") throw new UserError(`This request was already ${a.status}.`);
       if (a.kind === "send_email") throw new UserError("Review and approve emails on the email page, where recipient and compliance are confirmed.");
+      if (a.kind === "launch_campaign") throw new UserError("Review and approve campaigns on the campaign page, where the preview and compliance are confirmed.");
       const [updated] = await db()
         .update(schema.approvals)
         .set({ status: approve ? "approved" : "rejected", decidedBy: auth.user.id, decidedAt: new Date(), reason: reason?.slice(0, 500) ?? null })

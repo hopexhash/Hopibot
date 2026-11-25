@@ -10,14 +10,14 @@ import { hasRole, requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
 import { SuppressionManager } from "./suppression-manager";
 
-export const metadata = { title: "Email Campaigns" };
+export const metadata = { title: "Email Center" };
 
 const TABS = [
   { key: "awaiting", label: "Awaiting approval", statuses: ["awaiting_approval"] },
   { key: "drafts", label: "Follow-up drafts", statuses: ["draft"] },
   { key: "sent", label: "Sent", statuses: ["approved", "sending", "sent"] },
   { key: "closed", label: "Blocked & cancelled", statuses: ["blocked", "cancelled", "failed"] },
-  { key: "suppression", label: "Suppression list", statuses: [] },
+  { key: "suppression", label: "Unsubscribed & blocked", statuses: [] },
 ] as const;
 
 export default async function EmailsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
@@ -44,7 +44,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader title="Email Campaigns" description="Every outreach email is drafted by the Sales agent and waits for human approval. Opt-outs are honoured immediately and permanently." />
+      <PageHeader eyebrow="Business" title="Email Center" description="Every single email your agents drafted. Nothing goes out until you approve it, and anyone who unsubscribes is never contacted again." />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Awaiting approval" value={count(["awaiting_approval"])} tone="warning" />
         <StatCard label="Sent" value={sentReal} sub={`${all.filter((e) => e.status === "sent" && e.isMock).length} simulated (mock)`} tone="success" />

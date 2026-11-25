@@ -3,7 +3,9 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../db";
+import { integrationMode } from "../integrations/credentials";
 import { capture } from "../integrations/posthog";
+import { sendEmail } from "../integrations/resend";
 import { createApproval } from "../orchestrator/control";
 import { createTask } from "../orchestrator/tasks";
 import { isSuppressed } from "../suppression";
@@ -80,6 +82,30 @@ export async function approveAndSendAction(id: string, confirmations: z.input<ty
     });
     await capture(auth.org.id, auth.user.id, "email_approved", { emailId: e.id });
     return null;
+  });
+}
+
+/** Sends this exact email to the signed-in user's own address so they can see it in a real inbox. */
+export async function sendEmailTestAction(id: string) {
+  return action({ name: "email.send_test", limit: 5, auditTarget: () => ({ type: "sales_email", id }) }, async (auth) => {
+    const e = await ownedEmail(auth.org.id, id);
+    const s = auth.org.settings;
+    if (!s.agencyName || !s.senderEmail) throw new UserError("Add your agency name and sender email in Settings first.");
+    if ((await integrationMode(auth.org.id, "resend")) !== "live") throw new UserError("Resend is not connected, so no test email can be sent. Connect it in Integrations.");
+    await sendEmail(
+      { organizationId: auth.org.id },
+      {
+        from: `${s.senderName || s.agencyName} <${s.senderEmail}>`,
+        to: auth.user.email,
+        replyTo: s.replyToEmail || s.senderEmail,
+        subject: `[TEST] ${e.subject}`,
+        // The real unsubscribe link is replaced so a test click can never unsubscribe the business.
+        text: `This is a test copy sent only to you. The real recipient would be: ${e.toEmail ?? "(none yet)"}\n\n${e.bodyText.replaceAll(e.unsubscribeToken, "test-link-disabled")}`,
+        unsubscribeUrl: `mailto:${s.replyToEmail || s.senderEmail}?subject=unsubscribe`,
+        tags: { kind: "email_test" },
+      },
+    );
+    return { to: auth.user.email };
   });
 }
 

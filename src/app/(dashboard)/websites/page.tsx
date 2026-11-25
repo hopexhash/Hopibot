@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { FilterBar } from "@/components/app/filter-bar";
 import { SubNav } from "@/components/app/sidebar";
-import { PageHeader, Section } from "@/components/app/page";
+import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Card, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -13,7 +13,7 @@ import { requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
 import { GenerateForm } from "./generate-form";
 
-export const metadata = { title: "Website Builder" };
+export const metadata = { title: "Websites" };
 
 export default async function WebsitesPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const auth = await requireAuth();
@@ -41,10 +41,29 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
     .orderBy(sql`${schema.businesses.leadScore} DESC NULLS LAST`)
     .limit(200);
 
+  // Overview from real project and deployment rows (test records excluded).
+  const [o] = (await db().execute(sql`
+    SELECT
+      count(*) FILTER (WHERE p.current_version_id IS NOT NULL) AS generated,
+      count(*) FILTER (WHERE p.status IN ('generating', 'testing', 'needs_fixes')) AS in_progress,
+      count(*) FILTER (WHERE p.status = 'ready' AND p.approval_status = 'pending') AS awaiting,
+      count(*) FILTER (WHERE p.status = 'failed') AS failed,
+      count(*) FILTER (WHERE EXISTS (SELECT 1 FROM deployments d WHERE d.project_id = p.id AND d.status = 'ready' AND NOT d.is_mock)) AS deployed
+    FROM website_projects p JOIN businesses b ON b.id = p.business_id
+    WHERE p.organization_id = ${auth.org.id} AND p.deleted_at IS NULL AND NOT b.is_mock`)) as unknown as Record<string, string>[];
+  const n = (k: string) => Number(o?.[k] ?? 0);
+
   return (
     <>
       <SubNav section="/websites" />
-      <PageHeader title="Website Builder" description="Every generated website is versioned, tested by the Quality Control agent and only marked ready when it scores 85 or more." />
+      <PageHeader eyebrow="Business" title="Websites" description="Websites your agents built for leads. Each one is tested on phone, tablet and desktop, and only marked ready when it scores 85 or more." />
+      <div className="mb-5 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-5">
+        <StatCard label="Generated" value={n("generated")} tone="neutral" href="/websites" />
+        <StatCard label="In progress" value={n("in_progress")} tone="neutral" help="Being written, tested or fixed right now." />
+        <StatCard label="Waiting for your review" value={n("awaiting")} tone={n("awaiting") ? "warning" : "neutral"} href="/websites?status=ready&approval=pending" />
+        <StatCard label="Deployed" value={n("deployed")} tone="success" href="/previews" help="Online at a preview link. Only counted after the deployment is confirmed." />
+        <StatCard label="Failed" value={n("failed")} tone={n("failed") ? "danger" : "neutral"} href="/websites?status=failed" />
+      </div>
       <Card className="mb-6 p-5">
         <GenerateForm businesses={candidates.map((c) => ({ ...c, city: c.city ?? "" }))} />
       </Card>

@@ -1,4 +1,5 @@
 import { and, desc, eq, ilike, isNull, sql } from "drizzle-orm";
+import { AddLeadButton } from "@/components/app/add-lead";
 import { FilterBar } from "@/components/app/filter-bar";
 import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, StatCard } from "@/components/app/page";
@@ -8,7 +9,7 @@ import { requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
 import { Kanban } from "./kanban";
 
-export const metadata = { title: "Sales Pipeline" };
+export const metadata = { title: "CRM" };
 
 export default async function PipelinePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const auth = await requireAuth();
@@ -36,12 +37,12 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
   return (
     <>
       <SubNav section="/pipeline" />
-      <PageHeader title="Sales Pipeline" description="Drag businesses between stages. Agents move deals forward automatically; human-managed stages (Replied → Won/Lost) are never overwritten." />
+      <PageHeader eyebrow="Business" title="CRM" description="Every lead and customer, by stage. Agents move leads forward as they work; from “Interested” onward only you decide." actions={<AddLeadButton variant="primary" />} />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Open pipeline value" value={formatEur(open.reduce((s, r) => s + (r.valueCents ?? 0), 0))} sub={`${open.length} open deals`} />
         <StatCard label="Won" value={formatEur(won.reduce((s, r) => s + (r.valueCents ?? 0), 0))} sub={`${won.length} customers`} tone="success" />
         <StatCard label="Win rate" value={winRate == null ? "—" : `${winRate}%`} sub="Won ÷ (won + lost)" />
-        <StatCard label="In negotiation" value={real.filter((r) => r.stage === "NEGOTIATION").length} sub={`${real.filter((r) => r.stage === "REPLIED").length} replied`} tone="warning" />
+        <StatCard label="In negotiation" value={real.filter((r) => r.stage === "NEGOTIATION").length} sub={`${real.filter((r) => r.stage === "REPLIED").length} interested`} tone="warning" />
       </div>
       <FilterBar
         searchPlaceholder="Search deals…"
@@ -52,7 +53,7 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
         ]}
       />
       <Kanban key={JSON.stringify(sp)} deals={deals} />
-      <p className="mt-2 text-[11px] text-muted">{PIPELINE_STAGES.length} stages · showing up to 150 most recent deals per stage.</p>
+      <p className="mt-2 text-[12px] text-subtle">{PIPELINE_STAGES.length} stages · up to 150 most recently updated leads per stage. Swipe sideways to see every stage.</p>
     </>
   );
 }

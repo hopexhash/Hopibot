@@ -1,3 +1,4 @@
+import { AddLeadButton } from "@/components/app/add-lead";
 import { BusinessTable } from "@/components/app/business-table";
 import { FilterBar } from "@/components/app/filter-bar";
 import { SubNav } from "@/components/app/sidebar";
@@ -6,7 +7,7 @@ import { BUSINESS_CATEGORIES, PIPELINE_STAGES, WEBSITE_STATUS_LABEL } from "@/li
 import { hasRole, requireAuth } from "@/server/auth";
 import { distinctCities, listBusinesses, parseBusinessFilters } from "@/server/queries/businesses";
 
-export const metadata = { title: "Businesses" };
+export const metadata = { title: "All leads" };
 
 export default async function BusinessesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const auth = await requireAuth();
@@ -15,7 +16,7 @@ export default async function BusinessesPage({ searchParams }: { searchParams: P
   return (
     <>
       <SubNav section="/pipeline" />
-      <PageHeader title="Businesses" description="Every business the agents discovered, with lead score, website quality and research status." />
+      <PageHeader eyebrow="Business" title="All leads" description="Every business in your CRM as a sortable list. Tick rows to run agents on several leads at once." actions={<AddLeadButton />} />
       <FilterBar
         searchPlaceholder="Search name, address or website…"
         filters={[

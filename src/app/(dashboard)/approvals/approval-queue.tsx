@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CircleDollarSign, ExternalLink, Globe, Mail, ShieldCheck, X } from "lucide-react";
+import { Check, CircleDollarSign, ExternalLink, Globe, Mail, Megaphone, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -27,6 +27,7 @@ const ICON: Record<string, React.ReactNode> = {
   publish_website: <Globe />,
   connect_domain: <Globe />,
   budget_override: <CircleDollarSign />,
+  launch_campaign: <Megaphone />,
 };
 
 export function ApprovalQueue({ items, canDecide }: { items: ApprovalDetail[]; canDecide: boolean }) {
@@ -84,9 +85,9 @@ export function ApprovalQueue({ items, canDecide }: { items: ApprovalDetail[]; c
             <p className="mt-3 text-[12.5px] leading-relaxed text-muted">{a.consequence}</p>
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              {a.kind === "send_email" ? (
+              {a.kind === "send_email" || a.kind === "launch_campaign" ? (
                 <Button asChild variant="primary" className="h-11 flex-1 sm:h-10">
-                  <Link href={a.reviewHref ?? "/emails"}>Review and approve email</Link>
+                  <Link href={a.reviewHref ?? "/emails"}>{a.kind === "send_email" ? "Review and approve email" : "Review and approve campaign"}</Link>
                 </Button>
               ) : (
                 <>
@@ -106,7 +107,7 @@ export function ApprovalQueue({ items, canDecide }: { items: ApprovalDetail[]; c
                 </>
               )}
             </div>
-            {!canDecide && a.kind !== "send_email" && <p className="mt-2 text-[12px] text-subtle">Only admins and owners can approve or reject.</p>}
+            {!canDecide && a.kind !== "send_email" && a.kind !== "launch_campaign" && <p className="mt-2 text-[12px] text-subtle">Only admins and owners can approve or reject.</p>}
           </li>
         ))}
       </ul>

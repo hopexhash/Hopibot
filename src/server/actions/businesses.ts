@@ -2,9 +2,11 @@
 
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
+import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { PIPELINE_STAGES } from "@/lib/constants";
 import { db, schema } from "../db";
 import { capture } from "../integrations/posthog";
+import { saveLead } from "../leads/save";
 import { action, UserError } from "./_util";
 
 const ids = z.array(z.string().uuid()).min(1).max(1000);
@@ -199,5 +201,50 @@ export async function createPaymentLinkAction(businessId: string, input: z.input
     const url = await createPaymentLink(auth.org.id, { businessId: b.id, businessName: b.name, amountCents: Math.round(p.amountEur * 100), recurring: p.recurring, description: p.description ?? "Website" });
     await db().insert(schema.crmActivities).values({ organizationId: auth.org.id, businessId: b.id, userId: auth.user.id, type: "note", content: `Stripe payment link created (€${p.amountEur.toFixed(2)}${p.recurring ? "/month" : ""}): ${url}` });
     return { url };
+  });
+}
+
+
+const newLeadSchema = z.object({
+  name: z.string().trim().min(2, "Enter the business name").max(160),
+  category: z.enum(BUSINESS_CATEGORIES.map((c) => c.key) as [string, ...string[]]),
+  city: z.string().trim().min(1, "Enter the city").max(80),
+  country: z.string().trim().min(2).max(60).default("Netherlands"),
+  address: z.string().trim().max(240).optional(),
+  phone: z.string().trim().max(40).optional(),
+  websiteUrl: z.union([z.literal(""), z.string().trim().url("Enter the full website address, starting with https://").max(300)]).optional(),
+});
+
+/** Adds one lead by hand. Same duplicate check, website audit and scoring as the Lead Discovery agent. */
+export async function addLeadAction(input: unknown) {
+  return action({ name: "business.create", revalidate: ["/pipeline", "/businesses"], limit: 30, auditTarget: (r: { id: string }) => ({ type: "business", id: r.id }) }, async (auth) => {
+    const p = newLeadSchema.parse(input);
+    const r = await saveLead(
+      auth.org.id,
+      { name: p.name, category: p.category, city: p.city, country: p.country, address: p.address || null, phone: p.phone || null, websiteUrl: p.websiteUrl || null, source: "manual" },
+      { weights: auth.org.settings.scoringWeights, minScore: auth.org.settings.minLeadScore },
+    );
+    if (r.status === "duplicate") throw new UserError("This business is already in your CRM.");
+    return { id: r.id, leadScore: r.leadScore };
+  });
+}
+
+export async function addCrmTaskAction(businessId: string, title: string, dueAt: string | null) {
+  return action({ name: "business.task_add", revalidate: ["/businesses"] }, async (auth) => {
+    const b = await owned(auth.org.id, z.string().uuid().parse(businessId));
+    await db()
+      .insert(schema.crmTasks)
+      .values({ organizationId: auth.org.id, businessId: b.id, title: z.string().trim().min(2, "Describe the task").max(200).parse(title), dueAt: dueAt ? new Date(z.string().datetime().parse(dueAt)) : null, createdBy: auth.user.id });
+    return null;
+  });
+}
+
+export async function toggleCrmTaskAction(taskId: string, done: boolean) {
+  return action({ name: "business.task_toggle", revalidate: ["/businesses"] }, async (auth) => {
+    await db()
+      .update(schema.crmTasks)
+      .set({ doneAt: done ? new Date() : null })
+      .where(and(eq(schema.crmTasks.id, z.string().uuid().parse(taskId)), eq(schema.crmTasks.organizationId, auth.org.id)));
+    return null;
   });
 }

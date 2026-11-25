@@ -148,14 +148,14 @@ export function categoryLabel(key: string) {
 }
 
 export const PIPELINE_STAGES = [
-  { key: "NEW_LEAD", label: "New lead" },
+  { key: "NEW_LEAD", label: "New Lead" },
   { key: "RESEARCHED", label: "Researched" },
   { key: "QUALIFIED", label: "Qualified" },
-  { key: "WEBSITE_GENERATED", label: "Website generated" },
-  { key: "PREVIEW_READY", label: "Preview ready" },
-  { key: "AWAITING_APPROVAL", label: "Awaiting approval" },
-  { key: "CONTACTED", label: "Contacted" },
-  { key: "REPLIED", label: "Replied" },
+  { key: "WEBSITE_GENERATED", label: "Website Generated" },
+  { key: "PREVIEW_READY", label: "Preview Ready" },
+  { key: "AWAITING_APPROVAL", label: "Email Awaiting Approval" },
+  { key: "CONTACTED", label: "Preview Sent" },
+  { key: "REPLIED", label: "Interested" },
   { key: "NEGOTIATION", label: "Negotiation" },
   { key: "WON", label: "Won" },
   { key: "LOST", label: "Lost" },
