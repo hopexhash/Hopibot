@@ -249,7 +249,10 @@ export function ObjectiveDialog({ label = "New objective", size = "md", variant 
                         <Input value={d.city} onChange={(e) => setD({ city: e.target.value })} />
                       </Field>
                       <Field label="Country">
-                        <Input value={d.country} onChange={(e) => setD({ country: e.target.value })} />
+                        <Select value={d.country} onChange={(e) => setD({ country: e.target.value as "Netherlands" | "Belgium" })}>
+                          <option>Netherlands</option>
+                          <option>Belgium</option>
+                        </Select>
                       </Field>
                       <Field label="Type of business">
                         <Select value={d.category} onChange={(e) => setD({ category: e.target.value })}>
