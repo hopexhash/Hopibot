@@ -1,303 +1,559 @@
 "use client";
 
-import { Check, Expand, Loader2, Monitor, Smartphone } from "lucide-react";
+import {
+  ArrowRight, BarChart3, BookOpen, CalendarCheck, Camera, Check, ChevronUp, Files, Globe, Languages, Loader2, Lock, Mail, MapPin, Maximize2,
+  MessageCircle, Minus, Monitor, PenTool, Plus, Search, ShoppingBag, Smartphone, Sparkles, Type, X, type LucideIcon,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { eur, priceOrder, type Catalog, type CatalogAddon } from "@/lib/catalog";
+import type { ClientStrings } from "./strings";
 
-type S = Record<string, unknown> & {
-  desktop: string; mobile: string; fullscreen: string; popular: string; oneTime: string; perMonth: string; planTitle: string; planSub: string; noPlan: string; noPlanSub: string;
-  addonsTitle: string; recommended: string; more: string; onRequest: string; per: string; summary: string; totalOnce: string; totalMonthly: string; yourDetails: string; name: string;
-  email: string; phone: string; note: string; payNow: string; request: string; payHelp: string; requestHelp: string; sending: string; thanksTitle: string; thanksBody: string; quoteNote: string;
-  pricingTitle: string; pricingSub: string;
+type S = ClientStrings;
+
+const ADDON_ICON: Record<string, LucideIcon> = {
+  logo: PenTool, pages: Files, booking: CalendarCheck, menu: BookOpen, ordering: ShoppingBag, multilingual: Languages, copywriting: Type,
+  seo: Search, gbp: MapPin, photography: Camera, email: Mail, domain: Globe, whatsapp: MessageCircle, analytics: BarChart3,
 };
 
-/** Live preview of the generated website with a desktop / phone toggle. */
-export function PreviewFrame({ slug, title, s }: { slug: string; title: string; s: S }) {
+/** Counts smoothly to a new amount whenever the selection changes. */
+function Amount({ cents, className }: { cents: number; className?: string }) {
+  const [shown, setShown] = useState(cents);
+  const from = useRef(cents);
+  useEffect(() => {
+    const start = from.current;
+    if (start === cents) return;
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (t: number) => {
+      const k = Math.min(1, (t - t0) / 380);
+      const eased = 1 - Math.pow(1 - k, 3);
+      const v = Math.round(start + (cents - start) * eased);
+      from.current = v;
+      setShown(v);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [cents]);
+  return <span className={className} style={{ fontVariantNumeric: "tabular-nums" }}>{eur(shown, shown % 100 === 0 ? 0 : 2)}</span>;
+}
+
+/* ─────────────────────────── Preview ─────────────────────────── */
+
+/** The customer's own website as the centrepiece: browser frame, device toggle and in-page full screen. */
+export function PreviewShowcase({ slug, title, label, s }: { slug: string; title: string; label: string; s: S }) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [loaded, setLoaded] = useState(false);
+  const [full, setFull] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.3);
+  const [scale, setScale] = useState(0.5);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     let first = true;
     const ro = new ResizeObserver(() => {
-      setScale(Math.min(1, el.clientWidth / 1280));
-      // Phones start on the phone view: that is how most of their customers will see it.
+      setScale(Math.min(1, el.clientWidth / 1360));
+      // Phones open on the phone view: that is how most of their customers will see the site.
       if (first && window.innerWidth < 640) setDevice("mobile");
       first = false;
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const tab = (d: "desktop" | "mobile", label: string, Icon: typeof Monitor) => (
-    <button type="button" onClick={() => setDevice(d)} aria-pressed={device === d} className={`flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-medium transition ${device === d ? "bg-[var(--ink)] text-white" : "text-[var(--ink)] hover:bg-black/5"}`}>
-      <Icon className="h-4 w-4" /> {label}
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setFull(false);
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [full]);
+  // The frame can finish loading before React attaches onLoad (server-rendered iframe), so the
+  // loading state also clears when the document is already complete, and after a short grace period.
+  const frame = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    const done = () => setLoaded(true);
+    if (frame.current?.contentDocument?.readyState === "complete" && frame.current.contentDocument.body?.childElementCount) done();
+    const t = setTimeout(done, 3500);
+    return () => clearTimeout(t);
+  }, [device]);
+  const src = `/p/${slug}`;
+  const tab = (d: "desktop" | "mobile", text: string, Icon: LucideIcon) => (
+    <button type="button" onClick={() => setDevice(d)} aria-pressed={device === d} className="relative z-10 flex min-h-11 items-center gap-2 rounded-full px-5 text-[15px] font-semibold transition-colors" style={{ color: device === d ? "#fff" : "var(--ink)" }}>
+      <Icon className="h-[18px] w-[18px]" /> {text}
     </button>
   );
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex rounded-full border border-black/10 bg-white p-1">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="relative flex rounded-full border border-[var(--line)] bg-white p-1 shadow-[var(--shadow-sm)]">
+          <span aria-hidden className="absolute bottom-1 top-1 rounded-full bg-[var(--dark)] transition-all duration-500 ease-[cubic-bezier(.2,.7,.3,1)]" style={{ left: device === "desktop" ? 4 : "50%", width: "calc(50% - 4px)" }} />
           {tab("desktop", s.desktop, Monitor)}
           {tab("mobile", s.mobile, Smartphone)}
         </div>
-        <a href={`/p/${slug}`} target="_blank" rel="noopener" className="flex min-h-11 items-center gap-2 rounded-full border border-black/10 bg-white px-4 text-sm font-medium text-[var(--ink)] hover:border-black/30">
-          <Expand className="h-4 w-4" /> {s.fullscreen}
-        </a>
+        <button type="button" onClick={() => setFull(true)} className="flex min-h-11 items-center gap-2 rounded-full border border-[var(--line)] bg-white px-5 text-[15px] font-semibold shadow-[var(--shadow-sm)] transition hover:border-[var(--ink)]">
+          <Maximize2 className="h-[17px] w-[17px]" /> <span className="hidden sm:inline">{s.fullscreen}</span>
+        </button>
       </div>
-      <div ref={box} className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_40px_80px_-40px_rgba(0,0,0,.35)]">
-        <div className="flex items-center gap-1.5 border-b border-black/10 bg-[#f1f1ef] px-4 py-2.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-          <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-          <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-        </div>
-        {device === "desktop" ? (
-          <div style={{ height: Math.round(760 * scale) }} className="relative">
-            <iframe src={`/p/${slug}`} title={title} className="absolute left-0 top-0 origin-top-left border-0" style={{ width: 1280, height: 760, transform: `scale(${scale})` }} />
-          </div>
-        ) : (
-          <div className="flex justify-center bg-[#e9e9e6] py-6">
-            <div className="overflow-hidden rounded-[34px] border-[9px] border-[#111] bg-white shadow-xl" style={{ width: "min(320px, 86%)" }}>
-              <iframe src={`/p/${slug}`} title={title} className="block w-full border-0" style={{ height: 600 }} />
+
+      <div ref={box} className="relative">
+        {/* soft lime light behind the product */}
+        <div aria-hidden className="pointer-events-none absolute -inset-x-6 -bottom-10 top-1/3 -z-10 rounded-[60px] opacity-70 blur-3xl" style={{ background: "radial-gradient(60% 60% at 50% 60%, rgba(182,255,59,.5), transparent 70%)" }} />
+        <div className="mx-auto overflow-hidden border border-[var(--line-strong)] bg-white shadow-[var(--shadow-lg)] transition-all duration-700 ease-[cubic-bezier(.2,.7,.3,1)]" style={{ width: device === "desktop" ? "100%" : "min(340px, 100%)", borderRadius: device === "desktop" ? 22 : 44, borderWidth: device === "desktop" ? 1 : 10, borderColor: device === "desktop" ? "var(--line-strong)" : "var(--dark)" }}>
+          {device === "desktop" && (
+            <div className="flex items-center gap-3 border-b border-[var(--line)] bg-[#fbfbfc] px-4 py-3">
+              <span className="flex gap-1.5">
+                <i className="h-3 w-3 rounded-full bg-[#e6e8ec]" />
+                <i className="h-3 w-3 rounded-full bg-[#e6e8ec]" />
+                <i className="h-3 w-3 rounded-full bg-[#e6e8ec]" />
+              </span>
+              <span className="mx-auto flex min-w-0 max-w-[60%] items-center gap-2 rounded-full bg-[var(--bg)] px-4 py-1.5 text-[13px] font-medium text-[var(--ink-2)]">
+                <Lock className="h-3.5 w-3.5 flex-none" /> <span className="truncate">{label}</span>
+              </span>
+              <span className="w-12" />
             </div>
+          )}
+          <div className="relative" style={{ height: device === "desktop" ? Math.round(780 * scale) : 640 }}>
+            {!loaded && (
+              <div className="skeleton absolute inset-0 grid place-items-center">
+                <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--ink-2)] shadow-[var(--shadow-sm)]">{s.loadingPreview}</span>
+              </div>
+            )}
+            {device === "desktop" ? (
+              <iframe key="d" ref={frame} src={src} title={title} onLoad={() => setLoaded(true)} className="absolute left-0 top-0 origin-top-left border-0" style={{ width: 1360, height: 780, transform: `scale(${scale})`, opacity: loaded ? 1 : 0, transition: "opacity .5s" }} />
+            ) : (
+              <iframe key="m" ref={frame} src={src} title={title} onLoad={() => setLoaded(true)} className="block h-full w-full border-0" style={{ opacity: loaded ? 1 : 0, transition: "opacity .5s" }} />
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {full && (
+        <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[100] flex flex-col bg-[var(--dark)]">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
+            <span className="truncate text-sm font-semibold">{label}</span>
+            <button type="button" onClick={() => setFull(false)} className="flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-4 text-sm font-semibold hover:bg-white/20">
+              <X className="h-4 w-4" /> {s.close}
+            </button>
+          </div>
+          <iframe src={src} title={title} className="w-full flex-1 border-0 bg-white" />
+        </div>
+      )}
     </div>
   );
 }
 
-function Radio({ checked, onChange, children, name, flag }: { checked: boolean; onChange: () => void; children: React.ReactNode; name: string; flag?: string }) {
+/* ─────────────────────────── Configurator ─────────────────────────── */
+
+function StepHead({ n, eyebrow, title, sub }: { n: number; eyebrow: string; title: string; sub: string }) {
   return (
-    <label className={`relative flex cursor-pointer flex-col rounded-2xl border-2 bg-white p-5 transition ${checked ? "border-[var(--accent)] shadow-[0_18px_40px_-24px_var(--accent)]" : "border-black/10 hover:border-black/25"}`}>
-      <input type="radio" name={name} checked={checked} onChange={onChange} className="sr-only" />
-      {flag && <span className="absolute -top-3 left-5 rounded-full bg-[var(--accent)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--on-accent)]">{flag}</span>}
-      {children}
-      <span className={`absolute right-4 top-4 grid h-6 w-6 place-items-center rounded-full border-2 ${checked ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]" : "border-black/20"}`}>{checked && <Check className="h-3.5 w-3.5" strokeWidth={3} />}</span>
-    </label>
+    <div className="mb-7">
+      <p className="eyebrow flex items-center gap-2.5">
+        <span className="grid h-6 w-6 place-items-center rounded-full bg-[var(--dark)] text-[12px] font-bold text-[var(--lime)]">{n}</span>
+        {eyebrow}
+      </p>
+      <h3 className="mt-3 text-[26px] font-bold leading-tight tracking-[-0.03em] sm:text-[30px]">{title}</h3>
+      <p className="muted mt-2 text-[16.5px]">{sub}</p>
+    </div>
   );
 }
 
-/** Package / care plan / add-on selection with a live total. The server recalculates every price. */
-export function Configurator({ slug, catalog, recommended, paymentsLive, s, vatLine }: { slug: string; catalog: Catalog; recommended: string[]; paymentsLive: boolean; s: S; vatLine: string }) {
+const Tick = () => (
+  <span className="tick" aria-hidden>
+    <Check className="h-3.5 w-3.5" strokeWidth={3.5} />
+  </span>
+);
+
+export function Configurator({ slug, catalog, recommended, paymentsLive, businessName, s }: { slug: string; catalog: Catalog; recommended: string[]; paymentsLive: boolean; businessName: string; s: S }) {
   const packages = catalog.packages.filter((p) => p.enabled && p.priceCents !== null);
   const plans = catalog.plans.filter((p) => p.enabled && p.priceCents !== null);
   const addons = catalog.addons.filter((a) => a.enabled);
   const [pkg, setPkg] = useState((packages.find((p) => p.featured) ?? packages[0])?.key ?? "");
   const [plan, setPlan] = useState<string | null>(plans[0]?.key ?? null);
   const [picked, setPicked] = useState<Record<string, number>>({});
-  const [form, setForm] = useState({ name: "", email: "", phone: "", note: "" });
+  const [showAll, setShowAll] = useState(false);
+  const [form, setForm] = useState({ name: "", company: businessName, email: "", phone: "", note: "" });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
+  const [sheet, setSheet] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
   const priced = useMemo(() => priceOrder(catalog, { packageKey: pkg, planKey: plan, addons: picked }), [catalog, pkg, plan, picked]);
+  const ok = !("error" in priced);
+  const once = ok ? priced.oneTimeCents : 0;
+  const monthly = ok ? priced.monthlyCents : 0;
+  const vat = (c: number) => Math.round((c * catalog.vatPct) / 100);
   const rec = addons.filter((a) => recommended.includes(a.key));
   const rest = addons.filter((a) => !recommended.includes(a.key));
+  const visible = showAll || rec.length === 0 ? [...rec, ...rest] : rec;
+
+  const errors = {
+    name: form.name.trim().length < 2 ? s.errName : "",
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim()) ? "" : s.errEmail,
+    phone: form.phone.trim() && form.phone.replace(/\D/g, "").length < 8 ? s.errPhone : "",
+  };
+  const invalid = Boolean(errors.name || errors.email || errors.phone);
 
   const toggle = (a: CatalogAddon) => setPicked((p) => (p[a.key] ? Object.fromEntries(Object.entries(p).filter(([k]) => k !== a.key)) : { ...p, [a.key]: 1 }));
-  const addonRow = (a: CatalogAddon) => {
-    const on = Boolean(picked[a.key]);
-    return (
-      <div key={a.key} className={`flex items-center gap-3 rounded-xl border bg-white p-4 transition ${on ? "border-[var(--accent)]" : "border-black/10"}`}>
-        <button type="button" role="switch" aria-checked={on} aria-label={a.name} onClick={() => toggle(a)} className={`relative h-7 w-12 flex-none rounded-full transition ${on ? "bg-[var(--accent)]" : "bg-black/15"}`}>
-          <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
-        </button>
-        <div className="min-w-0 flex-1">
-          <p className="text-[15px] font-semibold text-[var(--ink)]">{a.name}</p>
-          <p className="text-[13px] leading-snug text-black/60">{a.description}</p>
-        </div>
-        {on && a.perUnit && (
-          <input type="number" min={1} max={20} value={picked[a.key]} aria-label={`${a.name} — ${a.unit}`} onChange={(e) => setPicked((p) => ({ ...p, [a.key]: Math.max(1, Math.min(20, Number(e.target.value) || 1)) }))} className="h-10 w-14 rounded-lg border border-black/15 text-center text-sm" />
-        )}
-        <p className="flex-none text-right text-sm font-semibold text-[var(--ink)]">
-          {a.priceCents === null ? <span className="font-medium text-black/55">{s.onRequest}</span> : eur(a.priceCents)}
-          {a.priceCents !== null && a.perUnit && <span className="block text-[11px] font-normal text-black/55">{s.per} {a.unit}</span>}
-          {a.priceCents !== null && a.kind === "monthly" && <span className="block text-[11px] font-normal text-black/55">{s.perMonth}</span>}
-        </p>
-      </div>
-    );
-  };
+  const qty = (a: CatalogAddon, d: number) => setPicked((p) => ({ ...p, [a.key]: Math.max(1, Math.min(20, (p[a.key] ?? 1) + d)) }));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setSheet(false);
+    if (invalid) {
+      setTouched({ name: true, email: true, phone: true });
+      const first = formRef.current?.querySelector<HTMLElement>('[data-invalid="true"] input');
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => first?.focus({ preventScroll: true }), 450);
+      return;
+    }
     setState("sending");
     try {
-      const res = await fetch("/api/demo/order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, packageKey: pkg, planKey: plan, addons: picked, ...form }) });
+      const note = [form.company.trim() && form.company.trim() !== businessName ? `${s.company}: ${form.company.trim()}` : "", form.note.trim()].filter(Boolean).join("\n");
+      const res = await fetch("/api/demo/order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, packageKey: pkg, planKey: plan, addons: picked, name: form.name, email: form.email, phone: form.phone, note }) });
       const data = (await res.json()) as { ok: boolean; mode?: string; url?: string; error?: string };
-      if (!data.ok) throw new Error(data.error || "Something went wrong.");
+      if (!data.ok) throw new Error(data.error || s.errGeneric);
       if (data.mode === "checkout" && data.url) {
         window.location.href = data.url;
         return;
       }
       setState("done");
+      window.scrollTo({ top: document.getElementById("order")?.offsetTop ?? 0, behavior: "smooth" });
     } catch (err) {
-      setError((err as Error).message);
+      setError((err as Error).message || s.errGeneric);
       setState("idle");
     }
   }
 
   if (state === "done")
     return (
-      <div className="rounded-3xl border border-black/10 bg-white p-8 text-center sm:p-12">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[var(--accent)] text-[var(--on-accent)]">
-          <Check className="h-7 w-7" />
+      <div className="card rise mx-auto max-w-2xl px-6 py-14 text-center sm:px-12 sm:py-20">
+        <span className="pop mx-auto grid h-20 w-20 place-items-center rounded-full bg-[var(--lime)] text-[var(--dark)]">
+          <Check className="h-10 w-10" strokeWidth={3} />
         </span>
-        <h3 className="mt-5 text-2xl font-semibold text-[var(--ink)]">{s.thanksTitle}</h3>
-        <p className="mx-auto mt-2 max-w-md text-black/65">{s.thanksBody}</p>
+        <h3 className="mt-7 text-[30px] font-extrabold tracking-[-0.035em]">{s.thanksTitle}</h3>
+        <p className="muted mx-auto mt-3 max-w-md text-[17px]">{s.thanksBody}</p>
+        <ol className="mx-auto mt-9 max-w-md space-y-3 text-left">
+          {s.nextRequest.map((x, i) => (
+            <li key={x} className="flex gap-3 text-[15.5px]">
+              <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-[var(--bg)] text-[13px] font-bold">{i + 1}</span>
+              {x}
+            </li>
+          ))}
+        </ol>
       </div>
     );
 
-  const input = "mt-1.5 h-12 w-full rounded-xl border border-black/15 bg-white px-3.5 text-base text-[var(--ink)] outline-none focus:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/15";
-  return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
-      <div className="min-w-0 space-y-10">
-        <fieldset>
-          <legend className="sr-only">{s.pricingTitle}</legend>
-          <div className="grid gap-4 md:grid-cols-3">
-            {packages.map((p) => (
-              <Radio key={p.key} name="package" checked={pkg === p.key} onChange={() => setPkg(p.key)} flag={p.featured ? s.popular : undefined}>
-                <span className="text-lg font-semibold text-[var(--ink)]">{p.name}</span>
-                <span className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-semibold tracking-tight text-[var(--ink)]">{eur(p.priceCents!)}</span>
-                  <span className="text-sm text-black/55">{s.oneTime}</span>
-                </span>
-                <span className="mt-2 text-[13.5px] leading-snug text-black/60">{p.description}</span>
-                <ul className="mt-4 space-y-2 border-t border-black/10 pt-4">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex gap-2 text-[14px] text-black/75">
-                      <Check className="mt-0.5 h-4 w-4 flex-none text-[var(--accent-text)]" /> {f}
-                    </li>
-                  ))}
-                </ul>
-              </Radio>
-            ))}
-          </div>
-        </fieldset>
-
-        {plans.length > 0 && (
-          <fieldset>
-            <legend className="text-xl font-semibold text-[var(--ink)]">{s.planTitle}</legend>
-            <p className="mb-4 mt-1 text-sm text-black/60">{s.planSub}</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {plans.map((p) => (
-                <Radio key={p.key} name="plan" checked={plan === p.key} onChange={() => setPlan(p.key)}>
-                  <span className="pr-8 font-semibold text-[var(--ink)]">{p.name}</span>
-                  <span className="mt-1 flex items-baseline gap-1.5">
-                    <span className="text-2xl font-semibold text-[var(--ink)]">{eur(p.priceCents!)}</span>
-                    <span className="text-sm text-black/55">{s.perMonth}</span>
-                  </span>
-                  <span className="mt-2 text-[13px] leading-snug text-black/60">{p.features.join(" · ")}</span>
-                </Radio>
-              ))}
-              <Radio name="plan" checked={plan === null} onChange={() => setPlan(null)}>
-                <span className="pr-8 font-semibold text-[var(--ink)]">{s.noPlan}</span>
-                <span className="mt-2 text-[13px] text-black/60">{s.noPlanSub}</span>
-              </Radio>
-            </div>
-          </fieldset>
-        )}
-
-        {addons.length > 0 && (
-          <div>
-            <h3 className="text-xl font-semibold text-[var(--ink)]">{s.addonsTitle}</h3>
-            {rec.length > 0 && (
-              <>
-                <p className="mb-3 mt-4 text-[12px] font-semibold uppercase tracking-[.14em] text-[var(--accent-text)]">{s.recommended}</p>
-                <div className="grid gap-2.5">{rec.map(addonRow)}</div>
-              </>
-            )}
-            {rest.length > 0 && (
-              <details className="mt-5">
-                <summary className="cursor-pointer text-sm font-semibold text-[var(--ink)] underline underline-offset-4">{s.more}</summary>
-                <div className="mt-3 grid gap-2.5">{rest.map(addonRow)}</div>
-              </details>
-            )}
-          </div>
-        )}
-      </div>
-
-      <form onSubmit={submit} className="rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,.4)] lg:sticky lg:top-6">
-        <h3 className="text-lg font-semibold text-[var(--ink)]">{s.summary}</h3>
-        {"error" in priced ? (
-          <p className="mt-3 text-sm text-red-700">{priced.error}</p>
-        ) : (
-          <>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              {priced.lines.map((l) => (
-                <li key={l.key} className="flex justify-between gap-3">
-                  <span className="text-black/75">
-                    {l.name}
-                    {l.quantity > 1 ? ` × ${l.quantity}` : ""}
-                  </span>
-                  <span className="flex-none font-medium text-[var(--ink)]">
-                    {eur(l.unitCents * l.quantity)}
-                    {l.kind === "monthly" ? ` / ${s.perMonth.replace(/^per /, "")}` : ""}
-                  </span>
-                </li>
-              ))}
-              {priced.onRequest.map((n) => (
-                <li key={n} className="flex justify-between gap-3">
-                  <span className="text-black/75">{n}</span>
-                  <span className="flex-none text-black/55">{s.onRequest}</span>
-                </li>
-              ))}
-            </ul>
-            {/* One-time and monthly costs are always shown separately. */}
-            <dl className="mt-5 space-y-2 border-t border-black/10 pt-4">
-              <div className="flex items-baseline justify-between">
-                <dt className="text-sm text-black/65">{s.totalOnce}</dt>
-                <dd className="text-2xl font-semibold tracking-tight text-[var(--ink)]">{eur(priced.oneTimeCents)}</dd>
-              </div>
-              {priced.monthlyCents > 0 && (
-                <div className="flex items-baseline justify-between">
-                  <dt className="text-sm text-black/65">{s.totalMonthly}</dt>
-                  <dd className="text-lg font-semibold text-[var(--ink)]">{eur(priced.monthlyCents)}</dd>
-                </div>
-              )}
-            </dl>
-            <p className="mt-2 text-xs text-black/55">
-              {vatLine}
-              {priced.onRequest.length > 0 ? ` ${s.quoteNote}` : ""}
-            </p>
-          </>
-        )}
-        <h3 className="mt-7 text-sm font-semibold uppercase tracking-[.12em] text-black/55">{s.yourDetails}</h3>
-        <div className="mt-3 space-y-3">
-          <label className="block text-sm font-medium text-[var(--ink)]">
-            {s.name}
-            <input className={input} required minLength={2} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          </label>
-          <label className="block text-sm font-medium text-[var(--ink)]">
-            {s.email}
-            <input className={input} required type="email" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          </label>
-          <label className="block text-sm font-medium text-[var(--ink)]">
-            {s.phone}
-            <input className={input} type="tel" autoComplete="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          </label>
-          <label className="block text-sm font-medium text-[var(--ink)]">
-            {s.note}
-            <textarea className={`${input} h-24 py-2.5`} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
-          </label>
-        </div>
-        {error && (
-          <p role="alert" className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-800">
-            {error}
+  const field = (key: "name" | "company" | "email" | "phone", label: string, props: React.InputHTMLAttributes<HTMLInputElement>, optional = false) => {
+    const err = key !== "company" && touched[key] ? errors[key] : "";
+    return (
+      <div className="field" data-invalid={err ? "true" : "false"}>
+        <label htmlFor={`f-${key}`}>
+          {label} {optional && <span className="muted font-normal">· {s.optional}</span>}
+        </label>
+        <input id={`f-${key}`} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} onBlur={() => setTouched((t) => ({ ...t, [key]: true }))} aria-invalid={Boolean(err)} aria-describedby={err ? `e-${key}` : undefined} {...props} />
+        {err && (
+          <p id={`e-${key}`} className="err" role="alert">
+            {err}
           </p>
         )}
-        <button type="submit" disabled={state === "sending" || "error" in priced} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-6 text-base font-semibold text-[var(--on-accent)] transition hover:brightness-95 disabled:opacity-60">
-          {state === "sending" ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" /> {s.sending}
-            </>
-          ) : paymentsLive ? (
-            s.payNow
-          ) : (
-            s.request
-          )}
-        </button>
-        <p className="mt-3 text-center text-xs text-black/55">{paymentsLive ? s.payHelp : s.requestHelp}</p>
-      </form>
+      </div>
+    );
+  };
+
+  const lines = ok ? priced.lines : [];
+  const onceLines = lines.filter((l) => l.kind === "one_time");
+  const monthLines = lines.filter((l) => l.kind === "monthly");
+  const Breakdown = (
+    <>
+      <p className="eyebrow">{s.oneTimeGroup}</p>
+      <ul className="mt-3 space-y-2.5">
+        {onceLines.map((l) => (
+          <li key={l.key} className="flex items-baseline justify-between gap-4 text-[15.5px]">
+            <span>
+              {l.name}
+              {l.quantity > 1 && <span className="muted"> × {l.quantity}</span>}
+            </span>
+            <span className="flex-none font-semibold">{eur(l.unitCents * l.quantity)}</span>
+          </li>
+        ))}
+        {ok &&
+          priced.onRequest.map((n) => (
+            <li key={n} className="flex items-baseline justify-between gap-4 text-[15.5px]">
+              <span>{n}</span>
+              <span className="muted flex-none">{s.onRequest}</span>
+            </li>
+          ))}
+      </ul>
+      <dl className="mt-4 space-y-1.5 border-t border-[var(--line)] pt-4 text-[14.5px]">
+        <div className="muted flex justify-between">
+          <dt>{s.subtotalOnce}</dt>
+          <dd>{eur(once)}</dd>
+        </div>
+        <div className="muted flex justify-between">
+          <dt>{s.vatLabel}</dt>
+          <dd>{eur(vat(once), 2)}</dd>
+        </div>
+        <div className="flex items-baseline justify-between pt-1.5">
+          <dt className="text-[15.5px] font-semibold">
+            {s.totalOnce} <span className="muted text-[13px] font-medium">{s.inclVat}</span>
+          </dt>
+          <dd>
+            <Amount cents={once + vat(once)} className="text-[28px] font-extrabold tracking-[-0.03em]" />
+          </dd>
+        </div>
+      </dl>
+
+      {monthLines.length > 0 && (
+        <div className="mt-5 rounded-2xl bg-[var(--bg)] p-4">
+          <p className="eyebrow">{s.monthlyGroup}</p>
+          <ul className="mt-2.5 space-y-2">
+            {monthLines.map((l) => (
+              <li key={l.key} className="flex items-baseline justify-between gap-4 text-[15.5px]">
+                <span>{l.name}</span>
+                <span className="flex-none font-semibold">{eur(l.unitCents)}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex items-baseline justify-between border-t border-[var(--line-strong)] pt-3">
+            <span className="text-[15px] font-semibold">
+              {s.totalMonthly} <span className="muted text-[13px] font-medium">{s.inclVat}</span>
+            </span>
+            <span>
+              <Amount cents={monthly + vat(monthly)} className="text-[20px] font-extrabold tracking-[-0.02em]" />
+            </span>
+          </div>
+        </div>
+      )}
+      {ok && priced.onRequest.length > 0 && <p className="muted mt-3 text-[13.5px]">{s.quoteNote}</p>}
+    </>
+  );
+
+  const Cta = (
+    <button type="submit" form="order-form" disabled={state === "sending" || !ok} className="btn btn-lime w-full">
+      {state === "sending" ? (
+        <>
+          <Loader2 className="h-5 w-5 animate-spin" /> {s.sending}
+        </>
+      ) : (
+        <>
+          {s.submit} <ArrowRight className="h-5 w-5" />
+        </>
+      )}
+    </button>
+  );
+
+  return (
+    <div className="grid gap-10 pb-28 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12 lg:pb-0">
+      <div className="min-w-0 space-y-16 sm:space-y-20">
+        {/* 1 — Package */}
+        <section aria-labelledby="st-1">
+          <StepHead n={1} eyebrow={s.step1} title={s.pricingTitle} sub={s.pricingSub} />
+          <div role="radiogroup" aria-label={s.pricingTitle} className="grid gap-4 xl:grid-cols-3">
+            {packages.map((p) => {
+              const on = pkg === p.key;
+              return (
+                <button key={p.key} type="button" role="radio" aria-checked={on} data-on={on} onClick={() => setPkg(p.key)} className="opt text-left">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-2.5">
+                      <span className="text-[19px] font-bold tracking-[-0.02em]">{p.name}</span>
+                      {p.featured && <span className="rounded-full bg-[var(--dark)] px-2.5 py-1 text-[11.5px] font-semibold tracking-wide text-[var(--lime)]">{s.recommendedPkg}</span>}
+                    </span>
+                    <Tick />
+                  </span>
+                  <span className="mt-5 flex items-baseline gap-2">
+                    <span className="text-[44px] font-extrabold leading-none tracking-[-0.045em]">{eur(p.priceCents!)}</span>
+                    <span className="muted text-[15px] font-medium">{s.oneTime}</span>
+                  </span>
+                  <span className="muted mt-3 block text-[15.5px] leading-snug">{p.description}</span>
+                  <span className="mt-6 block space-y-3 border-t border-[var(--line)] pt-6">
+                    {p.features.map((f) => (
+                      <span key={f} className="flex gap-3 text-[15.5px] leading-snug">
+                        <Check className="mt-0.5 h-[18px] w-[18px] flex-none text-[var(--ok-ink)]" strokeWidth={2.6} /> {f}
+                      </span>
+                    ))}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 2 — Hosting & maintenance */}
+        {plans.length > 0 && (
+          <section>
+            <StepHead n={2} eyebrow={s.step2} title={s.planTitle} sub={s.planSub} />
+            <div role="radiogroup" aria-label={s.planTitle} className="grid gap-3.5 sm:grid-cols-2">
+              {plans.map((p) => {
+                const on = plan === p.key;
+                return (
+                  <button key={p.key} type="button" role="radio" aria-checked={on} data-on={on} onClick={() => setPlan(p.key)} className="opt text-left">
+                    <span className="flex items-start justify-between gap-3">
+                      <span className="text-[18px] font-bold tracking-[-0.02em]">{p.name}</span>
+                      <Tick />
+                    </span>
+                    <span className="mt-3 flex items-baseline gap-1.5">
+                      <span className="text-[34px] font-extrabold leading-none tracking-[-0.04em]">{eur(p.priceCents!)}</span>
+                      <span className="muted text-[15px] font-medium">{s.perMonth}</span>
+                    </span>
+                    <span className="muted mt-2.5 block text-[15px] leading-snug">{p.description}</span>
+                    <span className="mt-4 flex flex-wrap gap-1.5">
+                      {p.features.map((f) => (
+                        <span key={f} className="rounded-full bg-[var(--bg)] px-3 py-1.5 text-[13.5px] font-medium">
+                          {f}
+                        </span>
+                      ))}
+                    </span>
+                  </button>
+                );
+              })}
+              <button type="button" role="radio" aria-checked={plan === null} data-on={plan === null} onClick={() => setPlan(null)} className="opt justify-center text-left">
+                <span className="flex items-start justify-between gap-3">
+                  <span className="text-[18px] font-bold tracking-[-0.02em]">{s.noPlan}</span>
+                  <Tick />
+                </span>
+                <span className="muted mt-2.5 block text-[15px] leading-snug">{s.noPlanSub}</span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* 3 — Add-ons */}
+        {addons.length > 0 && (
+          <section>
+            <StepHead n={3} eyebrow={s.step3} title={s.addonsTitle} sub={s.addonsSub} />
+            {rec.length > 0 && <p className="eyebrow mb-3 !text-[var(--ok-ink)]">{s.recommended}</p>}
+            <div className="grid gap-2.5">
+              {visible.map((a) => {
+                const on = Boolean(picked[a.key]);
+                const Icon = ADDON_ICON[a.key] ?? Sparkles;
+                return (
+                  <div key={a.key} data-on={on} className="row-opt" role="group">
+                    <button type="button" role="switch" aria-checked={on} aria-label={a.name} onClick={() => toggle(a)} className="flex min-w-0 flex-1 items-center gap-4 text-left">
+                      <span className="ico">
+                        <Icon className="h-[21px] w-[21px]" strokeWidth={1.9} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[16px] font-semibold leading-snug">{a.name}</span>
+                        <span className="muted block text-[14.5px] leading-snug">{a.description}</span>
+                      </span>
+                    </button>
+                    {on && a.perUnit && (
+                      <span className="flex flex-none items-center rounded-full border border-[var(--line-strong)] bg-white" aria-label={s.quantity}>
+                        <button type="button" onClick={() => qty(a, -1)} aria-label="−" className="grid h-10 w-9 place-items-center">
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <span className="w-5 text-center text-[15px] font-semibold" aria-live="polite">{picked[a.key]}</span>
+                        <button type="button" onClick={() => qty(a, 1)} aria-label="+" className="grid h-10 w-9 place-items-center">
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </span>
+                    )}
+                    <button type="button" tabIndex={-1} aria-hidden onClick={() => toggle(a)} className="flex flex-none items-center gap-3.5">
+                      <span className="text-right">
+                        {a.priceCents === null ? (
+                          <span className="muted text-[14.5px] font-medium">{s.onRequest}</span>
+                        ) : (
+                          <span className="block text-[16.5px] font-bold">{eur(a.priceCents)}</span>
+                        )}
+                        {a.priceCents !== null && a.perUnit && <span className="muted block text-[12.5px] leading-none">{s.per} {a.unit}</span>}
+                      </span>
+                      <Tick />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            {rec.length > 0 && rest.length > 0 && (
+              <button type="button" onClick={() => setShowAll((v) => !v)} className="mt-4 inline-flex min-h-11 items-center gap-2 text-[15.5px] font-semibold underline decoration-[var(--lime)] decoration-2 underline-offset-[6px]">
+                {showAll ? s.showLess : `${s.showAll} (${rest.length})`}
+              </button>
+            )}
+          </section>
+        )}
+
+        {/* 4 — Details */}
+        <section>
+          <StepHead n={plans.length ? 4 : 3} eyebrow={s.step4} title={s.detailsTitle} sub={s.detailsSub} />
+          <form id="order-form" ref={formRef} onSubmit={submit} noValidate className="card scroll-mt-6 space-y-5 p-6 sm:p-8">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {field("name", s.name, { autoComplete: "name", required: true })}
+              {field("company", s.company, { autoComplete: "organization" })}
+              {field("email", s.email, { type: "email", autoComplete: "email", inputMode: "email", required: true })}
+              {field("phone", s.phone, { type: "tel", autoComplete: "tel", inputMode: "tel" }, true)}
+            </div>
+            <div className="field">
+              <label htmlFor="f-note">
+                {s.note} <span className="muted font-normal">· {s.optional}</span>
+              </label>
+              <textarea id="f-note" value={form.note} maxLength={900} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            </div>
+            {error && (
+              <p role="alert" className="rounded-2xl bg-[var(--bad)] p-4 text-[15px] font-medium text-[var(--bad-ink)]">
+                {error}
+              </p>
+            )}
+            <div className="rounded-2xl bg-[var(--bg)] p-5">
+              <p className="text-[15px] font-bold">{s.nextTitle}</p>
+              <ol className="mt-3 space-y-2.5">
+                {(paymentsLive ? s.nextPay : s.nextRequest).map((x, i) => (
+                  <li key={x} className="flex gap-3 text-[15px]">
+                    <span className="grid h-6 w-6 flex-none place-items-center rounded-full bg-white text-[12.5px] font-bold shadow-[var(--shadow-sm)]">{i + 1}</span>
+                    <span className="muted">{x}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className="lg:hidden">{Cta}</div>
+            <p className="muted flex items-center justify-center gap-2 text-center text-[14px] lg:hidden">
+              <Lock className="h-4 w-4 flex-none" /> {paymentsLive ? s.payHelp : s.requestHelp}
+            </p>
+          </form>
+        </section>
+      </div>
+
+      {/* Desktop: sticky live order summary */}
+      <aside className="hidden lg:block">
+        <div className="card sticky top-6 p-7 shadow-[var(--shadow-md)]">
+          <h3 className="text-[21px] font-bold tracking-[-0.025em]">{s.summary}</h3>
+          <div className="mt-5">{ok ? Breakdown : <p className="text-[15px] text-[var(--bad-ink)]">{"error" in priced ? priced.error : ""}</p>}</div>
+          <div className="mt-6">{Cta}</div>
+          <p className="muted mt-3.5 flex items-start justify-center gap-2 text-center text-[13.5px] leading-snug">
+            <Lock className="mt-0.5 h-3.5 w-3.5 flex-none" /> {paymentsLive ? s.payHelp : s.requestHelp}
+          </p>
+        </div>
+      </aside>
+
+      {/* Mobile: compact sticky summary with expandable breakdown */}
+      <div className="fixed inset-x-0 bottom-0 z-50 lg:hidden">
+        {sheet && <button type="button" aria-label={s.hideBreakdown} onClick={() => setSheet(false)} className="fixed inset-0 -z-10 bg-black/35" />}
+        <div className="rounded-t-[26px] border-t border-[var(--line-strong)] bg-white shadow-[0_-18px_50px_-20px_rgba(23,25,28,.35)]" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+          {sheet && <div className="max-h-[58vh] overflow-y-auto px-5 pb-2 pt-5">{Breakdown}</div>}
+          <div className="flex items-center gap-3 px-4 pt-3">
+            <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex min-h-12 min-w-0 flex-1 items-center gap-2.5 text-left">
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-full bg-[var(--bg)]">
+                <ChevronUp className={`h-5 w-5 transition-transform duration-300 ${sheet ? "rotate-180" : ""}`} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[19px] font-extrabold leading-tight tracking-[-0.03em]">
+                  <Amount cents={once + vat(once)} />
+                </span>
+                <span className="muted block truncate text-[12.5px] font-medium leading-tight">
+                  {monthly > 0 ? `+ ${eur(monthly + vat(monthly), 2)} ${s.perMonthShort} · ` : ""}
+                  {s.inclVat}
+                </span>
+              </span>
+            </button>
+            <button type="submit" form="order-form" disabled={state === "sending" || !ok} className="btn btn-lime !min-h-[52px] flex-none !px-5 !text-[15px]">
+              {state === "sending" ? <Loader2 className="h-5 w-5 animate-spin" /> : s.submit}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

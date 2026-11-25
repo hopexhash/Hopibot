@@ -135,7 +135,8 @@ export async function placeOrder(raw: unknown): Promise<OrderResult> {
         orderId: order.id,
         businessId: demo.business.id,
         customerEmail: input.email,
-        lines: priced.lines,
+        // The customer sees VAT-inclusive totals, so the amount charged includes VAT as well.
+        lines: priced.lines.map((l) => ({ ...l, unitCents: Math.round(l.unitCents * (1 + demo.catalog.vatPct / 100)), name: `${l.name} (incl. ${demo.catalog.vatPct}% ${demo.lang === "fr" ? "TVA" : demo.lang === "en" ? "VAT" : "btw"})` })),
         successUrl: `${base}/d/${input.slug}?paid=1`,
         cancelUrl: `${base}/d/${input.slug}?cancelled=1#order`,
       });

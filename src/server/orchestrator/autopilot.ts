@@ -3,7 +3,10 @@ import { and, desc, eq, gt, like, sql } from "drizzle-orm";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { resolveMarket } from "@/lib/markets";
 import { parseOrgSettings, type OrgSettings } from "@/lib/settings";
+import { checkBudget } from "../costs/usage";
 import { db, schema } from "../db";
+import { liveWorkers } from "../health";
+import { integrationMode } from "../integrations/credentials";
 import { startRun } from "./runs";
 import { notify } from "./tasks";
 
@@ -56,6 +59,8 @@ export async function runAutopilot(now = new Date()): Promise<{ started: number 
       .limit(1);
     // One batch at a time, with a pause in between: quality over volume.
     if (recent && (["PENDING", "RUNNING", "WAITING_FOR_APPROVAL"].includes(recent.status) || now.getTime() - recent.createdAt.getTime() < 30 * 60_000)) continue;
+    // Budgets are hard limits: no new batch once today's or this month's spend limit is reached.
+    if (!(await checkBudget(org.id)).ok) continue;
     const dayStart = new Date(now.getTime() - 24 * 3600_000);
     const [[d], [w], [runs]] = await Promise.all([
       db().select({ n: sql<number>`count(*)::int` }).from(schema.businesses).where(and(eq(schema.businesses.organizationId, org.id), gt(schema.businesses.createdAt, dayStart))),
@@ -83,4 +88,63 @@ export async function runAutopilot(now = new Date()): Promise<{ started: number 
     }
   }
   return { started };
+}
+
+export type AutonomyStatus = Awaited<ReturnType<typeof getAutonomyStatus>>;
+
+/**
+ * What the autonomous engine is doing right now, from real state only: the mode the admin
+ * set, whether it can actually work (worker, services, budget, schedule, limits) and what it
+ * produced in the last 24 hours.
+ */
+export async function getAutonomyStatus(organizationId: string, settings: OrgSettings, now = new Date()) {
+  const a = settings.autopilot;
+  const dayStart = new Date(now.getTime() - 24 * 3600_000);
+  const b = schema.businesses;
+  const [workers, places, claude, budget, [disc], [qual], [web], [dep], [open], [last], [tasks]] = await Promise.all([
+    liveWorkers(),
+    integrationMode(organizationId, "google_maps"),
+    integrationMode(organizationId, "anthropic"),
+    checkBudget(organizationId),
+    db().select({ n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), gt(b.createdAt, dayStart))),
+    db().select({ n: sql<number>`count(*)::int` }).from(b).where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), gt(b.createdAt, dayStart), sql`${b.leadScore} >= ${settings.minLeadScore}`)),
+    db().select({ n: sql<number>`count(*)::int` }).from(schema.websiteProjects).where(and(eq(schema.websiteProjects.organizationId, organizationId), gt(schema.websiteProjects.createdAt, dayStart))),
+    db().select({ n: sql<number>`count(*)::int` }).from(schema.deployments).where(and(eq(schema.deployments.organizationId, organizationId), eq(schema.deployments.status, "ready"), gt(schema.deployments.createdAt, dayStart))),
+    // Open opportunities: real businesses with a finished demo that have not bought yet.
+    db()
+      .select({ n: sql<number>`count(distinct ${b.id})::int` })
+      .from(b)
+      .innerJoin(schema.websiteProjects, eq(schema.websiteProjects.businessId, b.id))
+      .where(and(eq(b.organizationId, organizationId), eq(b.isMock, false), eq(schema.websiteProjects.status, "ready"), sql`${b.pipelineStage} not in ('PURCHASED','UPSELL_OPPORTUNITY','CUSTOMER','LOST')`)),
+    db().select({ objective: schema.workflowRuns.objective, status: schema.workflowRuns.status, createdAt: schema.workflowRuns.createdAt }).from(schema.workflowRuns).where(and(eq(schema.workflowRuns.organizationId, organizationId), like(schema.workflowRuns.objective, `${PREFIX}%`))).orderBy(desc(schema.workflowRuns.createdAt)).limit(1),
+    db()
+      .select({ running: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'RUNNING')::int`, waiting: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'PENDING')::int`, approval: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'WAITING_FOR_APPROVAL')::int` })
+      .from(schema.agentTasks)
+      .where(eq(schema.agentTasks.organizationId, organizationId)),
+  ]);
+  // Everything that currently stops autonomous work, in the order the admin should fix it.
+  const blockers: { key: string; text: string; href: string }[] = [];
+  if (workers.workers.length === 0) blockers.push({ key: "worker", text: "No worker is online. The worker is the always-on process that runs your agents; it must be hosted separately from the dashboard.", href: "/health" });
+  if (places !== "live") blockers.push({ key: "places", text: "Google Places is not connected, so no real businesses can be discovered.", href: "/integrations" });
+  if (claude !== "live") blockers.push({ key: "claude", text: "Claude is not connected, so research and website generation cannot run.", href: "/integrations" });
+  if (!budget.ok) blockers.push({ key: "budget", text: budget.reason ?? "A spending limit was reached.", href: "/settings?tab=ai" });
+  if (!a.cities.length || !a.categories.length) blockers.push({ key: "scope", text: "Choose at least one city and one industry.", href: "/settings?tab=autopilot" });
+  const inHours = withinWorkingHours(a, now);
+  const limitReached = disc.n >= a.dailyDiscoveryLimit;
+  const mode = a.enabled ? ("active" as const) : ("paused" as const);
+  const state = !a.enabled ? ("paused" as const) : blockers.length ? ("blocked" as const) : !inHours ? ("off_hours" as const) : tasks.running > 0 ? ("working" as const) : limitReached ? ("limit_reached" as const) : ("standby" as const);
+  const featured = settings.catalog.packages.find((p) => p.featured && p.enabled && p.priceCents !== null) ?? settings.catalog.packages.find((p) => p.enabled && p.priceCents !== null);
+  return {
+    mode,
+    state,
+    blockers,
+    workersOnline: workers.workers.length,
+    tasks: { running: tasks.running, waiting: tasks.waiting, approval: tasks.approval },
+    today: { discovered: disc.n, qualified: qual.n, websites: web.n, deployed: dep.n, costUsd: budget.daily.spent },
+    limits: { discovery: a.dailyDiscoveryLimit, websites: a.dailyWebsiteLimit, dailyUsd: budget.daily.limit },
+    scope: { country: a.country, cities: a.cities, categories: a.categories, startHour: a.startHour, endHour: a.endHour, days: a.days },
+    /** Estimate, not a forecast: open demos × the price of the recommended package. */
+    opportunity: { openDemos: open.n, estimateCents: open.n * (featured?.priceCents ?? 0), packageName: featured?.name ?? null },
+    lastBatch: last ? { objective: (last.objective ?? "").replace(PREFIX, "").trim(), status: last.status, at: last.createdAt.toISOString() } : null,
+  };
 }

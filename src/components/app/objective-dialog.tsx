@@ -54,7 +54,7 @@ function totals(plan: RunPlan, est: PlanEstimate) {
   };
 }
 
-export function ObjectiveDialog({ label = "New objective", size = "md" }: { label?: string; size?: "md" | "lg" }) {
+export function ObjectiveDialog({ label = "New objective", size = "md", variant = "primary" }: { label?: string; size?: "md" | "lg"; variant?: "primary" | "secondary" }) {
   const params = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState(params.get("objective") === "1");
@@ -110,7 +110,7 @@ export function ObjectiveDialog({ label = "New objective", size = "md" }: { labe
 
   return (
     <>
-      <Button variant="primary" size={size} onClick={() => setOpen(true)} className={size === "lg" ? "w-full sm:w-auto" : undefined}>
+      <Button variant={variant} size={size} onClick={() => setOpen(true)} className={size === "lg" ? "w-full sm:w-auto" : undefined}>
         <Wand2 /> {label}
       </Button>
       <Dialog

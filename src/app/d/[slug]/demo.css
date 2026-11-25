@@ -1,0 +1,82 @@
+/* HOPI purchase experience — scoped design tokens (light theme). */
+.hopi {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --ink: #17191c;
+  --ink-2: #69717d;
+  --lime: #b6ff3b;
+  --lime-soft: #f4ffe0;
+  --dark: #171c17;
+  --line: #e9ebef;
+  --line-strong: #d7dbe2;
+  --ok: #e9f8e3;
+  --ok-ink: #2f6b1d;
+  --warn: #fff4d6;
+  --warn-ink: #8a5a00;
+  --bad: #ffe9e6;
+  --bad-ink: #a3281c;
+  --shadow-sm: 0 1px 2px rgba(23, 25, 28, 0.04), 0 1px 1px rgba(23, 25, 28, 0.03);
+  --shadow-md: 0 12px 32px -16px rgba(23, 25, 28, 0.18), 0 2px 6px rgba(23, 25, 28, 0.04);
+  --shadow-lg: 0 40px 90px -40px rgba(23, 25, 28, 0.35), 0 8px 24px -12px rgba(23, 25, 28, 0.12);
+  color-scheme: light;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+.hopi ::selection { background: var(--lime); color: var(--dark); }
+.hopi :focus-visible { outline: 2.5px solid var(--dark); outline-offset: 3px; border-radius: 6px; }
+.hopi h1, .hopi h2, .hopi h3 { color: var(--ink); letter-spacing: -0.03em; text-wrap: balance; }
+.hopi .h1 { font-weight: 800; font-size: clamp(36px, 6.2vw, 68px); line-height: 1.02; letter-spacing: -0.045em; }
+.hopi .h2 { font-weight: 700; font-size: clamp(27px, 3.4vw, 40px); line-height: 1.1; }
+.hopi .h3 { font-weight: 700; font-size: 20px; line-height: 1.25; letter-spacing: -0.02em; }
+.hopi .eyebrow { font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.hopi .lead { font-size: clamp(17px, 1.5vw, 19px); color: var(--ink-2); line-height: 1.6; }
+.hopi .muted { color: var(--ink-2); }
+.hopi .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow-sm); }
+.hopi .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 28px; border-radius: 999px; font-weight: 600; font-size: 16px; transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.25s, background 0.2s, border-color 0.2s; cursor: pointer; white-space: nowrap; }
+.hopi .btn:active { transform: scale(0.98); }
+.hopi .btn-lime { background: var(--lime); color: var(--dark); box-shadow: 0 10px 28px -12px rgba(140, 220, 20, 0.9); }
+.hopi .btn-lime:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -14px rgba(140, 220, 20, 0.95); }
+.hopi .btn-dark { background: var(--dark); color: #fff; }
+.hopi .btn-dark:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.hopi .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
+.hopi .btn-ghost:hover { border-color: var(--ink); }
+.hopi .btn[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; }
+.hopi .section { padding-top: clamp(72px, 9vw, 128px); }
+.hopi .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+@media (min-width: 640px) { .hopi .wrap { padding: 0 32px; } }
+
+/* selectable cards */
+.hopi .opt { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1.5px solid var(--line); border-radius: 22px; padding: 26px; cursor: pointer; transition: border-color 0.25s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.25s; box-shadow: var(--shadow-sm); }
+.hopi .opt:hover { border-color: var(--line-strong); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.hopi .opt[data-on="true"] { border-color: var(--dark); background: linear-gradient(180deg, var(--lime-soft), #fff 62%); box-shadow: 0 0 0 1px var(--dark), var(--shadow-md); }
+.hopi .tick { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; border: 1.5px solid var(--line-strong); background: #fff; color: transparent; flex: none; transition: background 0.25s, border-color 0.25s, transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.hopi [data-on="true"] > .tick, .hopi [data-on="true"] .tick { background: var(--lime); border-color: var(--dark); color: var(--dark); transform: scale(1.08); }
+.hopi .row-opt { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 16px 18px; cursor: pointer; transition: border-color 0.25s, background 0.25s, box-shadow 0.3s; }
+.hopi .row-opt:hover { border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
+.hopi .row-opt[data-on="true"] { border-color: var(--dark); background: var(--lime-soft); }
+.hopi .ico { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--bg); color: var(--ink); flex: none; transition: background 0.25s; }
+.hopi [data-on="true"] .ico { background: #fff; }
+
+/* form */
+.hopi .field label { display: block; font-weight: 600; font-size: 14.5px; margin-bottom: 8px; }
+.hopi .field input, .hopi .field textarea { width: 100%; min-height: 56px; border-radius: 16px; border: 1.5px solid var(--line-strong); background: #fff; padding: 14px 16px; font: inherit; font-size: 16px; color: var(--ink); transition: border-color 0.2s, box-shadow 0.2s; }
+.hopi .field textarea { min-height: 120px; resize: vertical; }
+.hopi .field input:focus, .hopi .field textarea:focus { outline: none; border-color: var(--dark); box-shadow: 0 0 0 4px rgba(182, 255, 59, 0.45); }
+.hopi .field[data-invalid="true"] input { border-color: var(--bad-ink); background: #fffafa; }
+.hopi .field .err { margin-top: 7px; font-size: 14px; font-weight: 500; color: var(--bad-ink); }
+
+/* motion */
+@keyframes hopi-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.hopi .rise { animation: hopi-rise 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+@keyframes hopi-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+.hopi .pop { animation: hopi-pop 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes hopi-shimmer { to { background-position: -200% 0; } }
+.hopi .skeleton { background: linear-gradient(90deg, #eef0f3 25%, #f7f8fa 37%, #eef0f3 63%); background-size: 200% 100%; animation: hopi-shimmer 1.4s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .hopi * { animation: none !important; transition: none !important; } .hopi { scroll-behavior: auto; } }

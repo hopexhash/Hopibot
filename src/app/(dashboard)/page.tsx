@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ActivityFeed } from "@/components/app/activity-feed";
 import { AgentMonitor } from "@/components/app/agent-monitor";
 import { ApprovalList } from "@/components/app/approval-list";
+import { AutonomyPanel } from "@/components/app/autonomy-panel";
+import { getAutonomyStatus } from "@/server/orchestrator/autopilot";
 import { ObjectiveDialog } from "@/components/app/objective-dialog";
 import { Onboarding, type OnboardingStep } from "@/components/app/onboarding";
 import { makeDelta, Section, StatCard } from "@/components/app/page";
@@ -34,10 +36,11 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
   const auth = await requireAuth();
   const sp = await searchParams;
   const orgId = auth.org.id;
-  const [kpis, period, cc, activity, health, approvals, runs, [activeRuns], [enabledFlows], [runCount]] = await Promise.all([
+  const [kpis, period, cc, autonomy, activity, health, approvals, runs, [activeRuns], [enabledFlows], [runCount]] = await Promise.all([
     getKpis(orgId, auth.org.settings.minLeadScore),
     getPeriodComparison(orgId, auth.org.settings.minLeadScore, 30),
     getCommandCenterState(orgId),
+    getAutonomyStatus(orgId, auth.org.settings),
     getActivity(orgId, 40),
     systemHealth(orgId),
     db().select().from(schema.approvals).where(and(eq(schema.approvals.organizationId, orgId), eq(schema.approvals.status, "pending"))).orderBy(desc(schema.approvals.createdAt)).limit(5),
@@ -56,19 +59,11 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
   const claudeReady = state("anthropic") === "connected";
   const placesReady = state("google_maps") === "connected";
   const workersOnline = cc.workers.online;
-  const headline = !infraOk
-    ? "A core system needs attention before agents can work."
-    : workersOnline === 0
-      ? "Your agency is set up, but no worker is online to run the agents yet."
-      : cc.activeAgents > 0
-        ? `Your agents are working on ${activeRuns.n} objective${activeRuns.n === 1 ? "" : "s"}.`
-        : "Your autonomous agency is ready.";
-
   const steps: OnboardingStep[] = [
     { key: "claude", title: "Connect Claude (the AI)", text: "Lets agents research businesses, write websites and draft emails.", done: claudeReady, href: "/integrations", cta: "Connect" },
     { key: "places", title: "Connect Google Places", text: "Lets the Lead Discovery agent find real local businesses.", done: placesReady, href: "/integrations", cta: "Connect" },
     { key: "worker", title: "Start the agent worker", text: "The worker is the machine that actually runs your agents.", done: workersOnline > 0, href: "/health", cta: "How to" },
-    { key: "objective", title: "Give your first objective", text: "Tell the agency what to do in one sentence.", done: runCount.n > 0, href: "/?objective=1", cta: "Start" },
+    { key: "objective", title: "Set the autonomous scope", text: "Choose cities, industries and daily limits. The agency then works by itself.", done: runCount.n > 0, href: "/settings?tab=autopilot", cta: "Open" },
   ];
 
   const tasks = cur.tasksDone + cur.tasksFailed;
@@ -85,27 +80,25 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
 
   return (
     <>
-      {/* Welcome */}
-      <section className="panel relative mb-5 overflow-hidden p-5 sm:p-7">
-        <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden />
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="hud-label text-accent/80">Command Center</p>
-            <h1 className="mt-2 text-[26px] font-semibold leading-[1.15] tracking-tight sm:text-[34px]">
-              WELCOME BACK, <span className="text-accent glow-text">{firstName}</span>
-            </h1>
-            <p className="mt-2 max-w-xl text-[14.5px] leading-relaxed text-muted">{headline}</p>
-          </div>
-          <ObjectiveDialog key={sp.objective ?? "closed"} label="NEW OBJECTIVE" size="lg" />
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="hud-label text-accent/80">Command Center</p>
+          <h1 className="mt-1.5 text-[24px] font-semibold leading-[1.15] tracking-tight sm:text-[30px]">
+            WELCOME BACK, <span className="text-accent glow-text">{firstName}</span>
+          </h1>
         </div>
-        <div className="relative mt-5 flex flex-wrap gap-2">
-          <Chip value={infraOk ? "Online" : "Issue"} label="system status" tone={infraOk ? "accent" : "danger"} pulse={infraOk} />
-          <Chip value={`${cc.enabledAgents}/${cc.workers.total}`} label="agents active" tone={cc.enabledAgents ? "accent" : "muted"} />
-          <Chip value={`${workersOnline}/${cc.workers.total}`} label="online" tone={workersOnline === cc.workers.total ? "accent" : workersOnline ? "warning" : "danger"} />
+        <div className="flex flex-wrap gap-2">
+          <Chip value={infraOk ? "Online" : "Issue"} label="system" tone={infraOk ? "accent" : "danger"} pulse={infraOk} />
+          <Chip value={cc.enabledAgents} label="agents configured" tone="muted" />
+          <Chip value={`${workersOnline}/${cc.workers.total}`} label="agents online" tone={workersOnline === cc.workers.total ? "accent" : workersOnline ? "warning" : "danger"} />
           <Chip value={cc.activeAgents} label="executing" tone={cc.activeAgents ? "accent" : "muted"} pulse={cc.activeAgents > 0} />
-          <Chip value={kpis.approvalsPending} label="waiting for approval" tone={kpis.approvalsPending ? "warning" : "muted"} />
         </div>
-      </section>
+      </div>
+
+      {/* The agency runs by itself; a manual objective is the secondary action. */}
+      <AutonomyPanel status={autonomy} canAdmin={hasRole(auth.role, "admin")}>
+        <ObjectiveDialog key={sp.objective ?? "closed"} label="Manual objective" variant="secondary" />
+      </AutonomyPanel>
 
       <Onboarding steps={steps} />
 

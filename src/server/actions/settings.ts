@@ -68,3 +68,13 @@ export async function removeMemberAction(userId: string) {
     return null;
   });
 }
+
+/** Switches autonomous mode between ACTIVE and PAUSED. Running tasks finish; no new batches start while paused. */
+export async function setAutonomousModeAction(enabled: boolean) {
+  return action({ name: enabled ? "autonomy.resume" : "autonomy.pause", role: "admin", revalidate: ["/", "/settings"], auditTarget: () => ({ type: "organization", metadata: { enabled } }) }, async (auth) => {
+    const current = await getOrgSettings(auth.org.id);
+    const merged = orgSettingsSchema.parse({ ...current, autopilot: { ...current.autopilot, enabled } });
+    await db().update(schema.organizations).set({ settings: merged, updatedAt: new Date() }).where(eq(schema.organizations.id, auth.org.id));
+    return null;
+  });
+}
