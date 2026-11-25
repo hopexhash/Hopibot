@@ -22,7 +22,8 @@ export async function getKpis(orgId: string, minScore: number) {
         WHERE p.organization_id = ${orgId} AND p.deleted_at IS NULL AND p.current_version_id IS NOT NULL AND NOT b.is_mock) AS websites,
       (SELECT count(*) FROM website_projects p JOIN businesses b ON b.id = p.business_id
         WHERE p.organization_id = ${orgId} AND p.deleted_at IS NULL AND p.status = 'ready' AND p.approval_status = 'pending' AND NOT b.is_mock) AS websites_awaiting,
-      (SELECT count(*) FROM deployments WHERE organization_id = ${orgId} AND status = 'ready' AND NOT is_mock) AS deployments,
+      (SELECT count(*) FROM deployments d JOIN website_projects p ON p.id = d.project_id JOIN businesses b ON b.id = p.business_id
+        WHERE d.organization_id = ${orgId} AND d.status = 'ready' AND NOT d.is_mock AND NOT b.is_mock) AS deployments,
       (SELECT count(*) FROM sales_emails WHERE organization_id = ${orgId} AND status = 'awaiting_approval' AND NOT is_mock) AS emails_awaiting,
       (SELECT count(*) FROM sales_emails WHERE organization_id = ${orgId} AND status = 'awaiting_approval' AND is_mock) AS mock_emails_awaiting,
       (SELECT count(*) FROM sales_emails WHERE organization_id = ${orgId} AND status = 'sent' AND NOT is_mock) AS emails_sent,
@@ -181,7 +182,8 @@ export async function getUnitEconomics(orgId: string) {
       (SELECT coalesce(sum(cost_usd), 0) FROM api_usage WHERE organization_id = ${orgId} AND agent_key IN ('website_builder', 'quality_control')) AS website_cost,
       (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock) AS leads,
       (SELECT count(*) FROM website_projects p JOIN businesses b ON b.id = p.business_id WHERE p.organization_id = ${orgId} AND NOT b.is_mock AND p.current_version_id IS NOT NULL) AS websites,
-      (SELECT count(*) FROM deployments WHERE organization_id = ${orgId} AND status = 'ready' AND NOT is_mock) AS deployments,
+      (SELECT count(*) FROM deployments d JOIN website_projects p ON p.id = d.project_id JOIN businesses b ON b.id = p.business_id
+        WHERE d.organization_id = ${orgId} AND d.status = 'ready' AND NOT d.is_mock AND NOT b.is_mock) AS deployments,
       (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND pipeline_stage = 'WON') AS customers,
       (SELECT coalesce(sum(amount_cents), 0) FROM payments WHERE organization_id = ${orgId} AND status = 'paid') AS revenue_cents
   `);

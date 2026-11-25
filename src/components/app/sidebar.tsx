@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
@@ -111,7 +112,8 @@ export function MobileNav({ orgName, counts }: { orgName: string; counts: Record
       >
         <Menu className="h-4 w-4" />
       </button>
-      {open && (
+      {open &&
+        createPortal(
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40 animate-fade-in" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 flex-col border-r border-border bg-surface px-3 py-4 shadow-[var(--shadow-lg)] animate-fade-in">
@@ -125,8 +127,9 @@ export function MobileNav({ orgName, counts }: { orgName: string; counts: Record
               <NavList counts={counts} onNavigate={() => setOpen(false)} />
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </>
   );
 }

@@ -43,7 +43,8 @@ export function parseObjectiveHeuristically(objective: string): RunPlan {
   const minScore = /outdated|verouderd|no website|geen website|bad website/.test(text) ? 50 : 40;
 
   const actions: RunPlan["actions"] = [];
-  const wantsWebsites = /website|preview|site|concept/.test(text);
+  // "without a website" / "outdated websites" describe the target, not a request to build one.
+  const wantsWebsites = /\b(build|create|generate|make|design|maak|bouw|ontwerp|genereer)\b[^.]{0,60}\b(websites?|sites?|previews?|concepts?)\b/.test(text) || /\bpreviews?\b/.test(text);
   if (/research|onderzo|analy/.test(text) || wantsWebsites) actions.push("research");
   if (/email|mail|contact|outreach|sales/.test(text)) actions.push("contacts");
   if (wantsWebsites) actions.push("generate_website", "qc", "deploy");

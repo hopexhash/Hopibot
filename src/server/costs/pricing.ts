@@ -18,7 +18,8 @@ export const SUPPORTED_MODELS = [
  * Current Claude models reject `temperature` (HTTP 400), so the setting is stored for
  * future models but never sent. The UI explains this instead of silently ignoring it.
  */
-export function modelSupportsTemperature(_model: string) {
+export function modelSupportsTemperature(model: string) {
+  void model;
   return false;
 }
 

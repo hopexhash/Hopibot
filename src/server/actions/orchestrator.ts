@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../db";
 import { mockModeAllowed } from "../integrations/credentials";
@@ -67,7 +67,7 @@ export async function runPipelineAction(businessIds: string[], actions: string[]
     const owned = await db()
       .select({ id: schema.businesses.id })
       .from(schema.businesses)
-      .where(and(eq(schema.businesses.organizationId, auth.org.id)));
+      .where(and(eq(schema.businesses.organizationId, auth.org.id), inArray(schema.businesses.id, ids)));
     const allowed = new Set(owned.map((o) => o.id));
     const valid = ids.filter((i) => allowed.has(i));
     if (!valid.length) throw new UserError("No matching businesses.");

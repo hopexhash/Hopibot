@@ -1,0 +1,13 @@
+# Agent worker: BullMQ consumers + Playwright quality control.
+# The Playwright base image ships Chromium and its system dependencies.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+
+ENV NODE_ENV=production
+# Run as the unprivileged user provided by the image.
+USER pwuser
+CMD ["npx", "tsx", "src/worker/index.ts"]

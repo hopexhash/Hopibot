@@ -1,7 +1,9 @@
 import "../guard";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import dns from "node:dns";
 import type { Browser, Page } from "playwright";
+import { isBlockedIp, validateUrl } from "../net/safe-fetch";
 import { QC_PASS_SCORE } from "@/lib/constants";
 
 export type QcIssue = {
@@ -70,8 +72,18 @@ async function serveFiles(page: Page, files: Map<string, { content: string; cont
       return route.fulfill({ status: 404, body: "not found" });
     }
     if (url.protocol === "data:") return route.continue();
-    // External resources (authorised HTTPS images only) — allowed but counted.
-    return route.continue();
+    // External resources (authorised HTTPS images only). The worker must not become an
+    // SSRF proxy, so the same rules as safeFetch apply: https/public hosts only.
+    try {
+      if (url.protocol !== "https:") throw new Error("non-https");
+      validateUrl(url.toString());
+      const addrs = await dns.promises.lookup(url.hostname, { all: true });
+      if (!addrs.length || addrs.some((a) => isBlockedIp(a.address))) throw new Error("blocked address");
+      return route.continue();
+    } catch {
+      failed.push(`blocked external request ${url.hostname}`);
+      return route.abort("blockedbyclient");
+    }
   });
 }
 
