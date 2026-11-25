@@ -63,65 +63,130 @@ export async function claudeStructured<S extends z.ZodType>(opts: {
 }): Promise<{ data: z.infer<S>; model: string; costUsd: number; usage: { input: number; output: number } }> {
   const model = opts.model || DEFAULT_MODEL;
   const anthropic = await client(opts.ctx.organizationId);
-  let message: Anthropic.Beta.Messages.BetaMessage;
-  try {
-    const stream = anthropic.beta.messages.stream({
-      model,
-      max_tokens: opts.maxTokens ?? 32000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      system: [{ type: "text", text: `${SECURITY_PREAMBLE}\n\n${opts.system}`, cache_control: { type: "ephemeral" } }],
-      messages: [{ role: "user", content: opts.prompt }],
-      output_config: { format: betaZodOutputFormat(opts.schema), ...(opts.effort ? { effort: opts.effort } : {}) },
-    });
-    message = await stream.finalMessage();
-  } catch (err) {
-    throw mapAnthropicError(err);
-  }
+  const format = betaZodOutputFormat(opts.schema);
+  const jsonSchema = JSON.stringify((format as unknown as { schema?: unknown }).schema ?? format);
+  // Strict structured output compiles the schema into a grammar, and the API rejects large
+  // ones ("compiled grammar is too large"). Small schemas use strict mode; large ones (research
+  // profile, website spec) are guided by the schema in the prompt and validated here instead.
+  let strict = jsonSchema.length <= STRICT_SCHEMA_LIMIT;
+  const guided = `\n\nOutput format: reply with one JSON object and nothing else — no prose, no markdown fences. It must validate against this JSON Schema (respect every enum, required field and maximum length):\n${jsonSchema}`;
+  const totals = { input: 0, output: 0, costUsd: 0 };
+  let servedModel = model;
 
-  const u = message.usage;
-  const costUsd = claudeCost(message.model ?? model, {
-    input: u.input_tokens,
-    output: u.output_tokens,
-    cacheRead: u.cache_read_input_tokens ?? 0,
-    cacheWrite: u.cache_creation_input_tokens ?? 0,
-  });
-  await recordUsage(opts.ctx, {
-    provider: "anthropic",
-    operation: opts.operation,
-    model: message.model ?? model,
-    inputTokens: u.input_tokens + (u.cache_creation_input_tokens ?? 0),
-    outputTokens: u.output_tokens,
-    cacheReadTokens: u.cache_read_input_tokens ?? 0,
-    costUsd,
-  });
+  const call = async (messages: Anthropic.Beta.Messages.BetaMessageParam[]) => {
+    let message: Anthropic.Beta.Messages.BetaMessage;
+    try {
+      const stream = anthropic.beta.messages.stream({
+        model,
+        max_tokens: opts.maxTokens ?? 32000,
+        betas: ["server-side-fallback-2026-07-01"],
+        fallbacks: "default",
+        system: [{ type: "text", text: `${SECURITY_PREAMBLE}\n\n${opts.system}${strict ? "" : guided}`, cache_control: { type: "ephemeral" } }],
+        messages,
+        output_config: { ...(strict ? { format } : {}), ...(opts.effort ? { effort: opts.effort } : {}) },
+      });
+      message = await stream.finalMessage();
+    } catch (err) {
+      throw mapAnthropicError(err);
+    }
+    const u = message.usage;
+    servedModel = message.model ?? model;
+    const costUsd = claudeCost(servedModel, { input: u.input_tokens, output: u.output_tokens, cacheRead: u.cache_read_input_tokens ?? 0, cacheWrite: u.cache_creation_input_tokens ?? 0 });
+    await recordUsage(opts.ctx, {
+      provider: "anthropic",
+      operation: opts.operation,
+      model: servedModel,
+      inputTokens: u.input_tokens + (u.cache_creation_input_tokens ?? 0),
+      outputTokens: u.output_tokens,
+      cacheReadTokens: u.cache_read_input_tokens ?? 0,
+      costUsd,
+    });
+    totals.input += u.input_tokens;
+    totals.output += u.output_tokens;
+    totals.costUsd += costUsd;
+    if (message.stop_reason === "refusal") {
+      throw new AgentError(`Claude declined this request${message.stop_details?.category ? ` (${message.stop_details.category})` : ""}.`, "MODEL_REFUSAL", false);
+    }
+    if (message.stop_reason === "max_tokens") {
+      throw new AgentError("Claude's response was cut off (max_tokens). Increase the limit or simplify the task.", "TRUNCATED", true);
+    }
+    return message.content
+      .filter((b): b is Anthropic.Beta.Messages.BetaTextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+  };
+
+  const first: Anthropic.Beta.Messages.BetaMessageParam[] = [{ role: "user", content: opts.prompt }];
+  let text: string;
+  try {
+    text = await call(first);
+  } catch (err) {
+    // A schema that looked small enough can still compile to too large a grammar: retry guided.
+    if (strict && err instanceof AgentError && /grammar is too large|schema is too complex/i.test(err.message)) {
+      strict = false;
+      text = await call(first);
+    } else throw err;
+  }
   void touchIntegrationSuccess(opts.ctx.organizationId, "anthropic");
 
-  if (message.stop_reason === "refusal") {
-    throw new AgentError(
-      `Claude declined this request${message.stop_details?.category ? ` (${message.stop_details.category})` : ""}.`,
-      "MODEL_REFUSAL",
-      false,
-    );
+  const check = (raw: string) => {
+    const json = extractJson(raw);
+    if (json === undefined) return { ok: false as const, problem: "The reply was not valid JSON." };
+    let parsed = opts.schema.safeParse(json);
+    // Length limits are enforced by the grammar in strict mode; in guided mode an over-long
+    // text or list is trimmed to its limit instead of failing the whole document.
+    if (!parsed.success && trimToLimits(json, parsed.error.issues)) parsed = opts.schema.safeParse(json);
+    if (parsed.success) return { ok: true as const, data: parsed.data as z.infer<S> };
+    return { ok: false as const, problem: parsed.error.issues.slice(0, 12).map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).join("; ") };
+  };
+  let result = check(text);
+  if (!result.ok && !strict) {
+    // One repair turn: show Claude exactly what failed validation and ask for the corrected document.
+    text = await call([...first, { role: "assistant", content: text }, { role: "user", content: `That JSON failed validation: ${result.problem}\nReturn the complete corrected JSON object only.` }]);
+    result = check(text);
   }
-  if (message.stop_reason === "max_tokens") {
-    throw new AgentError("Claude's response was cut off (max_tokens). Increase the limit or simplify the task.", "TRUNCATED", true);
+  if (!result.ok) throw new AgentError(`Claude output failed validation: ${result.problem.slice(0, 300)}`, "INVALID_OUTPUT", true);
+  return { data: result.data, model: servedModel, costUsd: totals.costUsd, usage: { input: totals.input, output: totals.output } };
+}
+
+/** Largest JSON Schema (in characters) sent as a strict structured-output grammar. */
+const STRICT_SCHEMA_LIMIT = 2500;
+
+/** Shortens strings and arrays that exceed a schema maximum, in place. Returns true if anything changed. */
+export function trimToLimits(json: unknown, issues: readonly { code?: string; path: PropertyKey[]; maximum?: unknown }[]): boolean {
+  let changed = false;
+  for (const issue of issues) {
+    if (issue.code !== "too_big" || typeof issue.maximum !== "number" || !issue.path.length) continue;
+    let parent = json as Record<PropertyKey, unknown> | undefined;
+    for (const key of issue.path.slice(0, -1)) parent = parent?.[key] as Record<PropertyKey, unknown> | undefined;
+    const last = issue.path[issue.path.length - 1];
+    const value = parent?.[last];
+    if (!parent) continue;
+    if (typeof value === "string") {
+      const cut = value.slice(0, issue.maximum);
+      // Prefer ending on a word boundary when that keeps most of the text.
+      const space = cut.lastIndexOf(" ");
+      parent[last] = (space > issue.maximum * 0.7 ? cut.slice(0, space) : cut).trim();
+      changed = true;
+    } else if (Array.isArray(value)) {
+      parent[last] = value.slice(0, issue.maximum);
+      changed = true;
+    }
   }
-  const text = message.content
-    .filter((b): b is Anthropic.Beta.Messages.BetaTextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("");
-  let json: unknown;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    throw new AgentError("Claude returned output that is not valid JSON.", "INVALID_OUTPUT", true);
+  return changed;
+}
+
+/** Reads the JSON object out of a model reply, tolerating code fences or stray text around it. */
+export function extractJson(raw: string): unknown {
+  const t = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  for (const candidate of [t, t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1)]) {
+    try {
+      if (candidate) return JSON.parse(candidate);
+    } catch {
+      // try the next candidate
+    }
   }
-  const parsed = opts.schema.safeParse(json);
-  if (!parsed.success) {
-    throw new AgentError(`Claude output failed validation: ${parsed.error.issues[0]?.message ?? "unknown"}`, "INVALID_OUTPUT", true);
-  }
-  return { data: parsed.data, model: message.model ?? model, costUsd, usage: { input: u.input_tokens, output: u.output_tokens } };
+  return undefined;
 }
 
 export type ToolTurnParams = {
