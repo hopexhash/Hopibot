@@ -4,7 +4,7 @@ import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
 import { hasRole, requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
-import { AgencyForm, MembersCard, ScoringForm } from "./settings-forms";
+import { AgencyForm, InterfaceCard, MembersCard, ScoringForm } from "./settings-forms";
 
 export const metadata = { title: "Settings" };
 
@@ -29,8 +29,9 @@ export default async function SettingsPage() {
   const canAdmin = hasRole(auth.role, "admin");
   return (
     <>
-      <PageHeader title="Settings" description={`${auth.org.name} · you are ${auth.role}`} />
+      <PageHeader eyebrow="SYSTEM // SETTINGS" title="Settings" description={`${auth.org.name} · you are ${auth.role}`} />
       <div className="space-y-4">
+        <InterfaceCard />
         <AgencyForm settings={auth.org.settings} canAdmin={canAdmin} />
         <ScoringForm settings={auth.org.settings} canAdmin={canAdmin} />
         <MembersCard members={members} currentUserId={auth.user.id} isOwner={auth.role === "owner"} canAdmin={canAdmin} />

@@ -1,10 +1,11 @@
 "use client";
 
+import { setRainEnabled, useRainEnabled } from "@/components/app/matrix-rain";
 import { Trash2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Dialog, Field, Input, Select } from "@/components/ui";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Dialog, Field, Input, Select, Switch } from "@/components/ui";
 import { DEFAULT_SCORING_WEIGHTS } from "@/lib/constants";
 import type { OrgSettings } from "@/lib/settings";
 import { addMemberAction, changeRoleAction, removeMemberAction, updateSettingsAction } from "@/server/actions/settings";
@@ -208,6 +209,29 @@ export function MembersCard({ members, currentUserId, isOwner, canAdmin }: { mem
           </Field>
         </div>
       </Dialog>
+    </Card>
+  );
+}
+
+export function InterfaceCard() {
+  const rain = useRainEnabled();
+  return (
+    <Card>
+      <CardHeader>
+        <div>
+          <CardTitle>Interface</CardTitle>
+          <CardDescription>Stored on this device only.</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[14px] font-medium">Matrix rain background</p>
+            <p className="text-[12.5px] text-muted">Subtle animated code rain behind the dashboard. Automatically off when your device asks for reduced motion.</p>
+          </div>
+          <Switch checked={rain} onCheckedChange={setRainEnabled} label="Matrix rain background" />
+        </div>
+      </CardContent>
     </Card>
   );
 }

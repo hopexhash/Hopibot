@@ -7,6 +7,7 @@ import { queueName, type TaskJob } from "@/server/orchestrator/queue";
 import { recoverTasks, runScheduler } from "@/server/orchestrator/recovery";
 import { closeQcBrowser } from "@/server/qc/run-qc";
 import { createRedis } from "@/server/redis";
+import { publishHeartbeat, WORKER_ID } from "@/server/health";
 
 /**
  * Agent worker process. Run one or many (`npm run worker`); each consumes all agent
@@ -47,7 +48,13 @@ async function main() {
     w.on("failed", (job, err) => log(`job ${job?.id} failed in ${w.name}: ${err.message}`));
     w.on("error", (err) => log(`worker error in ${w.name}: ${err.message}`));
   }
-  log(`started for agents: ${agents.join(", ")}`);
+  log(`started for agents: ${agents.join(", ")} (id ${WORKER_ID})`);
+
+  // Heartbeat: lets the dashboard show which agents have a live worker (never guessed).
+  const startedAt = new Date().toISOString();
+  const beat = () => publishHeartbeat(connection, { agents, startedAt }).catch((err) => log("heartbeat failed", (err as Error).message));
+  await beat();
+  const heartbeat = setInterval(beat, 15_000);
 
   // Resume everything that was in flight before this process started.
   const r = await recoverTasks();
@@ -70,6 +77,8 @@ async function main() {
   const shutdown = async (sig: string) => {
     log(`${sig} received, draining…`);
     clearInterval(tick);
+    clearInterval(heartbeat);
+    await connection.del(`agencyos:worker:${WORKER_ID}`).catch(() => {});
     await Promise.allSettled(workers.map((w) => w.close()));
     await closeQcBrowser();
     await connection.quit().catch(() => {});

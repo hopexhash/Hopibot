@@ -37,8 +37,8 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs shadow-[var(--shadow-lg)]">
-      <div className="mb-1 font-medium text-foreground">{label}</div>
+    <div className="mono rounded-lg border border-border-strong bg-[#08100c] px-3 py-2 text-xs shadow-[0_0_24px_-6px_rgba(0,255,102,0.4)]">
+      <div className="mono mb-1 font-medium text-foreground">{label}</div>
       {payload.map((p) => (
         <div key={p.dataKey} className="flex items-center gap-2 text-muted">
           <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
@@ -123,10 +123,10 @@ export function ChartCard({
   const fmt = format ? FORMATTERS[format] : undefined;
   const hasData = data.some((d) => series.some((s) => Number(d[s.key] ?? 0) !== 0));
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-sm)] animate-fade-in", className)}>
+    <div className={cn("panel p-4 animate-fade-in sm:p-5", className)}>
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-[13px] font-semibold tracking-tight">{title}</h3>
+          <h3 className="mono text-[11.5px] font-semibold uppercase tracking-[0.14em]">{title}</h3>
           {description && <p className="mt-0.5 text-xs text-muted">{description}</p>}
         </div>
         <button onClick={() => setTable((t) => !t)} className="shrink-0 rounded-md px-2 py-1 text-[11px] font-medium text-muted hover:bg-surface-2 hover:text-foreground">
@@ -168,7 +168,7 @@ export function ChartCard({
                 <defs>
                   {series.map((s, i) => (
                     <linearGradient key={s.key} id={`fill-${s.key}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={SERIES[i]} stopOpacity={0.22} />
+                      <stop offset="0%" stopColor={SERIES[i]} stopOpacity={0.28} />
                       <stop offset="100%" stopColor={SERIES[i]} stopOpacity={0} />
                     </linearGradient>
                   ))}
@@ -193,8 +193,8 @@ export function ChartCard({
 export function FunnelCard({ title, description, steps, className }: { title: string; description?: string; steps: { label: string; value: number }[]; className?: string }) {
   const maxV = Math.max(1, ...steps.map((s) => s.value));
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-sm)]", className)}>
-      <h3 className="text-[13px] font-semibold tracking-tight">{title}</h3>
+    <div className={cn("panel p-4 sm:p-5", className)}>
+      <h3 className="mono text-[11.5px] font-semibold uppercase tracking-[0.14em]">{title}</h3>
       {description && <p className="mt-0.5 text-xs text-muted">{description}</p>}
       <div className="mt-4 space-y-2.5">
         {steps.map((s, i) => {
@@ -204,13 +204,13 @@ export function FunnelCard({ title, description, steps, className }: { title: st
             <div key={s.label} title={`${s.label}: ${s.value}`}>
               <div className="mb-1 flex items-center justify-between text-xs">
                 <span className="text-muted">{s.label}</span>
-                <span className="tabular font-medium">
+                <span className="mono tabular font-medium text-accent">
                   {s.value}
                   {rate != null && <span className="ml-1.5 font-normal text-subtle">{rate}%</span>}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-3">
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(s.value / maxV) * 100}%`, background: "var(--chart-1)" }} />
+                <div className="h-full rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(0,255,102,0.7)]" style={{ width: `${(s.value / maxV) * 100}%`, background: "linear-gradient(90deg, #008f39, #00ff66)" }} />
               </div>
             </div>
           );

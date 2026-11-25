@@ -13,14 +13,14 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-accent text-accent-foreground shadow-sm hover:bg-accent-hover",
-        secondary: "border border-border bg-surface text-foreground shadow-sm hover:bg-surface-2 hover:border-border-strong",
-        ghost: "text-muted hover:bg-surface-2 hover:text-foreground",
-        danger: "bg-danger text-white shadow-sm hover:opacity-90",
+        primary: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,102,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,102,0.7)]",
+        secondary: "border border-border bg-surface-2 text-foreground hover:bg-surface-3 hover:border-border-strong hover:text-accent",
+        ghost: "text-muted hover:bg-accent-soft hover:text-accent",
+        danger: "bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,69,69,0.6)] hover:opacity-90",
         "danger-ghost": "text-danger hover:bg-danger-soft",
-        success: "bg-success text-white shadow-sm hover:opacity-90",
+        success: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,102,0.55)] hover:bg-accent-hover",
       },
-      size: { sm: "h-7 px-2.5 text-xs", md: "h-9 px-3.5", lg: "h-10 px-5 text-sm", icon: "h-8 w-8", "icon-sm": "h-7 w-7" },
+      size: { sm: "h-8 px-3 text-xs", md: "h-10 px-4", lg: "h-11 px-5 text-sm", icon: "h-9 w-9", "icon-sm": "h-8 w-8" },
     },
     defaultVariants: { variant: "secondary", size: "md" },
   },
@@ -51,13 +51,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
 // ───────────────────────── Card ─────────────────────────
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-xl border border-border bg-surface shadow-[var(--shadow-sm)]", className)} {...props} />;
+  return <div className={cn("panel", className)} {...props} />;
 }
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("flex items-start justify-between gap-3 px-5 pt-4 pb-3", className)} {...props} />;
 }
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-[13px] font-semibold tracking-tight text-foreground", className)} {...props} />;
+  return <h3 className={cn("mono text-[11.5px] font-semibold uppercase tracking-[0.14em] text-foreground", className)} {...props} />;
 }
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
   return <p className={cn("mt-0.5 text-xs text-muted", className)} {...props} />;
@@ -100,13 +100,13 @@ export function MockBadge({ className }: { className?: string }) {
 // ───────────────────────── Form controls ─────────────────────────
 
 const fieldBase =
-  "w-full rounded-lg border border-border bg-surface px-3 text-[13px] text-foreground shadow-[var(--shadow-sm)] placeholder:text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60";
+  "w-full rounded-lg border border-border-strong bg-[#070c0a] px-3 text-[16px] text-foreground placeholder:text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13px]";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
   ref,
 ) {
-  return <input ref={ref} className={cn(fieldBase, "h-9", className)} {...props} />;
+  return <input ref={ref} className={cn(fieldBase, "h-10", className)} {...props} />;
 });
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
@@ -124,7 +124,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
       ref={ref}
       className={cn(
         fieldBase,
-        "h-9 appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa5' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:12px] bg-[right_10px_center] bg-no-repeat pr-8",
+        "h-10 appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa5' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:12px] bg-[right_10px_center] bg-no-repeat pr-8",
         className,
       )}
       {...props}
@@ -209,16 +209,16 @@ export function Dialog({
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
-        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-fade-in" />
+        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=open]:animate-fade-in" />
         <RDialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-border bg-surface shadow-[var(--shadow-lg)] data-[state=open]:animate-fade-in",
+            "fixed left-1/2 top-1/2 z-50 flex max-h-[85dvh] w-[calc(100vw-1.5rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-border-strong bg-[#08100c] shadow-[0_0_60px_-12px_rgba(0,255,102,0.3)] data-[state=open]:animate-fade-in",
             width,
           )}
         >
           <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
             <div>
-              <RDialog.Title className="text-[15px] font-semibold tracking-tight">{title}</RDialog.Title>
+              <RDialog.Title className="mono text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">{title}</RDialog.Title>
               {description ? (
                 <RDialog.Description className="mt-1 text-xs text-muted">{description}</RDialog.Description>
               ) : (
@@ -250,7 +250,7 @@ export function DropdownContent({ className, align = "end", ...props }: React.Co
         align={align}
         sideOffset={6}
         className={cn(
-          "z-50 min-w-44 rounded-xl border border-border bg-surface p-1 shadow-[var(--shadow-lg)] data-[state=open]:animate-fade-in",
+          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,102,0.3)] data-[state=open]:animate-fade-in",
           className,
         )}
         {...props}
@@ -262,7 +262,7 @@ export function DropdownItem({ className, destructive, ...props }: React.Compone
   return (
     <RDropdown.Item
       className={cn(
-        "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] outline-none data-[highlighted]:bg-surface-2 data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-muted",
+        "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-accent data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-muted",
         destructive && "text-danger [&_svg]:text-danger",
         className,
       )}
@@ -282,7 +282,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <RTabs.Trigger
       className={cn(
-        "relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-[13px] font-medium text-muted transition-colors hover:text-foreground data-[state=active]:border-accent data-[state=active]:text-foreground",
+        "mono relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-muted transition-colors hover:text-foreground data-[state=active]:border-accent data-[state=active]:text-accent",
         className,
       )}
       {...props}
@@ -303,7 +303,7 @@ export function Tooltip({ content, children }: { content: React.ReactNode; child
         <RTooltip.Portal>
           <RTooltip.Content
             sideOffset={6}
-            className="z-50 max-w-xs rounded-lg bg-foreground px-2.5 py-1.5 text-xs text-background shadow-lg data-[state=delayed-open]:animate-fade-in"
+            className="z-50 max-w-xs rounded-lg border border-border-strong bg-[#08100c] px-2.5 py-1.5 text-xs text-foreground shadow-lg data-[state=delayed-open]:animate-fade-in"
           >
             {content}
           </RTooltip.Content>
@@ -316,14 +316,14 @@ export function Tooltip({ content, children }: { content: React.ReactNode; child
 // ───────────────────────── Misc ─────────────────────────
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-surface-3", className)} />;
+  return <div className={cn("animate-pulse rounded-md bg-[rgba(0,255,102,0.06)]", className)} />;
 }
 
 export function Progress({ value, className, tone = "accent" }: { value: number; className?: string; tone?: "accent" | "success" | "warning" | "danger" }) {
   const color = { accent: "bg-accent", success: "bg-success", warning: "bg-warning", danger: "bg-danger" }[tone];
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn("h-full rounded-full transition-all duration-500", color)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div className={cn("h-full rounded-full transition-all duration-700", color, tone === "accent" && "shadow-[0_0_10px_#00ff66]")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
@@ -377,7 +377,7 @@ export function ScoreRing({ score, size = 36 }: { score: number | null | undefin
           className="transition-all duration-700"
         />
       </svg>
-      <span className="tabular absolute text-[11px] font-semibold">{score ?? "–"}</span>
+      <span className="mono tabular absolute text-[11px] font-semibold">{score ?? "–"}</span>
     </div>
   );
 }
