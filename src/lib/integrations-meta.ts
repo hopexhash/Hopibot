@@ -41,6 +41,16 @@ export const INTEGRATIONS = [
     docs: "https://www.pexels.com/api/",
   },
   {
+    key: "unsplash",
+    name: "Unsplash photos",
+    description: "Licensed, realistic photography for generated websites. An alternative to Pexels: connect either one.",
+    secretLabel: "Access Key",
+    configFields: [],
+    envVar: "UNSPLASH_ACCESS_KEY",
+    usedBy: ["website_builder"],
+    docs: "https://unsplash.com/developers",
+  },
+  {
     key: "vercel",
     name: "Vercel",
     description: "Preview deployments for generated websites.",

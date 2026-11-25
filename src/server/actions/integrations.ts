@@ -87,6 +87,9 @@ export async function testIntegrationAction(provider: string) {
           case "pexels":
             message = await (await import("../integrations/pexels")).testPexels(cred.secret);
             break;
+          case "unsplash":
+            message = await (await import("../integrations/unsplash")).testUnsplash(cred.secret);
+            break;
           case "vercel":
             message = await (await import("../integrations/vercel")).testVercel(cred.secret, cred.config.teamId);
             break;

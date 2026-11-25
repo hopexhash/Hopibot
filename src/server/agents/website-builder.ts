@@ -250,12 +250,13 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
 
   // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
   spec.theme = { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
-  // Real photography: with Pexels connected, image slots get licensed photos that match the design.
-  if (type === "generate_website" && (await ctx.mode("pexels")) === "live") {
+  // Real photography: with Pexels or Unsplash connected, image slots get licensed photos that match the design.
+  const photoProvider = type !== "generate_website" ? null : (await ctx.mode("pexels")) === "live" ? "pexels" : (await ctx.mode("unsplash")) === "live" ? "unsplash" : null;
+  if (photoProvider) {
     try {
-      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug);
+      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug, photoProvider);
       spec = r.spec;
-      await ctx.log("info", `Added ${r.added} licensed stock photo(s) from Pexels.`);
+      await ctx.log("info", `Added ${r.added} licensed stock photo(s) from ${photoProvider === "pexels" ? "Pexels" : "Unsplash"}.`);
     } catch (err) {
       await ctx.log("warn", `Stock photos could not be loaded (${(err as Error).message.slice(0, 120)}) — using illustrations.`);
     }

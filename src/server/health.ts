@@ -71,7 +71,7 @@ export async function systemHealth(organizationId: string): Promise<{ checks: He
     },
   ];
   const rows = await db().select().from(schema.integrationCredentials).where(eq(schema.integrationCredentials.organizationId, organizationId));
-  const show: IntegrationKey[] = ["anthropic", "google_maps", "hunter", "pexels", "vercel", "github", "resend", "stripe"];
+  const show: IntegrationKey[] = ["anthropic", "google_maps", "hunter", "pexels", "unsplash", "vercel", "github", "resend", "stripe"];
   for (const key of show) {
     const meta = INTEGRATIONS.find((i) => i.key === key)!;
     const cred = await getCredential(organizationId, key);

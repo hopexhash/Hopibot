@@ -5,7 +5,7 @@ import { getCredential, IntegrationUnavailableError, touchIntegrationSuccess } f
  * Pexels: licensed stock photography for generated websites. The Pexels licence allows
  * free commercial use; we still store the photographer and source page with every photo.
  */
-export type StockPhoto = { id: number; src: string; srcSmall: string; alt: string; photographer: string; pageUrl: string; width: number; height: number };
+export type StockPhoto = { id: number | string; src: string; srcSmall: string; alt: string; photographer: string; pageUrl: string; width: number; height: number; source: "Pexels" | "Unsplash"; downloadLocation?: string };
 
 type Raw = { id: number; width: number; height: number; url: string; alt?: string; photographer: string; src: { large2x: string; large: string; medium: string } };
 
@@ -20,7 +20,7 @@ export async function searchPhotos(organizationId: string, q: { query: string; o
   if (!cred.secret) throw new IntegrationUnavailableError("pexels");
   const json = await call(cred.secret, { query: q.query, per_page: String(Math.min(40, q.count ?? 20)), ...(q.orientation ? { orientation: q.orientation } : {}) });
   void touchIntegrationSuccess(organizationId, "pexels");
-  return (json.photos ?? []).map((p) => ({ id: p.id, src: p.src.large2x || p.src.large, srcSmall: p.src.large || p.src.medium, alt: (p.alt ?? "").slice(0, 150), photographer: p.photographer, pageUrl: p.url, width: p.width, height: p.height }));
+  return (json.photos ?? []).map((p) => ({ id: p.id, src: p.src.large2x || p.src.large, srcSmall: p.src.large || p.src.medium, alt: (p.alt ?? "").slice(0, 150), photographer: p.photographer, pageUrl: p.url, width: p.width, height: p.height, source: "Pexels" as const }));
 }
 
 export async function testPexels(apiKey: string) {

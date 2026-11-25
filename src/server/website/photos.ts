@@ -3,6 +3,9 @@ import type { SiteSpec } from "@/lib/site-spec";
 import type { ArtScene } from "@/sites/designs";
 import { hashString } from "@/sites/art";
 import { searchPhotos, type StockPhoto } from "../integrations/pexels";
+import { reportUnsplashUse, searchUnsplash } from "../integrations/unsplash";
+
+export type PhotoProvider = "pexels" | "unsplash";
 
 /**
  * Art direction per industry: what to search for in each image slot. Queries describe a
@@ -36,11 +39,11 @@ const DIRECTION: Record<ArtScene, { hero: string; about: string; gallery: string
 
 const cache = new Map<string, { at: number; photos: StockPhoto[] }>();
 
-async function pool(organizationId: string, query: string, orientation: "landscape" | "portrait" | "square") {
-  const key = `${organizationId}|${query}|${orientation}`;
+async function pool(organizationId: string, provider: PhotoProvider, query: string, orientation: "landscape" | "portrait" | "square") {
+  const key = `${organizationId}|${provider}|${query}|${orientation}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < 6 * 3600_000) return hit.photos;
-  const photos = await searchPhotos(organizationId, { query, orientation, count: 30 });
+  const photos = await (provider === "unsplash" ? searchUnsplash : searchPhotos)(organizationId, { query, orientation, count: 30 });
   cache.set(key, { at: Date.now(), photos });
   return photos;
 }
@@ -50,7 +53,7 @@ async function pool(organizationId: string, query: string, orientation: "landsca
  * Photos already supplied by the business (license "authorised") are never replaced.
  * `seed` makes two businesses on the same design get different photos.
  */
-export async function attachStockPhotos(organizationId: string, spec: SiteSpec, scene: ArtScene, seed: string): Promise<{ spec: SiteSpec; added: number }> {
+export async function attachStockPhotos(organizationId: string, spec: SiteSpec, scene: ArtScene, seed: string, provider: PhotoProvider = "pexels"): Promise<{ spec: SiteSpec; added: number }> {
   const dir = DIRECTION[scene] ?? DIRECTION.service;
   const refs = new Set<string>([spec.hero.image, "art:about2", "art:cta", "art:side1", "art:side2"]);
   for (const s of spec.sections) {
@@ -61,8 +64,9 @@ export async function attachStockPhotos(organizationId: string, spec: SiteSpec, 
   }
   const has = new Set(spec.images.filter((i) => i.license !== "generated").map((i) => i.key));
   const offset = hashString(seed);
-  const [hero, about, gallery, detail] = await Promise.all([pool(organizationId, dir.hero, "landscape"), pool(organizationId, dir.about, "portrait"), pool(organizationId, dir.gallery, "square"), pool(organizationId, dir.detail, "landscape")]);
-  const used = new Set<number>();
+  const [hero, about, gallery, detail] = await Promise.all([pool(organizationId, provider, dir.hero, "landscape"), pool(organizationId, provider, dir.about, "portrait"), pool(organizationId, provider, dir.gallery, "square"), pool(organizationId, provider, dir.detail, "landscape")]);
+  const used = new Set<number | string>();
+  const placed: StockPhoto[] = [];
   const pick = (list: StockPhoto[], n: number) => {
     for (let i = 0; i < list.length; i++) {
       const p = list[(offset + n * 7 + i) % list.length];
@@ -80,7 +84,9 @@ export async function attachStockPhotos(organizationId: string, spec: SiteSpec, 
     const source = ref === spec.hero.image || ref === "art:cta" ? hero : ref.startsWith("art:about") || ref.startsWith("art:side") ? about : ref.startsWith("art:svc") ? detail : gallery;
     const p = pick(source.length ? source : gallery, n++);
     if (!p) continue;
-    images.push({ key: ref, src: ref === spec.hero.image ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / Pexels` });
+    images.push({ key: ref, src: ref === spec.hero.image ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / ${p.source}` });
+    placed.push(p);
   }
+  if (provider === "unsplash") void reportUnsplashUse(organizationId, placed);
   return { spec: { ...spec, images: images.filter((im, i, arr) => arr.findIndex((x) => x.key === im.key && x.license === im.license) === i) }, added: n };
 }
