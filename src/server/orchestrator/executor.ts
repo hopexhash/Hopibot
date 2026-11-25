@@ -1,13 +1,13 @@
 import "../guard";
 import { and, count, eq } from "drizzle-orm";
-import type { RuntimeKey } from "@/lib/constants";
+import { AGENT_META, type AgentKey, type RuntimeKey } from "@/lib/constants";
 import { AgentError } from "../integrations/anthropic";
 import { IntegrationUnavailableError, integrationMode } from "../integrations/credentials";
 import { checkBudget } from "../costs/usage";
 import { db, schema } from "../db";
 import { getOrgSettings } from "../org";
 import { backoffMs, claimTask, transitionTask } from "./state-machine";
-import { createTask, promoteDependents, safeEnqueue, writeLog } from "./tasks";
+import { createTask, notify, promoteDependents, safeEnqueue, writeLog } from "./tasks";
 import { refreshRunStatus } from "./runs";
 import { createApproval, resumeTask } from "./control";
 import { AGENT_PAID, type AgentContext, type AgentHandler, type TaskRow } from "./types";
@@ -176,7 +176,8 @@ async function onTaskFailed(task: TaskRow, message: string) {
   if (task.projectId && ["website_builder", "quality_control"].includes(task.agentKey)) {
     await db().update(schema.websiteProjects).set({ status: "failed", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, task.projectId));
   }
-  void message;
+  const name = AGENT_META[task.agentKey as AgentKey]?.name ?? (task.agentKey === "custom" ? String((task.input as { customAgentName?: string }).customAgentName ?? "Custom agent") : task.agentKey);
+  await notify(task.organizationId, `${name} failed`, `${task.type.replace(/_/g, " ")}: ${message}`, "/tasks?status=FAILED", "error");
 }
 
 export { createTask, createApproval, resumeTask };

@@ -193,7 +193,7 @@ Operator instructions: ${ctx.config.instructions || "(none)"}`,
     .insert(schema.crmActivities)
     .values({ organizationId: ctx.organizationId, businessId: b.id, type: "system", content: `Sales email drafted and awaiting approval. ${draft.crmNotes}`.slice(0, 1000) });
   await advanceStage(b.id, "AWAITING_APPROVAL", ctx.organizationId);
-  await notify(ctx.organizationId, "Email awaiting approval", `Intro email to ${b.name}`, `/emails/${email.id}`);
+  await notify(ctx.organizationId, "An email is waiting for your approval", `Intro email to ${b.name}`, `/emails/${email.id}`, "approval");
   await ctx.log("info", `Drafted intro email for ${b.name}${blockedReason ? ` (blocked: ${blockedReason})` : ""}.`);
   return { status: "completed" as const, output: { emailId: email.id, blocked: Boolean(blockedReason), mock: mode === "mock" } };
 }

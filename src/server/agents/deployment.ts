@@ -9,7 +9,7 @@ import { AgentError } from "../integrations/anthropic";
 import { pushSiteToGithub } from "../integrations/github";
 import { vercelAddDomain, vercelDeploy, vercelGetDeployment } from "../integrations/vercel";
 import { continuePipeline } from "../orchestrator/pipeline";
-import { advanceStage } from "../orchestrator/tasks";
+import { advanceStage, notify } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
 
 async function siteFiles(versionId: string) {
@@ -141,6 +141,7 @@ export const deployment: AgentHandler = async (ctx) => {
     await db().update(schema.websiteProjects).set({ previewUrl: url, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
     if (!production) await advanceStage(project.businessId, "PREVIEW_READY", ctx.organizationId);
     await ctx.log("info", `${production ? "Published" : "Preview deployed"}: ${url}`);
+    await notify(ctx.organizationId, production ? "A website was published" : "A website preview is ready", url, `/websites/${project.id}`, "success");
     if (!production) await continuePipeline(ctx, { businessId: project.businessId, projectId: project.id, next: (ctx.task.input.next as string[]) ?? [] });
     return { status: "completed", output: { deploymentId: row.id, url, provider } };
   } catch (err) {

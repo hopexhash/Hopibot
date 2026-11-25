@@ -90,6 +90,6 @@ export const qualityControl: AgentHandler = async (ctx) => {
 
   // Out of retries: never mark a failed website as ready.
   await db().update(schema.websiteProjects).set({ status: "failed", qualityScore: report.score, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
-  await notify(ctx.organizationId, "Website failed quality control", `Score ${report.score}/100 after ${maxRetries} correction attempts.`, `/websites/${project.id}`);
+  await notify(ctx.organizationId, "A website failed quality control", `Score ${report.score}/100 after ${maxRetries} correction attempts.`, `/websites/${project.id}`);
   throw new AgentError(`Website failed QC with score ${report.score} after ${maxRetries} correction attempts.`, "QC_FAILED", false);
 };

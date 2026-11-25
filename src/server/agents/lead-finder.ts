@@ -10,7 +10,7 @@ import { safeFetch } from "../net/safe-fetch";
 import { continuePipeline } from "../orchestrator/pipeline";
 import { triggerQualifiedLeadWorkflows } from "../orchestrator/recovery";
 import { discoveryParamsSchema } from "../orchestrator/runs";
-import { advanceStage } from "../orchestrator/tasks";
+import { advanceStage, notify } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { dedupeKey, domainOf, scoreLead } from "../scoring/lead-score";
 
@@ -231,6 +231,9 @@ export const leadFinder: AgentHandler = async (ctx) => {
     if (started) await ctx.log("info", `Triggered ${started} "new qualified lead" automation(s).`);
   }
 
+  if (qualified.length && !isMock) {
+    await notify(ctx.organizationId, `${qualified.length} new qualified lead${qualified.length === 1 ? "" : "s"}`, `Found in ${params.city} (${found} businesses checked).`, "/businesses?minScore=" + minScore, "success");
+  }
   return {
     status: "completed",
     output: { found, qualified: qualified.length, duplicates, skippedClosed, pipelineStarted: actions.length ? top.length : 0, mock: isMock },

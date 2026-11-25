@@ -123,9 +123,10 @@ export async function refreshRunStatus(runId: string) {
     await writeLog(run.organizationId, { runId, agentKey: "orchestrator", message: `Run ${status.toLowerCase()}`, data: report });
     await notify(
       run.organizationId,
-      status === "COMPLETED" ? "Run completed" : "Run failed",
-      `${report.tasks.completed} tasks completed, ${report.tasks.failed} failed · $${report.totalCostUsd.toFixed(2)}`,
+      status === "COMPLETED" ? "An objective finished" : "An objective failed",
+      `${run.objective ? `${run.objective.slice(0, 120)} — ` : ""}${report.tasks.completed} tasks completed, ${report.tasks.failed} failed · $${report.totalCostUsd.toFixed(2)}`,
       `/automations/runs/${runId}`,
+      status === "COMPLETED" ? "success" : "error",
     );
   }
 }

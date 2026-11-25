@@ -4,8 +4,8 @@ import { Copy, ExternalLink, KeyRound, PlugZap, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { StatusBadge } from "@/components/app/status";
 import { Badge, Button, Card, Dialog, Field, Input } from "@/components/ui";
+import { AGENT_META, type AgentKey } from "@/lib/constants";
 import { timeAgo } from "@/lib/utils";
 import { removeIntegrationAction, saveIntegrationAction, testIntegrationAction } from "@/server/actions/integrations";
 
@@ -29,6 +29,16 @@ type CardData = {
   lastTestedAt: string | null;
   lastError: string | null;
   webhookUrl: string | null;
+  /** One truthful state: only "connected" after a real request succeeded. */
+  state: "connected" | "failed" | "untested" | "mock" | "none";
+};
+
+const STATE: Record<CardData["state"], { label: string; tone: "success" | "danger" | "warning" | "neutral"; explain: string }> = {
+  connected: { label: "Connected", tone: "success", explain: "Verified with a real request." },
+  failed: { label: "Connection failed", tone: "danger", explain: "The last test request was rejected. Check the key and test again." },
+  untested: { label: "Key saved, not verified", tone: "warning", explain: "A key is stored, but it has not been tested yet. Press “Test connection”." },
+  mock: { label: "Not connected", tone: "warning", explain: "Development mock mode: agents get clearly labelled MOCK data instead of calling this service." },
+  none: { label: "Not connected", tone: "neutral", explain: "Agents that need this service will pause and tell you." },
 };
 
 export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: boolean }) {
@@ -47,19 +57,23 @@ export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: 
     });
 
   return (
-    <Card className="flex flex-col p-5">
+    <Card className={`flex flex-col p-4 sm:p-5 ${card.state === "failed" ? "border-[rgba(255,77,97,0.25)]" : card.state === "connected" ? "border-[rgba(0,255,120,0.2)]" : ""}`}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-2 text-sm font-semibold">{card.name.charAt(0)}</div>
-          <div>
-            <p className="text-[14px] font-semibold tracking-tight">{card.name}</p>
-            <p className="text-[11px] text-muted">{card.usedBy.length ? `Used by ${card.usedBy.join(", ").replace(/_/g, " ")}` : card.envVar}</p>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-[16px] font-semibold ${card.state === "connected" ? "border-[rgba(0,255,120,0.35)] bg-accent-soft text-accent" : "border-border bg-surface-2 text-muted"}`}>{card.name.charAt(0)}</div>
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-semibold tracking-tight">{card.name}</p>
+            <p className="truncate text-[12px] text-muted">{card.usedBy.length ? `Used by ${card.usedBy.map((k) => AGENT_META[k as AgentKey]?.name ?? k).join(", ")}` : "Infrastructure"}</p>
           </div>
         </div>
-        <StatusBadge status={card.mode} />
+        <Badge tone={STATE[card.state].tone} className="shrink-0">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-current" />
+          {STATE[card.state].label}
+        </Badge>
       </div>
-      <p className="mt-3 text-xs text-muted">{card.description}</p>
-      <dl className="mt-4 space-y-1.5 text-xs">
+      <p className="mt-3 text-[13px] leading-relaxed text-muted">{card.description}</p>
+      <p className="mt-2 text-[12.5px] leading-relaxed text-subtle">{STATE[card.state].explain}</p>
+      <dl className="mt-4 space-y-2 text-[12.5px]">
         <div className="flex justify-between gap-2">
           <dt className="text-muted">Configuration</dt>
           <dd>{card.configured ? <Badge tone="success">{card.source === "database" ? "Saved key" : "Environment"}</Badge> : <Badge tone="neutral">Not configured</Badge>}</dd>
@@ -67,20 +81,18 @@ export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: 
         {card.hint && (
           <div className="flex justify-between gap-2">
             <dt className="text-muted">Key</dt>
-            <dd className="font-mono">{card.hint}</dd>
+            <dd className="term">{card.hint}</dd>
           </div>
         )}
         <div className="flex justify-between gap-2">
-          <dt className="text-muted">Connection</dt>
-          <dd>
-            <StatusBadge status={card.status} />
-          </dd>
+          <dt className="text-muted">Last tested</dt>
+          <dd suppressHydrationWarning>{card.lastTestedAt ? timeAgo(card.lastTestedAt) : "Never"}</dd>
         </div>
         <div className="flex justify-between gap-2">
           <dt className="text-muted">Last successful request</dt>
-          <dd>{card.lastSuccessAt ? timeAgo(card.lastSuccessAt) : "—"}</dd>
+          <dd suppressHydrationWarning>{card.lastSuccessAt ? timeAgo(card.lastSuccessAt) : "—"}</dd>
         </div>
-        {card.lastError && <dd className="rounded-md bg-danger-soft px-2 py-1 text-danger">{card.lastError}</dd>}
+        {card.lastError && card.state === "failed" && <dd className="rounded-lg bg-danger-soft px-2.5 py-1.5 leading-relaxed text-danger">{card.lastError}</dd>}
         {card.webhookUrl && (
           <div className="pt-1">
             <dt className="mb-1 text-muted">Webhook endpoint</dt>
@@ -95,26 +107,26 @@ export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: 
       </dl>
       <div className="mt-auto flex flex-wrap gap-2 pt-4">
         {canAdmin && (
-          <Button size="sm" variant="primary" disabled={pending} onClick={test}>
+          <Button size="sm" variant={card.configured ? "primary" : "secondary"} disabled={pending || !card.configured} title={card.configured ? undefined : "Add a key first"} onClick={test}>
             <PlugZap /> Test connection
           </Button>
         )}
         {canAdmin && card.secretLabel && (
           <Button size="sm" onClick={() => setOpen(true)}>
-            <KeyRound /> {card.source === "database" ? "Update" : "Configure"}
+            <KeyRound /> {card.source === "database" ? "Update key" : "Add key"}
           </Button>
         )}
         <Button size="sm" variant="ghost" asChild>
           <a href={card.docs} target="_blank" rel="noopener noreferrer">
-            <ExternalLink /> Docs
+            <ExternalLink /> Get a key
           </a>
         </Button>
       </div>
       <Dialog
         open={open}
         onOpenChange={setOpen}
-        title={`Configure ${card.name}`}
-        description="The key is encrypted before storage. Leave the key empty to keep the current one."
+        title={`Connect ${card.name}`}
+        description="Paste the key from the service's website. It is encrypted before it is stored and never shown again. Leave the field empty to keep the current key."
         footer={
           <>
             {card.source === "database" && (

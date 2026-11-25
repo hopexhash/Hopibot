@@ -133,6 +133,8 @@ export async function advanceStage(businessId: string, stage: PipelineStage, org
     });
 }
 
-export async function notify(organizationId: string, title: string, body?: string, href?: string) {
-  await db().insert(schema.notifications).values({ organizationId, title, body, href });
+export type NotificationKind = "info" | "success" | "warning" | "error" | "approval" | "budget";
+
+export async function notify(organizationId: string, title: string, body?: string, href?: string, kind: NotificationKind = "info") {
+  await db().insert(schema.notifications).values({ organizationId, kind, title: title.slice(0, 200), body: body?.slice(0, 500), href });
 }

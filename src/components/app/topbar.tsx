@@ -2,16 +2,18 @@
 
 import { Bell, LogOut, Search, Settings, ShieldCheck, Wand2 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger } from "@/components/ui";
 import { cn, timeAgo } from "@/lib/utils";
 import { signOutAction } from "@/server/actions/auth";
+import { markNotificationsReadAction } from "@/server/actions/notifications";
+import { NOTIFICATION_KIND } from "./notification-meta";
 import { useCommandCenter, useSystemHealth } from "./live";
 import { openCommandPalette } from "./command-palette";
 import { activeHref, NAV_ITEMS } from "./nav";
 import { LogoMark, MobileNav } from "./sidebar";
 
-type Notification = { id: string; title: string; body: string | null; href: string | null; createdAt: string; readAt: string | null };
+type Notification = { id: string; kind: string; title: string; body: string | null; href: string | null; createdAt: string; readAt: string | null };
 
 function Dot({ tone, pulse }: { tone: "green" | "amber" | "red" | "grey"; pulse?: boolean }) {
   const c = { green: "bg-accent text-accent", amber: "bg-warning text-warning", red: "bg-danger text-danger", grey: "bg-subtle text-subtle" }[tone];
@@ -37,6 +39,7 @@ function useStatus() {
 
 export function Topbar({ user, counts, notifications }: { user: { name: string | null; email: string; role: string }; counts: Record<string, number>; notifications: Notification[] }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { system, cc, apis, apisConnected, apisError, workers } = useStatus();
   const unread = notifications.filter((n) => !n.readAt).length;
   const section = NAV_ITEMS.find((n) => n.href === activeHref(pathname))?.label ?? "Command Center";
@@ -106,22 +109,39 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
             </button>
           </DropdownTrigger>
           <DropdownContent className="w-[min(20rem,calc(100vw-1.5rem))] p-0">
-            <div className="flex items-center justify-between border-b border-border px-3 py-2.5 text-[13px] font-medium">Notifications<Link href="/approvals" className="text-[12px] font-normal text-accent">Approvals →</Link></div>
-            <div className="max-h-80 overflow-y-auto p-1">
-              {notifications.length === 0 && <p className="px-3 py-6 text-center text-xs text-muted">All clear.</p>}
-              {notifications.map((n) => (
-                <DropdownItem key={n.id} asChild className="items-start">
-                  <Link href={n.href ?? "/"}>
-                    <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${n.readAt ? "bg-transparent" : "bg-accent"}`} />
-                    <span className="min-w-0">
-                      <span className="block truncate text-[13px] font-medium">{n.title}</span>
-                      {n.body && <span className="block truncate text-xs text-muted">{n.body}</span>}
-                      <span className="block text-[11.5px] text-subtle">{timeAgo(n.createdAt)}</span>
-                    </span>
-                  </Link>
-                </DropdownItem>
-              ))}
+            <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2.5 text-[13.5px] font-medium">
+              Notifications
+              {unread > 0 && (
+                <button onClick={() => void markNotificationsReadAction().then(() => router.refresh())} className="text-[12px] font-normal text-accent hover:underline">
+                  Mark all read
+                </button>
+              )}
             </div>
+            <div className="max-h-[min(24rem,60dvh)] overflow-y-auto p-1">
+              {notifications.length === 0 && <p className="px-3 py-8 text-center text-[13px] text-muted">Nothing new.</p>}
+              {notifications.map((n) => {
+                const k = NOTIFICATION_KIND[n.kind] ?? NOTIFICATION_KIND.info;
+                const Icon = k.icon;
+                return (
+                  <DropdownItem key={n.id} asChild className="items-start">
+                    <Link href={n.href ?? "/notifications"}>
+                      <Icon className="mt-0.5 shrink-0" style={{ color: k.color }} />
+                      <span className="min-w-0 flex-1">
+                        <span className={cn("block truncate text-[13px]", n.readAt ? "text-muted" : "font-medium")}>{n.title}</span>
+                        {n.body && <span className="block truncate text-[12px] text-muted">{n.body}</span>}
+                        <span className="block text-[11.5px] text-subtle" suppressHydrationWarning>
+                          {timeAgo(n.createdAt)}
+                        </span>
+                      </span>
+                      {!n.readAt && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" />}
+                    </Link>
+                  </DropdownItem>
+                );
+              })}
+            </div>
+            <Link href="/notifications" className="flex h-11 items-center justify-center border-t border-border text-[12.5px] font-medium text-accent hover:bg-accent-soft">
+              See all notifications
+            </Link>
           </DropdownContent>
         </DropdownMenu>
         <DropdownMenu>
