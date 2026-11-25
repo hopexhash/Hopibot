@@ -25,6 +25,21 @@ export function withinWorkingHours(a: OrgSettings["autopilot"], now: Date) {
   return a.days.includes(c.day) && c.hour >= a.startHour && c.hour < a.endHour;
 }
 
+/** The other supported market: Belgium for the Netherlands and the reverse. */
+export const otherMarket = (country: string) => (country === "Belgium" ? "Netherlands" : "Belgium");
+
+/** Every city the autopilot works through, with its country; the two countries alternate. */
+export function autopilotTargets(a: OrgSettings["autopilot"]): { city: string; country: "Netherlands" | "Belgium" }[] {
+  const home = a.cities.map((city) => ({ city, country: a.country }));
+  const other = (a.otherCities ?? []).map((city) => ({ city, country: otherMarket(a.country) as "Netherlands" | "Belgium" }));
+  const out: { city: string; country: "Netherlands" | "Belgium" }[] = [];
+  for (let i = 0; i < Math.max(home.length, other.length); i++) {
+    if (home[i]) out.push(home[i]);
+    if (other[i]) out.push(other[i]);
+  }
+  return out;
+}
+
 /**
  * Decides the next autopilot batch from what is still allowed today. Pure, so the limits
  * are unit-tested: it can never plan more than the remaining daily allowance.
@@ -36,9 +51,12 @@ export function nextBatch(a: OrgSettings["autopilot"], today: { discovered: numb
   const leftWebsites = Math.max(0, a.dailyWebsiteLimit - today.websites);
   const categories = a.categories.filter((k) => BUSINESS_CATEGORIES.some((c) => c.key === k));
   if (!categories.length) return null;
+  const targets = autopilotTargets(a);
+  const target = targets[rotation % targets.length];
   return {
-    city: a.cities[rotation % a.cities.length],
-    category: categories[Math.floor(rotation / a.cities.length) % categories.length],
+    city: target.city,
+    country: target.country,
+    category: categories[Math.floor(rotation / targets.length) % categories.length],
     limit: Math.min(10, leftDiscovery),
     topN: Math.min(2, leftWebsites),
   };
@@ -86,7 +104,7 @@ export async function runAutopilot(now = new Date()): Promise<{ started: number 
         objective: `${PREFIX} find ${batch.limit} ${label} in ${batch.city}${batch.topN ? ` and build demos for the best ${batch.topN}` : ""}`,
         plan: {
           summary: `Autopilot batch for ${label} in ${batch.city}.`,
-          discovery: { country: a.country, city: batch.city, category: batch.category, radiusKm: 10, limit: batch.limit, minScore: settings.minLeadScore, keywords: "", businessName: "", websiteStatus: "any" },
+          discovery: { country: batch.country, city: batch.city, category: batch.category, radiusKm: 10, limit: batch.limit, minScore: settings.minLeadScore, keywords: "", businessName: "", websiteStatus: "any" },
           topN: batch.topN,
           // Emails are only ever drafted for approval; autopilot never sends anything.
           actions: batch.topN ? ["research", "contacts", "generate_website", "qc", "deploy", "sales_email"] : [],
@@ -197,7 +215,7 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
     tasks: { running: tasks.running, waiting: tasks.waiting, approval: tasks.approval },
     today: { discovered: disc.n, qualified: qual.n, websites: web.n, deployed: dep.n, costUsd: budget.daily.spent },
     limits: { discovery: a.dailyDiscoveryLimit, websites: a.dailyWebsiteLimit, dailyUsd: budget.daily.limit },
-    scope: { country: a.country, cities: a.cities, categories: a.categories, startHour: a.startHour, endHour: a.endHour, days: a.days },
+    scope: { country: a.otherCities?.length ? `${a.country} + ${otherMarket(a.country)}` : a.country, cities: autopilotTargets(a).map((t) => t.city), categories: a.categories, startHour: a.startHour, endHour: a.endHour, days: a.days },
     /** Estimate, not a forecast: open demos × the price of the recommended package. */
     opportunity: { openDemos: open.n, estimateCents: open.n * (featured?.priceCents ?? 0), packageName: featured?.name ?? null },
     objective,

@@ -32,10 +32,16 @@ describe("market restriction (Netherlands and Belgium only)", () => {
 });
 
 describe("autopilot limits", () => {
-  const base = { enabled: true, startHour: 8, endHour: 20, days: [1, 2, 3, 4, 5], country: "Netherlands" as const, cities: ["Rotterdam", "Utrecht"], categories: ["restaurant", "barbershop"], dailyDiscoveryLimit: 12, dailyWebsiteLimit: 3 };
+  const base = { enabled: true, startHour: 8, endHour: 20, days: [1, 2, 3, 4, 5], country: "Netherlands" as const, cities: ["Rotterdam", "Utrecht"], otherCities: [] as string[], categories: ["restaurant", "barbershop"], dailyDiscoveryLimit: 12, dailyWebsiteLimit: 3 };
+  it("takes turns between the two countries and never leaves them", () => {
+    const both = { ...base, otherCities: ["Mechelen"] };
+    const seq = [0, 1, 2, 3].map((i) => nextBatch(both, { discovered: 0, websites: 0 }, i));
+    expect(seq.map((b) => `${b?.city}/${b?.country}`)).toEqual(["Rotterdam/Netherlands", "Mechelen/Belgium", "Utrecht/Netherlands", "Rotterdam/Netherlands"]);
+    expect(seq.every((b) => b?.country === "Netherlands" || b?.country === "Belgium")).toBe(true);
+  });
   it("never plans beyond the daily allowance and rotates cities and industries", () => {
-    expect(nextBatch(base, { discovered: 0, websites: 0 }, 0)).toEqual({ city: "Rotterdam", category: "restaurant", limit: 10, topN: 2 });
-    expect(nextBatch(base, { discovered: 10, websites: 2 }, 1)).toEqual({ city: "Utrecht", category: "restaurant", limit: 2, topN: 1 });
+    expect(nextBatch(base, { discovered: 0, websites: 0 }, 0)).toEqual({ city: "Rotterdam", country: "Netherlands", category: "restaurant", limit: 10, topN: 2 });
+    expect(nextBatch(base, { discovered: 10, websites: 2 }, 1)).toEqual({ city: "Utrecht", country: "Netherlands", category: "restaurant", limit: 2, topN: 1 });
     expect(nextBatch(base, { discovered: 4, websites: 3 }, 2)).toMatchObject({ city: "Rotterdam", category: "barbershop", topN: 0 });
     expect(nextBatch(base, { discovered: 12, websites: 0 }, 3)).toBeNull();
     expect(nextBatch({ ...base, enabled: false }, { discovered: 0, websites: 0 }, 0)).toBeNull();

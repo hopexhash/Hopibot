@@ -69,11 +69,13 @@ export const orgSettingsSchema = z.object({
       days: z.array(z.number().int().min(0).max(6)).default([0, 1, 2, 3, 4, 5, 6]),
       country: z.enum(MARKET_NAMES).default("Netherlands"),
       cities: z.array(z.string().max(60)).max(30).default(AUTOPILOT_DEFAULT_CITIES),
+      /** Cities in the other supported market (Belgium when the country above is the Netherlands, and the reverse). Empty = one country only. */
+      otherCities: z.array(z.string().max(60)).max(30).default([]),
       categories: z.array(z.string().max(40)).max(30).default(AUTOPILOT_DEFAULT_CATEGORIES),
       dailyDiscoveryLimit: z.number().int().min(0).max(500).default(30),
       dailyWebsiteLimit: z.number().int().min(0).max(100).default(5),
     })
-    .default({ enabled: true, startHour: 0, endHour: 24, days: [0, 1, 2, 3, 4, 5, 6], country: "Netherlands", cities: AUTOPILOT_DEFAULT_CITIES, categories: AUTOPILOT_DEFAULT_CATEGORIES, dailyDiscoveryLimit: 30, dailyWebsiteLimit: 5 }),
+    .default({ enabled: true, startHour: 0, endHour: 24, days: [0, 1, 2, 3, 4, 5, 6], country: "Netherlands", cities: AUTOPILOT_DEFAULT_CITIES, otherCities: [], categories: AUTOPILOT_DEFAULT_CATEGORIES, dailyDiscoveryLimit: 30, dailyWebsiteLimit: 5 }),
 });
 export type OrgSettings = z.infer<typeof orgSettingsSchema>;
 

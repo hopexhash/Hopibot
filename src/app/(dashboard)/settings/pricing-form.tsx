@@ -112,13 +112,16 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
   const [pending, start] = useTransition();
   const [a, setA] = useState(settings.autopilot);
   const [cities, setCities] = useState(settings.autopilot.cities.join(", "));
+  const [otherCities, setOtherCities] = useState((settings.autopilot.otherCities ?? []).join(", "));
+  const other = a.country === "Belgium" ? "the Netherlands" : "Belgium";
   const [minOpp, setMinOpp] = useState(String(settings.minOpportunityScore));
   const [requireEmail, setRequireEmail] = useState(settings.requireEmail);
   const save = () =>
     start(async () => {
       const list = cities.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
       if (a.enabled && (!list.length || !a.categories.length)) return void toast.error("Add at least one city and one industry before switching Autopilot on.");
-      const r = await updateSettingsAction({ autopilot: { ...a, cities: list }, minOpportunityScore: Math.max(0, Math.min(100, Number(minOpp) || 0)), requireEmail });
+      const otherList = otherCities.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
+      const r = await updateSettingsAction({ autopilot: { ...a, cities: list, otherCities: otherList }, minOpportunityScore: Math.max(0, Math.min(100, Number(minOpp) || 0)), requireEmail });
       if (!r.ok) return void toast.error(r.error);
       toast.success(a.enabled ? "Autopilot is on. It starts work within the next few minutes during working hours." : "Saved. Autopilot is off.");
       router.refresh();
@@ -147,6 +150,9 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
             </Field>
             <Field label="Cities" hint="Separate with commas. Autopilot works through them in turn.">
               <Input value={cities} placeholder="Rotterdam, Den Haag, Utrecht" disabled={!canAdmin} onChange={(e) => setCities(e.target.value)} />
+            </Field>
+            <Field label={`Cities in ${other} (optional)`} hint="Leave empty to work in one country only. The two countries take turns.">
+              <Input value={otherCities} placeholder={a.country === "Belgium" ? "Breda, Tilburg" : "Mechelen, Hasselt, Kortrijk"} disabled={!canAdmin} onChange={(e) => setOtherCities(e.target.value)} />
             </Field>
           </div>
           <div>
