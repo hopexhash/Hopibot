@@ -29,6 +29,7 @@ export const FONTS = {
   "DM Serif Display": { slug: "dm-serif-display", weights: [400], fallback: SERIF },
   Marcellus: { slug: "marcellus", weights: [400], fallback: SERIF },
   Italiana: { slug: "italiana", weights: [400], latinOnly: true, fallback: SERIF },
+  "Instrument Serif": { slug: "instrument-serif", weights: [400], italic: true, fallback: SERIF },
   "Alfa Slab One": { slug: "alfa-slab-one", weights: [400], fallback: SERIF },
   "DM Sans": { slug: "dm-sans", weights: "variable", fallback: SANS },
   Manrope: { slug: "manrope", weights: "variable", fallback: SANS },
@@ -71,6 +72,7 @@ function filesOf(family: FontFamily): { file: string; weight: string; style: str
       if (f.italic) out.push({ file: `${f.slug}-${subset}-wght-italic.woff2`, weight: "100 900", style: "italic", subset });
     } else {
       for (const w of f.weights) out.push({ file: `${f.slug}-${subset}-${w}-normal.woff2`, weight: String(w), style: "normal", subset });
+      if (f.italic) for (const w of f.weights) out.push({ file: `${f.slug}-${subset}-${w}-italic.woff2`, weight: String(w), style: "italic", subset });
     }
   }
   return out;

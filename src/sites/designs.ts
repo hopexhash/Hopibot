@@ -1,5 +1,7 @@
 import type { TemplateKey } from "@/lib/site-spec";
-import type { FontFamily } from "./fonts";
+import { FONT_FAMILIES, type FontFamily } from "./fonts";
+import { isDark, type Identity } from "./identity";
+import { contrast, ensureContrast, mix } from "./color";
 
 /**
  * The template library. A design is a complete visual identity: its own typography,
@@ -8,11 +10,11 @@ import type { FontFamily } from "./fonts";
  */
 
 export type NavVariant = "bar" | "stacked" | "pill" | "block" | "minimal";
-export type HeroVariant = "cinema" | "split" | "centered" | "editorial" | "poster" | "frame" | "minimal" | "panel" | "card" | "wordmark" | "collage";
+export type HeroVariant = "cinema" | "split" | "centered" | "editorial" | "poster" | "frame" | "minimal" | "panel" | "card" | "wordmark" | "collage" | "stack" | "offset";
 export type HeadVariant = "left" | "center" | "ornament" | "number" | "tape";
-export type ServicesVariant = "cards" | "pricelist" | "rows" | "tiles";
+export type ServicesVariant = "cards" | "pricelist" | "rows" | "tiles" | "index" | "bento";
 export type MenuVariant = "list" | "cards" | "board" | "rows" | "courses";
-export type GalleryVariant = "mosaic" | "strip" | "grid" | "polaroid";
+export type GalleryVariant = "mosaic" | "strip" | "grid" | "polaroid" | "scroller" | "bento";
 export type AboutVariant = "split" | "overlap" | "centered" | "statement";
 export type CtaVariant = "band" | "full" | "card";
 export type FooterVariant = "columns" | "centered" | "big";
@@ -53,6 +55,9 @@ export type Design = {
   features: string[];
   /** Add-on keys from the price catalogue that fit this industry best, most relevant first. */
   upsells: string[];
+  /** Decorative detailing set used for CSS (a design key, or "plain"). Defaults to the design's own. */
+  skin?: string;
+  density?: "airy" | "balanced" | "compact";
 };
 
 const d = (x: Design) => x;
@@ -368,10 +373,57 @@ export function getDesign(key: string | undefined | null, legacy?: TemplateKey):
   return (key && BY_KEY.get(key)) || BY_KEY.get(LEGACY_DESIGN[legacy ?? "service"])!;
 }
 
-export function designForSpec(theme: { design?: string; template: TemplateKey; variation?: number }): Design {
+export function designForSpec(theme: { design?: string; template: TemplateKey; variation?: number; identity?: Identity }): Design {
   const base = getDesign(theme.design, theme.template);
+  if (theme.identity) return applyIdentity(base, theme.identity);
   const alt = theme.variation ? base.alts?.[(theme.variation - 1) % (base.alts.length || 1)] : undefined;
   return alt ? { ...base, v: { ...base.v, ...alt } } : base;
+}
+
+/** Optical corrections per typeface: condensed and light serif faces must be set larger and tighter. */
+const FONT_METRICS: Partial<Record<FontFamily, [scale: number, lineHeight: number]>> = {
+  Anton: [1.2, 0.95], "Bebas Neue": [1.3, 0.92], Oswald: [1.14, 1], "Barlow Condensed": [1.25, 0.95], "Big Shoulders Display": [1.3, 0.92],
+  Cormorant: [1.22, 1.02], "Instrument Serif": [1.2, 1.02], Italiana: [1.15, 1.06], "Playfair Display": [1.08, 1.04], Fraunces: [1.04, 1.04],
+  "DM Serif Display": [1.06, 1.06], Marcellus: [1.02, 1.1], "Alfa Slab One": [0.94, 1.08], Unbounded: [0.84, 1.1], Syne: [1, 1.04], Lora: [1, 1.1],
+};
+const TRACKING = { tight: "-0.035em", normal: "-0.012em", wide: "0.04em" } as const;
+
+/**
+ * Turns a brand identity into a renderable design. The industry base only contributes what
+ * an identity does not decide (illustration set, feature list); colours, type and every
+ * layout variant come from the identity. Colours are corrected for readability: the body
+ * text always reaches AAA-ish contrast on the chosen background.
+ */
+export function applyIdentity(base: Design, id: Identity): Design {
+  const c = id.colors;
+  const dark = isDark(c.background);
+  const ink = contrast(c.ink, c.background) >= 7 ? c.ink : dark ? "#f4f1ea" : "#141414";
+  const display = (FONT_FAMILIES as string[]).includes(id.fonts.display) ? (id.fonts.display as FontFamily) : base.fonts.display;
+  const body = (FONT_FAMILIES as string[]).includes(id.fonts.body) ? (id.fonts.body as FontFamily) : base.fonts.body;
+  const [scale, lineHeight] = FONT_METRICS[display] ?? [1, 1.06];
+  const footer = dark ? mix(c.background, "#000000", 0.45) : mix(ink, "#000000", 0.25);
+  return {
+    ...base,
+    mode: dark ? "dark" : "light",
+    radius: id.radius,
+    density: id.density,
+    skin: id.skin === "plain" || BY_KEY.has(id.skin) ? id.skin : base.key,
+    fonts: { display, body, accent: base.fonts.accent, weight: id.fonts.weight, italic: id.fonts.italic, upper: id.fonts.uppercase, tracking: id.fonts.uppercase && id.fonts.tracking === "tight" ? TRACKING.normal : TRACKING[id.fonts.tracking], scale, lineHeight },
+    palette: {
+      bg: c.background,
+      alt: mix(c.background, ink, dark ? 0.05 : 0.035),
+      surface: c.surface,
+      ink,
+      text: ensureContrast(mix(ink, c.background, 0.2), c.background, 7),
+      muted: ensureContrast(mix(ink, c.background, 0.42), c.background, 4.5),
+      primary: c.primary,
+      accent: c.accent,
+      footer,
+      footerInk: mix(footer, "#ffffff", 0.72),
+    },
+    v: { ...id.layout },
+    alts: undefined,
+  };
 }
 
 /** Number of distinct layouts a design offers (primary + alternatives). */

@@ -14,6 +14,7 @@ var mb=document.querySelector('.menu-btn');if(mb&&t){mb.addEventListener('keydow
 function fit(){document.querySelectorAll('[data-fit]').forEach(function(el){el.style.fontSize='100px';var rg=document.createRange();rg.selectNodeContents(el);var w=rg.getBoundingClientRect().width,p=el.parentNode.clientWidth-(window.innerWidth<640?32:64);if(w>0)el.style.fontSize=Math.max(40,Math.min(360,Math.floor(100*p/w)))+'px';el.classList.add('fitted')})}
 fit();window.addEventListener('resize',fit);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
 document.querySelectorAll('[data-ba] input').forEach(function(i){var b=i.parentNode;i.addEventListener('input',function(){b.style.setProperty('--pos',i.value+'%')})});
+var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;document.querySelectorAll('.svc,.gallery,.team,.features,.highlights').forEach(function(g){[].slice.call(g.children).forEach(function(el,i){el.style.setProperty('--i',String(Math.min(i,6)))})});var px=[].slice.call(document.querySelectorAll('[data-parallax] img')),tick=false;function onScroll(){document.body.classList.toggle('scrolled',window.scrollY>24);if(rm||!px.length||tick)return;tick=true;requestAnimationFrame(function(){px.forEach(function(im){var r=im.parentNode.getBoundingClientRect();if(r.bottom<0||r.top>window.innerHeight)return;var t=(r.top+r.height/2-window.innerHeight/2)/window.innerHeight;im.style.transform='translate3d(0,'+(t*-34).toFixed(1)+'px,0) scale(1.08)'});tick=false})}window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 document.querySelectorAll('[data-demo-form]').forEach(function(f){f.addEventListener('submit',function(e){e.preventDefault();var s=f.querySelector('.form-status');if(s){s.textContent=s.getAttribute('data-done');s.classList.add('show')}f.reset();})});
 })();`;
 
@@ -27,7 +28,7 @@ export type RenderedFile = { path: string; content: string; contentType: string 
 export function renderSite(spec: SiteSpec, opts: RenderOptions & { assetBase: string }): RenderedFile[] {
   const valid = siteSpecSchema.parse(spec);
   const design = designForSpec(valid.theme);
-  const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.key);
+  const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.skin ?? design.key);
   const markup = renderToStaticMarkup(<SiteDocument spec={valid} opts={opts} css={css} script={SITE_JS} />);
   const html = `<!DOCTYPE html>${markup}`;
   return [

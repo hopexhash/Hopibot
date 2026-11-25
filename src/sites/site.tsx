@@ -72,7 +72,7 @@ const T = {
     how: "Hoe wilt u bestellen?", notes: "Opmerkingen", before: "Voor", after: "Na", example: "Voorbeeldweergave — hier komen uw eigen foto's",
     onRequest: "Op aanvraag", popular: "Meest gekozen", source: "Bron", slider: "Vergelijk voor en na", persons: "personen",
     submit: { reservation: "Reservering aanvragen", appointment: "Afspraak aanvragen", quote: "Offerte aanvragen", order: "Bestelling plaatsen" },
-    kick: { about: "Over ons", services: "Diensten", menu: "Menukaart", features: "Waarom wij", process: "Werkwijze", gallery: "Impressie", hours: "Bezoek ons", faq: "Vragen", contact: "Contact", packages: "Pakketten", team: "Team", booking: "Plannen", beforeafter: "Voor & na", order: "Bestellen", testimonials: "Ervaringen", cta: "" },
+    kick: { about: "Over ons", services: "Diensten", menu: "Menukaart", features: "Waarom wij", process: "Werkwijze", gallery: "Impressie", hours: "Bezoek ons", faq: "Vragen", contact: "Contact", packages: "Pakketten", team: "Team", booking: "Plannen", beforeafter: "Voor & na", order: "Bestellen", testimonials: "Ervaringen", cta: "", statement: "", showcase: "Sfeer" },
   },
   fr: {
     demoA: "Démonstration",
@@ -85,7 +85,7 @@ const T = {
     how: "Comment souhaitez-vous commander ?", notes: "Remarques", before: "Avant", after: "Après", example: "Aperçu d'exemple — vos propres photos viendront ici",
     onRequest: "Sur demande", popular: "Le plus choisi", source: "Source", slider: "Comparer avant et après", persons: "personnes",
     submit: { reservation: "Demander une réservation", appointment: "Demander un rendez-vous", quote: "Demander un devis", order: "Passer commande" },
-    kick: { about: "À propos", services: "Services", menu: "La carte", features: "Pourquoi nous", process: "Notre méthode", gallery: "Impressions", hours: "Nous rendre visite", faq: "Questions", contact: "Contact", packages: "Formules", team: "Équipe", booking: "Réserver", beforeafter: "Avant & après", order: "Commander", testimonials: "Avis", cta: "" },
+    kick: { about: "À propos", services: "Services", menu: "La carte", features: "Pourquoi nous", process: "Notre méthode", gallery: "Impressions", hours: "Nous rendre visite", faq: "Questions", contact: "Contact", packages: "Formules", team: "Équipe", booking: "Réserver", beforeafter: "Avant & après", order: "Commander", testimonials: "Avis", cta: "", statement: "", showcase: "Ambiance" },
   },
   en: {
     demoA: "Demonstration",
@@ -98,21 +98,27 @@ const T = {
     how: "How would you like to order?", notes: "Notes", before: "Before", after: "After", example: "Example view — your own photos go here",
     onRequest: "On request", popular: "Most popular", source: "Source", slider: "Compare before and after", persons: "guests",
     submit: { reservation: "Request reservation", appointment: "Request appointment", quote: "Request a quote", order: "Place order" },
-    kick: { about: "About", services: "Services", menu: "Menu", features: "Why us", process: "How we work", gallery: "Gallery", hours: "Visit us", faq: "Questions", contact: "Contact", packages: "Packages", team: "Team", booking: "Book", beforeafter: "Before & after", order: "Order", testimonials: "Reviews", cta: "" },
+    kick: { about: "About", services: "Services", menu: "Menu", features: "Why us", process: "How we work", gallery: "Gallery", hours: "Visit us", faq: "Questions", contact: "Contact", packages: "Packages", team: "Team", booking: "Book", beforeafter: "Before & after", order: "Order", testimonials: "Reviews", cta: "", statement: "", showcase: "Atmosphere" },
   },
 };
 type Strings = typeof T.en;
 const strings = (lang: string): Strings => (T as Record<string, Strings>)[lang] ?? T.en;
 
-type Ctx = { spec: SiteSpec; opts: RenderOptions; t: Strings; design: Design };
+/**
+ * `typo`: the site has a brand identity but no real photograph. Such a site is composed with
+ * typography, colour and structure alone; illustrations never stand in for photos.
+ */
+type Ctx = { spec: SiteSpec; opts: RenderOptions; t: Strings; design: Design; typo: boolean };
+
+const hasPhoto = (spec: SiteSpec, ref: string) => spec.images.some((i) => i.key === ref && i.license !== "generated" && /^https:\/\//.test(i.src));
 
 export function resolveImage(spec: SiteSpec, ref: string, opts: RenderOptions, variant: number, w = 1200, h = 1000): { src: string; alt: string; credit?: string } {
   const img = spec.images.find((i) => i.key === ref);
   if (img && img.license !== "generated" && /^https:\/\//.test(img.src)) return { src: img.src, alt: img.alt, credit: img.credit ?? undefined };
   const design = designForSpec(spec.theme);
   const p = design.palette;
-  const accent = spec.theme.design ? spec.theme.accent : p.accent;
-  const primary = spec.theme.design ? spec.theme.primary : p.primary;
+  const accent = spec.theme.identity ? p.accent : spec.theme.design ? spec.theme.accent : p.accent;
+  const primary = spec.theme.identity ? p.primary : spec.theme.design ? spec.theme.primary : p.primary;
   const svg = generateArt(design.art, { bg: p.bg, ink: p.ink, surface: p.surface, primary, accent, dark: design.mode === "dark" }, opts.seedKey, variant, w, h);
   return { src: artDataUri(svg), alt: img?.alt || `Illustration for ${spec.business.name}` };
 }
@@ -224,15 +230,20 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
   const alt = i % 2 === 1 ? " alt" : "";
   const b = spec.business;
   const kick = t.kick[s.type];
+  // Image-dependent variants fall back to typographic ones when there is no photograph.
+  const sv = c.typo && (v.services === "tiles" || v.services === "bento") ? "index" : v.services;
+  const cv = c.typo && v.cta === "full" ? "band" : v.cta;
   switch (s.type) {
     case "about":
       return (
-        <section id={s.id} className={`section about v-${v.about}${alt}`} key={s.id}>
+        <section id={s.id} className={`section about v-${c.typo ? "statement no-media" : v.about}${alt}`} key={s.id}>
           <div className="wrap about-grid">
-            <div className="about-media reveal">
-              <Img c={c} refKey={s.image} variant={11} w={1000} h={1100} />
-              {v.about === "overlap" && <Img c={c} refKey="art:about2" variant={12} w={600} h={600} className="about-inset" />}
-            </div>
+            {!c.typo && (
+              <div className="about-media reveal">
+                <Img c={c} refKey={s.image} variant={11} w={1000} h={1100} />
+                {v.about === "overlap" && <Img c={c} refKey="art:about2" variant={12} w={600} h={600} className="about-inset" />}
+              </div>
+            )}
             <div className="about-copy reveal">
               <span className="kicker">{kick}</span>
               <h2>{em(s.title)}</h2>
@@ -258,10 +269,10 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
         <section id={s.id} className={`section${alt}`} key={s.id}>
           <div className="wrap">
             <Head kicker={kick} title={s.title} intro={s.intro} />
-            <div className={`svc v-${v.services}`}>
+            <div className={`svc v-${sv}`}>
               {s.items.map((it, j) => (
                 <article className="svc-item reveal" key={it.title}>
-                  {v.services === "tiles" ? (
+                  {sv === "tiles" || (sv === "bento" && j === 0) ? (
                     <div className="svc-img">
                       <Img c={c} refKey={`art:svc${j}`} variant={40 + j} w={700} h={520} />
                     </div>
@@ -359,12 +370,13 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
         </section>
       );
     case "gallery":
+      if (c.typo) return null;
       return (
-        <section id={s.id} className={`section${alt}`} key={s.id}>
+        <section id={s.id} className={`section gal-sec${alt}`} key={s.id}>
           <div className="wrap">
             <Head kicker={kick} title={s.title} />
           </div>
-          <div className={v.gallery === "strip" ? "gal-bleed" : "wrap"}>
+          <div className={v.gallery === "strip" || v.gallery === "scroller" ? "gal-bleed" : "wrap"}>
             <div className={`gallery v-${v.gallery}`}>
               {s.images.map((ref, j) => (
                 <figure className="reveal" key={`${ref}-${j}`}>
@@ -434,8 +446,8 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
       );
     case "cta":
       return (
-        <section id={s.id} className={`section cta-sec v-${v.cta}`} key={s.id}>
-          {v.cta === "full" && (
+        <section id={s.id} className={`section cta-sec v-${cv}`} key={s.id}>
+          {cv === "full" && (
             <div className="cta-bg" aria-hidden="true">
               <Img c={c} refKey="art:cta" variant={31} w={1600} h={700} />
             </div>
@@ -449,6 +461,36 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
               <a className="btn btn-primary" href={s.cta.href}>
                 {s.cta.label} <ArrowRight aria-hidden="true" />
               </a>
+            </div>
+          </div>
+        </section>
+      );
+    case "statement":
+      return (
+        <section id={s.id} className="section statement" key={s.id}>
+          <div className="wrap reveal">
+            <p className="statement-text">{em(s.title)}</p>
+            {s.note ? <p className="statement-note">{s.note}</p> : null}
+          </div>
+        </section>
+      );
+    case "showcase":
+      if (c.typo || !hasPhoto(spec, s.image)) return null;
+      return (
+        <section id={s.id} className="showcase" key={s.id}>
+          <div className="showcase-media" data-parallax>
+            <Img c={c} refKey={s.image} variant={33} w={1800} h={1000} />
+          </div>
+          <div className="wrap">
+            <div className="showcase-copy reveal">
+              <span className="kicker">{kick}</span>
+              <h2>{em(s.title)}</h2>
+              {s.body ? <p>{s.body}</p> : null}
+              {s.cta ? (
+                <a className="btn btn-primary" href={s.cta.href}>
+                  {s.cta.label} <ArrowRight aria-hidden="true" />
+                </a>
+              ) : null}
             </div>
           </div>
         </section>
@@ -497,7 +539,15 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
             <div className="team">
               {s.members.map((m, j) => (
                 <article className="member reveal" key={`${m.name}-${j}`}>
-                  <Img c={c} refKey={m.image} variant={60 + j} w={700} h={840} />
+                  {hasPhoto(spec, m.image) ? (
+                    <Img c={c} refKey={m.image} variant={60 + j} w={700} h={840} />
+                  ) : spec.theme.identity ? (
+                    <span className="member-initial" aria-hidden="true">
+                      {m.name.trim().charAt(0).toUpperCase()}
+                    </span>
+                  ) : (
+                    <Img c={c} refKey={m.image} variant={60 + j} w={700} h={840} />
+                  )}
                   <h3>{m.name}</h3>
                   <span className="role">{m.role}</span>
                   {m.bio ? <p>{m.bio}</p> : null}
@@ -730,7 +780,154 @@ function Hero({ c }: { c: Ctx }) {
     ) : null;
   const wordmark = b.name.replace(/\[MOCK\]\s*/g, "").replace(/^(restaurant|ristorante|pizzeria|bakkerij|boulangerie|barbershop|kapsalon|salon|garage|caf[eé]|koffiebar|eetcaf[eé]|bistro|brasserie|hoveniers?|bouwbedrijf|trattoria|osteria)\s+/i, "").trim();
   const cls = `hero hero-${variant}`;
+  const hoursToday = b.openingHours?.[0] ?? null;
+  if (c.typo) {
+    // Three typographic compositions; which one follows from the chosen hero variant, so the
+    // brand's creative direction still decides the shape of the opening.
+    const kind = ["wordmark", "cinema"].includes(variant) ? "mark" : ["poster", "stack"].includes(variant) ? "banner" : ["split", "card", "panel"].includes(variant) ? "ledger" : ["frame", "centered", "editorial"].includes(variant) ? "center" : "plain";
+    if (kind === "banner")
+      return (
+        <section id="top" className="hero hero-type type-banner">
+          <div className="wrap">
+            <div className="banner-top reveal">
+              <span className="eyebrow">{h.eyebrow}</span>
+              {b.city && <span className="eyebrow">{b.city}</span>}
+            </div>
+            <h1 className="reveal">{em(h.headline)}</h1>
+            <div className="banner-foot reveal">
+              <p className="lead">{h.subheadline}</p>
+              {actions}
+            </div>
+          </div>
+          {ticker}
+        </section>
+      );
+    if (kind === "center")
+      return (
+        <section id="top" className="hero hero-type type-center">
+          <div className="wrap">
+            <div className="reveal hero-copy">
+              {copy}
+              {actions}
+            </div>
+            <div className="center-facts reveal">
+              {[b.address, hoursToday, b.phone].filter(Boolean).map((x) => (
+                <span key={x as string}>{x}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    if (kind === "mark")
+      return (
+        <section id="top" className="hero hero-type type-mark">
+          <div className="wrap wm-top">
+            <span className="eyebrow">{h.eyebrow}</span>
+            {b.city && <span className="eyebrow">{b.city}</span>}
+          </div>
+          <p className="wm" data-fit aria-hidden="true">
+            {wordmark || b.name}
+          </p>
+          <div className="wrap type-foot">
+            <div className="reveal hero-copy">
+              <h1>{em(h.headline)}</h1>
+              <p className="lead">{h.subheadline}</p>
+            </div>
+            <div className="reveal">
+              {actions}
+              {meta}
+            </div>
+          </div>
+          {ticker}
+        </section>
+      );
+    if (kind === "ledger")
+      return (
+        <section id="top" className="hero hero-type type-ledger">
+          <div className="wrap ledger-grid">
+            <div className="reveal hero-copy">
+              {copy}
+              {actions}
+            </div>
+            <aside className="ledger reveal" aria-label={b.name}>
+              {b.address && (
+                <div>
+                  <span>{t.address}</span>
+                  <b>{b.address}</b>
+                </div>
+              )}
+              {hoursToday && (
+                <div>
+                  <span>{t.kick.hours}</span>
+                  <b>{hoursToday}</b>
+                </div>
+              )}
+              {b.phone && (
+                <div>
+                  <span>{t.phone}</span>
+                  <b>
+                    <a href={tel(b.phone)}>{b.phone}</a>
+                  </b>
+                </div>
+              )}
+              {chips.filter(Boolean).length > 0 && (
+                <ul>
+                  {chips.filter(Boolean).map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+              )}
+            </aside>
+          </div>
+        </section>
+      );
+    return (
+      <section id="top" className="hero hero-type type-plain">
+        <div className="wrap">
+          <div className="reveal hero-copy">
+            {copy}
+            {actions}
+          </div>
+          <div className="type-rule reveal">{meta}</div>
+        </div>
+        {ticker}
+      </section>
+    );
+  }
   switch (variant) {
+    case "stack":
+      return (
+        <section id="top" className={cls}>
+          <div className="wrap stack-head">
+            <span className="eyebrow reveal">{[h.eyebrow, b.city].filter(Boolean).join(" · ")}</span>
+            <h1 className="reveal">{em(h.headline)}</h1>
+            <div className="stack-row reveal">
+              <p className="lead">{h.subheadline}</p>
+              {actions}
+            </div>
+          </div>
+          <div className="stack-media reveal" data-parallax>
+            <Img c={c} refKey={h.image} variant={1} w={1800} h={900} eager />
+          </div>
+          <div className="wrap">{meta}</div>
+        </section>
+      );
+    case "offset":
+      return (
+        <section id="top" className={cls}>
+          <div className="wrap offset-grid">
+            <div className="offset-media reveal">
+              <Img c={c} refKey={h.image} variant={1} w={1100} h={1400} eager className="om-a" />
+              <Img c={c} refKey="art:side1" variant={2} w={700} h={700} className="om-b" />
+            </div>
+            <div className="reveal hero-copy">
+              {copy}
+              {actions}
+              {meta}
+            </div>
+          </div>
+        </section>
+      );
     case "cinema":
       return (
         <section id="top" className={`${cls} on-image`}>
@@ -967,7 +1164,7 @@ function Hero({ c }: { c: Ctx }) {
 export function SiteDocument({ spec, opts, css, script }: { spec: SiteSpec; opts: RenderOptions; css: string; script: string }) {
   const t = strings(spec.meta.lang);
   const design = designForSpec(spec.theme);
-  const c: Ctx = { spec, opts, t, design };
+  const c: Ctx = { spec, opts, t, design, typo: Boolean(spec.theme.identity) && !spec.images.some((i) => i.license !== "generated" && /^https:\/\//.test(i.src)) };
   const b = spec.business;
   const vars = themeVars(spec.theme) as CSSProperties;
   const navTypes = ["about", "services", "menu", "packages", "team", "gallery", "process", "hours", "faq", "contact"];
@@ -1017,7 +1214,7 @@ export function SiteDocument({ spec, opts, css, script }: { spec: SiteSpec; opts
         <style dangerouslySetInnerHTML={{ __html: css }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       </head>
-      <body className={`d-${design.key} m-${design.mode} hv-${v.hero} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
+      <body className={`d-${design.skin ?? design.key} dir-${spec.theme.identity?.direction ?? "base"} m-${design.mode} hv-${v.hero} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
         <a className="skip" href="#main">
           {t.skip}
         </a>

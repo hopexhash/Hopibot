@@ -1,34 +1,8 @@
 import type { SiteSpec } from "@/lib/site-spec";
 
-const hexToRgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-const rgbToHex = (r: number[]) => `#${r.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("")}`;
+import { contrast, ensureContrast, mix } from "./color";
 
-export function mix(a: string, b: string, t: number) {
-  const x = hexToRgb(a);
-  const y = hexToRgb(b);
-  return rgbToHex(x.map((v, i) => v + (y[i] - v) * t));
-}
-
-function luminance(hex: string) {
-  const [r, g, b] = hexToRgb(hex).map((v) => {
-    const c = v / 255;
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-export function contrast(a: string, b: string) {
-  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (l1 + 0.05) / (l2 + 0.05);
-}
-
-/** Darkens/lightens `fg` until it reaches the WCAG AA ratio against `bg`. */
-export function ensureContrast(fg: string, bg: string, ratio = 4.5) {
-  let c = fg;
-  const towards = luminance(bg) > 0.4 ? "#000000" : "#ffffff";
-  for (let i = 0; i < 20 && contrast(c, bg) < ratio; i++) c = mix(c, towards, 0.1);
-  return c;
-}
+export { contrast, ensureContrast, mix };
 
 import { designForSpec } from "./designs";
 import { fontStack } from "./fonts";
@@ -40,9 +14,9 @@ export function themeVars(theme: SiteSpec["theme"]): Record<string, string> {
   const design = designForSpec(theme);
   const p = design.palette;
   // Specs created for a design carry a brand palette; legacy specs keep the design's own colours.
-  const primary = theme.design ? theme.primary : p.primary;
+  const primary = theme.identity ? p.primary : theme.design ? theme.primary : p.primary;
   // Button colour: nudged until its label reaches WCAG AA, so brand colours can never produce unreadable buttons.
-  let accent = theme.design ? theme.accent : p.accent;
+  let accent = theme.identity ? p.accent : theme.design ? theme.accent : p.accent;
   for (let i = 0; i < 12 && contrast(onColor(accent), accent) < 4.5; i++) accent = mix(accent, onColor(accent) === "#ffffff" ? "#000000" : "#ffffff", 0.06);
   const dark = design.mode === "dark";
   const radius = { sharp: ["0px", "2px", "3px", "0px"], soft: ["8px", "14px", "20px", "10px"], round: ["14px", "24px", "34px", "999px"] }[design.radius];
@@ -78,6 +52,7 @@ export function themeVars(theme: SiteSpec["theme"]): Record<string, string> {
     "--heading-track": f.tracking,
     "--heading-lh": String(f.lineHeight),
     "--hs": String(f.scale),
+    "--sec": { airy: "150px", balanced: "118px", compact: "88px" }[design.density ?? "balanced"],
     "--r-sm": radius[0],
     "--r-md": radius[1],
     "--r-lg": radius[2],

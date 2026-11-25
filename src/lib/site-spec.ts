@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { identitySchema } from "@/sites/identity";
 
 /**
  * SiteSpec: the complete, validated description of a generated website.
@@ -37,6 +38,8 @@ export const siteSpecSchema = z.object({
     mode: z.enum(["light", "dark"]),
     font: z.string().max(40),
     radius: z.enum(["sharp", "soft", "round"]),
+    /** The brand identity decided for this business (direction, colours, type, composition). Absent on older sites. */
+    identity: identitySchema.optional(),
   }),
   business: z.object({
     name: text(120),
@@ -102,6 +105,10 @@ export const siteSpecSchema = z.object({
         z.object({ type: z.literal("hours"), id: text(30), title: text(80), note: text(200) }),
         z.object({ type: z.literal("faq"), id: text(30), title: text(80), items: z.array(z.object({ q: text(140), a: text(500) })).min(1).max(8) }),
         z.object({ type: z.literal("cta"), id: text(30), title: text(90), body: text(240), cta }),
+        /** One large sentence set as typography: the brand's point of view. No image, no cards. */
+        z.object({ type: z.literal("statement"), id: text(30), title: text(220), note: text(120) }),
+        /** A full-width photograph with a short caption laid over it. Only used when real photos exist. */
+        z.object({ type: z.literal("showcase"), id: text(30), title: text(80), body: text(240), image: imageRef, cta: cta.nullable() }),
         z.object({ type: z.literal("contact"), id: text(30), title: text(80), body: text(300), showForm: z.boolean(), showMap: z.boolean() }),
         z.object({
           type: z.literal("packages"),
