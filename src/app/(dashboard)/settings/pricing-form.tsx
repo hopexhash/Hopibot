@@ -193,7 +193,7 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
           <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-surface-2 p-4">
             <div className="min-w-0">
               <p className="text-[14px] font-medium">Only pursue businesses with a public email address</p>
-              <p className="mt-1 text-[13px] text-muted">The agency looks for an address on the business's own website. Without one, the lead is saved but not qualified: no research, no demo website, no email draft.</p>
+              <p className="mt-1 text-[13px] text-muted">The agency looks for an address on the business&apos;s own website. Without one, the lead is saved but not qualified: no research, no demo website, no email draft.</p>
             </div>
             <Switch checked={requireEmail} disabled={!canAdmin} onCheckedChange={setRequireEmail} label="Require an email address" />
           </div>
