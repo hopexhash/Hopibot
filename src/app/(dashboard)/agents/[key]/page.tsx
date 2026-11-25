@@ -2,7 +2,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { ArrowLeft, Check, ShieldCheck, SquareTerminal, X } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ActivityFeed } from "@/components/app/activity-feed";
+import { LiveOperations } from "@/components/app/live-operations";
 import { AgentMascot } from "@/components/app/agent-mascot";
 import { AGENT_STATUS } from "@/components/app/agent-meta";
 import { LinkTabs, StatCard } from "@/components/app/page";
@@ -211,7 +211,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
         </Table>
       )}
 
-      {tab === "logs" && <ActivityFeed initial={activity} agent={k} height={620} />}
+      {tab === "logs" && <LiveOperations initial={activity} agent={k} showAgents={false} />}
 
       {tab === "config" && (
         <Card className="max-w-3xl">

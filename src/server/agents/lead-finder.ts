@@ -341,7 +341,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
   const top = qualified.sort((a, b) => b.score - a.score).slice(0, input.topN ?? qualified.length);
   if (actions.length) {
     for (const b of top) await continuePipeline(ctx, { businessId: b.id, next: actions });
-    await ctx.log("info", `Handed the best ${top.length} lead${top.length === 1 ? "" : "s"} to the next agents.`, { kind: "discovery.handoff", status: "completed" });
+    if (top.length) await ctx.log("info", `Handed the best ${top.length} lead${top.length === 1 ? "" : "s"} to the next agents.`, { kind: "discovery.handoff", status: "completed" });
   } else if (qualified.length) {
     const started = await triggerQualifiedLeadWorkflows(
       ctx.organizationId,

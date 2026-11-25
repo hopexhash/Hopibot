@@ -204,6 +204,56 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
           )}
         </CardContent>
       </Card>
+      <NotificationPrefs settings={settings} canAdmin={canAdmin} />
     </div>
+  );
+}
+
+const NOTIFICATION_OPTIONS: { key: keyof OrgSettings["notifications"]; label: string; help: string }[] = [
+  { key: "highQualityLead", label: "New high-priority lead", help: "A website with serious, visible problems was found and verified." },
+  { key: "contactFound", label: "Contact information found", help: "An email address was found and saved for a business." },
+  { key: "websiteGenerated", label: "Website generation completed", help: "A demo website was designed and written." },
+  { key: "deployed", label: "Deployment successful", help: "A website is online at its preview link." },
+  { key: "criticalError", label: "An agent hit a critical error", help: "A task failed and will not be retried automatically." },
+  { key: "dailyLimit", label: "Daily discovery limit reached", help: "Discovery stops for today and resumes automatically." },
+];
+
+/** Which events put a notification under the bell icon. */
+function NotificationPrefs({ settings, canAdmin }: { settings: OrgSettings; canAdmin: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [prefs, setPrefs] = useState(settings.notifications);
+  const save = () =>
+    start(async () => {
+      const r = await updateSettingsAction({ notifications: prefs });
+      if (!r.ok) return void toast.error(r.error);
+      toast.success("Notification preferences saved.");
+      router.refresh();
+    });
+  return (
+    <Card>
+      <CardHeader>
+        <div>
+          <CardTitle>Notifications</CardTitle>
+          <CardDescription>Choose which events appear under the bell icon. Everything is always visible in Live Operations, whatever you choose here.</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {NOTIFICATION_OPTIONS.map((o) => (
+          <div key={o.key} className="flex items-start justify-between gap-4 rounded-xl border border-border p-4">
+            <div className="min-w-0">
+              <p className="text-[14px] font-medium">{o.label}</p>
+              <p className="mt-1 text-[13px] text-muted">{o.help}</p>
+            </div>
+            <Switch checked={prefs[o.key]} disabled={!canAdmin} onCheckedChange={(v) => setPrefs({ ...prefs, [o.key]: v })} label={o.label} />
+          </div>
+        ))}
+        {canAdmin && (
+          <Button onClick={save} loading={pending}>
+            Save notification preferences
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

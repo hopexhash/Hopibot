@@ -1,5 +1,6 @@
 import "../guard";
 import { and, desc, eq, gt, like, sql } from "drizzle-orm";
+import { PROGRESS_KINDS } from "@/lib/activity";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { resolveMarket } from "@/lib/markets";
 import { parseOrgSettings, type OrgSettings } from "@/lib/settings";
@@ -102,6 +103,48 @@ export async function runAutopilot(now = new Date()): Promise<{ started: number 
 export type AutonomyStatus = Awaited<ReturnType<typeof getAutonomyStatus>>;
 
 /**
+ * The objective being pursued right now (or the most recent one), with stage counts taken
+ * from the events the agents recorded for that run. Nothing here is estimated.
+ */
+async function currentObjective(organizationId: string) {
+  const r = schema.workflowRuns;
+  const [run] = await db()
+    .select({ id: r.id, objective: r.objective, plan: r.plan, status: r.status, createdAt: r.createdAt, completedAt: r.completedAt })
+    .from(r)
+    .where(eq(r.organizationId, organizationId))
+    .orderBy(sql`(${r.status} in ('RUNNING','WAITING_FOR_APPROVAL')) desc`, desc(r.createdAt))
+    .limit(1);
+  if (!run) return null;
+  const rows = await db()
+    .select({ kind: schema.agentLogs.kind, n: sql<number>`count(*)::int`, businesses: sql<number>`count(distinct ${schema.agentLogs.businessId})::int` })
+    .from(schema.agentLogs)
+    .where(and(eq(schema.agentLogs.runId, run.id), sql`${schema.agentLogs.kind} is not null`))
+    .groupBy(schema.agentLogs.kind);
+  const count = (kind: string) => {
+    const row = rows.find((x) => x.kind === kind);
+    return row ? row.businesses || row.n : 0;
+  };
+  const plan = run.plan as { summary?: string; discovery?: { limit?: number } | null; topN?: number; actions?: string[] };
+  const builds = (plan.actions ?? []).includes("generate_website");
+  return {
+    runId: run.id,
+    text: (run.objective ?? plan.summary ?? "").replace(PREFIX, "").trim(),
+    autonomous: (run.objective ?? "").startsWith(PREFIX),
+    status: run.status,
+    active: run.status === "RUNNING" || run.status === "WAITING_FOR_APPROVAL",
+    startedAt: run.createdAt.toISOString(),
+    target: plan.discovery?.limit ?? null,
+    stages: rows.length === 0 && !(run.status === "RUNNING" || run.status === "WAITING_FOR_APPROVAL") ? [] : [
+      { key: "discovery", label: "Discovery", unit: "businesses found", value: count(PROGRESS_KINDS.discovered), target: plan.discovery?.limit ?? null },
+      { key: "contacts", label: "Contact discovery", unit: "with a public email", value: count(PROGRESS_KINDS.contacts), target: null },
+      { key: "inspection", label: "Inspection", unit: "websites analysed", value: count(PROGRESS_KINDS.inspected), target: null },
+      { key: "qualification", label: "Qualification", unit: "qualified leads saved to CRM", value: count(PROGRESS_KINDS.qualified), target: null },
+      ...(builds ? [{ key: "websites", label: "Websites", unit: "demo websites built", value: count(PROGRESS_KINDS.websites), target: plan.topN ?? null }, { key: "deployment", label: "Deployment", unit: "previews online", value: count(PROGRESS_KINDS.deployed), target: plan.topN ?? null }] : []),
+    ],
+  };
+}
+
+/**
  * What the autonomous engine is doing right now, from real state only: the mode the admin
  * set, whether it can actually work (worker, services, budget, schedule, limits) and what it
  * produced in the last 24 hours.
@@ -110,7 +153,7 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
   const a = settings.autopilot;
   const dayStart = new Date(now.getTime() - 24 * 3600_000);
   const b = schema.businesses;
-  const [workers, places, claude, budget, [disc], [qual], [web], [dep], [open], [last], [tasks]] = await Promise.all([
+  const [workers, places, claude, budget, [disc], [qual], [web], [dep], [open], [last], [tasks], objective] = await Promise.all([
     liveWorkers(),
     integrationMode(organizationId, "google_maps"),
     integrationMode(organizationId, "anthropic"),
@@ -130,6 +173,7 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
       .select({ running: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'RUNNING')::int`, waiting: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'PENDING')::int`, approval: sql<number>`count(*) filter (where ${schema.agentTasks.status} = 'WAITING_FOR_APPROVAL')::int` })
       .from(schema.agentTasks)
       .where(eq(schema.agentTasks.organizationId, organizationId)),
+    currentObjective(organizationId),
   ]);
   // Everything that currently stops autonomous work, in the order the admin should fix it.
   const blockers: { key: string; text: string; href: string }[] = [];
@@ -154,6 +198,7 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
     scope: { country: a.country, cities: a.cities, categories: a.categories, startHour: a.startHour, endHour: a.endHour, days: a.days },
     /** Estimate, not a forecast: open demos × the price of the recommended package. */
     opportunity: { openDemos: open.n, estimateCents: open.n * (featured?.priceCents ?? 0), packageName: featured?.name ?? null },
+    objective,
     lastBatch: last ? { objective: (last.objective ?? "").replace(PREFIX, "").trim(), status: last.status, at: last.createdAt.toISOString() } : null,
   };
 }

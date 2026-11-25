@@ -52,7 +52,7 @@ export async function startRun(opts: {
       isMock: opts.isMock ?? false,
     })
     .returning();
-  await writeLog(opts.organizationId, { runId: run.id, agentKey: "orchestrator", message: `Run started: ${plan.summary}` });
+  await writeLog(opts.organizationId, { runId: run.id, agentKey: "orchestrator", message: `Objective started: ${opts.objective ?? plan.summary}`, data: { kind: "system.run_started", status: "running" } });
 
   if (plan.discovery) {
     await createTask(opts.organizationId, run.id, {
@@ -121,7 +121,7 @@ export async function refreshRunStatus(runId: string) {
     .set({ status, report, completedAt: status === "WAITING_FOR_APPROVAL" ? null : new Date() })
     .where(eq(schema.workflowRuns.id, runId));
   if (changed && status !== "WAITING_FOR_APPROVAL") {
-    await writeLog(run.organizationId, { runId, agentKey: "orchestrator", message: `Run ${status.toLowerCase()}`, data: report });
+    await writeLog(run.organizationId, { runId, agentKey: "orchestrator", message: `Objective ${status.toLowerCase().replace(/_/g, " ")}`, data: { ...report, kind: "system.run_finished", status: status === "COMPLETED" ? "completed" : status === "FAILED" ? "failed" : "info" } });
     await notify(
       run.organizationId,
       status === "COMPLETED" ? "An objective finished" : "An objective failed",

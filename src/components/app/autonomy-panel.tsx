@@ -62,11 +62,6 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
             </span>
           </div>
           <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-muted">{st.text}</p>
-          {status.lastBatch && (
-            <p className="mt-1.5 max-w-2xl truncate text-[13px] text-subtle">
-              Last batch: {status.lastBatch.objective} · {status.lastBatch.status.toLowerCase().replace(/_/g, " ")}
-            </p>
-          )}
         </div>
         <div className="flex flex-none flex-wrap items-center gap-2">
           {canAdmin && (
@@ -81,6 +76,37 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
           {children}
         </div>
       </div>
+
+      {status.objective && (
+        <div className="relative mt-5 rounded-xl border border-border bg-[rgba(3,8,6,0.5)] p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <p className="hud-label text-accent/80">{status.objective.active ? "Current objective" : "Last objective"}</p>
+            <Link href={`/automations/runs/${status.objective.runId}`} className="text-[12px] font-medium text-accent hover:underline">
+              {status.objective.active ? "Follow this objective →" : `${status.objective.status.toLowerCase().replace(/_/g, " ")} · details →`}
+            </Link>
+          </div>
+          <p className="mt-2 text-[15px] font-medium leading-snug first-letter:uppercase">{status.objective.text}</p>
+          <ol className={cn("mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 xl:grid-cols-6", status.objective.stages.length === 0 && "hidden")}>
+            {status.objective.stages.map((s, i) => {
+              const pct = s.target ? Math.min(100, Math.round((s.value / s.target) * 100)) : s.value > 0 ? 100 : 0;
+              return (
+                <li key={s.key} className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.07em] text-muted">
+                    <span className="tabular text-subtle">{i + 1}</span> {s.label}
+                  </p>
+                  <p className="mt-1 text-[13px] leading-snug">
+                    <b className="tabular text-[17px] font-semibold text-foreground">{s.value}</b>
+                    {s.target ? <span className="tabular text-muted"> / {s.target}</span> : null} <span className="text-muted">{s.unit}</span>
+                  </p>
+                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-surface-3" role="img" aria-label={`${s.label}: ${s.value}${s.target ? ` of ${s.target}` : ""} ${s.unit}`}>
+                    <div className={cn("h-full rounded-full transition-all duration-700", s.value > 0 ? "bg-accent" : "bg-transparent")} style={{ width: `${pct}%` }} />
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
 
       {active && status.blockers.length > 0 && (
         <ul className="relative mt-5 space-y-2">

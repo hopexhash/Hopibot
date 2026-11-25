@@ -214,10 +214,10 @@ export function MobileNav({ counts }: { counts: Record<string, number> }) {
   );
 }
 
-const TABS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/", label: "Command", icon: Cpu },
+const TABS: { href: string; label: string; icon: LucideIcon; hub?: boolean }[] = [
   { href: "/agents", label: "Agents", icon: Bot },
   { href: "/terminal", label: "Terminal", icon: TerminalSquare },
+  { href: "/", label: "Command", icon: Cpu, hub: true },
   { href: "/pipeline", label: "CRM", icon: KanbanSquare },
   { href: "/health", label: "Health", icon: HeartPulse },
 ];
@@ -232,8 +232,24 @@ export function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-[rgba(3,8,6,0.94)] pb-[var(--safe-bottom)] backdrop-blur-xl lg:hidden"
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">
-        {TABS.map(({ href, label, icon: Icon }) => {
+        {TABS.map(({ href, label, icon: Icon, hub }) => {
           const on = active === href;
+          // The Command Center is the hub: a larger, raised button in the middle of the bar.
+          if (hub) {
+            return (
+              <Link key={href} href={href} aria-current={on ? "page" : undefined} className="relative flex h-[60px] flex-col items-center justify-end pb-[7px] text-[11px] font-semibold text-accent">
+                <span
+                  className={cn(
+                    "absolute -top-6 grid h-[62px] w-[62px] place-items-center rounded-full border-2 bg-[#06120c] transition-shadow",
+                    on ? "border-accent shadow-[0_0_26px_rgba(0,255,120,0.55),inset_0_0_14px_rgba(0,255,120,0.25)]" : "border-[rgba(0,255,120,0.5)] shadow-[0_0_16px_rgba(0,255,120,0.28)]",
+                  )}
+                >
+                  <Icon className="h-[30px] w-[30px] drop-shadow-[0_0_8px_rgba(0,255,120,0.8)]" strokeWidth={1.6} />
+                </span>
+                <span>{label}</span>
+              </Link>
+            );
+          }
           return (
             <Link key={href} href={href} aria-current={on ? "page" : undefined} className={cn("relative flex h-[60px] flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors", on ? "text-accent" : "text-muted")}>
               {on && <span className="absolute top-0 h-[2px] w-8 rounded-b bg-accent shadow-[0_0_10px_#00ff78]" />}

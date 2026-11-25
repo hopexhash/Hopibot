@@ -9,6 +9,12 @@ import { createTask } from "../orchestrator/tasks";
  * business is queued exactly once (idempotent key), so a failed inspection is not retried
  * forever.
  */
+/** Activity history is kept for 90 days; older events are removed in small batches. */
+export async function pruneActivity() {
+  const res = await db().execute(sql`DELETE FROM agent_logs WHERE id IN (SELECT id FROM agent_logs WHERE created_at < now() - interval '90 days' ORDER BY id LIMIT 5000)`);
+  return (res as unknown as { count?: number }).count ?? 0;
+}
+
 export async function backfillInspections(limit = 3) {
   const b = schema.businesses;
   const rows = await db()

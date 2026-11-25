@@ -175,3 +175,22 @@ describe("website redesign qualification", () => {
     expect(isConcreteProblem("The mobile navigation overlaps the business logo, and the page needs horizontal scrolling.")).toBe(true);
   });
 });
+
+import { categoryFor, categoryTag, statusFor } from "@/lib/activity";
+
+describe("activity events", () => {
+  it("files website inspection under its own stage even though the discovery agent runs it", () => {
+    expect(categoryFor("lead_finder", "inspection.open")).toBe("analysis");
+    expect(categoryFor("lead_finder", "discovery.search")).toBe("discovery");
+    expect(categoryFor("lead_finder", "contact.found")).toBe("contacts");
+    expect(categoryFor("orchestrator", null)).toBe("system");
+    expect(categoryTag("analysis")).toBe("WEBSITE ANALYZER");
+  });
+  it("derives the status from the level unless the agent stated one", () => {
+    expect(statusFor("error")).toBe("failed");
+    expect(statusFor("warn")).toBe("warning");
+    expect(statusFor("info")).toBe("info");
+    expect(statusFor("info", "running")).toBe("running");
+    expect(statusFor("info", "made-up")).toBe("info");
+  });
+});

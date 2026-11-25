@@ -1,8 +1,7 @@
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { Bot, CircleDollarSign, Euro, Globe, MailCheck, MailOpen, Megaphone, Repeat, Rocket, ShieldCheck, Target, TrendingUp, Trophy, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { ActivityFeed } from "@/components/app/activity-feed";
-import { AgentMonitor } from "@/components/app/agent-monitor";
+import { LiveOperations } from "@/components/app/live-operations";
 import { ApprovalList } from "@/components/app/approval-list";
 import { AutonomyPanel } from "@/components/app/autonomy-panel";
 import { getAutonomyStatus } from "@/server/orchestrator/autopilot";
@@ -41,7 +40,7 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
     getPeriodComparison(orgId, auth.org.settings.minLeadScore, 30),
     getCommandCenterState(orgId),
     getAutonomyStatus(orgId, auth.org.settings),
-    getActivity(orgId, 40),
+    getActivity(orgId, 50),
     systemHealth(orgId),
     db().select().from(schema.approvals).where(and(eq(schema.approvals.organizationId, orgId), eq(schema.approvals.status, "pending"))).orderBy(desc(schema.approvals.createdAt)).limit(5),
     db().select().from(schema.workflowRuns).where(eq(schema.workflowRuns.organizationId, orgId)).orderBy(desc(schema.workflowRuns.createdAt)).limit(5),
@@ -100,6 +99,9 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
         <ObjectiveDialog key={sp.objective ?? "closed"} label="Manual objective" variant="secondary" />
       </AutonomyPanel>
 
+      {/* What every agent is doing right now: real events only. */}
+      <LiveOperations initial={activity} initialState={cc} />
+
       <Onboarding steps={steps} />
 
       {kpis.approvalsPending > 0 && (
@@ -121,7 +123,7 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
       {/* KPIs: all from database records; mock data is excluded */}
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Total leads" value={formatNumber(kpis.businesses)} icon={<Target />} href="/businesses" delta={makeDelta(cur.leads, prev.leads)} sub={new30(cur.leads)} help="Every business your agents have found and saved. Test (mock) records are not counted." />
-        <StatCard label="Qualified leads" value={formatNumber(kpis.qualified)} icon={<UserCheck />} href="/businesses?minScore=60" delta={makeDelta(cur.qualified, prev.qualified)} sub={new30(cur.qualified)} help={`Leads scoring ${auth.org.settings.minLeadScore} or higher — businesses that would benefit most from a new website. Change the threshold in Settings.`} />
+        <StatCard label="Qualified leads" value={formatNumber(kpis.qualified)} icon={<UserCheck />} href="/businesses" delta={makeDelta(cur.qualified, prev.qualified)} sub={new30(cur.qualified)} help="Businesses whose current website genuinely needs a redesign (inspected in a real browser and verified), and that have a public email address." />
         <StatCard label="Websites generated" value={formatNumber(kpis.websites)} icon={<Globe />} href="/websites" delta={makeDelta(cur.websites, prev.websites)} sub={new30(cur.websites)} help="Websites your agents have designed and written for leads." />
         <StatCard label="Websites deployed" value={formatNumber(kpis.deployments)} icon={<Rocket />} href="/previews" delta={makeDelta(cur.deployments, prev.deployments)} sub={new30(cur.deployments)} help="Websites that are online at a preview link. A site only counts once the deployment is confirmed." />
         <StatCard label="Active campaigns" value={formatNumber(activeRuns.n)} icon={<Megaphone />} href="/automations" sub={`${enabledFlows.n} automation${enabledFlows.n === 1 ? "" : "s"} switched on`} help="Objectives that are running or waiting for you right now." />
@@ -154,12 +156,7 @@ export default async function CommandCenterPage({ searchParams }: { searchParams
       </div>
       {kpis.mockBusinesses > 0 && <p className="mt-2 text-[12px] text-subtle">{kpis.mockBusinesses} test (mock) record(s) exist in this workspace and are left out of every number above.</p>}
 
-      <Section className="mt-8" title="Live agent monitor" description="Your seven AI workers. “Executing” is only shown while a worker confirms it is really running.">
-        <AgentMonitor initial={cc} canControl={hasRole(auth.role, "admin")} />
-      </Section>
-
-      <div className="mb-8 grid gap-3 xl:grid-cols-3">
-        <ActivityFeed className="xl:col-span-2" initial={activity} />
+      <div className="mb-8 mt-8">
         <SystemHealth initial={{ checks: health.checks, checkedAt: new Date().toISOString() }} />
       </div>
 

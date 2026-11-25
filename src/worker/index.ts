@@ -7,7 +7,7 @@ import { QUEUE_GENERATION, queueName, type TaskJob } from "@/server/orchestrator
 import { recoverTasks, runScheduler } from "@/server/orchestrator/recovery";
 import { closeQcBrowser } from "@/server/qc/run-qc";
 import { closeInspectionBrowser } from "@/server/inspection/inspect-site";
-import { backfillInspections } from "@/server/inspection/backfill";
+import { backfillInspections, pruneActivity } from "@/server/inspection/backfill";
 import { createRedis } from "@/server/redis";
 import { processCampaigns } from "@/server/campaigns/service";
 import { runAutopilot } from "@/server/orchestrator/autopilot";
@@ -66,6 +66,7 @@ async function main() {
   log(`recovery: ${r.recovered} stale task(s) recovered, ${r.enqueued} pending task(s) enqueued`);
 
   let ticking = false;
+  let lastPrune = 0;
   const tick = setInterval(async () => {
     if (ticking) return;
     ticking = true;
@@ -76,6 +77,11 @@ async function main() {
       if (sent.queued) log(`campaigns: queued ${sent.queued} email(s)`);
       const auto = await runAutopilot();
       if (auto.started) log(`autopilot: started ${auto.started} batch(es)`);
+      if (Date.now() - lastPrune > 6 * 3600_000) {
+        lastPrune = Date.now();
+        const pruned = await pruneActivity();
+        if (pruned) log(`activity: removed ${pruned} event(s) older than 90 days`);
+      }
       const backfilled = await backfillInspections();
       if (backfilled) log(`qualification: queued ${backfilled} existing website(s) for inspection`);
     } catch (err) {

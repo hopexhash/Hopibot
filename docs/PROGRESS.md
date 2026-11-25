@@ -144,3 +144,13 @@ Businesses with a website only become leads when the site genuinely needs a rede
 Verified: scoring and decision rules (unit tests), browser inspection against local test pages, mock pipeline end to end.
 Not verified in the sandbox: the two AI calls with a live key, and inspection of real external websites.
 Not built: screenshots as calibration examples (feedback is text-only), a settings screen for thresholds (fixed on purpose).
+
+## Live Operations (activity events)
+
+- `agent_logs` is the central event store: every entry carries category, kind, status, business and URL (`src/lib/activity.ts`, `writeLog` in `orchestrator/tasks.ts`). Events are written by the code that does the work; recording can never fail a task.
+- Feed: `/api/activity` with a cursor (`after` for live updates and catch-up, `before` for history), category/agent/text filters. `components/app/live-operations.tsx` polls every 2.5 s, pauses when hidden, backs off and catches up after a dropped connection, and de-duplicates by event id.
+- A "running" line only stays RUNNING while it is the newest event of its task; after 5 minutes without an update it shows NO UPDATE.
+- Objective progress in the Autonomous Mode card is counted from the events of the current run.
+- Notification preferences: Settings → Autopilot → Notifications. Activity is kept for 90 days.
+
+Not built: Supabase Realtime (the app has no browser Supabase client; cursor polling is used instead), a separate SEO agent (SEO checks are part of quality control), push/email notifications (in-app bell only).
