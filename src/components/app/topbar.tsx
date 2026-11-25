@@ -59,7 +59,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
         </button>
         {/* Phones: the logo alone, centred in the header. */}
         <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI Bot — Command Center">
-          <LogoMark className="h-11 w-11 drop-shadow-[0_0_10px_rgba(0,255,120,0.5)]" />
+          <LogoMark animated className="h-11 w-11 drop-shadow-[0_0_10px_rgba(0,255,120,0.5)]" />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 text-[13px] lg:flex">
           <span className="font-medium tracking-[0.14em] text-muted">HOPI BOT</span>

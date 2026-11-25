@@ -3,28 +3,40 @@
 import { Bot, ChevronsLeft, ChevronsRight, Cpu, HeartPulse, KanbanSquare, Menu, Search, TerminalSquare, X, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { Tooltip } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { openCommandPalette } from "./command-palette";
 import { activeHref, NAV_GROUPS, SUB_NAV } from "./nav";
 
-export function LogoMark({ className }: { className?: string }) {
+/**
+ * The HOPI mark. With `animated`, the lines around the H move: a bright trace runs along the
+ * outer hexagon, a second one runs the other way along the inner hexagon, and the three
+ * nodes orbit slowly.
+ * The H itself stays still. Motion is switched off for people who prefer reduced motion.
+ */
+export function LogoMark({ className, animated }: { className?: string; animated?: boolean }) {
+  // Each copy needs its own gradient id: a gradient inside a hidden copy does not paint.
+  const gid = `lg${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+    <svg viewBox="0 0 32 32" className={cn(className, animated && "logo-anim overflow-visible")} aria-hidden>
       <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#4dffa0" />
           <stop offset="1" stopColor="#008f39" />
         </linearGradient>
       </defs>
-      <path d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" fill="none" stroke="url(#lg)" strokeWidth="1.6" />
+      <path d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" fill="none" stroke={`url(#${gid})`} strokeWidth="1.6" />
+      {animated && <path className="logo-trace" d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" pathLength={100} fill="none" stroke="#b6ffd6" strokeWidth="1.9" strokeLinecap="round" />}
       <path d="M16 8 23 12v8l-7 4-7-4v-8Z" fill="rgba(0,255,120,0.12)" stroke="#00ff78" strokeWidth="1.2" />
+      {animated && <path className="logo-trace logo-trace-inner" d="M16 8 23 12v8l-7 4-7-4v-8Z" pathLength={100} fill="none" stroke="#eafff3" strokeWidth="1.4" strokeLinecap="round" />}
       <path d="M12.7 11.5v9M19.3 11.5v9M12.7 16h6.6" fill="none" stroke="#e8f5ec" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="16" cy="2" r="1.3" fill="#00ff78" />
-      <circle cx="29" cy="22.5" r="1.3" fill="#00ff78" />
-      <circle cx="3" cy="22.5" r="1.3" fill="#00ff78" />
+      <g className="logo-orbit">
+        <circle cx="16" cy="2" r="1.3" fill="#00ff78" />
+        <circle cx="29" cy="22.5" r="1.3" fill="#00ff78" />
+        <circle cx="3" cy="22.5" r="1.3" fill="#00ff78" />
+      </g>
     </svg>
   );
 }
@@ -32,7 +44,7 @@ export function LogoMark({ className }: { className?: string }) {
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5 px-1" aria-label="HOPI Bot — Command Center">
-      <LogoMark className="h-9 w-9 shrink-0 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
+      <LogoMark animated className="h-9 w-9 shrink-0 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
       {!collapsed && (
         <div className="min-w-0 leading-none">
           <div className="text-[15px] font-semibold tracking-[0.16em] text-foreground">HOPI BOT</div>

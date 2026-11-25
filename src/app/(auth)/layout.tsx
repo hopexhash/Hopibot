@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex flex-col justify-center px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-10 flex items-center gap-2">
-            <LogoMark className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
+            <LogoMark animated className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
             <span className="mono text-[15px] font-bold tracking-[0.2em]">HOPI BOT</span>
           </div>
           {children}
