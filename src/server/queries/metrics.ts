@@ -58,6 +58,66 @@ export async function getKpis(orgId: string, minScore: number) {
   };
 }
 
+export type PeriodTotals = {
+  leads: number;
+  qualified: number;
+  websites: number;
+  deployments: number;
+  emailsSent: number;
+  emailsOpened: number;
+  customers: number;
+  revenueCents: number;
+  cost: number;
+  tasksDone: number;
+  tasksFailed: number;
+  runs: number;
+};
+
+/**
+ * Totals for the last `days` days and for the `days` before that, so the dashboard can show
+ * real period-over-period change. Mock rows are excluded everywhere.
+ */
+export async function getPeriodComparison(orgId: string, minScore: number, days = 30): Promise<{ current: PeriodTotals; previous: PeriodTotals; days: number }> {
+  const one = async (fromDays: number, toDays: number): Promise<PeriodTotals> => {
+    const from = new Date(Date.now() - fromDays * 86_400_000).toISOString();
+    const to = new Date(Date.now() - toDays * 86_400_000).toISOString();
+    const [r] = await q(sql`
+      SELECT
+        (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS leads,
+        (SELECT count(*) FROM businesses WHERE organization_id = ${orgId} AND NOT is_mock AND erased_at IS NULL AND lead_score >= ${minScore} AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS qualified,
+        (SELECT count(*) FROM website_versions v WHERE v.organization_id = ${orgId} AND v.version_no = 1 AND NOT v.is_mock AND v.created_at >= ${from}::timestamptz AND v.created_at < ${to}::timestamptz) AS websites,
+        (SELECT count(*) FROM deployments d JOIN website_projects p ON p.id = d.project_id JOIN businesses b ON b.id = p.business_id
+          WHERE d.organization_id = ${orgId} AND d.status = 'ready' AND NOT d.is_mock AND NOT b.is_mock AND d.ready_at >= ${from}::timestamptz AND d.ready_at < ${to}::timestamptz) AS deployments,
+        (SELECT count(*) FROM sales_emails WHERE organization_id = ${orgId} AND status = 'sent' AND NOT is_mock AND sent_at >= ${from}::timestamptz AND sent_at < ${to}::timestamptz) AS emails_sent,
+        (SELECT count(DISTINCT ev.email_id) FROM email_events ev JOIN sales_emails e ON e.id = ev.email_id
+          WHERE ev.organization_id = ${orgId} AND ev.type = 'opened' AND NOT e.is_mock AND e.sent_at >= ${from}::timestamptz AND e.sent_at < ${to}::timestamptz) AS emails_opened,
+        (SELECT count(DISTINCT a.business_id) FROM crm_activities a JOIN businesses b ON b.id = a.business_id
+          WHERE a.organization_id = ${orgId} AND a.type = 'stage_change' AND a.metadata->>'to' = 'WON' AND NOT b.is_mock AND a.created_at >= ${from}::timestamptz AND a.created_at < ${to}::timestamptz) AS customers,
+        (SELECT coalesce(sum(amount_cents), 0) FROM payments WHERE organization_id = ${orgId} AND status = 'paid' AND paid_at >= ${from}::timestamptz AND paid_at < ${to}::timestamptz) AS revenue_cents,
+        (SELECT coalesce(sum(cost_usd), 0) FROM api_usage WHERE organization_id = ${orgId} AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS cost,
+        (SELECT count(*) FROM agent_tasks WHERE organization_id = ${orgId} AND status = 'COMPLETED' AND completed_at >= ${from}::timestamptz AND completed_at < ${to}::timestamptz) AS tasks_done,
+        (SELECT count(*) FROM agent_tasks WHERE organization_id = ${orgId} AND status = 'FAILED' AND completed_at >= ${from}::timestamptz AND completed_at < ${to}::timestamptz) AS tasks_failed,
+        (SELECT count(*) FROM workflow_runs WHERE organization_id = ${orgId} AND NOT is_mock AND created_at >= ${from}::timestamptz AND created_at < ${to}::timestamptz) AS runs
+    `);
+    return {
+      leads: num(r.leads),
+      qualified: num(r.qualified),
+      websites: num(r.websites),
+      deployments: num(r.deployments),
+      emailsSent: num(r.emails_sent),
+      emailsOpened: num(r.emails_opened),
+      customers: num(r.customers),
+      revenueCents: num(r.revenue_cents),
+      cost: num(r.cost),
+      tasksDone: num(r.tasks_done),
+      tasksFailed: num(r.tasks_failed),
+      runs: num(r.runs),
+    };
+  };
+  const [current, previous] = await Promise.all([one(days, 0), one(days * 2, days)]);
+  return { current, previous, days };
+}
+
 /** Daily series for the last `days` days. Mock rows are counted in their own column. */
 export async function getDailySeries(orgId: string, days = 30) {
   const rows = await q(sql`
@@ -203,11 +263,30 @@ export async function getUnitEconomics(orgId: string) {
   };
 }
 
-export async function getActivity(orgId: string, limit = 40, afterId?: number) {
+export type ActivityEntry = {
+  id: number;
+  agentKey: string;
+  level: string;
+  message: string;
+  createdAt: string;
+  taskId: string | null;
+  runId: string | null;
+  businessId: string | null;
+  businessName: string | null;
+};
+
+/** Human-readable activity (agent_logs joined to the business the task was about). */
+export async function getActivity(orgId: string, limit = 40, afterId?: number, filter: { agent?: string; level?: string } = {}): Promise<ActivityEntry[]> {
+  const levels = filter.level === "error" ? ["error"] : filter.level === "warn" ? ["warn", "error"] : ["info", "warn", "error"];
   const rows = await q(sql`
-    SELECT l.id, l.agent_key, l.level, l.message, l.created_at, l.task_id, l.run_id
+    SELECT l.id, l.agent_key, l.level, l.message, l.created_at, l.task_id, l.run_id, t.business_id, b.name AS business_name
     FROM agent_logs l
-    WHERE l.organization_id = ${orgId} AND l.level IN ('info', 'warn', 'error') ${afterId ? sql`AND l.id > ${afterId}` : sql``}
+    LEFT JOIN agent_tasks t ON t.id = l.task_id
+    LEFT JOIN businesses b ON b.id = t.business_id AND b.erased_at IS NULL
+    WHERE l.organization_id = ${orgId}
+      AND l.level IN ${sql.raw(`(${levels.map((x) => `'${x}'`).join(",")})`)}
+      ${afterId ? sql`AND l.id > ${afterId}` : sql``}
+      ${filter.agent ? sql`AND l.agent_key = ${filter.agent}` : sql``}
     ORDER BY l.id DESC LIMIT ${limit}
   `);
   return rows.map((r) => ({
@@ -218,5 +297,7 @@ export async function getActivity(orgId: string, limit = 40, afterId?: number) {
     createdAt: new Date(r.created_at as string).toISOString(),
     taskId: r.task_id ? String(r.task_id) : null,
     runId: r.run_id ? String(r.run_id) : null,
+    businessId: r.business_id ? String(r.business_id) : null,
+    businessName: r.business_name ? String(r.business_name) : null,
   }));
 }

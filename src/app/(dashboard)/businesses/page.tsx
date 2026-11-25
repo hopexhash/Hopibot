@@ -1,5 +1,6 @@
 import { BusinessTable } from "@/components/app/business-table";
 import { FilterBar } from "@/components/app/filter-bar";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader } from "@/components/app/page";
 import { BUSINESS_CATEGORIES, PIPELINE_STAGES, WEBSITE_STATUS_LABEL } from "@/lib/constants";
 import { hasRole, requireAuth } from "@/server/auth";
@@ -13,6 +14,7 @@ export default async function BusinessesPage({ searchParams }: { searchParams: P
   const [{ rows, total }, cities] = await Promise.all([listBusinesses(auth.org.id, filters), distinctCities(auth.org.id)]);
   return (
     <>
+      <SubNav section="/pipeline" />
       <PageHeader title="Businesses" description="Every business the agents discovered, with lead score, website quality and research status." />
       <FilterBar
         searchPlaceholder="Search name, address or website…"

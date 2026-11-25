@@ -9,18 +9,18 @@ import { cn } from "@/lib/utils";
 // ───────────────────────── Button ─────────────────────────
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-[13px] font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[13.5px] font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,102,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,102,0.7)]",
+        primary: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,120,0.7)]",
         secondary: "border border-border bg-surface-2 text-foreground hover:bg-surface-3 hover:border-border-strong hover:text-accent",
         ghost: "text-muted hover:bg-accent-soft hover:text-accent",
-        danger: "bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,69,69,0.6)] hover:opacity-90",
+        danger: "bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,77,97,0.6)] hover:opacity-90",
         "danger-ghost": "text-danger hover:bg-danger-soft",
-        success: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,102,0.55)] hover:bg-accent-hover",
+        success: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover",
       },
-      size: { sm: "h-8 px-3 text-xs", md: "h-10 px-4", lg: "h-11 px-5 text-sm", icon: "h-9 w-9", "icon-sm": "h-8 w-8" },
+      size: { sm: "h-9 px-3 text-[12.5px]", md: "h-10 px-4", lg: "h-12 px-5 text-[14.5px]", icon: "h-10 w-10", "icon-sm": "h-9 w-9" },
     },
     defaultVariants: { variant: "secondary", size: "md" },
   },
@@ -57,10 +57,10 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
   return <div className={cn("flex items-start justify-between gap-3 px-5 pt-4 pb-3", className)} {...props} />;
 }
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("mono text-[11.5px] font-semibold uppercase tracking-[0.14em] text-foreground", className)} {...props} />;
+  return <h3 className={cn("text-[14px] font-semibold tracking-tight text-foreground", className)} {...props} />;
 }
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("mt-0.5 text-xs text-muted", className)} {...props} />;
+  return <p className={cn("mt-0.5 text-[12.5px] text-muted", className)} {...props} />;
 }
 export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("px-5 pb-5", className)} {...props} />;
@@ -69,7 +69,7 @@ export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDi
 // ───────────────────────── Badge ─────────────────────────
 
 export const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium leading-4 whitespace-nowrap [&_svg]:size-3",
+  "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] font-medium leading-[18px] whitespace-nowrap [&_svg]:size-3",
   {
     variants: {
       tone: {
@@ -100,13 +100,13 @@ export function MockBadge({ className }: { className?: string }) {
 // ───────────────────────── Form controls ─────────────────────────
 
 const fieldBase =
-  "w-full rounded-lg border border-border-strong bg-[#070c0a] px-3 text-[16px] text-foreground placeholder:text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13px]";
+  "w-full rounded-xl border border-border-strong bg-[#050d09] px-3.5 text-[16px] text-foreground placeholder:text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13.5px]";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
   ref,
 ) {
-  return <input ref={ref} className={cn(fieldBase, "h-10", className)} {...props} />;
+  return <input ref={ref} className={cn(fieldBase, "h-11 sm:h-10", className)} {...props} />;
 });
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
@@ -124,7 +124,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
       ref={ref}
       className={cn(
         fieldBase,
-        "h-10 appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa5' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:12px] bg-[right_10px_center] bg-no-repeat pr-8",
+        "h-11 appearance-none sm:h-10 bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa5' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:12px] bg-[right_10px_center] bg-no-repeat pr-8",
         className,
       )}
       {...props}
@@ -212,15 +212,19 @@ export function Dialog({
         <RDialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=open]:animate-fade-in" />
         <RDialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 flex max-h-[85dvh] w-[calc(100vw-1.5rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-border-strong bg-[#08100c] shadow-[0_0_60px_-12px_rgba(0,255,102,0.3)] data-[state=open]:animate-fade-in",
+            // Phones: a bottom sheet (thumb-reachable, keyboard-safe). Larger screens: centred modal.
+            "fixed z-50 flex flex-col border border-border-strong bg-[#06100b] shadow-[0_0_60px_-12px_rgba(0,255,120,0.3)] data-[state=open]:animate-fade-in",
+            "inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-3xl pb-[var(--safe-bottom)]",
+            "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-3rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-0",
             width,
           )}
         >
+          <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-border-strong sm:hidden" aria-hidden />
           <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
-            <div>
-              <RDialog.Title className="mono text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">{title}</RDialog.Title>
+            <div className="min-w-0">
+              <RDialog.Title className="text-[16px] font-semibold tracking-tight text-foreground">{title}</RDialog.Title>
               {description ? (
-                <RDialog.Description className="mt-1 text-xs text-muted">{description}</RDialog.Description>
+                <RDialog.Description className="mt-1 text-[13px] leading-relaxed text-muted">{description}</RDialog.Description>
               ) : (
                 <RDialog.Description className="sr-only">{title}</RDialog.Description>
               )}
@@ -232,7 +236,7 @@ export function Dialog({
             </RDialog.Close>
           </div>
           <div className="overflow-y-auto px-5 py-4">{children}</div>
-          {footer && <div className="flex justify-end gap-2 border-t border-border px-5 py-3">{footer}</div>}
+          {footer && <div className="flex flex-col-reverse gap-2 border-t border-border px-5 py-3 sm:flex-row sm:justify-end [&>button]:h-11 sm:[&>button]:h-10">{footer}</div>}
         </RDialog.Content>
       </RDialog.Portal>
     </RDialog.Root>
@@ -250,7 +254,7 @@ export function DropdownContent({ className, align = "end", ...props }: React.Co
         align={align}
         sideOffset={6}
         className={cn(
-          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,102,0.3)] data-[state=open]:animate-fade-in",
+          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,120,0.3)] data-[state=open]:animate-fade-in",
           className,
         )}
         {...props}
@@ -262,7 +266,7 @@ export function DropdownItem({ className, destructive, ...props }: React.Compone
   return (
     <RDropdown.Item
       className={cn(
-        "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-accent data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-muted",
+        "flex min-h-10 cursor-pointer select-none items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] outline-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-accent data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-muted",
         destructive && "text-danger [&_svg]:text-danger",
         className,
       )}
@@ -282,7 +286,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <RTabs.Trigger
       className={cn(
-        "mono relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-muted transition-colors hover:text-foreground data-[state=active]:border-accent data-[state=active]:text-accent",
+        "relative -mb-px flex h-11 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-[13px] font-medium text-muted transition-colors hover:text-foreground data-[state=active]:border-accent data-[state=active]:text-accent",
         className,
       )}
       {...props}
@@ -295,14 +299,15 @@ export function TabsContent({ className, ...props }: React.ComponentProps<typeof
 
 // ───────────────────────── Tooltip ─────────────────────────
 
-export function Tooltip({ content, children }: { content: React.ReactNode; children: React.ReactNode }) {
+export function Tooltip({ content, children, side }: { content: React.ReactNode; children: React.ReactNode; side?: "top" | "right" | "bottom" | "left" }) {
   return (
     <RTooltip.Provider delayDuration={250}>
       <RTooltip.Root>
         <RTooltip.Trigger asChild>{children}</RTooltip.Trigger>
         <RTooltip.Portal>
           <RTooltip.Content
-            sideOffset={6}
+            side={side}
+            sideOffset={8}
             className="z-50 max-w-xs rounded-lg border border-border-strong bg-[#08100c] px-2.5 py-1.5 text-xs text-foreground shadow-lg data-[state=delayed-open]:animate-fade-in"
           >
             {content}
@@ -316,14 +321,14 @@ export function Tooltip({ content, children }: { content: React.ReactNode; child
 // ───────────────────────── Misc ─────────────────────────
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-[rgba(0,255,102,0.06)]", className)} />;
+  return <div className={cn("skeleton", className)} aria-hidden />;
 }
 
 export function Progress({ value, className, tone = "accent" }: { value: number; className?: string; tone?: "accent" | "success" | "warning" | "danger" }) {
   const color = { accent: "bg-accent", success: "bg-success", warning: "bg-warning", danger: "bg-danger" }[tone];
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn("h-full rounded-full transition-all duration-700", color, tone === "accent" && "shadow-[0_0_10px_#00ff66]")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div className={cn("h-full rounded-full transition-all duration-700", color, tone === "accent" && "shadow-[0_0_10px_#00ff78]")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
@@ -343,16 +348,16 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center px-6 py-14 text-center", className)}>
-      {icon && <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-2 text-muted [&_svg]:size-5">{icon}</div>}
-      <p className="text-sm font-medium">{title}</p>
-      {description && <p className="mt-1 max-w-sm text-xs text-muted">{description}</p>}
+      {icon && <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent [&_svg]:size-5">{icon}</div>}
+      <p className="text-[15px] font-semibold">{title}</p>
+      {description && <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-muted">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
 export function Kbd({ children }: { children: React.ReactNode }) {
-  return <kbd className="rounded border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-muted">{children}</kbd>;
+  return <kbd className="rounded border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-muted">{children}</kbd>;
 }
 
 export function ScoreRing({ score, size = 36 }: { score: number | null | undefined; size?: number }) {
@@ -379,5 +384,79 @@ export function ScoreRing({ score, size = 36 }: { score: number | null | undefin
       </svg>
       <span className="mono tabular absolute text-[11px] font-semibold">{score ?? "–"}</span>
     </div>
+  );
+}
+
+
+// ───────────────────────── Confirm & help ─────────────────────────
+
+/** Confirmation for actions that stop work or cannot be undone. */
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel = "Confirm",
+  tone = "danger",
+  loading,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  title: string;
+  description: React.ReactNode;
+  confirmLabel?: string;
+  tone?: "danger" | "primary";
+  loading?: boolean;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      description={description}
+      size="sm"
+      footer={
+        <>
+          <Button variant="secondary" onClick={() => onOpenChange(false)} disabled={loading}>
+            Cancel
+          </Button>
+          <Button variant={tone} onClick={onConfirm} loading={loading}>
+            {confirmLabel}
+          </Button>
+        </>
+      }
+    />
+  );
+}
+
+/** Small "?" that explains a term in plain language (tap on phones, hover on desktop). */
+export function HelpTip({ children, label = "What is this?" }: { children: React.ReactNode; label?: string }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <RTooltip.Provider delayDuration={150}>
+      <RTooltip.Root open={open} onOpenChange={setOpen}>
+        <RTooltip.Trigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen((o) => !o);
+            }}
+            className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-border-strong text-[10px] font-semibold leading-none text-muted transition-colors hover:border-accent hover:text-accent"
+          >
+            ?
+          </button>
+        </RTooltip.Trigger>
+        <RTooltip.Portal>
+          <RTooltip.Content sideOffset={6} collisionPadding={12} className="z-[80] max-w-[260px] rounded-xl border border-border-strong bg-[#06100b] px-3 py-2 text-[12.5px] leading-relaxed text-foreground shadow-[0_0_30px_-10px_rgba(0,255,120,0.4)] data-[state=delayed-open]:animate-fade-in data-[state=instant-open]:animate-fade-in">
+            {children}
+          </RTooltip.Content>
+        </RTooltip.Portal>
+      </RTooltip.Root>
+    </RTooltip.Provider>
   );
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db, schema } from "../db";
 import { mockModeAllowed } from "../integrations/credentials";
 import { resumeTask } from "../orchestrator/control";
+import { estimatePlan } from "../orchestrator/estimate";
 import { planObjective } from "../orchestrator/planner";
 import { cancelRun, discoveryParamsSchema, planSchema, startRun, type RunPlan } from "../orchestrator/runs";
 import { transitionTask } from "../orchestrator/state-machine";
@@ -14,7 +15,8 @@ import { action, UserError } from "./_util";
 export async function planObjectiveAction(objective: string) {
   return action({ name: "orchestrator.plan", limit: 20 }, async (auth) => {
     const text = z.string().trim().min(8, "Describe the objective in a sentence.").max(2000).parse(objective);
-    return planObjective(auth.org.id, text);
+    const [planned, estimate] = await Promise.all([planObjective(auth.org.id, text), estimatePlan(auth.org.id)]);
+    return { ...planned, estimate };
   });
 }
 

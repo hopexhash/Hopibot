@@ -1,11 +1,12 @@
 "use server";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
 import { randomToken } from "../crypto";
 import { db, schema } from "../db";
 import { resumeTask } from "../orchestrator/control";
+import { refreshRunStatus } from "../orchestrator/runs";
 import { createTask } from "../orchestrator/tasks";
 import { SUPPORTED_MODELS } from "../costs/pricing";
 import { action, UserError } from "./_util";
@@ -31,6 +32,28 @@ export async function toggleAgentAction(key: string, enabled: boolean) {
       for (const t of parked) if (await resumeTask(auth.org.id, t.id)) resumed++;
     }
     return { resumed };
+  });
+}
+
+/**
+ * Stop = pause the agent and cancel everything it has queued. A task that is already
+ * executing cannot be interrupted mid-step; it finishes its current step and nothing new starts.
+ */
+export async function stopAgentAction(key: string) {
+  return action({ name: "agent.stop", role: "admin", revalidate: ["/agents"], auditTarget: (r: { cancelled: number }) => ({ type: "agent", id: key, metadata: r }) }, async (auth) => {
+    const a = await loadAgent(auth.org.id, agentKey.parse(key));
+    await db().update(schema.agents).set({ enabled: false }).where(eq(schema.agents.id, a.id));
+    const cancelled = await db()
+      .update(schema.agentTasks)
+      .set({ status: "CANCELLED", completedAt: new Date(), waitingReason: null })
+      .where(and(eq(schema.agentTasks.organizationId, auth.org.id), eq(schema.agentTasks.agentKey, a.key), inArray(schema.agentTasks.status, ["PENDING", "WAITING_FOR_APPROVAL"])))
+      .returning({ id: schema.agentTasks.id, runId: schema.agentTasks.runId });
+    for (const runId of new Set(cancelled.map((c) => c.runId).filter((r): r is string => Boolean(r)))) await refreshRunStatus(runId);
+    const [{ n: stillRunning }] = await db()
+      .select({ n: count() })
+      .from(schema.agentTasks)
+      .where(and(eq(schema.agentTasks.organizationId, auth.org.id), eq(schema.agentTasks.agentKey, a.key), eq(schema.agentTasks.status, "RUNNING")));
+    return { cancelled: cancelled.length, stillRunning };
   });
 }
 

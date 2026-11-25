@@ -13,6 +13,10 @@ export const orgSettingsSchema = z.object({
   previewBaseDomain: z.string().max(200).default(""),
   dailySpendLimitUsd: z.number().min(0).max(100000).default(25),
   monthlySpendLimitUsd: z.number().min(0).max(1000000).default(300),
+  /** Warn (notification + banner) when spend reaches this share of a limit. */
+  budgetWarnPct: z.number().int().min(10).max(100).default(80),
+  /** API costs are billed in USD, revenue is in EUR: rate used to show profit in EUR. */
+  usdToEurRate: z.number().min(0.1).max(10).default(0.92),
   minLeadScore: z.number().int().min(0).max(100).default(60),
   qcMaxRetries: z.number().int().min(0).max(10).default(3),
   defaultModel: z.string().default("claude-opus-5-5"),

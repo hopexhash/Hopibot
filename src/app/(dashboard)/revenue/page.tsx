@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { Euro, Repeat, TrendingUp, Users } from "lucide-react";
 import { ChartCard } from "@/components/app/charts";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -24,6 +25,7 @@ export default async function RevenuePage() {
   const active = subs.filter((s) => s.status === "active").length;
   return (
     <>
+      <SubNav section="/analytics" />
       <PageHeader eyebrow="INTELLIGENCE // REVENUE" title="Revenue" description="Payments and subscriptions recorded from Stripe webhooks or entered manually." />
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-4">
         <StatCard label="Total revenue" value={formatEur(kpis.revenueCents)} icon={<Euro />} tone="accent" />

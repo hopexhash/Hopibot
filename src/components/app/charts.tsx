@@ -37,7 +37,7 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="mono rounded-lg border border-border-strong bg-[#08100c] px-3 py-2 text-xs shadow-[0_0_24px_-6px_rgba(0,255,102,0.4)]">
+    <div className="mono rounded-lg border border-border-strong bg-[#08100c] px-3 py-2 text-xs shadow-[0_0_24px_-6px_rgba(0,255,120,0.4)]">
       <div className="mono mb-1 font-medium text-foreground">{label}</div>
       {payload.map((p) => (
         <div key={p.dataKey} className="flex items-center gap-2 text-muted">
@@ -210,7 +210,7 @@ export function FunnelCard({ title, description, steps, className }: { title: st
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-3">
-                <div className="h-full rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(0,255,102,0.7)]" style={{ width: `${(s.value / maxV) * 100}%`, background: "linear-gradient(90deg, #008f39, #00ff66)" }} />
+                <div className="h-full rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(0,255,120,0.7)]" style={{ width: `${(s.value / maxV) * 100}%`, background: "linear-gradient(90deg, #008f39, #00ff78)" }} />
               </div>
             </div>
           );

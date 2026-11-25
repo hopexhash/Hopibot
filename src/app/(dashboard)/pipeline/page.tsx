@@ -1,5 +1,6 @@
 import { and, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { FilterBar } from "@/components/app/filter-bar";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, StatCard } from "@/components/app/page";
 import { BUSINESS_CATEGORIES, PIPELINE_STAGES } from "@/lib/constants";
 import { formatEur } from "@/lib/utils";
@@ -34,6 +35,7 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
 
   return (
     <>
+      <SubNav section="/pipeline" />
       <PageHeader title="Sales Pipeline" description="Drag businesses between stages. Agents move deals forward automatically; human-managed stages (Replied → Won/Lost) are never overwritten." />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Open pipeline value" value={formatEur(open.reduce((s, r) => s + (r.valueCents ?? 0), 0))} sub={`${open.length} open deals`} />

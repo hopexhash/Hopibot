@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { ChartCard, FunnelCard } from "@/components/app/charts";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { AGENT_KEYS, AGENT_META, categoryLabel } from "@/lib/constants";
@@ -54,6 +55,7 @@ export default async function AnalyticsPage() {
 
   return (
     <>
+      <SubNav section="/analytics" />
       <PageHeader title="Analytics" description="Performance of discovery, website generation, outreach and agents. Mock data is excluded." />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="QC pass rate" value={pct(n(q.passed), n(q.versions))} sub={`${n(q.versions)} versions tested`} tone="success" />

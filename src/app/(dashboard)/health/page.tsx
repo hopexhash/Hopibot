@@ -40,7 +40,7 @@ export default async function HealthPage() {
                 ["FAILED", q.FAILED ?? 0, "text-danger"],
               ].map(([k, v, c]) => (
                 <div key={k as string} className="rounded-lg border border-border bg-surface-2 px-3 py-2">
-                  <dt className="text-[9.5px] tracking-[0.14em] text-subtle">{k}</dt>
+                  <dt className="text-[10.5px] tracking-[0.14em] text-subtle">{k}</dt>
                   <dd className={`tabular mt-0.5 text-[18px] font-semibold ${c}`}>{v}</dd>
                 </div>
               ))}

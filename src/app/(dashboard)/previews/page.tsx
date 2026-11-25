@@ -1,6 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { ExternalLink, Monitor } from "lucide-react";
 import Link from "next/link";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Badge, Button, Card, EmptyState, MockBadge } from "@/components/ui";
@@ -34,6 +35,7 @@ export default async function PreviewsPage() {
 
   return (
     <>
+      <SubNav section="/websites" />
       <PageHeader title="Preview Websites" description="Websites that passed quality control. Every preview carries a visible demonstration notice and is excluded from search engines." />
       {rows.length === 0 ? (
         <Card>

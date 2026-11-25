@@ -14,7 +14,7 @@ export type AgentLiveState = {
   /** A worker process with this agent has sent a heartbeat in the last 45 s. */
   online: boolean;
   /** Only "running" when a task is RUNNING with a fresh heartbeat (confirmed execution). */
-  status: "running" | "queued" | "waiting" | "idle" | "disabled" | "offline";
+  status: "running" | "queued" | "waiting" | "failed" | "idle" | "disabled" | "offline";
   running: number;
   pending: number;
   waiting: number;
@@ -27,10 +27,21 @@ export type AgentLiveState = {
   /** Share of this agent's tasks finished in the active run (real counts), or null. */
   progress: { done: number; total: number } | null;
   model: string | null;
+  /** Objective of the run the agent is working on right now (null when idle). */
+  objective: string | null;
+  runId: string | null;
+  /** When this agent last finished a task (completed or failed), and how it ended. */
+  lastFinishedAt: string | null;
+  lastOutcome: "completed" | "failed" | null;
+  /** Completed ÷ (completed + failed) over 30 days; null with no finished tasks. */
+  successRate: number | null;
+  /** Real API spend attributed to this agent in the last 30 days (USD, mock calls excluded). */
+  cost30d: number;
+  apiCalls30d: number;
 };
 
 export async function getCommandCenterState(orgId: string) {
-  const [agentsRows, taskRows, opRows, progressRows, workers] = await Promise.all([
+  const [agentsRows, taskRows, opRows, progressRows, workers, currentRows, lastRows, costRows] = await Promise.all([
     db().execute(sql`
       SELECT a.key, a.enabled, c.model FROM agents a JOIN agent_configurations c ON c.agent_id = a.id WHERE a.organization_id = ${orgId}`) as unknown as Promise<Row[]>,
     db().execute(sql`
@@ -57,6 +68,21 @@ export async function getCommandCenterState(orgId: string) {
       WHERE t.organization_id = ${orgId} AND r.status = 'RUNNING'
       GROUP BY t.agent_key`) as unknown as Promise<Row[]>,
     liveWorkers(),
+    // What each agent is working on right now.
+    db().execute(sql`
+      SELECT DISTINCT ON (t.agent_key) t.agent_key, r.objective, r.id AS run_id
+      FROM agent_tasks t LEFT JOIN workflow_runs r ON r.id = t.run_id
+      WHERE t.organization_id = ${orgId} AND t.status = 'RUNNING' AND t.heartbeat_at > now() - interval '2 minutes'
+      ORDER BY t.agent_key, t.started_at DESC`) as unknown as Promise<Row[]>,
+    // Most recently finished task per agent.
+    db().execute(sql`
+      SELECT DISTINCT ON (agent_key) agent_key, status, completed_at FROM agent_tasks
+      WHERE organization_id = ${orgId} AND status IN ('COMPLETED','FAILED') AND completed_at IS NOT NULL
+      ORDER BY agent_key, completed_at DESC`) as unknown as Promise<Row[]>,
+    db().execute(sql`
+      SELECT agent_key, coalesce(sum(cost_usd), 0) AS cost, count(*) AS calls FROM api_usage
+      WHERE organization_id = ${orgId} AND NOT is_mock AND agent_key IS NOT NULL AND created_at > now() - interval '30 days'
+      GROUP BY agent_key`) as unknown as Promise<Row[]>,
   ]);
 
   const agents: AgentLiveState[] = AGENT_KEYS.map((key) => {
@@ -69,7 +95,25 @@ export async function getCommandCenterState(orgId: string) {
     const running = n(t.running);
     const pending = n(t.pending);
     const waiting = n(t.waiting);
-    const status: AgentLiveState["status"] = !enabled ? "disabled" : running > 0 ? "running" : !online ? "offline" : pending > 0 ? "queued" : waiting > 0 ? "waiting" : "idle";
+    const cur = currentRows.find((r) => r.agent_key === key);
+    const last = lastRows.find((r) => r.agent_key === key);
+    const cost = costRows.find((r) => r.agent_key === key);
+    const lastOutcome = last ? (last.status === "FAILED" ? ("failed" as const) : ("completed" as const)) : null;
+    const finished = n(t.completed) + n(t.failed);
+    // "failed" = the agent's most recent task failed and nothing has succeeded since.
+    const status: AgentLiveState["status"] = !enabled
+      ? "disabled"
+      : running > 0
+        ? "running"
+        : !online
+          ? "offline"
+          : waiting > 0
+            ? "waiting"
+            : pending > 0
+              ? "queued"
+              : lastOutcome === "failed"
+                ? "failed"
+                : "idle";
     return {
       key,
       name: AGENT_META[key].name,
@@ -87,6 +131,13 @@ export async function getCommandCenterState(orgId: string) {
       runtimeStartedAt: t.runtime_started ? new Date(t.runtime_started as string).toISOString() : null,
       progress: p && n(p.total) > 0 ? { done: n(p.done), total: n(p.total) } : null,
       model: a?.model ? String(a.model) : null,
+      objective: cur?.objective ? String(cur.objective) : null,
+      runId: cur?.run_id ? String(cur.run_id) : null,
+      lastFinishedAt: last?.completed_at ? new Date(last.completed_at as string).toISOString() : null,
+      lastOutcome,
+      successRate: finished > 0 ? n(t.completed) / finished : null,
+      cost30d: n(cost?.cost),
+      apiCalls30d: n(cost?.calls),
     };
   });
 
@@ -94,6 +145,8 @@ export async function getCommandCenterState(orgId: string) {
     agents,
     workers: { ok: workers.ok, processes: workers.workers.length, online: workers.covered.length, total: AGENT_KEYS.length },
     activeAgents: agents.filter((a) => a.status === "running").length,
+    waitingAgents: agents.filter((a) => a.status === "waiting").length,
+    enabledAgents: agents.filter((a) => a.enabled).length,
     serverTime: new Date().toISOString(),
   };
 }

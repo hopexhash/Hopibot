@@ -1,140 +1,237 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { SquareTerminal } from "lucide-react";
+import { ClipboardCheck, FileSearch, Globe, type LucideIcon, Pause, Play, Radar, Rocket, Send, Square, SquareTerminal, UserSearch } from "lucide-react";
 import Link from "next/link";
-import { AGENT_META } from "@/lib/constants";
-import { cn, timeAgo } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { Button, ConfirmDialog, Progress, Tooltip } from "@/components/ui";
+import { AGENT_META, type AgentKey } from "@/lib/constants";
+import { cn, formatUsd, timeAgo } from "@/lib/utils";
+import { stopAgentAction, toggleAgentAction } from "@/server/actions/agents";
 import type { AgentLiveState, CommandCenterState } from "@/server/queries/command-center";
 import { useCommandCenter, useNow } from "./live";
 
-const STATUS: Record<AgentLiveState["status"], { label: string; cls: string; dot: string; pulse?: boolean }> = {
-  running: { label: "RUNNING", cls: "text-accent glow-text", dot: "bg-accent text-accent", pulse: true },
-  queued: { label: "QUEUED", cls: "text-warning", dot: "bg-warning text-warning" },
-  waiting: { label: "AWAITING APPROVAL", cls: "text-warning", dot: "bg-warning text-warning" },
-  idle: { label: "IDLE", cls: "text-muted", dot: "bg-green-3 text-green-3" },
-  disabled: { label: "DISABLED", cls: "text-subtle", dot: "bg-subtle text-subtle" },
-  offline: { label: "NO WORKER", cls: "text-danger", dot: "bg-danger text-danger" },
+export const AGENT_ICON: Record<AgentKey, LucideIcon> = {
+  lead_finder: Radar,
+  research: FileSearch,
+  contact_research: UserSearch,
+  website_builder: Globe,
+  quality_control: ClipboardCheck,
+  deployment: Rocket,
+  sales: Send,
+};
+
+type StatusStyle = { label: string; pill: string; dot: string; pulse?: boolean; explain: string };
+export const AGENT_STATUS: Record<AgentLiveState["status"], StatusStyle> = {
+  running: { label: "Executing", pill: "border-[rgba(0,255,120,0.4)] bg-accent-soft text-accent", dot: "bg-accent text-accent", pulse: true, explain: "Working on a task right now (confirmed by a live worker)." },
+  queued: { label: "Queued", pill: "border-[rgba(67,191,255,0.3)] bg-info-soft text-info", dot: "bg-info text-info", explain: "Has tasks lined up and will start them shortly." },
+  waiting: { label: "Waiting for approval", pill: "border-[rgba(255,191,71,0.35)] bg-warning-soft text-warning", dot: "bg-warning text-warning", explain: "Paused until you approve something or a limit is raised." },
+  failed: { label: "Failed", pill: "border-[rgba(255,77,97,0.35)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "Its most recent task failed. Open the logs to see why, then retry." },
+  idle: { label: "Idle", pill: "border-border bg-surface-3 text-muted", dot: "bg-green-2 text-green-2", explain: "Online and ready. Nothing to do at the moment." },
+  disabled: { label: "Paused", pill: "border-border bg-surface-3 text-muted", dot: "bg-subtle text-subtle", explain: "You paused this agent. Its tasks wait until you resume it." },
+  offline: { label: "Offline", pill: "border-[rgba(255,77,97,0.3)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "No worker process is connected, so this agent cannot run tasks." },
 };
 
 function fmtRuntime(startIso: string | null, nowSec: number) {
-  if (!startIso || !nowSec) return "--:--:--";
+  if (!startIso || !nowSec) return null;
   const s = Math.max(0, nowSec - Math.floor(new Date(startIso).getTime() / 1000));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  return [h, m, s % 60].map((v) => String(v).padStart(2, "0")).join(":");
+  return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(s % 60).padStart(2, "0")}s`;
 }
 
-function Blocks({ pct }: { pct: number }) {
-  const filled = Math.round(pct / 10);
+function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: string }) {
   return (
-    <span className="mono tracking-[-0.05em]" aria-hidden>
-      <span className="text-accent drop-shadow-[0_0_4px_rgba(0,255,102,0.8)]">{"█".repeat(filled)}</span>
-      <span className="text-[rgba(0,255,102,0.18)]">{"░".repeat(10 - filled)}</span>
-    </span>
+    <div className="min-w-0">
+      <dt className="truncate text-[11px] text-subtle">{label}</dt>
+      <dd className={cn("tabular mt-0.5 truncate text-[14px] font-semibold", tone ?? "text-foreground")}>{value}</dd>
+    </div>
   );
 }
 
-export function AgentCard({ a, index, nowSec }: { a: AgentLiveState; index: number; nowSec: number }) {
-  const st = STATUS[a.status];
-  const pct = a.progress ? Math.round((a.progress.done / a.progress.total) * 100) : null;
+export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState; index: number; nowSec: number; canControl: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [confirmStop, setConfirmStop] = useState(false);
+  const st = AGENT_STATUS[a.status];
+  const Icon = AGENT_ICON[a.key];
   const running = a.status === "running";
+  const pct = a.progress ? Math.round((a.progress.done / a.progress.total) * 100) : null;
+  const remaining = a.progress ? a.progress.total - a.progress.done : a.pending + a.running;
+  const runtime = running ? fmtRuntime(a.runtimeStartedAt, nowSec) : null;
+
+  const toggle = (enabled: boolean) =>
+    start(async () => {
+      const r = await toggleAgentAction(a.key, enabled);
+      if (!r.ok) return void toast.error(r.error);
+      toast.success(enabled ? `${a.name} resumed${r.data.resumed ? ` · ${r.data.resumed} task(s) continue` : ""}` : `${a.name} paused — queued tasks will wait`);
+      router.refresh();
+    });
+  const stop = () =>
+    start(async () => {
+      const r = await stopAgentAction(a.key);
+      setConfirmStop(false);
+      if (!r.ok) return void toast.error(r.error);
+      toast.success(`${a.name} stopped · ${r.data.cancelled} queued task(s) cancelled${r.data.stillRunning ? ` · ${r.data.stillRunning} finishing its current step` : ""}`);
+      router.refresh();
+    });
+
   return (
     <motion.article
-      layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.04 }}
+      transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.04 }}
       className={cn(
-        "panel brackets panel-hover relative flex flex-col overflow-hidden p-4",
-        running && "scanline border-[rgba(0,255,102,0.35)] shadow-[0_0_28px_-8px_rgba(0,255,102,0.45)]",
-        a.status === "offline" && "border-[rgba(255,69,69,0.18)]",
+        "panel panel-hover relative flex flex-col overflow-hidden p-4",
+        running && "scanline border-[rgba(0,255,120,0.32)] shadow-[0_0_30px_-10px_rgba(0,255,120,0.5)]",
+        (a.status === "offline" || a.status === "failed") && "border-[rgba(255,77,97,0.2)]",
       )}
       aria-label={`${a.name}: ${st.label}`}
     >
-      <header className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="mono flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border-strong text-[11px] font-bold text-accent">{index + 1}</span>
-          <h3 className="mono truncate text-[12.5px] font-bold uppercase tracking-[0.14em]">{a.name}</h3>
+      <header className="flex items-start gap-3">
+        <div className={cn("relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border", running ? "border-[rgba(0,255,120,0.4)] bg-accent-soft text-accent" : "border-border bg-surface-2 text-muted")}>
+          <Icon className="h-5 w-5" strokeWidth={1.75} />
+          <span
+            className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#091710]", a.online && a.enabled ? "bg-accent" : a.enabled ? "bg-danger" : "bg-subtle", a.online && a.enabled && "animate-pulse-dot text-accent")}
+            title={a.online ? "Worker online" : "No worker connected"}
+          />
         </div>
-        <span className={cn("mono shrink-0 rounded border px-1.5 py-0.5 text-[9.5px] font-bold tracking-[0.14em]", a.online && a.enabled ? "border-[rgba(0,255,102,0.35)] text-accent" : "border-[rgba(255,69,69,0.3)] text-danger")}>
-          {!a.enabled ? "DISABLED" : a.online ? "ONLINE" : "OFFLINE"}
-        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-[15px] font-semibold tracking-tight">{a.name}</h3>
+          <p className="mt-0.5 truncate text-[12px] text-muted">{AGENT_META[a.key].short} agent{a.model ? ` · ${a.model.replace("claude-", "")}` : ""}</p>
+        </div>
+        <Tooltip content={st.explain}>
+          <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium", st.pill)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", st.dot, st.pulse && "animate-pulse-dot")} />
+            {st.label}
+          </span>
+        </Tooltip>
       </header>
 
-      <div className="mono mt-3 flex items-center gap-2 text-[12px] font-semibold tracking-[0.1em]">
-        <span className={cn("h-2 w-2 rounded-full", st.dot, st.pulse && "animate-pulse-dot")} />
-        <span className={st.cls}>{st.label}</span>
-        {(a.pending > 0 || a.waiting > 0) && <span className="ml-auto text-[10.5px] font-normal tracking-normal text-subtle">{a.pending} queued{a.waiting ? ` · ${a.waiting} waiting` : ""}</span>}
-      </div>
-
-      <div className="mt-3 min-h-[52px] rounded-lg border border-border bg-[#060b08] px-3 py-2">
-        <div className="hud-label text-[9px]">{running ? "Current operation" : "Last operation"}</div>
-        <p className="mono mt-1 line-clamp-2 text-[11.5px] leading-snug text-foreground/90">
-          {a.operation ?? <span className="text-subtle">No activity recorded yet</span>}
-          {running && <span className="ml-0.5 inline-block h-3 w-[7px] translate-y-[2px] bg-accent animate-blink" />}
-        </p>
-        {a.operationAt && !running && <p className="mono mt-0.5 text-[10px] text-subtle">{timeAgo(a.operationAt)}</p>}
-      </div>
-
-      <div className="mono mt-3 flex items-center justify-between gap-2 text-[11.5px]">
-        <span className="text-muted">Progress</span>
-        {pct != null ? (
-          <span className="flex items-center gap-2">
-            <Blocks pct={pct} />
-            <span className="w-9 text-right text-accent">{pct}%</span>
-          </span>
-        ) : (
-          <span className="text-subtle">— no active run</span>
+      <div className="mt-3.5 rounded-xl sm:min-h-[76px] border border-[rgba(0,255,120,0.07)] bg-[#050d09] px-3 py-2.5">
+        {running && a.objective && (
+          <p className="mb-1 line-clamp-1 text-[11.5px] text-subtle">
+            Objective:{" "}
+            {a.runId ? (
+              <Link href={`/automations/runs/${a.runId}`} className="text-muted underline-offset-2 hover:text-accent hover:underline">
+                {a.objective}
+              </Link>
+            ) : (
+              a.objective
+            )}
+          </p>
         )}
+        <p className="text-[11.5px] font-medium text-subtle">{running ? "Doing now" : "Last activity"}</p>
+        <p className={cn("mt-0.5 line-clamp-2 text-[13px] leading-snug", running ? "text-foreground" : "text-muted")}>
+          {a.operation ?? <span className="text-subtle">Nothing yet — this agent has not run a task.</span>}
+        </p>
       </div>
 
-      <dl className="mono mt-3 grid grid-cols-3 gap-2 border-t border-border pt-3 text-center">
-        <div>
-          <dt className="text-[9.5px] tracking-[0.12em] text-subtle">DONE 30D</dt>
-          <dd className="tabular text-[15px] font-semibold text-accent">{a.completed30d}</dd>
+      {/* Phones show progress only while there is a run, to keep the list short. */}
+      <div className={cn("mt-3", pct == null && "hidden sm:block")}>
+        <div className="mb-1.5 flex items-center justify-between text-[12px]">
+          <span className="text-muted">{pct != null ? "Progress in current run" : "No active run"}</span>
+          {pct != null && (
+            <span className="tabular font-medium text-accent">
+              {a.progress!.done}/{a.progress!.total} · {pct}%
+            </span>
+          )}
         </div>
-        <div>
-          <dt className="text-[9.5px] tracking-[0.12em] text-subtle">FAILED</dt>
-          <dd className={cn("tabular text-[15px] font-semibold", a.failed30d ? "text-danger" : "text-foreground/70")}>{a.failed30d}</dd>
-        </div>
-        <div>
-          <dt className="text-[9.5px] tracking-[0.12em] text-subtle">RUNTIME</dt>
-          <dd className={cn("tabular text-[13px] font-semibold leading-[22px]", running ? "text-foreground" : "text-subtle")}>{running ? fmtRuntime(a.runtimeStartedAt, nowSec) : "--:--:--"}</dd>
-        </div>
+        <Progress value={pct ?? 0} />
+      </div>
+
+      <dl className="mt-3.5 grid grid-cols-4 gap-2 border-t border-border pt-3">
+        <Stat label="Done (30d)" value={a.completed30d} tone="text-accent" />
+        <Stat label="Remaining" value={remaining} />
+        <Stat label="Success" value={a.successRate == null ? "—" : `${Math.round(a.successRate * 100)}%`} tone={a.successRate != null && a.successRate < 0.8 ? "text-warning" : undefined} />
+        <Stat label="API cost (30d)" value={formatUsd(a.cost30d)} />
       </dl>
 
-      <div className="mt-3 flex gap-2">
-        <Link href={`/activity?agent=${a.key}`} className="mono flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border-strong text-[11px] font-semibold tracking-[0.14em] text-accent transition-all hover:bg-accent-soft hover:shadow-[0_0_16px_-4px_rgba(0,255,102,0.5)]">
-          <SquareTerminal className="h-3.5 w-3.5" /> VIEW TERMINAL
-        </Link>
-        <Link href={`/agents/${a.key}`} className="mono flex h-10 items-center justify-center rounded-lg border border-border px-3 text-[11px] tracking-[0.1em] text-muted transition-colors hover:border-border-strong hover:text-foreground" aria-label={`${a.name} details`}>
-          CONFIG
-        </Link>
-      </div>
-      <span className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-[0.08] blur-2xl" style={{ background: AGENT_META[a.key].color }} />
+      <p className="mt-2.5 text-[12px] text-subtle">
+        {running && runtime ? (
+          <>
+            Running for <span className="tabular text-accent">{runtime}</span>
+          </>
+        ) : a.lastFinishedAt ? (
+          <>
+            Last run {timeAgo(a.lastFinishedAt)} · <span className={a.lastOutcome === "failed" ? "text-danger" : "text-muted"}>{a.lastOutcome === "failed" ? "failed" : "completed"}</span>
+          </>
+        ) : (
+          "Never run"
+        )}
+        {a.failed30d > 0 && <span className="text-danger/80"> · {a.failed30d} failed (30d)</span>}
+      </p>
+
+      <footer className="mt-3.5 flex items-center gap-2">
+        <Button asChild variant="secondary" size="sm" className="h-10 flex-1">
+          <Link href={`/agents/${a.key}`}>View agent</Link>
+        </Button>
+        <Tooltip content="View logs">
+          <Button asChild variant="secondary" size="icon" aria-label={`View ${a.name} logs`}>
+            <Link href={`/terminal?agent=${a.key}`}>
+              <SquareTerminal />
+            </Link>
+          </Button>
+        </Tooltip>
+        {canControl && (
+          <>
+            <Tooltip content={a.enabled ? "Pause — queued tasks wait" : "Resume"}>
+              <Button variant="secondary" size="icon" aria-label={a.enabled ? `Pause ${a.name}` : `Resume ${a.name}`} disabled={pending} onClick={() => toggle(!a.enabled)}>
+                {a.enabled ? <Pause /> : <Play className="text-accent" />}
+              </Button>
+            </Tooltip>
+            <Tooltip content="Stop — pause and cancel queued tasks">
+              <Button variant="secondary" size="icon" aria-label={`Stop ${a.name}`} disabled={pending || (!a.enabled && a.pending + a.waiting === 0)} onClick={() => setConfirmStop(true)} className="hover:border-danger/40 hover:text-danger">
+                <Square />
+              </Button>
+            </Tooltip>
+          </>
+        )}
+      </footer>
+
+      <ConfirmDialog
+        open={confirmStop}
+        onOpenChange={setConfirmStop}
+        title={`Stop ${a.name}?`}
+        description={
+          <>
+            This pauses the agent and cancels its <strong className="text-foreground">{a.pending + a.waiting}</strong> queued task(s). A task that is already executing finishes its current step. You can resume the agent at any time, but cancelled tasks do not restart by themselves.
+          </>
+        }
+        confirmLabel="Stop agent"
+        loading={pending}
+        onConfirm={stop}
+      />
     </motion.article>
   );
 }
 
-export function AgentMonitor({ initial }: { initial: CommandCenterState }) {
+export function AgentMonitor({ initial, canControl = false }: { initial: CommandCenterState; canControl?: boolean }) {
   const { data, error } = useCommandCenter(initial);
   const state = data ?? initial;
   const anyRunning = state.agents.some((a) => a.status === "running");
   const nowSec = useNow(anyRunning);
   return (
     <div>
-      {error && <p className="mono mb-2 text-[11px] text-danger">Live updates paused: {error}</p>}
       {state.workers.online === 0 && (
-        <div className="mono mb-3 rounded-lg border border-[rgba(255,209,102,0.25)] bg-warning-soft px-3 py-2 text-[11px] leading-relaxed text-warning">
-          NO WORKER CONNECTED — tasks will queue until a worker process is running (see docs/DEPLOYMENT.md §4).
+        <div className="mb-3 flex items-start gap-3 rounded-xl border border-[rgba(255,191,71,0.25)] bg-warning-soft px-4 py-3 text-[13px] leading-relaxed text-warning">
+          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-warning" />
+          <span>
+            <strong className="font-semibold">No worker is connected.</strong> Agents are the “brains”; the worker is the machine that runs them. Until one is online, new tasks wait in the queue.{" "}
+            <Link href="/health" className="underline underline-offset-2">
+              See system health
+            </Link>
+          </span>
         </div>
       )}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
         {state.agents.map((a, i) => (
-          <AgentCard key={a.key} a={a} index={i} nowSec={nowSec} />
+          <AgentCard key={a.key} a={a} index={i} nowSec={nowSec} canControl={canControl} />
         ))}
       </div>
+      {error && <p className="mt-2 text-[12px] text-danger">Live updates interrupted: {error}. Showing the last known state.</p>}
     </div>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import { Bell, LogOut, Settings, Wand2 } from "lucide-react";
+import { Bell, LogOut, Search, Settings, ShieldCheck, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button, DropdownContent, DropdownItem, DropdownMenu, DropdownSeparator, DropdownTrigger } from "@/components/ui";
 import { cn, timeAgo } from "@/lib/utils";
 import { signOutAction } from "@/server/actions/auth";
 import { useCommandCenter, useSystemHealth } from "./live";
+import { openCommandPalette } from "./command-palette";
+import { activeHref, NAV_ITEMS } from "./nav";
 import { LogoMark, MobileNav } from "./sidebar";
 
 type Notification = { id: string; title: string; body: string | null; href: string | null; createdAt: string; readAt: string | null };
@@ -22,7 +24,11 @@ function useStatus() {
   const { data: cc } = useCommandCenter();
   const infra = health?.checks.filter((c) => ["api", "database", "redis"].includes(c.key)) ?? [];
   const infraOk = infra.length === 3 && infra.every((c) => c.state === "operational" || c.state === "connected");
-  const system: { label: string; tone: "green" | "amber" | "red" | "grey" } = !health ? { label: "CHECKING", tone: "grey" } : infraOk ? { label: "SYSTEM ONLINE", tone: "green" } : { label: "SYSTEM DEGRADED", tone: "red" };
+  const system: { label: string; short: string; tone: "green" | "amber" | "red" | "grey" } = !health
+    ? { label: "Checking…", short: "…", tone: "grey" }
+    : infraOk
+      ? { label: "System online", short: "Online", tone: "green" }
+      : { label: "System degraded", short: "Issue", tone: "red" };
   const apis = health?.checks.filter((c) => !["api", "database", "redis", "workers"].includes(c.key)) ?? [];
   const apisConnected = apis.filter((c) => c.state === "connected").length;
   const apisError = apis.some((c) => c.state === "error");
@@ -33,6 +39,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
   const pathname = usePathname();
   const { system, cc, apis, apisConnected, apisError, workers } = useStatus();
   const unread = notifications.filter((n) => !n.readAt).length;
+  const section = NAV_ITEMS.find((n) => n.href === activeHref(pathname))?.label ?? "Command Center";
   const initials = (user.name ?? user.email)
     .split(/\s+/)
     .map((p) => p[0])
@@ -41,50 +48,65 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-[rgba(5,8,7,0.82)] pt-[var(--safe-top)] backdrop-blur-xl">
-      <div className="flex h-14 items-center gap-2 px-3 sm:px-6">
+    <header className="sticky top-0 z-30 border-b border-border bg-[rgba(3,8,6,0.85)] pt-[var(--safe-top)] backdrop-blur-xl">
+      <div className="flex h-14 items-center gap-2 px-3 sm:px-6 lg:h-16">
         <MobileNav counts={counts} />
-        <Link href="/" className="flex min-w-0 items-center gap-2 lg:hidden">
+        <Link href="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label="HOPI Bot — Command Center">
           <LogoMark className="h-7 w-7 shrink-0" />
-          <span className="mono truncate text-[12.5px] font-bold tracking-[0.18em]">HOPI BOT</span>
+          <span className="truncate text-[13px] font-semibold tracking-[0.14em]">HOPI BOT</span>
         </Link>
-        <div className="mono hidden min-w-0 truncate text-[12px] font-semibold tracking-[0.2em] text-muted lg:block">
-          <span className="text-foreground">HOPI BOT</span> <span className="text-accent/70">{"//"}</span> COMMAND CENTER
+        <div className="hidden min-w-0 items-center gap-2 text-[13px] lg:flex">
+          <span className="font-medium tracking-[0.14em] text-muted">HOPI BOT</span>
+          <span className="text-accent/60">/</span>
+          <span className="truncate font-medium text-foreground">{section}</span>
         </div>
         <div className="flex-1" />
 
-        {/* System status chips */}
-        <Link href="/health" className="mono flex h-9 items-center gap-2 rounded-lg border border-border bg-surface-2/80 px-2.5 text-[10.5px] font-semibold tracking-[0.12em] transition-colors hover:border-border-strong" aria-label={system.label}>
+        <button onClick={openCommandPalette} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-border-strong hover:text-accent lg:hidden" aria-label="Search">
+          <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        </button>
+
+        {/* Live system status (real health checks) */}
+        <Link href="/health" className="flex h-10 items-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium transition-colors hover:border-border-strong" aria-label={system.label}>
           <Dot tone={system.tone} pulse={system.tone === "green"} />
-          <span className={cn("hidden sm:inline", system.tone === "green" ? "text-accent glow-text" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.label}</span>
-          <span className={cn("sm:hidden", system.tone === "green" ? "text-accent" : "text-muted")}>{system.tone === "green" ? "ONLINE" : system.tone === "red" ? "ERR" : "…"}</span>
+          <span className={cn("hidden sm:inline", system.tone === "green" ? "text-accent" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.label}</span>
+          <span className={cn("sm:hidden", system.tone === "green" ? "text-accent" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.short}</span>
         </Link>
-        <Link href="/agents" className="mono hidden h-9 items-center gap-2 rounded-lg border border-border bg-surface-2/80 px-2.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted transition-colors hover:border-border-strong md:flex">
+        <Link href="/agents" className="hidden h-10 items-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium text-muted transition-colors hover:border-border-strong md:flex">
           <Dot tone={cc?.activeAgents ? "green" : "grey"} pulse={Boolean(cc?.activeAgents)} />
-          AGENTS <span className="text-foreground">{cc ? `${cc.activeAgents}/7` : "–"}</span> ACTIVE
-          {workers && workers.online < workers.total && <span className="text-warning">· {workers.online}/7 ONLINE</span>}
+          <span>
+            <span className="tabular text-foreground">{cc ? cc.activeAgents : "–"}</span> working
+            {workers && <span className={workers.online < workers.total ? "text-warning" : ""}> · <span className="tabular">{workers.online}/{workers.total}</span> online</span>}
+          </span>
         </Link>
-        <Link href="/integrations" className="mono hidden h-9 items-center gap-2 rounded-lg border border-border bg-surface-2/80 px-2.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted transition-colors hover:border-border-strong xl:flex">
+        <Link href="/integrations" className="hidden h-10 items-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium text-muted transition-colors hover:border-border-strong xl:flex">
           <Dot tone={apisError ? "red" : apisConnected ? "green" : "grey"} />
-          APIS <span className="text-foreground">{apis.length ? `${apisConnected}/${apis.length}` : "–"}</span>
+          <span>
+            <span className="tabular text-foreground">{apis.length ? `${apisConnected}/${apis.length}` : "–"}</span> services connected
+          </span>
         </Link>
 
         {pathname !== "/" && (
-          <Button asChild variant="primary" size="sm" className="hidden h-9 sm:inline-flex">
+          <Button asChild variant="primary" size="sm" className="hidden h-10 px-3.5 text-[13px] sm:inline-flex">
             <Link href="/?objective=1">
               <Wand2 /> New objective
             </Link>
           </Button>
         )}
+        {counts["/approvals"] > 0 && (
+          <Link href="/approvals" className="relative hidden h-10 items-center gap-2 rounded-xl border border-warning/30 bg-warning-soft px-3 text-[12px] font-medium text-warning sm:flex">
+            <ShieldCheck className="h-4 w-4" /> <span className="tabular">{counts["/approvals"]}</span> to approve
+          </Link>
+        )}
         <DropdownMenu>
           <DropdownTrigger asChild>
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-border-strong hover:text-accent" aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}>
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-border-strong hover:text-accent" aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}>
               <Bell className="h-[17px] w-[17px]" strokeWidth={1.75} />
-              {unread > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#ff4545]" />}
+              {unread > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#ff4d61]" />}
             </button>
           </DropdownTrigger>
           <DropdownContent className="w-[min(20rem,calc(100vw-1.5rem))] p-0">
-            <div className="hud-label border-b border-border px-3 py-2.5">Notifications</div>
+            <div className="flex items-center justify-between border-b border-border px-3 py-2.5 text-[13px] font-medium">Notifications<Link href="/approvals" className="text-[12px] font-normal text-accent">Approvals →</Link></div>
             <div className="max-h-80 overflow-y-auto p-1">
               {notifications.length === 0 && <p className="px-3 py-6 text-center text-xs text-muted">All clear.</p>}
               {notifications.map((n) => (
@@ -94,7 +116,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium">{n.title}</span>
                       {n.body && <span className="block truncate text-xs text-muted">{n.body}</span>}
-                      <span className="mono block text-[10.5px] text-subtle">{timeAgo(n.createdAt)}</span>
+                      <span className="block text-[11.5px] text-subtle">{timeAgo(n.createdAt)}</span>
                     </span>
                   </Link>
                 </DropdownItem>
@@ -104,7 +126,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
         </DropdownMenu>
         <DropdownMenu>
           <DropdownTrigger asChild>
-            <button className="mono flex h-9 w-9 items-center justify-center rounded-lg border border-border-strong bg-accent-soft text-[11px] font-bold text-accent" aria-label="Account menu">
+            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-strong bg-accent-soft text-[12px] font-semibold text-accent" aria-label="Account menu">
               {initials}
             </button>
           </DropdownTrigger>
@@ -112,7 +134,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
             <div className="px-2.5 py-2">
               <div className="truncate text-[13px] font-medium">{user.name ?? user.email}</div>
               <div className="truncate text-xs text-muted">{user.email}</div>
-              <div className="mono mt-1 text-[10.5px] uppercase tracking-wider text-accent/80">{user.role}</div>
+              <div className="mt-1 text-[11.5px] font-medium capitalize text-accent/80">{user.role}</div>
             </div>
             <DropdownSeparator />
             <DropdownItem asChild>

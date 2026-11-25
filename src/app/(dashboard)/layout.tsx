@@ -1,6 +1,7 @@
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { CommandPalette } from "@/components/app/command-palette";
 import { MatrixRain } from "@/components/app/matrix-rain";
 import { MobileTabBar, Sidebar } from "@/components/app/sidebar";
 import { Topbar } from "@/components/app/topbar";
@@ -33,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       .orderBy(desc(schema.notifications.createdAt))
       .limit(12),
   ]);
-  const counts: Record<string, number> = { "/emails": emails.n, "/": approvals.n, "/tasks": tasks.n };
+  const counts: Record<string, number> = { "/emails": emails.n, "/approvals": approvals.n, "/agents": tasks.n };
   const mock = mockModeAllowed();
 
   return (
@@ -42,10 +43,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar counts={counts} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         {mock && (
-          <div className="mono flex items-center justify-center gap-2 border-b border-warning/20 bg-warning-soft px-4 py-1.5 text-center text-[10.5px] font-medium tracking-wide text-warning">
+          <div className="flex items-center justify-center gap-2 border-b border-warning/20 bg-warning-soft px-4 py-1.5 text-center text-[12px] font-medium text-warning">
             <TriangleAlert className="h-3.5 w-3.5 shrink-0" />
             <span>
-              DEV MOCK MODE — integrations without keys return labelled MOCK data.{" "}
+              Development mock mode — services without keys return data labelled MOCK.{" "}
               <Link href="/integrations" className="underline underline-offset-2">
                 Connect
               </Link>
@@ -60,6 +61,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <main className="mx-auto w-full max-w-[1500px] flex-1 px-3.5 pb-[calc(var(--safe-bottom)+88px)] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
       </div>
       <MobileTabBar />
+      <CommandPalette />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { WorkflowNetwork } from "@/components/app/workflow-network";
@@ -20,6 +21,7 @@ export default async function NetworkPage() {
   ]);
   return (
     <>
+      <SubNav section="/agents" />
       <PageHeader
         eyebrow="AI OPERATIONS // WORKFLOW NETWORK"
         title="Workflow Network"
@@ -33,7 +35,7 @@ export default async function NetworkPage() {
       <WorkflowNetwork initial={cc} height={560} />
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Section title="Automations" className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,102,0.06)]">
+          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
             {workflows.length === 0 && <p className="mono p-4 text-[11px] text-subtle">No automations defined.</p>}
             {workflows.map((w) => (
               <Link key={w.id} href="/automations" className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">
@@ -44,13 +46,13 @@ export default async function NetworkPage() {
           </Card>
         </Section>
         <Section title="Recent runs" className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,102,0.06)]">
+          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
             {runs.length === 0 && <p className="mono p-4 text-[11px] text-subtle">No runs yet.</p>}
             {runs.map((r) => (
               <Link key={r.id} href={`/automations/runs/${r.id}`} className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">
                 <span className="min-w-0">
                   <span className="block truncate text-[13px] font-medium">{r.objective ?? "Run"}</span>
-                  <span className="mono text-[10.5px] text-subtle">{timeAgo(r.createdAt)}</span>
+                  <span className="mono text-[11.5px] text-subtle">{timeAgo(r.createdAt)}</span>
                 </span>
                 <StatusBadge status={r.status} />
               </Link>

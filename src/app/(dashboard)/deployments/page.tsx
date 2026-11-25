@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { ExternalLink, Rocket } from "lucide-react";
 import Link from "next/link";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, StatCard } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Badge, Card, EmptyState, MockBadge } from "@/components/ui";
@@ -30,6 +31,7 @@ export default async function DeploymentsPage() {
 
   return (
     <>
+      <SubNav section="/websites" />
       <PageHeader title="Deployments" description="Preview deployments are demonstrations on agency-owned domains. Production publishing and customer domains require an approved request." />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Successful deployments" value={ready} tone="success" />

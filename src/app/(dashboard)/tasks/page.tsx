@@ -1,5 +1,6 @@
 import { and, count, desc, eq, type SQL } from "drizzle-orm";
 import Link from "next/link";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -30,6 +31,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
 
   return (
     <>
+      <SubNav section="/agents" />
       <PageHeader eyebrow="AI OPERATIONS // TASK QUEUE" title="Task Queue" description="Every task the orchestrator has scheduled. Retry failed work or cancel what has not started." />
       <div className="-mx-3.5 mb-4 flex gap-1.5 overflow-x-auto px-3.5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {[undefined, ...STATUSES].map((s) => (
@@ -37,8 +39,8 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
             key={s ?? "all"}
             href={s ? `/tasks?status=${s}` : "/tasks"}
             className={cn(
-              "mono flex h-9 shrink-0 items-center gap-2 rounded-lg border px-3 text-[10.5px] font-semibold uppercase tracking-[0.1em]",
-              filter === s ? "border-[rgba(0,255,102,0.45)] bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+              "mono flex h-9 shrink-0 items-center gap-2 rounded-lg border px-3 text-[11.5px] font-semibold uppercase tracking-[0.1em]",
+              filter === s ? "border-[rgba(0,255,120,0.45)] bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
             )}
           >
             {s ? LABEL[s] : "All"}
@@ -71,14 +73,14 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
             return (
               <TR key={r.id}>
                 <TD className="mono whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em]">
-                  <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#00ff66" }} />
+                  <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#00ff78" }} />
                   {meta?.name ?? r.agentKey}
                 </TD>
                 <TD className="max-w-[320px]">
                   <div className="mono truncate text-[12px]">{r.type}</div>
-                  {(r.error?.message || r.waitingReason) && <div className={cn("mono truncate text-[10.5px]", r.error ? "text-danger" : "text-warning")}>{r.error?.message ?? r.waitingReason}</div>}
+                  {(r.error?.message || r.waitingReason) && <div className={cn("mono truncate text-[11.5px]", r.error ? "text-danger" : "text-warning")}>{r.error?.message ?? r.waitingReason}</div>}
                   {r.runId && (
-                    <Link href={`/automations/runs/${r.runId}`} className="mono text-[10px] text-subtle hover:text-accent">
+                    <Link href={`/automations/runs/${r.runId}`} className="mono text-[11px] text-subtle hover:text-accent">
                       run {r.runId.slice(0, 8)}
                     </Link>
                   )}

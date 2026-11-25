@@ -122,7 +122,7 @@ export function Terminal({ initial, initialAgent = "", height = 420, title = "LI
           <span className="h-2.5 w-2.5 rounded-full bg-accent/80" />
         </div>
         <span className="mono ml-1 text-[11px] font-semibold tracking-[0.16em] text-foreground">{title}</span>
-        <span className={cn("mono flex items-center gap-1.5 text-[10px] tracking-[0.12em]", live ? "text-accent" : paused ? "text-warning" : "text-danger")}>
+        <span className={cn("mono flex items-center gap-1.5 text-[11px] tracking-[0.12em]", live ? "text-accent" : paused ? "text-warning" : "text-danger")}>
           <span className={cn("h-1.5 w-1.5 rounded-full bg-current", live && "animate-pulse-dot")} />
           {error ? "DISCONNECTED" : paused ? "PAUSED" : "STREAMING"}
         </span>
@@ -163,8 +163,8 @@ export function Terminal({ initial, initialAgent = "", height = 420, title = "LI
                 key={k || "all"}
                 onClick={() => setAgent(k)}
                 className={cn(
-                  "mono h-8 shrink-0 rounded-md border px-2.5 text-[10.5px] font-semibold tracking-[0.1em] transition-colors",
-                  agent === k ? "border-[rgba(0,255,102,0.45)] bg-accent-soft text-accent" : "border-border text-subtle hover:text-foreground",
+                  "mono h-8 shrink-0 rounded-md border px-2.5 text-[11.5px] font-semibold tracking-[0.1em] transition-colors",
+                  agent === k ? "border-[rgba(0,255,120,0.45)] bg-accent-soft text-accent" : "border-border text-subtle hover:text-foreground",
                 )}
               >
                 {k === "" ? "ALL" : (TAG[k] ?? k)}
@@ -191,9 +191,9 @@ export function Terminal({ initial, initialAgent = "", height = 420, title = "LI
             </p>
           ) : (
             lines.map((l) => {
-              const color = AGENT_META[l.agentKey as AgentKey]?.color ?? "#00ff66";
+              const color = AGENT_META[l.agentKey as AgentKey]?.color ?? "#00ff78";
               return (
-                <div key={l.id} className="flex gap-2 break-words hover:bg-[rgba(0,255,102,0.04)]">
+                <div key={l.id} className="flex gap-2 break-words hover:bg-[rgba(0,255,120,0.04)]">
                   <span className="shrink-0 text-subtle">[{hhmmss(l.createdAt)}]</span>
                   <span className="shrink-0 font-semibold" style={{ color }}>
                     {(TAG[l.agentKey] ?? l.agentKey).padEnd(compact ? 0 : 11, " ")}
@@ -216,13 +216,13 @@ export function Terminal({ initial, initialAgent = "", height = 420, title = "LI
               setStick(true);
               if (box.current) box.current.scrollTop = box.current.scrollHeight;
             }}
-            className="mono absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-lg border border-border-strong bg-[#08100c] px-3 text-[10.5px] font-semibold tracking-wider text-accent shadow-[0_0_16px_-4px_rgba(0,255,102,0.5)]"
+            className="mono absolute bottom-3 right-3 flex h-9 items-center gap-1.5 rounded-lg border border-border-strong bg-[#08100c] px-3 text-[11.5px] font-semibold tracking-wider text-accent shadow-[0_0_16px_-4px_rgba(0,255,120,0.5)]"
           >
             <ArrowDownToLine className="h-3.5 w-3.5" /> LATEST
           </button>
         )}
       </div>
-      {error && <div className="mono border-t border-border px-3 py-1.5 text-[10.5px] text-danger">Stream error: {error}</div>}
+      {error && <div className="mono border-t border-border px-3 py-1.5 text-[11.5px] text-danger">Stream error: {error}</div>}
     </div>
   );
 }

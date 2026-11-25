@@ -85,7 +85,7 @@ export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: 
           <div className="pt-1">
             <dt className="mb-1 text-muted">Webhook endpoint</dt>
             <dd className="flex items-center gap-1">
-              <code className="min-w-0 flex-1 truncate rounded bg-surface-2 px-1.5 py-1 text-[10.5px]">{card.webhookUrl}</code>
+              <code className="min-w-0 flex-1 truncate rounded bg-surface-2 px-1.5 py-1 text-[11.5px]">{card.webhookUrl}</code>
               <Button size="icon-sm" variant="ghost" aria-label="Copy webhook URL" onClick={() => navigator.clipboard.writeText(card.webhookUrl!).then(() => toast.success("Copied"))}>
                 <Copy />
               </Button>

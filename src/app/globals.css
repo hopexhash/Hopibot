@@ -5,43 +5,43 @@
 /* ── HOPI Bot Matrix design tokens (single dark theme) ───────────── */
 :root {
   color-scheme: dark;
-  --background: #050807;
-  --surface: #0b1410;
-  --surface-2: #090f0c;
-  --surface-3: #101c15;
-  --border: rgba(0, 255, 102, 0.11);
-  --border-strong: rgba(0, 255, 102, 0.24);
+  --background: #030806;
+  --surface: #091710;
+  --surface-2: #07110d;
+  --surface-3: #0d1c14;
+  --border: rgba(0, 255, 120, 0.1);
+  --border-strong: rgba(0, 255, 120, 0.24);
   --foreground: #e8f5ec;
-  --muted: #82968a;
-  --subtle: #62766a;
-  --accent: #00ff66;
-  --accent-hover: #39ff88;
-  --accent-soft: rgba(0, 255, 102, 0.1);
+  --muted: #84998d;
+  --subtle: #6b8074;
+  --accent: #00ff78;
+  --accent-hover: #4dffa0;
+  --accent-soft: rgba(0, 255, 120, 0.1);
   --accent-foreground: #021008;
-  --green-2: #00cc55;
+  --green-2: #00c965;
   --green-3: #008f39;
-  --success: #00ff66;
-  --success-soft: rgba(0, 255, 102, 0.1);
-  --warning: #ffd166;
-  --warning-soft: rgba(255, 209, 102, 0.1);
-  --danger: #ff4545;
-  --danger-soft: rgba(255, 69, 69, 0.12);
-  --info: #35b8ff;
-  --info-soft: rgba(53, 184, 255, 0.1);
-  --ring: rgba(0, 255, 102, 0.35);
-  --shadow-sm: 0 0 0 1px rgba(0, 255, 102, 0.02);
+  --success: #00ff78;
+  --success-soft: rgba(0, 255, 120, 0.1);
+  --warning: #ffbf47;
+  --warning-soft: rgba(255, 191, 71, 0.1);
+  --danger: #ff4d61;
+  --danger-soft: rgba(255, 77, 97, 0.12);
+  --info: #43bfff;
+  --info-soft: rgba(67, 191, 255, 0.1);
+  --ring: rgba(0, 255, 120, 0.35);
+  --shadow-sm: 0 0 0 1px rgba(0, 255, 120, 0.02);
   --shadow-md: 0 10px 30px -12px rgba(0, 0, 0, 0.8);
-  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 255, 102, 0.08);
-  --glow: 0 0 12px rgba(0, 255, 102, 0.35);
-  --glow-soft: 0 0 24px -6px rgba(0, 255, 102, 0.25);
+  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 255, 120, 0.08);
+  --glow: 0 0 12px rgba(0, 255, 120, 0.35);
+  --glow-soft: 0 0 24px -6px rgba(0, 255, 120, 0.25);
   /* Chart series: green first (identity), then distinct hues */
-  --chart-1: #00ff66;
-  --chart-2: #35b8ff;
-  --chart-3: #ffd166;
+  --chart-1: #00ff78;
+  --chart-2: #43bfff;
+  --chart-3: #ffbf47;
   --chart-4: #ff6bd6;
   --chart-5: #b48cff;
-  --chart-grid: rgba(0, 255, 102, 0.07);
-  --chart-axis: #62766a;
+  --chart-grid: rgba(0, 255, 120, 0.07);
+  --chart-axis: #6b8074;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -121,8 +121,8 @@ html {
 }
 body {
   background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(0, 255, 102, 0.05), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(53, 184, 255, 0.03), transparent 60%),
+    radial-gradient(1200px 600px at 15% -10%, rgba(0, 255, 120, 0.05), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(67, 191, 255, 0.03), transparent 60%),
     var(--background);
   background-attachment: fixed;
   color: var(--foreground);
@@ -144,7 +144,7 @@ html body[data-scroll-locked] {
   margin-right: 0 !important;
 }
 ::selection {
-  background: rgba(0, 255, 102, 0.25);
+  background: rgba(0, 255, 120, 0.25);
   color: #fff;
 }
 :focus-visible {
@@ -153,20 +153,27 @@ html body[data-scroll-locked] {
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 255, 102, 0.2) transparent;
+  scrollbar-color: rgba(0, 255, 120, 0.2) transparent;
 }
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
 /* ── Matrix utilities ─────────────────────────────────────────── */
+/* Poppins is used throughout. `.mono` marks labels and figures (tabular numerals);
+   true monospace is reserved for `.term` (terminal, logs, code, identifiers). */
 .mono {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+.term,
+.term .mono {
   font-family: var(--font-mono);
   font-feature-settings: "zero" 1;
   letter-spacing: -0.01em;
 }
 .glow-text {
-  text-shadow: 0 0 10px rgba(0, 255, 102, 0.45);
+  text-shadow: 0 0 10px rgba(0, 255, 120, 0.45);
 }
 .glow-box {
   box-shadow: var(--glow-soft);
@@ -174,7 +181,7 @@ html body[data-scroll-locked] {
 /* Terminal-style panel: deep card with a faint inner gradient and hairline green border */
 .panel {
   background:
-    linear-gradient(180deg, rgba(0, 255, 102, 0.025), transparent 40%),
+    linear-gradient(180deg, rgba(0, 255, 120, 0.025), transparent 40%),
     var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -198,7 +205,7 @@ html body[data-scroll-locked] {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: rgba(0, 255, 102, 0.55);
+  border-color: rgba(0, 255, 120, 0.55);
   pointer-events: none;
 }
 .brackets::before {
@@ -223,17 +230,44 @@ html body[data-scroll-locked] {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent, rgba(0, 255, 102, 0.035), transparent);
+  background: linear-gradient(180deg, transparent, rgba(0, 255, 120, 0.035), transparent);
   height: 40%;
   animation: scan 6s linear infinite;
   pointer-events: none;
 }
 .hud-label {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* Faint engineering grid for hero areas */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 255, 120, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 120, 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at 30% 0%, #000 20%, transparent 75%);
+}
+.glass {
+  background: rgba(9, 23, 16, 0.72);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--border);
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(0, 255, 120, 0.04) 25%, rgba(0, 255, 120, 0.09) 37%, rgba(0, 255, 120, 0.04) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
 }
 
 /* React Flow on dark */

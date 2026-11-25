@@ -1,4 +1,5 @@
 import { ChartCard } from "@/components/app/charts";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { Card, CardContent, CardHeader, CardTitle, Progress } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -28,6 +29,7 @@ export default async function CostsPage() {
 
   return (
     <>
+      <SubNav section="/analytics" />
       <PageHeader title="Costs & Usage" description="Every paid API call is metered. When a limit is reached, paid agents pause and ask for approval instead of spending." />
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-5">

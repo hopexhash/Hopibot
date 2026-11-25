@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import Link from "next/link";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader } from "@/components/app/page";
 import { Badge, Button } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -19,6 +20,7 @@ export default async function AgentConfigPage() {
     .where(eq(schema.agents.organizationId, auth.org.id));
   return (
     <>
+      <SubNav section="/agents" />
       <PageHeader eyebrow="SYSTEM // AGENT CONFIGURATION" title="Agent Configuration" description="Models, effort, concurrency, execution limits, spending limits and retries for each agent." />
       <Table>
         <THead>

@@ -2,6 +2,7 @@ import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { FilterBar } from "@/components/app/filter-bar";
+import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Card, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
@@ -42,6 +43,7 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
+      <SubNav section="/websites" />
       <PageHeader title="Website Builder" description="Every generated website is versioned, tested by the Quality Control agent and only marked ready when it scores 85 or more." />
       <Card className="mb-6 p-5">
         <GenerateForm businesses={candidates.map((c) => ({ ...c, city: c.city ?? "" }))} />

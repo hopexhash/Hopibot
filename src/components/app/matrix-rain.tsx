@@ -112,10 +112,10 @@ export function MatrixRain() {
           const fade = 1 - i / d.len;
           if (i === 0) {
             ctx.fillStyle = "rgba(200,255,220,0.9)";
-            ctx.shadowColor = "rgba(0,255,102,0.8)";
+            ctx.shadowColor = "rgba(0,255,120,0.8)";
             ctx.shadowBlur = 8;
           } else {
-            ctx.fillStyle = `rgba(0,255,102,${(0.55 * fade).toFixed(3)})`;
+            ctx.fillStyle = `rgba(0,255,120,${(0.55 * fade).toFixed(3)})`;
             ctx.shadowBlur = 0;
           }
           ctx.fillText(d.chars[i], d.x, cy);
