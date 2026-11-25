@@ -19,6 +19,16 @@ const CATEGORY_WORDS: Record<string, string[]> = {
   hotel: ["hotel", "hotels", "b&b", "bed and breakfast"],
 };
 
+const STEP_PHRASE: Record<string, string> = {
+  research: "research them",
+  contacts: "find contact details",
+  generate_website: "build a website",
+  qc: "test it",
+  deploy: "put a preview online",
+  sales_email: "draft an email",
+  notify: "notify you",
+};
+
 /** Deterministic objective parser — used when Claude is not configured, and as a sanity baseline. */
 export function parseObjectiveHeuristically(objective: string): RunPlan {
   const text = objective.toLowerCase();
@@ -52,7 +62,7 @@ export function parseObjectiveHeuristically(objective: string): RunPlan {
   const websiteStatus = /no website|without (a )?website|geen website/.test(text) ? "no_website" : "any";
 
   return planSchema.parse({
-    summary: `Discover ${limit} ${BUSINESS_CATEGORIES.find((c) => c.key === category)?.label.toLowerCase() ?? category} in ${city}${actions.length ? `, then ${actions.join(" → ")} for the top ${topN}` : ""}.`,
+    summary: `Find ${limit} ${BUSINESS_CATEGORIES.find((c) => c.key === category)?.label.toLowerCase() ?? category} in ${city}${actions.length ? `, then ${actions.map((a) => STEP_PHRASE[a] ?? a).join(", ")} for the best ${topN}` : ""}.`,
     discovery: { country, city, category, radiusKm: 10, limit, minScore, keywords: "", businessName: "", websiteStatus },
     topN,
     actions,

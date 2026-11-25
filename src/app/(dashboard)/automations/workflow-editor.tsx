@@ -158,7 +158,7 @@ export function WorkflowEditor({ initial, trigger }: { initial?: WorkflowDraft; 
                 </li>
               ))}
             </ol>
-            <p className="mt-1.5 text-[11px] text-muted">Sales email drafts always wait for approval; nothing is sent automatically.</p>
+            <p className="mt-1.5 text-[12px] text-muted">Sales email drafts always wait for approval; nothing is sent automatically.</p>
           </div>
           <div className="flex items-center justify-between gap-3">
             <Field label="Max runs per day">

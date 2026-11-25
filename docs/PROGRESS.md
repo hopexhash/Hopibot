@@ -69,4 +69,41 @@ should be smoke-tested with real keys before production use.
 * Email replies are logged manually ("Log reply"); inbound email parsing is not built.
 * Local auth has no password-reset or MFA flow (Supabase Auth provides both).
 * Places returns at most 60 results per query; very large campaigns need multiple runs.
-* Revenue (EUR) and API cost (USD) margins are computed without currency conversion.
+* (Resolved) Profit now converts API costs with a configurable USD to EUR rate.
+
+## Platform expansion (command-center release)
+
+Built in six phases, each verified in a browser at iPhone (440 px), Android (360 px) and
+desktop widths before it was committed.
+
+1. **Design system and navigation** — new palette, Poppins throughout (monospace only in
+   the terminal), bottom-sheet dialogs on phones, grouped sidebar with tooltips, section
+   tabs, command palette (Cmd/Ctrl+K) with global search, Command Center with 13 KPI tiles
+   compared with the previous period, live agent cards with pause / resume / stop.
+2. **Agents** — Agent Builder (custom agents with a server-validated tool registry, hard
+   limits on steps, time and budget, test runs that never write), terminal with real
+   commands and log tabs, agent detail pages.
+3. **Business** — outreach campaigns (templates, audience, preview, approval, daily limit,
+   one follow-up), manual leads, CRM tasks, touch-friendly board.
+4. **Intelligence** — date ranges, profit with expenses and currency conversion, budget
+   warnings, cost per run / website / customer, health summary and incidents.
+5. **Platform** — integrations only show "Connected" after a real test, notification kinds
+   and page, settings sections.
+6. **Polish** — every page checked for horizontal overflow and console errors.
+
+### Verified only with a stand-in (needs real keys to confirm end to end)
+
+* Custom-agent runs and the terminal's AI mode call the Claude API. The loop, limits and
+  permission checks are unit-tested with a fake model client; no real API call was made
+  in development because no Anthropic key is configured there.
+* Campaign delivery uses the same send path as single emails; rules are covered by
+  database tests, but no real email was sent (Resend is not configured in development).
+
+### Still not built
+
+* Inbound reply detection (replies are logged by hand), so "customer replied" cannot
+  trigger an automation.
+* Automations support three triggers (manual, new qualified lead, schedule) and a fixed
+  list of steps; conditions and delays are not supported.
+* OpenAI, Gmail and Cloudflare integrations.
+* Profit converts API costs with one configurable USD to EUR rate, not daily rates.

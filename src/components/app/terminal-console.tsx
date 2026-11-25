@@ -352,7 +352,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
               autoComplete="off"
               spellCheck={false}
               enterKeyHint="send"
-              className="term h-10 min-w-0 flex-1 bg-transparent text-[16px] text-accent caret-accent placeholder:text-subtle focus:outline-none sm:text-[13px]"
+              className="term h-10 min-w-0 flex-1 bg-transparent text-[16px] text-accent caret-accent outline-none placeholder:text-subtle focus-visible:outline-none sm:text-[13px]"
             />
             <button onClick={() => void execute(input)} disabled={busy || !input.trim()} aria-label="Run" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-opacity disabled:opacity-40">
               <ChevronRight className={cn("h-5 w-5", busy && "animate-pulse")} />

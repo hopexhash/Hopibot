@@ -140,7 +140,7 @@ export function CommandPalette() {
                 }
               }}
               placeholder="Search leads, websites, agents… or type an action"
-              className="h-14 min-w-0 flex-1 bg-transparent text-[16px] text-foreground placeholder:text-subtle focus:outline-none"
+              className="h-14 min-w-0 flex-1 bg-transparent text-[16px] text-foreground outline-none placeholder:text-subtle focus-visible:outline-none"
               aria-label="Search"
               role="combobox"
               aria-expanded

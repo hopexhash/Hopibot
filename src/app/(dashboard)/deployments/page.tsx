@@ -64,18 +64,18 @@ export default async function DeploymentsPage() {
                   <Link href={`/websites/${d.projectId}`} className="flex items-center gap-2 font-medium hover:text-accent">
                     {business} {isMock && <MockBadge />}
                   </Link>
-                  <span className="text-[11px] text-muted">{slug}</span>
+                  <span className="text-[12px] text-muted">{slug}</span>
                 </TD>
                 <TD>
                   <Badge tone={d.environment === "production" ? "accent" : "outline"}>{d.environment}</Badge>
                 </TD>
                 <TD className="text-muted">
                   {d.provider}
-                  {d.githubRepo && <span className="block text-[11px]">{d.githubRepo}</span>}
+                  {d.githubRepo && <span className="block text-[12px]">{d.githubRepo}</span>}
                 </TD>
                 <TD>
                   <StatusBadge status={d.status} />
-                  {d.error && <p className="max-w-[220px] truncate text-[11px] text-danger" title={d.error}>{d.error}</p>}
+                  {d.error && <p className="max-w-[220px] truncate text-[12px] text-danger" title={d.error}>{d.error}</p>}
                 </TD>
                 <TD className="max-w-[240px]">
                   {d.url ? (

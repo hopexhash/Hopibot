@@ -23,8 +23,8 @@ export default async function NetworkPage() {
     <>
       <SubNav section="/agents" />
       <PageHeader
-        eyebrow="AI OPERATIONS // WORKFLOW NETWORK"
-        title="Workflow Network"
+        eyebrow="Workforce"
+        title="Workflow map"
         description="How work moves between agents. Nodes light up during confirmed execution; failed tasks in the last hour show in red."
         actions={
           <Button asChild variant="primary">
@@ -36,7 +36,7 @@ export default async function NetworkPage() {
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Section title="Automations" className="mb-0">
           <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
-            {workflows.length === 0 && <p className="mono p-4 text-[11px] text-subtle">No automations defined.</p>}
+            {workflows.length === 0 && <p className="mono p-4 text-[12px] text-subtle">No automations defined.</p>}
             {workflows.map((w) => (
               <Link key={w.id} href="/automations" className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">
                 <span className="min-w-0 truncate text-[13px] font-medium">{w.name}</span>
@@ -47,7 +47,7 @@ export default async function NetworkPage() {
         </Section>
         <Section title="Recent runs" className="mb-0">
           <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
-            {runs.length === 0 && <p className="mono p-4 text-[11px] text-subtle">No runs yet.</p>}
+            {runs.length === 0 && <p className="mono p-4 text-[12px] text-subtle">No runs yet.</p>}
             {runs.map((r) => (
               <Link key={r.id} href={`/automations/runs/${r.id}`} className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">
                 <span className="min-w-0">

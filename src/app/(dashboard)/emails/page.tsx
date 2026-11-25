@@ -87,7 +87,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
                   <Link href={`/emails/${e.id}`} className="flex items-center gap-2 font-medium hover:text-accent">
                     <span className="truncate">{e.subject}</span> {e.isMock && <MockBadge />}
                   </Link>
-                  {e.blockedReason && <p className="truncate text-[11px] text-danger">{e.blockedReason}</p>}
+                  {e.blockedReason && <p className="truncate text-[12px] text-danger">{e.blockedReason}</p>}
                 </TD>
                 <TD className="text-muted">{business}</TD>
                 <TD className="max-w-[200px] truncate text-muted">{e.toEmail ?? "—"}</TD>

@@ -156,7 +156,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
                         {profile.verifiedFacts.map((f, i) => (
                           <li key={i} className="text-xs">
                             {f.fact}
-                            <span className="block text-[11px] text-subtle">{f.source}</span>
+                            <span className="block text-[12px] text-subtle">{f.source}</span>
                           </li>
                         ))}
                       </ul>
@@ -167,7 +167,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
                         {profile.assumptions.map((a, i) => (
                           <li key={i} className="text-xs">
                             {a.assumption}
-                            <span className="block text-[11px] text-subtle">{a.rationale}</span>
+                            <span className="block text-[12px] text-subtle">{a.rationale}</span>
                           </li>
                         ))}
                       </ul>
@@ -339,7 +339,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
                     <span className="truncate font-medium">{c.value}</span>
                     <StatusBadge status={c.verificationStatus === "valid" ? "COMPLETED" : c.verificationStatus === "invalid" ? "FAILED" : "PENDING"} label={c.verificationStatus} />
                   </div>
-                  <p className="text-[11px] text-subtle">
+                  <p className="text-[12px] text-subtle">
                     {c.type} · {c.source}
                     {c.isGeneric ? " · generic" : ""}
                     {c.verifiedAt ? ` · verified ${formatDate(c.verifiedAt)}` : ""}
@@ -377,7 +377,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
                     <li key={a.id} className="text-xs">
                       <span className="absolute -left-[3.5px] mt-1.5 h-1.5 w-1.5 rounded-full bg-border-strong" />
                       <p className="whitespace-pre-wrap">{a.type === "stage_change" ? `Moved to ${PIPELINE_STAGES.find((s) => s.key === (a.metadata as { to?: string }).to)?.label ?? a.content}` : a.content}</p>
-                      <p className="text-[11px] text-subtle">
+                      <p className="text-[12px] text-subtle">
                         {a.type.replace("_", " ")} · {timeAgo(a.createdAt)}
                       </p>
                     </li>

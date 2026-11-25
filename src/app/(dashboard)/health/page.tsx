@@ -170,18 +170,18 @@ export default async function HealthPage() {
           <tbody>
             {workers.workers.length === 0 && (
               <tr>
-                <td colSpan={5} className="mono px-4 py-8 text-center text-[11px] text-warning">
+                <td colSpan={5} className="mono px-4 py-8 text-center text-[12px] text-warning">
                   {workers.ok ? "No worker is connected. The worker is a separate program that runs your agents; it needs to be hosted (for example on Railway or Render) and started with “npm run worker”. See docs/DEPLOYMENT.md." : `Redis unreachable: ${workers.error ?? "unknown error"}`}
                 </td>
               </tr>
             )}
             {workers.workers.map((w) => (
               <TR key={w.id}>
-                <TD className="mono text-[11px]">{w.id}</TD>
-                <TD className="mono text-[11px] text-muted">{w.host}</TD>
-                <TD className="mono text-[11px]">{w.agents.length}/7</TD>
-                <TD className="mono text-[11px] text-subtle">{timeAgo(w.startedAt)}</TD>
-                <TD className="mono text-[11px] text-accent">{timeAgo(w.at)}</TD>
+                <TD className="mono text-[12px]">{w.id}</TD>
+                <TD className="mono text-[12px] text-muted">{w.host}</TD>
+                <TD className="mono text-[12px]">{w.agents.length}/7</TD>
+                <TD className="mono text-[12px] text-subtle">{timeAgo(w.startedAt)}</TD>
+                <TD className="mono text-[12px] text-accent">{timeAgo(w.at)}</TD>
               </TR>
             ))}
           </tbody>

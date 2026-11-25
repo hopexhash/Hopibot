@@ -50,8 +50,8 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
         {t.task.type.replace(/_/g, " ")}
       </Link>
       <StatusBadge status={t.task.status} />
-      {t.task.status === "FAILED" && <span className="max-w-[200px] truncate text-[11px] text-danger" title={t.task.error?.message}>{t.task.error?.message}</span>}
-      {t.task.waitingReason && <span className="text-[11px] text-warning">{t.task.waitingReason}</span>}
+      {t.task.status === "FAILED" && <span className="max-w-[200px] truncate text-[12px] text-danger" title={t.task.error?.message}>{t.task.error?.message}</span>}
+      {t.task.waitingReason && <span className="text-[12px] text-warning">{t.task.waitingReason}</span>}
       <TaskActions taskId={t.task.id} status={t.task.status} />
     </div>
   );
@@ -131,7 +131,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
                 <CardTitle>Final report</CardTitle>
               </CardHeader>
               <CardContent>
-                <pre className="overflow-x-auto rounded-lg bg-surface-2 p-3 text-[11px]">{JSON.stringify(run.report, null, 2)}</pre>
+                <pre className="overflow-x-auto rounded-lg bg-surface-2 p-3 text-[12px]">{JSON.stringify(run.report, null, 2)}</pre>
               </CardContent>
             </Card>
           )}

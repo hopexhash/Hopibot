@@ -21,7 +21,7 @@ export default async function AgentConfigPage() {
   return (
     <>
       <SubNav section="/agents" />
-      <PageHeader eyebrow="SYSTEM // AGENT CONFIGURATION" title="Agent Configuration" description="Models, effort, concurrency, execution limits, spending limits and retries for each agent." />
+      <PageHeader eyebrow="Workforce" title="Agent Configuration" description="Models, effort, concurrency, execution limits, spending limits and retries for each agent." />
       <Table>
         <THead>
           <tr>

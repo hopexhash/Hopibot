@@ -74,7 +74,7 @@ export default async function AutomationsPage() {
                       </span>
                     ))}
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-[11px] text-muted">
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-[12px] text-muted">
                     <span>
                       {w.enabled ? "Active" : "Paused"} · max {w.maxRunsPerDay} runs/day
                       {w.triggerType === "schedule" && w.nextRunAt ? ` · next ${formatDateTime(w.nextRunAt)}` : ""}

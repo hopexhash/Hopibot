@@ -250,7 +250,7 @@ export function WebsiteManager({
                         <figure key={d} className="overflow-hidden rounded-lg border border-border bg-surface">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={`/api/websites/${shown.id}/screenshot/${d}`} alt={`${d} screenshot`} className="aspect-[4/3] w-full object-cover object-top" loading="lazy" />
-                          <figcaption className="px-2 py-1 text-[11px] capitalize text-muted">{d}</figcaption>
+                          <figcaption className="px-2 py-1 text-[12px] capitalize text-muted">{d}</figcaption>
                         </figure>
                       ))}
                     </div>
@@ -313,7 +313,7 @@ export function WebsiteManager({
               <Button className="col-span-2" variant="secondary" disabled={project.approvalStatus !== "approved" || business.stage !== "WON" || publishApproval?.status === "pending"} onClick={() => setPublishOpen(true)}>
                 <Rocket /> {publishApproval?.status === "pending" ? "Publication awaiting approval" : "Publish as official website…"}
               </Button>
-              {business.stage !== "WON" && <p className="col-span-2 text-[11px] text-muted">Publishing as the official website is only possible after the business becomes a customer (stage Won) and authorises it.</p>}
+              {business.stage !== "WON" && <p className="col-span-2 text-[12px] text-muted">Publishing as the official website is only possible after the business becomes a customer (stage Won) and authorises it.</p>}
               {canAdmin && (
                 <Button className="col-span-2" variant="danger-ghost" size="sm" onClick={() => confirm("Delete this preview? The public link stops working.") && run(() => deleteWebsiteAction(project.id) as Promise<Res>, "Preview deleted", () => router.push("/websites"))}>
                   <Trash2 /> Delete preview
@@ -335,7 +335,7 @@ export function WebsiteManager({
               <Textarea rows={3} value={instruction} onChange={(e) => setInstruction(e.target.value)} placeholder="Describe the change…" />
               <div className="flex flex-wrap gap-1.5">
                 {PRESETS.map((p) => (
-                  <button key={p} onClick={() => setInstruction(p)} className="rounded-md border border-border px-2 py-1 text-[11px] text-muted hover:border-accent hover:text-foreground">
+                  <button key={p} onClick={() => setInstruction(p)} className="rounded-md border border-border px-2 py-1 text-[12px] text-muted hover:border-accent hover:text-foreground">
                     {p}
                   </button>
                 ))}
@@ -371,7 +371,7 @@ export function WebsiteManager({
                       </div>
                     </div>
                     <p className="text-xs text-muted">{v.instruction ? `“${v.instruction}” — ` : ""}{v.changeSummary}</p>
-                    <p className="text-[11px] text-subtle">
+                    <p className="text-[12px] text-subtle">
                       {v.createdBy.replace("_", " ")} · {timeAgo(v.createdAt)}
                     </p>
                   </div>
@@ -499,7 +499,7 @@ function ContentEditor({ spec, onSave, disabled }: { spec: SiteSpec; onSave: (s:
       </div>
       <details className="text-xs">
         <summary className="cursor-pointer text-muted">Advanced: edit full spec as JSON</summary>
-        <Textarea className="mt-2 font-mono text-[11px]" rows={14} value={json ?? JSON.stringify(s, null, 2)} onChange={(e) => setJson(e.target.value)} />
+        <Textarea className="mt-2 font-mono text-[12px]" rows={14} value={json ?? JSON.stringify(s, null, 2)} onChange={(e) => setJson(e.target.value)} />
       </details>
       <div className="flex justify-end">
         <Button variant="primary" disabled={disabled} onClick={save}>

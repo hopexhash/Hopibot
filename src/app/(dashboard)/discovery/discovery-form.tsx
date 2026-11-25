@@ -153,7 +153,7 @@ export function DiscoveryForm({ defaultMinScore, activeCampaignId }: { defaultMi
               ].map(([l, v]) => (
                 <div key={l} className="rounded-lg bg-surface-2 py-2">
                   <div className="tabular text-lg font-semibold">{v}</div>
-                  <div className="text-[11px] text-muted">{l}</div>
+                  <div className="text-[12px] text-muted">{l}</div>
                 </div>
               ))}
             </div>

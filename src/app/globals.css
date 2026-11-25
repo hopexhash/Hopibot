@@ -143,6 +143,12 @@ html {
 html body[data-scroll-locked] {
   margin-right: 0 !important;
 }
+/* Grid and flex children default to min-width:auto and grow to their longest unbroken
+   line, which pushes pages wider than a phone screen. Content areas never want that. */
+main .grid > *,
+main .flex > .flex-1 {
+  min-width: 0;
+}
 ::selection {
   background: rgba(0, 255, 120, 0.25);
   color: #fff;

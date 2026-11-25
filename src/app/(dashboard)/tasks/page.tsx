@@ -32,7 +32,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
   return (
     <>
       <SubNav section="/agents" />
-      <PageHeader eyebrow="AI OPERATIONS // TASK QUEUE" title="Task Queue" description="Every task the orchestrator has scheduled. Retry failed work or cancel what has not started." />
+      <PageHeader eyebrow="Workforce" title="Task Queue" description="Every task the orchestrator has scheduled. Retry failed work or cancel what has not started." />
       <div className="-mx-3.5 mb-4 flex gap-1.5 overflow-x-auto px-3.5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {[undefined, ...STATUSES].map((s) => (
           <Link
@@ -63,7 +63,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={7} className="mono px-4 py-10 text-center text-[11px] text-subtle">
+              <td colSpan={7} className="mono px-4 py-10 text-center text-[12px] text-subtle">
                 Queue empty{filter ? ` for ${LABEL[filter].toLowerCase()}` : ""}.
               </td>
             </tr>
@@ -72,7 +72,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
             const meta = AGENT_META[r.agentKey as AgentKey];
             return (
               <TR key={r.id}>
-                <TD className="mono whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em]">
+                <TD className="mono whitespace-nowrap text-[12px] font-semibold uppercase tracking-[0.1em]">
                   <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#00ff78" }} />
                   {meta?.name ?? (r.agentKey === "custom" ? String((r.input as { customAgentName?: string }).customAgentName ?? "Custom agent") : r.agentKey)}
                 </TD>
@@ -80,7 +80,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
                   <div className="mono truncate text-[12px]">{r.type}</div>
                   {(r.error?.message || r.waitingReason) && <div className={cn("mono truncate text-[11.5px]", r.error ? "text-danger" : "text-warning")}>{r.error?.message ?? r.waitingReason}</div>}
                   {r.runId && (
-                    <Link href={`/automations/runs/${r.runId}`} className="mono text-[11px] text-subtle hover:text-accent">
+                    <Link href={`/automations/runs/${r.runId}`} className="mono text-[12px] text-subtle hover:text-accent">
                       run {r.runId.slice(0, 8)}
                     </Link>
                   )}
@@ -92,7 +92,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
                   {r.attempts}/{r.maxAttempts}
                 </TD>
                 <TD className="mono tabular text-right text-[12px]">{r.costUsd ? formatUsd(r.costUsd) : "—"}</TD>
-                <TD className="mono whitespace-nowrap text-[11px] text-subtle">{timeAgo(r.createdAt)}</TD>
+                <TD className="mono whitespace-nowrap text-[12px] text-subtle">{timeAgo(r.createdAt)}</TD>
                 <TD>
                   <TaskActions taskId={r.id} status={r.status} />
                 </TD>
