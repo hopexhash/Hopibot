@@ -75,8 +75,7 @@ export async function signInAction(_prev: AuthFormState, formData: FormData): Pr
   const { email, password } = parsed.data;
   const ip = await clientIp();
   try {
-    await rateLimit(`login:${ip ?? "unknown"}`, 20, 900);
-    await rateLimit(`login-email:${email}`, 8, 900);
+    await Promise.all([rateLimit(`login:${ip ?? "unknown"}`, 20, 900), rateLimit(`login-email:${email}`, 8, 900)]);
   } catch (e) {
     if (e instanceof RateLimitError) return { error: e.message, fields };
     throw e;
@@ -108,9 +107,11 @@ export async function signInAction(_prev: AuthFormState, formData: FormData): Pr
     .from(schema.organizationMembers)
     .where(eq(schema.organizationMembers.userId, user.id))
     .limit(1);
-  await createSession(user.id, membership?.organizationId ?? null);
-  await db().update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, user.id));
-  await audit({ organizationId: membership?.organizationId ?? null, userId: user.id, action: "auth.login", ip });
+  await Promise.all([
+    createSession(user.id, membership?.organizationId ?? null),
+    db().update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, user.id)),
+    audit({ organizationId: membership?.organizationId ?? null, userId: user.id, action: "auth.login", ip }),
+  ]);
   redirect("/");
 }
 

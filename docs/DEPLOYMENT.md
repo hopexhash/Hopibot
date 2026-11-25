@@ -99,3 +99,10 @@ to each preview project. Without it, previews use the Vercel URL or the built-in
   neighbourhood/keyword via separate discovery runs or scheduled automations.
 * Keep `DATABASE_POOL_SIZE` × replicas below your Postgres connection limit (use the
   Supabase pooler for the web app).
+
+## Region
+
+`vercel.json` pins serverless functions to `fra1` (Frankfurt) so they sit next to the
+Supabase database in `eu-central-1`. If your database lives elsewhere, change the region to
+match: every page render makes several database round trips, and a cross-ocean hop adds
+roughly 90 ms to each. Put Redis (Upstash/Vercel KV) in the same region too.
