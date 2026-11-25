@@ -10,6 +10,7 @@ import { createApproval } from "../orchestrator/control";
 import { createTask } from "../orchestrator/tasks";
 import { isSuppressed } from "../suppression";
 import { action, UserError } from "./_util";
+import { CLOSED_STAGES } from "@/lib/constants";
 
 async function ownedEmail(orgId: string, id: string) {
   const [e] = await db()
@@ -132,7 +133,7 @@ export async function queueFollowUpAction(id: string) {
       .where(and(eq(schema.salesEmails.businessId, e.businessId), eq(schema.salesEmails.kind, "intro"), eq(schema.salesEmails.status, "sent")));
     if (!intro) throw new UserError("Send the introduction email before a follow-up.");
     const [b] = await db().select({ stage: schema.businesses.pipelineStage, name: schema.businesses.name }).from(schema.businesses).where(eq(schema.businesses.id, e.businessId));
-    if (["REPLIED", "NEGOTIATION", "WON", "LOST"].includes(b.stage)) throw new UserError("This business already replied — follow-ups are not needed.");
+    if (CLOSED_STAGES.includes(b.stage)) throw new UserError("This business already replied — follow-ups are not needed.");
     await db().update(schema.salesEmails).set({ status: "awaiting_approval", updatedAt: new Date() }).where(eq(schema.salesEmails.id, e.id));
     await createApproval(null, { kind: "send_email", subjectType: "sales_email", subjectId: e.id, summary: `Send follow-up to ${b.name}` }, auth.org.id);
     return null;

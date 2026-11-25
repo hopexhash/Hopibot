@@ -3,6 +3,7 @@ import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { claudeStructured } from "../integrations/anthropic";
 import { integrationMode } from "../integrations/credentials";
 import { planSchema, type RunPlan } from "./runs";
+import { resolveMarket } from "@/lib/markets";
 
 const CATEGORY_WORDS: Record<string, string[]> = {
   restaurant: ["restaurant", "restaurants", "restaurant", "eetcafe", "eetcafé", "bistro", "cafe", "café", "cafes"],
@@ -44,8 +45,9 @@ export function parseObjectiveHeuristically(objective: string): RunPlan {
   }
   const cityMatch = objective.match(/\b(?:in|te|rond|around|near)\s+([A-Z][\p{L}'-]+(?:[ -][A-Z][\p{L}'-]+)?)/u);
   const city = cityMatch?.[1] ?? "Rotterdam";
-  const countryMatch = objective.match(/\b(Netherlands|Nederland|Belgium|België|Germany|Duitsland)\b/i);
-  const country = countryMatch ? ({ nederland: "Netherlands", belgië: "Belgium", duitsland: "Germany" } as Record<string, string>)[countryMatch[1].toLowerCase()] ?? countryMatch[1] : "Netherlands";
+  // Only the supported markets can be planned; anything else falls back to the Netherlands.
+  const countryMatch = objective.match(/\b(Netherlands|Nederland|Belgium|België|Belgie|Belgique)\b/i);
+  const country = resolveMarket(countryMatch?.[1])?.name ?? "Netherlands";
   const numbers = [...objective.matchAll(/\b(\d{1,3})\b/g)].map((m) => Number(m[1]));
   const limit = Math.min(200, Math.max(1, numbers[0] ?? 20));
   const topMatch = objective.match(/(?:for|voor)\s+(?:the\s+|de\s+)?(\d{1,3})\s+(?:best|beste|top)/i) ?? objective.match(/top\s+(\d{1,3})/i);
@@ -82,6 +84,7 @@ export async function planObjective(organizationId: string, objective: string): 
 - discovery.category must be one of: ${BUSINESS_CATEGORIES.map((c) => c.key).join(", ")}.
 - discovery.limit = how many businesses to discover (max 200). topN = how many of the best prospects get the follow-up actions.
 - actions (ordered, subset of): research, contacts, generate_website, qc, deploy, sales_email, notify. Website generation implies research first and qc + deploy after. Emails imply contacts and a deployed preview.
+- discovery.country must be "Netherlands" or "Belgium" — no other country is ever allowed.
 - minScore: 0-100 lead score threshold (use 50-70 when the operator wants outdated/no websites, else 40).
 - Never plan to send emails: sales_email only drafts emails for human approval.
 - summary: one plain sentence describing the plan.`,

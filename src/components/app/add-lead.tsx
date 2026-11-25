@@ -58,6 +58,12 @@ export function AddLeadButton({ variant = "secondary" }: { variant?: "primary" |
               ))}
             </Select>
           </Field>
+          <Field label="Country">
+            <Select value={f.country} onChange={(e) => set({ country: e.target.value })}>
+              <option>Netherlands</option>
+              <option>Belgium</option>
+            </Select>
+          </Field>
           <Field label="City">
             <Input value={f.city} onChange={(e) => set({ city: e.target.value })} maxLength={80} />
           </Field>

@@ -100,7 +100,7 @@ async function call(apiKey: string, body: Record<string, unknown>, fieldMask: st
 
 export async function searchPlaces(
   ctx: UsageContext,
-  q: { query: string; includedType?: string | null; center?: { lat: number; lng: number } | null; radiusKm?: number; limit: number; languageCode?: string },
+  q: { query: string; includedType?: string | null; center?: { lat: number; lng: number } | null; radiusKm?: number; limit: number; languageCode?: string; regionCode?: string },
 ): Promise<PlaceResult[]> {
   const cred = await getCredential(ctx.organizationId, "google_maps");
   if (!cred.secret) throw new IntegrationUnavailableError("google_maps");
@@ -111,6 +111,7 @@ export async function searchPlaces(
       textQuery: q.query,
       pageSize: Math.min(20, q.limit - out.length),
       languageCode: q.languageCode ?? "nl",
+      ...(q.regionCode ? { regionCode: q.regionCode } : {}),
       ...(q.includedType ? { includedType: q.includedType, strictTypeFiltering: false } : {}),
       ...(q.center
         ? { locationBias: { circle: { center: { latitude: q.center.lat, longitude: q.center.lng }, radius: Math.min(50000, (q.radiusKm ?? 10) * 1000) } } }

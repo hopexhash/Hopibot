@@ -83,7 +83,10 @@ export function DiscoveryForm({ defaultMinScore, activeCampaignId }: { defaultMi
       <Card className="p-5 lg:col-span-3">
         <form onSubmit={submit} className="grid grid-cols-2 gap-4 md:grid-cols-3">
           <Field label="Country">
-            <Input value={form.country} onChange={(e) => set("country", e.target.value)} required />
+            <Select value={form.country} onChange={(e) => set("country", e.target.value)}>
+              <option>Netherlands</option>
+              <option>Belgium</option>
+            </Select>
           </Field>
           <Field label="City">
             <Input value={form.city} onChange={(e) => set("city", e.target.value)} required />

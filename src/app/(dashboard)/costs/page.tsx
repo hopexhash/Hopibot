@@ -6,7 +6,7 @@ import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, Section, StatCard } from "@/components/app/page";
 import { Card, CardContent, CardHeader, CardTitle, Progress } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
-import { AGENT_META, type AgentKey } from "@/lib/constants";
+import { AGENT_META, type AgentKey, isCustomerStage } from "@/lib/constants";
 import { cn, formatNumber, formatUsd } from "@/lib/utils";
 import { hasRole, requireAuth } from "@/server/auth";
 import { checkBudget, startOfUtcMonth } from "@/server/costs/usage";
@@ -158,7 +158,7 @@ export default async function CostsPage() {
               <Link key={String(r.id)} href={`/businesses/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-[rgba(0,255,120,0.035)]">
                 <span className="min-w-0">
                   <span className="block truncate text-[13.5px] font-medium">{String(r.name)}</span>
-                  <span className="block text-[12px] text-subtle">{r.pipeline_stage === "WON" ? "Customer" : "Lead"}</span>
+                  <span className="block text-[12px] text-subtle">{isCustomerStage(String(r.pipeline_stage)) ? "Customer" : "Lead"}</span>
                 </span>
                 <span className="tabular shrink-0 text-[13.5px] font-medium">{formatUsd(Number(r.cost))}</span>
               </Link>

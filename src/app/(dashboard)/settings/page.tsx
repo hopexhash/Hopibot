@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { Bot, KeyRound, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { LinkTabs, PageHeader } from "@/components/app/page";
+import { AutopilotForm, PricingForm } from "./pricing-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
@@ -16,7 +17,9 @@ export const metadata = { title: "Settings" };
 const TABS = [
   { key: "general", label: "General" },
   { key: "ai", label: "AI & spending" },
-  { key: "leads", label: "Leads & pricing" },
+  { key: "leads", label: "Leads" },
+  { key: "pricing", label: "Pricing" },
+  { key: "autopilot", label: "Autopilot" },
   { key: "team", label: "Team" },
   { key: "security", label: "Security" },
 ];
@@ -83,6 +86,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       {tab === "ai" && <AiSettingsForm settings={auth.org.settings} models={SUPPORTED_MODELS.map((m) => ({ id: m.id, label: m.label }))} canAdmin={canAdmin} />}
 
       {tab === "leads" && <ScoringForm settings={auth.org.settings} canAdmin={canAdmin} />}
+
+      {tab === "pricing" && <PricingForm settings={auth.org.settings} canAdmin={canAdmin} />}
+
+      {tab === "autopilot" && <AutopilotForm settings={auth.org.settings} canAdmin={canAdmin} />}
 
       {tab === "team" && (
         <div className="space-y-4">

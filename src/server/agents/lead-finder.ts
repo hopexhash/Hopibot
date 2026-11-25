@@ -1,4 +1,6 @@
 import "../guard";
+import { resolveMarket, UnsupportedMarketError } from "@/lib/markets";
+import { AgentError } from "../integrations/anthropic";
 import { and, eq, or, sql } from "drizzle-orm";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
@@ -53,6 +55,10 @@ export const leadFinder: AgentHandler = async (ctx) => {
   if (mode === "unavailable") throw new IntegrationUnavailableError("google_maps");
   const isMock = mode === "mock";
 
+  // Market restriction: discovery only ever runs inside the Netherlands and Belgium.
+  const market = resolveMarket(params.country);
+  if (!market) throw new AgentError(new UnsupportedMarketError(params.country).message, "UNSUPPORTED_MARKET", false);
+  let outsideMarket = 0;
   const queryParts = [params.businessName || category.label, params.keywords, `in ${params.city}, ${params.country}`].filter(Boolean);
   const query = queryParts.join(" ");
   await ctx.log("info", `Searching Google Places for "${query}"${isMock ? " (MOCK MODE)" : ""}`, { params });
@@ -70,6 +76,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
       center,
       radiusKm: params.radiusKm,
       limit: fetchCount,
+      regionCode: market.code.toLowerCase(),
     });
   }
   await ctx.log("info", `Google Places returned ${places.length} result(s).`);
@@ -84,6 +91,11 @@ export const leadFinder: AgentHandler = async (ctx) => {
     await ctx.heartbeat();
     if (place.businessStatus && place.businessStatus !== "OPERATIONAL") {
       skippedClosed++;
+      continue;
+    }
+    // The country of every result is validated: a search near the border can return foreign businesses.
+    if (place.country && resolveMarket(place.country)?.code !== market.code) {
+      outsideMarket++;
       continue;
     }
     const key = dedupeKey(place.name, place.address, place.city ?? params.city);
@@ -148,7 +160,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
         category: params.category,
         address: place.address,
         city: place.city ?? params.city,
-        country: place.country ?? params.country,
+        country: market.name,
         postalCode: place.postalCode,
         lat: place.lat,
         lng: place.lng,

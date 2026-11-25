@@ -141,7 +141,7 @@ export const deployment: AgentHandler = async (ctx) => {
       .set({ status: "ready", url, provider, providerDeploymentId, githubRepo, githubCommit, customDomain, readyAt: new Date() })
       .where(eq(schema.deployments.id, row.id));
     await db().update(schema.websiteProjects).set({ previewUrl: url, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
-    if (!production) await advanceStage(project.businessId, "PREVIEW_READY", ctx.organizationId);
+    if (!production) await advanceStage(project.businessId, "QUALITY_APPROVED", ctx.organizationId);
     await ctx.log("info", `${production ? "Published" : "Preview deployed"}: ${url}`);
     await notify(ctx.organizationId, production ? "A website was published" : "A website preview is ready", url, `/websites/${project.id}`, "success");
     if (!production) await continuePipeline(ctx, { businessId: project.businessId, projectId: project.id, next: (ctx.task.input.next as string[]) ?? [] });

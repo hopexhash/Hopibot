@@ -86,7 +86,7 @@ describe.skipIf(!ok)("campaign sending (Postgres)", () => {
     await addRecipients(org.id, c, [a.id, b.id]);
     // Both change after being added but before the scheduler runs.
     await db().insert(schema.suppressionList).values({ organizationId: org.id, email: "a@late.test", reason: "opt_out", source: "test" });
-    await db().update(schema.businesses).set({ pipelineStage: "REPLIED" }).where(eq(schema.businesses.id, b.id));
+    await db().update(schema.businesses).set({ pipelineStage: "INTERESTED" }).where(eq(schema.businesses.id, b.id));
     await processCampaigns();
     expect(await emailsOf(org.id)).toHaveLength(0);
     const rows = await recipients(c.id);
@@ -138,10 +138,12 @@ describe.skipIf(!ok)("campaign sending (Postgres)", () => {
 describe.skipIf(!ok)("saving leads", () => {
   it("detects duplicates by name and address", async () => {
     const { org } = await makeOrg();
-    const input = { name: "Tandarts Jansen", category: "dentist", city: "Rotterdam", address: "Coolsingel 1", source: "manual" };
+    const input = { name: "Tandarts Jansen", category: "dentist", city: "Rotterdam", country: "Nederland", address: "Coolsingel 1", source: "manual" };
     const first = await saveLead(org.id, input, { weights: WEIGHTS, minScore: 60, audit: false });
     expect(first.status).toBe("created");
     const again = await saveLead(org.id, { ...input, name: "tandarts jansen " }, { weights: WEIGHTS, minScore: 60, audit: false });
+    // Market restriction: a business outside the Netherlands and Belgium is never stored.
+    await expect(saveLead(org.id, { ...input, name: "Zahnarzt Müller", country: "Germany" }, { weights: WEIGHTS, minScore: 60, audit: false })).rejects.toThrow(/supported markets/);
     expect(again).toMatchObject({ status: "duplicate", id: first.status === "created" ? first.id : "" });
   });
 });

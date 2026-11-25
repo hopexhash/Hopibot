@@ -1,4 +1,5 @@
 import "../guard";
+import { CLOSED_STAGES } from "@/lib/constants";
 import { and, asc, desc, eq, gte, inArray, isNull, lte, ne, sql } from "drizzle-orm";
 import { categoryLabel } from "@/lib/constants";
 import { renderTemplate, type TemplateVars, unknownVariables, usesVariable } from "@/lib/campaign-template";
@@ -12,7 +13,6 @@ import { getOrgSettings } from "../org";
 import { isSuppressed } from "../suppression";
 
 export type Campaign = typeof schema.emailCampaigns.$inferSelect;
-const CLOSED_STAGES = ["REPLIED", "NEGOTIATION", "WON", "LOST"];
 /** Do not write to a business again if any outreach email went to it this recently. */
 const RECONTACT_DAYS = 30;
 

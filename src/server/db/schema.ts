@@ -167,10 +167,17 @@ export const businesses = pgTable(
     websiteQuality: integer("website_quality"),
     leadScore: integer("lead_score"),
     researchStatus: text("research_status").notNull().default("not_started"),
-    pipelineStage: text("pipeline_stage").notNull().default("NEW_LEAD"),
+    pipelineStage: text("pipeline_stage").notNull().default("DISCOVERED"),
     salesValueCents: integer("sales_value_cents"),
     followUpAt: timestamp("follow_up_at", { withTimezone: true }),
     lostReason: text("lost_reason"),
+    /** Outreach permission: unknown | consent | existing_customer | legitimate_interest | not_allowed | opted_out */
+    contactPermission: text("contact_permission").notNull().default("unknown"),
+    /** Where the permission/contact basis comes from (e.g. "contact form on own website", "phone call 12 May"). */
+    permissionSource: text("permission_source"),
+    /** Proof of consent: free text or a link to the stored evidence. */
+    permissionProof: text("permission_proof"),
+    permissionAt: timestamp("permission_at", { withTimezone: true }),
     dedupeKey: text("dedupe_key").notNull(),
     source: text("source").notNull().default("google_places"),
     sourceData: jsonb("source_data").$type<Record<string, unknown> | null>(),
@@ -834,4 +841,58 @@ export const crmTasks = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("crm_tasks_business").on(t.businessId, t.doneAt), index("crm_tasks_org_due").on(t.organizationId, t.dueAt)],
+);
+
+// ───────────────────────── Sales: demo pages & checkout ─────────────────────────
+
+/** A prospect's order from the demo page: one package, optional care plan and add-ons. */
+export const orders = pgTable(
+  "orders",
+  {
+    id: id(),
+    organizationId: orgId(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    projectId: uuid("project_id").references(() => websiteProjects.id, { onDelete: "set null" }),
+    /** requested (no online payment available) | checkout_started | paid | cancelled */
+    status: text("status").notNull().default("requested"),
+    packageKey: text("package_key").notNull(),
+    planKey: text("plan_key"),
+    /** Snapshot of what was ordered and the prices at that moment. */
+    items: jsonb("items").$type<{ key: string; name: string; kind: "one_time" | "monthly"; unitCents: number; quantity: number }[]>().notNull(),
+    oneTimeCents: integer("one_time_cents").notNull().default(0),
+    monthlyCents: integer("monthly_cents").notNull().default(0),
+    currency: text("currency").notNull().default("eur"),
+    customerName: text("customer_name").notNull(),
+    customerEmail: text("customer_email").notNull(),
+    customerPhone: text("customer_phone"),
+    note: text("note"),
+    stripeSessionId: text("stripe_session_id"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("orders_org_created").on(t.organizationId, t.createdAt), index("orders_business").on(t.businessId), index("orders_stripe").on(t.stripeSessionId)],
+);
+
+/** Prospect activity on a demo page (never recorded for signed-in agency users). */
+export const demoEvents = pgTable(
+  "demo_events",
+  {
+    id: id(),
+    organizationId: orgId(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => websiteProjects.id, { onDelete: "cascade" }),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    /** view | checkout_view | order */
+    type: text("type").notNull(),
+    /** Daily-rotating anonymous hash, used only to count unique visitors. No IP is stored. */
+    visitor: text("visitor"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("demo_events_org_created").on(t.organizationId, t.createdAt), index("demo_events_project").on(t.projectId, t.type)],
 );

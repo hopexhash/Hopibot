@@ -4,9 +4,10 @@ import { z } from "zod";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { db, schema } from "../db";
 import { createTask, notify, writeLog } from "./tasks";
+import { marketCountry } from "@/lib/markets";
 
 export const discoveryParamsSchema = z.object({
-  country: z.string().trim().min(2).max(60).default("Netherlands"),
+  country: marketCountry,
   city: z.string().trim().min(1).max(80),
   category: z.enum(BUSINESS_CATEGORIES.map((c) => c.key) as [string, ...string[]]),
   radiusKm: z.number().min(1).max(50).default(10),

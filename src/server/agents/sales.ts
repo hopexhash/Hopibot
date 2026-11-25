@@ -1,4 +1,6 @@
 import "../guard";
+import { assessOutreach } from "@/lib/outreach-compliance";
+import { buildEmailHtml, demoUrl } from "../sales/email-html";
 import { and, desc, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { categoryLabel } from "@/lib/constants";
@@ -62,7 +64,9 @@ async function draftIntro(ctx: AgentContext) {
     .where(and(eq(schema.deployments.projectId, project.id), eq(schema.deployments.status, "ready"), eq(schema.deployments.environment, "preview")))
     .orderBy(desc(schema.deployments.createdAt))
     .limit(1);
-  const previewUrl = dep?.url ?? `${process.env.APP_URL ?? "http://localhost:3000"}/p/${project.slug}`;
+  // Emails link to the demo page (preview, opportunity report, pricing and ordering in one place).
+  void dep;
+  const previewUrl = demoUrl(project.slug);
 
   // Pick the best lawful contact: verified, generic business addresses first.
   const contacts = await db()
@@ -140,11 +144,15 @@ Operator instructions: ${ctx.config.instructions || "(none)"}`,
   const unsub = unsubscribeUrl(token);
   const footer = complianceFooter(lang, s, unsub);
   const body = draft.body.replaceAll("[PREVIEW_URL]", previewUrl) + footer;
+  // Permission-based outreach: without a recorded lawful basis the draft waits for a person.
+  const assessment = assessOutreach({ country: b.country, permission: b.contactPermission, contact: contact ? { isGeneric: contact.isGeneric, source: contact.source } : null });
   const blockedReason = !contact
     ? "No published or verified business email address found. Add one manually before approving."
     : contact.isMock
       ? "Mock contact address — cannot be sent."
-      : null;
+      : assessment.decision !== "send"
+        ? `Permission needed — ${assessment.reason} ${assessment.action}`
+        : null;
 
   const [email] = await db()
     .insert(schema.salesEmails)
@@ -192,7 +200,7 @@ Operator instructions: ${ctx.config.instructions || "(none)"}`,
   await db()
     .insert(schema.crmActivities)
     .values({ organizationId: ctx.organizationId, businessId: b.id, type: "system", content: `Sales email drafted and awaiting approval. ${draft.crmNotes}`.slice(0, 1000) });
-  await advanceStage(b.id, "AWAITING_APPROVAL", ctx.organizationId);
+  await advanceStage(b.id, contact && !contact.isMock && assessment.decision !== "send" ? "CONTACT_PERMISSION_REQUIRED" : "CONTACT_READY", ctx.organizationId);
   await notify(ctx.organizationId, "An email is waiting for your approval", `Intro email to ${b.name}`, `/emails/${email.id}`, "approval");
   await ctx.log("info", `Drafted intro email for ${b.name}${blockedReason ? ` (blocked: ${blockedReason})` : ""}.`);
   return { status: "completed" as const, output: { emailId: email.id, blocked: Boolean(blockedReason), mock: mode === "mock" } };
@@ -215,8 +223,14 @@ async function sendApproved(ctx: AgentContext) {
     throw new AgentError(reason, "BLOCKED", false);
   };
   if (await isSuppressed(ctx.organizationId, email.toEmail)) await block("Recipient is on the suppression list.");
-  const [biz] = await db().select({ erasedAt: schema.businesses.erasedAt }).from(schema.businesses).where(eq(schema.businesses.id, email.businessId));
+  const [biz] = await db().select({ erasedAt: schema.businesses.erasedAt, country: schema.businesses.country, permission: schema.businesses.contactPermission }).from(schema.businesses).where(eq(schema.businesses.id, email.businessId));
   if (biz?.erasedAt) await block("Business data was erased on request.");
+  // The lawful basis is re-checked at send time: approval alone is not permission to contact.
+  if (!email.isMock) {
+    const [contact] = email.contactId ? await db().select().from(schema.businessContacts).where(eq(schema.businessContacts.id, email.contactId)) : [];
+    const verdict = assessOutreach({ country: biz?.country ?? null, permission: biz?.permission ?? "unknown", contact: { isGeneric: contact?.isGeneric ?? false, source: contact?.source ?? "manual" } });
+    if (verdict.decision !== "send") await block(`Permission needed — ${verdict.reason} ${verdict.action}`);
+  }
   const s = ctx.settings;
   if (!s.senderEmail || !s.agencyName) await block("Set the agency name and sender email in Settings before sending.");
 
@@ -232,6 +246,7 @@ async function sendApproved(ctx: AgentContext) {
       replyTo: s.replyToEmail || s.senderEmail,
       subject: email.subject,
       text: email.bodyText,
+      html: (await buildEmailHtml(email)) ?? undefined,
       // Header uses the RFC 8058 one-click endpoint; the body links to the confirmation page.
       unsubscribeUrl: `${process.env.APP_URL ?? "http://localhost:3000"}/api/unsubscribe/${email.unsubscribeToken}`,
       unsubscribeMailto: s.replyToEmail || s.senderEmail,

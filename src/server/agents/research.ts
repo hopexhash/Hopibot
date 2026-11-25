@@ -202,7 +202,7 @@ Agency instructions from the operator: ${ctx.config.instructions || "(none)"}`,
     isMock: mode === "mock",
   });
   await db().update(schema.businesses).set({ researchStatus: "done", updatedAt: new Date() }).where(eq(schema.businesses.id, b.id));
-  await advanceStage(b.id, "RESEARCHED", ctx.organizationId);
+  await advanceStage(b.id, "ANALYSED", ctx.organizationId);
   await ctx.log("info", `Research complete: ${result.profile.verifiedFacts.length} verified facts, ${result.profile.assumptions.length} assumptions, ${result.profile.missingInformation.length} gaps.`);
 
   await continuePipeline(ctx, { businessId: b.id, next: (ctx.task.input.next as string[]) ?? [] });

@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Dialog, Field, Input, MockBadge, ScoreRing, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@/components/ui";
-import { QC_PASS_SCORE } from "@/lib/constants";
+import { QC_PASS_SCORE, isCustomerStage } from "@/lib/constants";
 import type { SiteSpec } from "@/lib/site-spec";
 import { designName } from "@/sites/designs";
 import { cn, timeAgo } from "@/lib/utils";
@@ -311,10 +311,10 @@ export function WebsiteManager({
               <Button disabled={busy || pending} onClick={() => confirm("Regenerate from scratch? (Use AI improvement to keep the current design.)") && run(() => regenerateWebsiteAction(project.id) as Promise<Res>, "Regeneration queued")}>
                 <RotateCcw /> Regenerate
               </Button>
-              <Button className="col-span-2" variant="secondary" disabled={project.approvalStatus !== "approved" || business.stage !== "WON" || publishApproval?.status === "pending"} onClick={() => setPublishOpen(true)}>
+              <Button className="col-span-2" variant="secondary" disabled={project.approvalStatus !== "approved" || !isCustomerStage(business.stage) || publishApproval?.status === "pending"} onClick={() => setPublishOpen(true)}>
                 <Rocket /> {publishApproval?.status === "pending" ? "Publication awaiting approval" : "Publish as official website…"}
               </Button>
-              {business.stage !== "WON" && <p className="col-span-2 text-[12px] text-muted">Publishing as the official website is only possible after the business becomes a customer (stage Won) and authorises it.</p>}
+              {business.stage !== "PURCHASED" && <p className="col-span-2 text-[12px] text-muted">Publishing as the official website is only possible after the business becomes a customer (stage Won) and authorises it.</p>}
               {canAdmin && (
                 <Button className="col-span-2" variant="danger-ghost" size="sm" onClick={() => confirm("Delete this preview? The public link stops working.") && run(() => deleteWebsiteAction(project.id) as Promise<Res>, "Preview deleted", () => router.push("/websites"))}>
                   <Trash2 /> Delete preview

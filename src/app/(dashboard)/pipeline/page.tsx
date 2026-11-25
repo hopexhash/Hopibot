@@ -3,7 +3,7 @@ import { AddLeadButton } from "@/components/app/add-lead";
 import { FilterBar } from "@/components/app/filter-bar";
 import { SubNav } from "@/components/app/sidebar";
 import { PageHeader, StatCard } from "@/components/app/page";
-import { BUSINESS_CATEGORIES, PIPELINE_STAGES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, PIPELINE_STAGES, isCustomerStage } from "@/lib/constants";
 import { formatEur } from "@/lib/utils";
 import { requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
@@ -29,9 +29,9 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
     .limit(3000);
   const deals = rows.filter((r) => Number(r.rn) <= 150).map((r) => ({ ...r, followUpAt: r.followUpAt?.toISOString() ?? null }));
   const real = rows.filter((r) => !r.isMock);
-  const won = real.filter((r) => r.stage === "WON");
+  const won = real.filter((r) => isCustomerStage(r.stage));
   const lost = real.filter((r) => r.stage === "LOST");
-  const open = real.filter((r) => !["WON", "LOST"].includes(r.stage));
+  const open = real.filter((r) => !isCustomerStage(r.stage) && r.stage !== "LOST");
   const winRate = won.length + lost.length ? Math.round((won.length / (won.length + lost.length)) * 100) : null;
 
   return (
@@ -42,7 +42,7 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
         <StatCard label="Open pipeline value" value={formatEur(open.reduce((s, r) => s + (r.valueCents ?? 0), 0))} sub={`${open.length} open deals`} />
         <StatCard label="Won" value={formatEur(won.reduce((s, r) => s + (r.valueCents ?? 0), 0))} sub={`${won.length} customers`} tone="success" />
         <StatCard label="Win rate" value={winRate == null ? "—" : `${winRate}%`} sub="Won ÷ (won + lost)" />
-        <StatCard label="In negotiation" value={real.filter((r) => r.stage === "NEGOTIATION").length} sub={`${real.filter((r) => r.stage === "REPLIED").length} interested`} tone="warning" />
+        <StatCard label="In checkout" value={real.filter((r) => r.stage === "CHECKOUT_STARTED").length} sub={`${real.filter((r) => r.stage === "INTERESTED").length} interested`} tone="warning" />
       </div>
       <FilterBar
         searchPlaceholder="Search deals…"

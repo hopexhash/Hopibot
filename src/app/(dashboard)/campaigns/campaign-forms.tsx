@@ -6,7 +6,7 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, ConfirmDialog, Dialog, Field, HelpTip, Input, Select, Switch, Textarea } from "@/components/ui";
 import { DEFAULT_CAMPAIGN, TEMPLATE_VARIABLES, unknownVariables } from "@/lib/campaign-template";
-import { BUSINESS_CATEGORIES, PIPELINE_STAGES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, PIPELINE_STAGES, CLOSED_STAGES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { addAudienceAction, decideCampaignAction, previewCampaignAction, removeRecipientAction, saveCampaignAction, sendCampaignTestAction, setCampaignStateAction, submitCampaignAction, type CampaignInput } from "@/server/actions/campaigns";
 
@@ -202,7 +202,7 @@ export function AudiencePanel({ id, recipients, editable }: { id: string; recipi
             <Field label="CRM stage">
               <Select value={f.stage} onChange={(e) => setF({ ...f, stage: e.target.value })}>
                 <option value="">Any stage</option>
-                {PIPELINE_STAGES.filter((s) => !["REPLIED", "NEGOTIATION", "WON", "LOST"].includes(s.key)).map((s) => (
+                {PIPELINE_STAGES.filter((s) => !CLOSED_STAGES.includes(s.key)).map((s) => (
                   <option key={s.key} value={s.key}>
                     {s.label}
                   </option>

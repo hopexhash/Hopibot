@@ -1,6 +1,6 @@
 import "../guard";
 import { and, count, eq, inArray, sql } from "drizzle-orm";
-import { PIPELINE_STAGES, type PipelineStage } from "@/lib/constants";
+import { PIPELINE_STAGES, type PipelineStage, CLOSED_STAGES } from "@/lib/constants";
 import { db, schema } from "../db";
 import { enqueue } from "./queue";
 import type { TaskRow, TaskSpec } from "./types";
@@ -110,7 +110,7 @@ export async function promoteDependents(task: TaskRow) {
 }
 
 const STAGE_RANK = Object.fromEntries(PIPELINE_STAGES.map((s, i) => [s.key, i])) as Record<PipelineStage, number>;
-const STICKY: PipelineStage[] = ["REPLIED", "NEGOTIATION", "WON", "LOST"];
+const STICKY: PipelineStage[] = ["CUSTOMER", "LOST"];
 
 /** Moves a business forward in the pipeline; never moves it backwards or out of a human-managed stage. */
 export async function advanceStage(businessId: string, stage: PipelineStage, organizationId: string) {

@@ -5,6 +5,7 @@ import { auditWebsite, type WebsiteAudit } from "../audit/website-audit";
 import { db, schema } from "../db";
 import { advanceStage } from "../orchestrator/tasks";
 import { dedupeKey, domainOf, scoreLead } from "../scoring/lead-score";
+import { resolveMarket, UnsupportedMarketError } from "@/lib/markets";
 
 export type LeadInput = {
   name: string;
@@ -33,6 +34,10 @@ export type SaveLeadResult = { status: "created"; id: string; leadScore: number;
  * website audit when a URL is known, and a lead score from the workspace's weights.
  */
 export async function saveLead(organizationId: string, input: LeadInput, opts: { weights: ScoringWeights; minScore: number; audit?: boolean }): Promise<SaveLeadResult> {
+  // Market restriction: leads outside the Netherlands and Belgium are never stored.
+  const market = resolveMarket(input.country);
+  if (!market) throw new UnsupportedMarketError(input.country);
+  input = { ...input, country: market.name };
   const key = dedupeKey(input.name, input.address, input.city);
   const domain = domainOf(input.websiteUrl);
   const b = schema.businesses;

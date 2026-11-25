@@ -13,6 +13,7 @@ import { geocodeCity, mockPlaces, searchPlaces } from "../integrations/google-pl
 import { saveLead } from "../leads/save";
 import { startRun } from "../orchestrator/runs";
 import { notify } from "../orchestrator/tasks";
+import { marketCountry } from "@/lib/markets";
 
 export type CustomAgentRow = typeof schema.customAgents.$inferSelect;
 
@@ -59,7 +60,7 @@ const TOOLS: ToolDef<z.ZodType>[] = [
     schema: z.object({
       query: z.string().min(2).max(80).describe("What to look for, e.g. 'dental clinic' or 'hairdresser'"),
       city: z.string().min(1).max(80),
-      country: z.string().min(2).max(60).default("Netherlands"),
+      country: marketCountry,
       limit: z.number().int().min(1).max(20).default(10),
     }),
     run: async (ctx, i) => {
@@ -167,7 +168,7 @@ const TOOLS: ToolDef<z.ZodType>[] = [
       name: z.string().min(2).max(160),
       category: z.enum(CATEGORY_KEYS).describe("Closest matching business type"),
       city: z.string().min(1).max(80),
-      country: z.string().min(2).max(60).default("Netherlands"),
+      country: marketCountry,
       address: z.string().max(240).optional(),
       phone: z.string().max(40).optional(),
       websiteUrl: z.string().url().max(300).optional(),

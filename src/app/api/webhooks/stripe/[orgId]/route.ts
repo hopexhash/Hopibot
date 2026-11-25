@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type Stripe from "stripe";
 import { db, schema } from "@/server/db";
 import { constructStripeEvent } from "@/server/integrations/stripe";
+import { advanceStage, notify } from "@/server/orchestrator/tasks";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,20 @@ export async function POST(req: Request, ctx: { params: Promise<{ orgId: string 
   switch (event.type) {
     case "checkout.session.completed": {
       const s = event.data.object;
+      // Orders placed on a demo page: mark paid and move the business to Purchased.
+      const orderId = s.metadata?.orderId;
+      if (orderId && s.metadata?.organizationId === orgId && s.payment_status === "paid") {
+        const [order] = await db()
+          .update(schema.orders)
+          .set({ status: "paid", paidAt: new Date(), updatedAt: new Date() })
+          .where(and(eq(schema.orders.id, orderId), eq(schema.orders.organizationId, orgId), eq(schema.orders.stripeSessionId, s.id)))
+          .returning();
+        if (order) {
+          await advanceStage(order.businessId, "PURCHASED", orgId);
+          await db().update(schema.businesses).set({ salesValueCents: order.oneTimeCents, updatedAt: new Date() }).where(eq(schema.businesses.id, order.businessId));
+          await notify(orgId, "New sale 🎉", `${order.customerName} bought the ${order.packageKey} package.`, `/businesses/${order.businessId}`, "success");
+        }
+      }
       if (s.mode === "payment" && s.payment_status === "paid" && s.amount_total) {
         const businessId = await businessIdFrom(s.metadata);
         await db()

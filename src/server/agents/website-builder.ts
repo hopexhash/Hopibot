@@ -261,7 +261,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
     qcAttempts,
   });
   await db().update(schema.agentTasks).set({ projectId: project.id }).where(eq(schema.agentTasks.id, ctx.task.id));
-  await advanceStage(b.id, "WEBSITE_GENERATED", ctx.organizationId);
+  await advanceStage(b.id, "DEMO_GENERATED", ctx.organizationId);
   await ctx.log("info", `Saved version ${version.versionNo}: ${changeSummary}`, { projectId: project.id, versionId: version.id });
 
   // Every new version is tested before it can be marked ready.

@@ -8,7 +8,7 @@ import { getCredential, IntegrationUnavailableError, touchIntegrationSuccess } f
 
 export async function sendEmail(
   ctx: UsageContext,
-  msg: { from: string; to: string; replyTo?: string; subject: string; text: string; unsubscribeUrl: string; unsubscribeMailto?: string; tags?: Record<string, string> },
+  msg: { from: string; to: string; replyTo?: string; subject: string; text: string; html?: string; unsubscribeUrl: string; unsubscribeMailto?: string; tags?: Record<string, string> },
 ): Promise<{ id: string }> {
   const cred = await getCredential(ctx.organizationId, "resend");
   if (!cred.secret) throw new IntegrationUnavailableError("resend");
@@ -20,6 +20,7 @@ export async function sendEmail(
     replyTo: msg.replyTo,
     subject: msg.subject,
     text: msg.text,
+    ...(msg.html ? { html: msg.html } : {}),
     headers: { "List-Unsubscribe": listUnsub, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     tags: Object.entries(msg.tags ?? {}).map(([name, value]) => ({ name, value: value.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 256) })),
   });

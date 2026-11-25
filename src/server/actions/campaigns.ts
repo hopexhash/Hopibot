@@ -2,7 +2,7 @@
 
 import { and, desc, eq, gte, ilike, inArray, isNull, notInArray } from "drizzle-orm";
 import { z } from "zod";
-import { BUSINESS_CATEGORIES, PIPELINE_STAGES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, PIPELINE_STAGES, CLOSED_STAGES } from "@/lib/constants";
 import { renderTemplate, TEMPLATE_VARIABLES } from "@/lib/campaign-template";
 import { complianceFooter } from "../agents/sales";
 import { addRecipients, senderProblems, templateProblems, varsFor } from "../campaigns/service";
@@ -68,7 +68,7 @@ export async function addAudienceAction(id: string, filter: unknown) {
     if (!EDITABLE.includes(c.status)) throw new UserError("Recipients can only be changed while the campaign is a draft or paused.");
     const f = audienceSchema.parse(filter);
     const b = schema.businesses;
-    const conds = [eq(b.organizationId, auth.org.id), isNull(b.erasedAt), eq(b.isMock, false), notInArray(b.pipelineStage, ["REPLIED", "NEGOTIATION", "WON", "LOST"])];
+    const conds = [eq(b.organizationId, auth.org.id), isNull(b.erasedAt), eq(b.isMock, false), notInArray(b.pipelineStage, CLOSED_STAGES)];
     if (f.stage) conds.push(eq(b.pipelineStage, f.stage));
     if (f.category) conds.push(eq(b.category, f.category));
     if (f.city) conds.push(ilike(b.city, f.city.replace(/[\\%_]/g, "\\$&")));

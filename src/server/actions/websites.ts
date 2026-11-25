@@ -9,6 +9,7 @@ import { capture } from "../integrations/posthog";
 import { createApproval } from "../orchestrator/control";
 import { createTask } from "../orchestrator/tasks";
 import { action, UserError } from "./_util";
+import { isCustomerStage } from "@/lib/constants";
 
 async function ownedProject(orgId: string, projectId: string) {
   const [p] = await db()
@@ -148,7 +149,7 @@ export async function requestPublishAction(projectId: string, domain: string, co
     if (!confirmation) throw new UserError("Confirm that the business has authorised publication.");
     if (p.approvalStatus !== "approved") throw new UserError("Approve the website before requesting publication.");
     const [b] = await db().select().from(schema.businesses).where(eq(schema.businesses.id, p.businessId));
-    if (b.pipelineStage !== "WON") throw new UserError("Only publish websites for businesses that became customers (stage Won).");
+    if (!isCustomerStage(b.pipelineStage)) throw new UserError("Only publish websites for businesses that became customers (stage Purchased or Customer).");
     const d = domain ? domainSchema.parse(domain) : null;
     const id = await createApproval(
       null,

@@ -27,6 +27,34 @@ export async function createPaymentLink(organizationId: string, opts: { business
   return link.url;
 }
 
+/**
+ * Stripe Checkout for an order placed on a demo page. One-time items and the monthly
+ * care plan are charged together; amounts always come from the server-side catalogue.
+ */
+export async function createCheckoutSession(
+  organizationId: string,
+  opts: { orderId: string; businessId: string; customerEmail: string; lines: { name: string; kind: "one_time" | "monthly"; unitCents: number; quantity: number }[]; successUrl: string; cancelUrl: string },
+) {
+  const { stripe } = await client(organizationId);
+  const metadata = { organizationId, businessId: opts.businessId, orderId: opts.orderId };
+  const recurring = opts.lines.some((l) => l.kind === "monthly");
+  const session = await stripe.checkout.sessions.create({
+    mode: recurring ? "subscription" : "payment",
+    customer_email: opts.customerEmail,
+    line_items: opts.lines.map((l) => ({
+      quantity: l.quantity,
+      price_data: { currency: "eur", unit_amount: l.unitCents, product_data: { name: l.name.slice(0, 250) }, ...(l.kind === "monthly" ? { recurring: { interval: "month" as const } } : {}) },
+    })),
+    metadata,
+    ...(recurring ? { subscription_data: { metadata } } : { payment_intent_data: { metadata } }),
+    success_url: opts.successUrl,
+    cancel_url: opts.cancelUrl,
+  });
+  void touchIntegrationSuccess(organizationId, "stripe");
+  if (!session.url) throw new Error("Stripe did not return a checkout URL");
+  return { id: session.id, url: session.url };
+}
+
 export async function constructStripeEvent(organizationId: string, body: string, signature: string) {
   const { stripe, webhookSecret } = await client(organizationId);
   if (!webhookSecret) throw new Error("Stripe webhook secret is not configured");

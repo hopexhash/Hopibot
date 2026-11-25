@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/app/page";
 import { StatusBadge } from "@/components/app/status";
+import { ContactPermission } from "@/components/app/contact-permission";
+import { assessOutreach } from "@/lib/outreach-compliance";
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { categoryLabel, PIPELINE_STAGES, WEBSITE_STATUS_LABEL } from "@/lib/constants";
@@ -36,6 +38,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
   const profile = r?.profile as ResearchOutput["profile"] | undefined;
   const brief = r?.brief as ResearchOutput["brief"] | undefined;
   const canAdmin = hasRole(auth.role, "admin");
+  const bestEmail = contacts.filter((c) => c.type === "email").sort((x, y) => Number(y.isGeneric) - Number(x.isGeneric))[0] ?? null;
 
   if (b.erasedAt) {
     return (
@@ -281,6 +284,25 @@ export default async function BusinessPage({ params }: { params: Promise<{ id: s
         <div className="space-y-4">
           <Card className="p-5">
             <StageControls id={b.id} stage={b.pipelineStage} valueEur={b.salesValueCents != null ? b.salesValueCents / 100 : null} followUpAt={b.followUpAt?.toISOString() ?? null} />
+          </Card>
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle>Contact permission</CardTitle>
+                <CardDescription>Outreach is permission-based. Nothing is sent without a recorded basis and your approval.</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ContactPermission
+                businessId={b.id}
+                permission={b.contactPermission}
+                source={b.permissionSource ?? ""}
+                proof={b.permissionProof ?? ""}
+                decidedAt={b.permissionAt?.toISOString() ?? null}
+                assessment={assessOutreach({ country: b.country, permission: b.contactPermission, contact: bestEmail ? { isGeneric: bestEmail.isGeneric, source: bestEmail.source } : null })}
+                canAdmin={canAdmin}
+              />
+            </CardContent>
           </Card>
           <Card>
             <CardHeader>

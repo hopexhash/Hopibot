@@ -161,19 +161,28 @@ export function categoryLabel(key: string) {
 }
 
 export const PIPELINE_STAGES = [
-  { key: "NEW_LEAD", label: "New Lead" },
-  { key: "RESEARCHED", label: "Researched" },
+  { key: "DISCOVERED", label: "Discovered" },
+  { key: "ANALYSED", label: "Analysed" },
   { key: "QUALIFIED", label: "Qualified" },
-  { key: "WEBSITE_GENERATED", label: "Website Generated" },
-  { key: "PREVIEW_READY", label: "Preview Ready" },
-  { key: "AWAITING_APPROVAL", label: "Email Awaiting Approval" },
-  { key: "CONTACTED", label: "Preview Sent" },
-  { key: "REPLIED", label: "Interested" },
-  { key: "NEGOTIATION", label: "Negotiation" },
-  { key: "WON", label: "Won" },
+  { key: "DEMO_GENERATED", label: "Demo Generated" },
+  { key: "QUALITY_APPROVED", label: "Quality Approved" },
+  { key: "CONTACT_PERMISSION_REQUIRED", label: "Permission Required" },
+  { key: "CONTACT_READY", label: "Contact Ready" },
+  { key: "CONTACTED", label: "Contacted" },
+  { key: "INTERESTED", label: "Interested" },
+  { key: "DEMO_VIEWED", label: "Demo Viewed" },
+  { key: "CHECKOUT_STARTED", label: "Checkout Started" },
+  { key: "PURCHASED", label: "Purchased" },
+  { key: "UPSELL_OPPORTUNITY", label: "Upsell Opportunity" },
+  { key: "CUSTOMER", label: "Customer" },
   { key: "LOST", label: "Lost" },
 ] as const;
 export type PipelineStage = (typeof PIPELINE_STAGES)[number]["key"];
+/** Stages where the business has paid: they are customers, not leads. */
+export const CUSTOMER_STAGES: string[] = ["PURCHASED", "UPSELL_OPPORTUNITY", "CUSTOMER"];
+/** Stages where automated outreach must stop (the conversation is with a person now, or over). */
+export const CLOSED_STAGES: string[] = ["INTERESTED", "DEMO_VIEWED", "CHECKOUT_STARTED", "PURCHASED", "UPSELL_OPPORTUNITY", "CUSTOMER", "LOST"];
+export const isCustomerStage = (stage: string) => CUSTOMER_STAGES.includes(stage);
 
 export const TASK_STATUSES = ["PENDING", "RUNNING", "WAITING_FOR_APPROVAL", "COMPLETED", "FAILED", "CANCELLED"] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
