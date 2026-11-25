@@ -52,11 +52,14 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-[rgba(3,8,6,0.85)] pt-[var(--safe-top)] backdrop-blur-xl">
-      <div className="flex h-14 items-center gap-2 px-3 sm:px-6 lg:h-16">
+      <div className="relative flex h-14 items-center gap-2 px-3 sm:px-6 lg:h-16">
         <MobileNav counts={counts} />
-        <Link href="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label="HOPI Bot — Command Center">
-          <LogoMark className="h-7 w-7 shrink-0" />
-          <span className="truncate text-[13px] font-semibold tracking-[0.14em]">HOPI BOT</span>
+        <button onClick={openCommandPalette} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-border-strong hover:text-accent lg:hidden" aria-label="Search">
+          <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        </button>
+        {/* Phones: the logo alone, centred in the header. */}
+        <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI Bot — Command Center">
+          <LogoMark className="h-11 w-11 drop-shadow-[0_0_10px_rgba(0,255,120,0.5)]" />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 text-[13px] lg:flex">
           <span className="font-medium tracking-[0.14em] text-muted">HOPI BOT</span>
@@ -65,15 +68,11 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
         </div>
         <div className="flex-1" />
 
-        <button onClick={openCommandPalette} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-border-strong hover:text-accent lg:hidden" aria-label="Search">
-          <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
-        </button>
-
         {/* Live system status (real health checks) */}
-        <Link href="/health" className="flex h-10 items-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium transition-colors hover:border-border-strong" aria-label={system.label}>
+        <Link href="/health" className="flex h-10 min-w-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium transition-colors hover:border-border-strong" aria-label={system.label}>
           <Dot tone={system.tone} pulse={system.tone === "green"} />
           <span className={cn("hidden sm:inline", system.tone === "green" ? "text-accent" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.label}</span>
-          <span className={cn("sm:hidden", system.tone === "green" ? "text-accent" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.short}</span>
+          <span className={cn("hidden", system.tone === "green" ? "text-accent" : system.tone === "red" ? "text-danger" : "text-muted")}>{system.short}</span>
         </Link>
         <Link href="/agents" className="hidden h-10 items-center gap-2 rounded-xl border border-border bg-surface-2/80 px-3 text-[12px] font-medium text-muted transition-colors hover:border-border-strong md:flex">
           <Dot tone={cc?.activeAgents ? "green" : "grey"} pulse={Boolean(cc?.activeAgents)} />

@@ -141,6 +141,12 @@ export async function qualifyWebsite(deps: Deps, b: { id: string; name: string; 
     }
   }
   const c = classify(s.score, verification);
+  // "Excellent" is reserved for sites the visual assessment called excellent or modern; a
+  // low score on an average-looking site is a good website, not an excellent one.
+  if (c.qualification === "excellent" && assessment.verdict !== "excellent" && assessment.verdict !== "modern") {
+    c.qualification = "good";
+    c.reason = `Redesign score ${s.score}: a decent website without significant problems, skipped.`;
+  }
   const reason = [s.exclusion ?? c.reason, assessment.summary, verification?.approach && verification.problems.length ? `Problems: ${verification.problems.slice(0, 3).join(" | ")}` : ""].filter(Boolean).join(" ");
   return done(c.qualification, s.score, reason, { areas: s.areas, measured: inspection.measured, assessment, verification, shots: inspection.shots, costUsd: cost });
 }

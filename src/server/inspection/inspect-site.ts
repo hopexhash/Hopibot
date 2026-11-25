@@ -81,7 +81,10 @@ async function open(ctx: BrowserContext, url: string, onPage?: (page: Page) => v
   const page = await ctx.newPage();
   onPage?.(page);
   const started = Date.now();
-  const res = await page.goto(url, { waitUntil: "load", timeout: 30000 });
+  // Some sites never fire "load" (a hanging tracker or video). The page itself is usable once
+  // the document is parsed, so that is what must succeed; the full load gets 20 more seconds.
+  const res = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+  await page.waitForLoadState("load", { timeout: 20000 }).catch(() => {});
   const loadMs = Date.now() - started;
   await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
   await dismissCookieBanner(page);
