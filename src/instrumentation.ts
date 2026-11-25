@@ -7,7 +7,8 @@ import type { Instrumentation } from "next";
  */
 export const onRequestError: Instrumentation.onRequestError = async (err, request, context) => {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
-  const message = err instanceof Error ? err.message : String(err);
+  const cause = err instanceof Error && err.cause instanceof Error ? err.cause : undefined;
+  const message = [err instanceof Error ? err.message : String(err), cause && `cause: ${(cause as { code?: string }).code ?? ""} ${cause.message}`].filter(Boolean).join("\n");
   const digest = typeof err === "object" && err !== null && "digest" in err ? String((err as { digest: unknown }).digest) : undefined;
   console.error("[server error]", request.method, request.path, digest ?? "", message);
   try {
@@ -17,7 +18,7 @@ export const onRequestError: Instrumentation.onRequestError = async (err, reques
         organizationId: null,
         action: "system.error",
         metadata: {
-          message: message.slice(0, 600),
+          message: message.slice(0, 900),
           name: err instanceof Error ? err.name : undefined,
           digest,
           method: request.method,
