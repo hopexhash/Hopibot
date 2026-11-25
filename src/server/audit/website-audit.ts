@@ -38,13 +38,18 @@ function textOf(html: string, re: RegExp) {
 }
 
 /** Extracts publicly listed emails from HTML (mailto links and visible text). Filters assets. */
-export function extractEmails(html: string): string[] {
+export function extractEmails(rawHtml: string): string[] {
+  // Many sites write their address with character codes (&#105;&#110;&#102;&#111;&#64;…) to slow down scrapers.
+  const html = rawHtml.replace(/&#(x[0-9a-f]+|\d+);/gi, (m, code: string) => {
+    const n = code[0] === "x" || code[0] === "X" ? parseInt(code.slice(1), 16) : parseInt(code, 10);
+    return n > 31 && n < 127 ? String.fromCharCode(n) : m;
+  });
   const found = new Set<string>();
   for (const m of html.matchAll(/mailto:([^"'?>\s]+)/gi)) found.add(decodeURIComponent(m[1]).toLowerCase());
   const text = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
   for (const m of text.matchAll(EMAIL_RE)) found.add(m[0].toLowerCase());
   return [...found].filter(
-    (e) => !/\.(png|jpe?g|gif|svg|webp|css|js)$/i.test(e) && !/(example\.(com|org)|sentry|wixpress|godaddy|domain\.com|yourdomain)/i.test(e) && e.length < 120,
+    (e) => /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}$/.test(e) && !/\.(png|jpe?g|gif|svg|webp|css|js)$/i.test(e) && !/(example\.(com|org)|sentry|wixpress|godaddy|domain\.com|yourdomain)/i.test(e) && e.length < 120,
   );
 }
 

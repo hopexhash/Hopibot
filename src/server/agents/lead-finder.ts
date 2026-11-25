@@ -48,6 +48,33 @@ async function probeForWebsite(name: string, city: string | null): Promise<strin
   return null;
 }
 
+const VALID_EMAIL = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}$/;
+
+/** Public email addresses of a business: its homepage first, then its contact page. Nothing is guessed. */
+async function findPublicEmails(audit: Pick<WebsiteAudit, "emails" | "contactPageUrl">, websiteUrl: string | null | undefined): Promise<string[]> {
+  const siteDomain = domainOf(websiteUrl);
+  const own = (list: string[]) => [...new Set(list.map((e) => e.toLowerCase()))].filter((e) => VALID_EMAIL.test(e) && belongsToBusiness(e, siteDomain, true));
+  let emails = own(audit.emails ?? []);
+  if (!emails.length && audit.contactPageUrl) {
+    try {
+      const r = await safeFetch(audit.contactPageUrl, { timeoutMs: 10000, maxBytes: 1_000_000 });
+      if (r.status < 400) emails = own(extractEmails(r.body));
+    } catch {
+      // The contact page could not be read; the business simply has no known email yet.
+    }
+  }
+  return emails;
+}
+
+async function storeEmails(organizationId: string, businessId: string, emails: string[], sourceUrl: string | null) {
+  for (const e of emails.slice(0, 3)) {
+    await db()
+      .insert(schema.businessContacts)
+      .values({ organizationId, businessId, type: "email", value: e, isGeneric: isGenericEmail(e), source: "website", sourceUrl, verificationStatus: "unverified", lawfulBasis: isGenericEmail(e) ? "legitimate_interest_b2b_generic_address" : "legitimate_interest_b2b_review_required" })
+      .onConflictDoNothing();
+  }
+}
+
 /**
  * Inspects the website of a business that is already in the CRM (leads found before the
  * qualification engine existed, or a re-check you asked for) and applies the decision.
@@ -59,11 +86,26 @@ const inspectExisting: AgentHandler = async (ctx) => {
     .where(and(eq(schema.businesses.id, ctx.task.businessId ?? ""), eq(schema.businesses.organizationId, ctx.organizationId)));
   if (!b) throw new AgentError("Business not found.", "NOT_FOUND", false);
   if (!b.websiteUrl || b.websiteStatus !== "has_website") return { status: "completed", output: { skipped: "This business has no reachable website to inspect." } };
-  const [email] = await db()
+  let [email] = await db()
     .select({ id: schema.businessContacts.id })
     .from(schema.businessContacts)
     .where(and(eq(schema.businessContacts.businessId, b.id), eq(schema.businessContacts.type, "email")))
     .limit(1);
+  // No address on file yet: look for one on the homepage and the contact page before giving up.
+  if (!email && !b.isMock) {
+    await ctx.log("info", `Searching the website of ${b.name} for a public email address`, { kind: "contact.searching", status: "running", url: b.websiteUrl });
+    let audit = b.websiteAudit as (Pick<WebsiteAudit, "emails" | "contactPageUrl"> & { error?: string }) | null;
+    if (!audit || audit.error || !Array.isArray(audit.emails)) {
+      const r = await auditWebsite(b.websiteUrl);
+      audit = r.ok ? r.audit : null;
+    }
+    const emails = audit ? await findPublicEmails(audit, b.websiteUrl) : [];
+    if (emails.length) {
+      await storeEmails(ctx.organizationId, b.id, emails, audit?.contactPageUrl ?? b.websiteUrl);
+      email = { id: "new" };
+      await ctx.log("info", `Found a publicly listed email address for ${b.name}`, { kind: "contact.found", status: "completed" });
+    }
+  }
   const forced = Boolean((ctx.task.input as { force?: boolean }).force);
   if (ctx.settings.requireEmail && !email && !forced) {
     await db().update(schema.businesses).set({ qualification: "no_email" }).where(eq(schema.businesses.id, b.id));
@@ -237,16 +279,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
     if (isMock) {
       emails = websiteUrl ? [`info@${domainOf(websiteUrl) ?? "example.invalid"}`] : [];
     } else if (audit) {
-      const siteDomain = domainOf(websiteUrl);
-      emails = (audit.emails ?? []).filter((e) => belongsToBusiness(e, siteDomain, true));
-      if (!emails.length && audit.contactPageUrl) {
-        try {
-          const r = await safeFetch(audit.contactPageUrl, { timeoutMs: 10000, maxBytes: 1_000_000 });
-          if (r.status < 400) emails = extractEmails(r.body).filter((e) => belongsToBusiness(e, siteDomain, true));
-        } catch {
-          // The contact page could not be read; the business simply has no known email yet.
-        }
-      }
+      emails = await findPublicEmails(audit, websiteUrl);
     }
     const hasEmail = emails.length > 0;
     if (!hasEmail) noEmail++;

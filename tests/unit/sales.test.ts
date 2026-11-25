@@ -194,3 +194,12 @@ describe("activity events", () => {
     expect(statusFor("info", "made-up")).toBe("info");
   });
 });
+
+import { extractEmails } from "@/server/audit/website-audit";
+
+describe("public email extraction", () => {
+  it("reads addresses written with HTML character codes and drops malformed ones", () => {
+    const html = '<a href="mailto:info@bakker.nl">mail</a> <p>i&#110;&#102;&#111;&#064;t&#104;&#101;pan&#116;&#114;y.&#110;l</p> <img src="logo@2x.png">';
+    expect(extractEmails(html).sort()).toEqual(["info@bakker.nl", "info@thepantry.nl"]);
+  });
+});
