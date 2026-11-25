@@ -45,7 +45,7 @@ export async function inspectWebsitesAction(businessIds: string[]) {
   return action({ name: "business.inspect_website", revalidate: ["/businesses"], limit: 20 }, async (auth) => {
     const ids = z.array(z.string().uuid()).min(1).max(100).parse(businessIds);
     const rows = await db().select({ id: schema.businesses.id, websiteStatus: schema.businesses.websiteStatus }).from(schema.businesses).where(and(eq(schema.businesses.organizationId, auth.org.id), inArray(schema.businesses.id, ids)));
-    const eligible = rows.filter((r) => r.websiteStatus === "has_website");
+    const eligible = rows.filter((r) => r.websiteStatus === "has_website" || r.websiteStatus === "unreachable");
     if (!eligible.length) throw new UserError("None of these businesses has a reachable website to inspect.");
     const stamp = Date.now().toString(36);
     for (const r of eligible) {

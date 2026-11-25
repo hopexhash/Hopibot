@@ -12,7 +12,7 @@ import { InspectWebsiteButton, QualificationBadge, WebsiteFeedback } from "./qua
  * score per area, the concrete problems, why it was accepted or rejected, and your own verdict.
  */
 export async function WebsiteInspectionCard({ business }: { business: { id: string; organizationId: string; websiteUrl: string | null; websiteStatus: string; qualification: string | null } }) {
-  if (!business.websiteUrl || business.websiteStatus !== "has_website") return null;
+  if (!business.websiteUrl || (business.websiteStatus !== "has_website" && business.websiteStatus !== "unreachable")) return null;
   const i = schema.websiteInspections;
   const [[insp], feedback] = await Promise.all([
     db()

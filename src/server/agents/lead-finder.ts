@@ -17,7 +17,7 @@ import { advanceStage, notify, notifyEvent } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { dedupeKey, domainOf, scoreLead } from "../scoring/lead-score";
 import { isQualifiedLead, QUALIFICATION_META, type Qualification } from "@/lib/qualification";
-import { qualifyWebsite } from "../inspection/qualify";
+import { checkDown, qualifyWebsite } from "../inspection/qualify";
 
 /**
  * When Google lists no website we do not assume there is none. We probe a few likely
@@ -46,6 +46,20 @@ async function probeForWebsite(name: string, city: string | null): Promise<strin
     }
   }
   return null;
+}
+
+/** Everything a dead-website lead needs: find a contact first; the demo is only built once an email is known. */
+const DOWN_PIPELINE = ["contacts", "research", "generate_website", "qc", "deploy", "sales_email"];
+
+async function startDownPipeline(ctx: Parameters<AgentHandler>[0], businessId: string) {
+  const dayStart = new Date(Date.now() - 24 * 3600_000);
+  const [{ n }] = await db().select({ n: sql<number>`count(*)::int` }).from(schema.websiteProjects).where(and(eq(schema.websiteProjects.organizationId, ctx.organizationId), sql`${schema.websiteProjects.createdAt} > ${dayStart}`));
+  if (n >= ctx.settings.autopilot.dailyWebsiteLimit) {
+    await ctx.log("info", `Daily website limit reached (${n} of ${ctx.settings.autopilot.dailyWebsiteLimit}): the demo for this dead-website lead is not started today.`, { businessId, kind: "discovery.limit", status: "waiting" });
+    return;
+  }
+  await continuePipeline(ctx, { businessId, next: DOWN_PIPELINE });
+  await ctx.log("info", "Website is down: looking for a contact email, then building a demo website automatically", { businessId, kind: "discovery.handoff", status: "completed" });
 }
 
 const VALID_EMAIL = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}$/;
@@ -85,7 +99,7 @@ const inspectExisting: AgentHandler = async (ctx) => {
     .from(schema.businesses)
     .where(and(eq(schema.businesses.id, ctx.task.businessId ?? ""), eq(schema.businesses.organizationId, ctx.organizationId)));
   if (!b) throw new AgentError("Business not found.", "NOT_FOUND", false);
-  if (!b.websiteUrl || b.websiteStatus !== "has_website") return { status: "completed", output: { skipped: "This business has no reachable website to inspect." } };
+  if (!b.websiteUrl || (b.websiteStatus !== "has_website" && b.websiteStatus !== "unreachable")) return { status: "completed", output: { skipped: "This business has no website to inspect." } };
   let [email] = await db()
     .select({ id: schema.businessContacts.id })
     .from(schema.businessContacts)
@@ -115,6 +129,7 @@ const inspectExisting: AgentHandler = async (ctx) => {
   }
   const mock = b.isMock || (await ctx.mode("anthropic")) === "mock";
   const q = await qualifyWebsite({ organizationId: ctx.organizationId, usage: { ...ctx.usage, businessId: b.id }, mock, log: ctx.log }, { id: b.id, name: b.name, category: categoryLabel(b.category), url: b.websiteUrl });
+  if (q.qualification === "website_down" && !email) await startDownPipeline(ctx, b.id);
   const ok = isQualifiedLead(q.qualification) && (!ctx.settings.requireEmail || Boolean(email));
   await db().update(schema.leads).set({ qualified: ok, status: ok ? "qualified" : "new" }).where(eq(schema.leads.businessId, b.id));
   if (ok) await advanceStage(b.id, "QUALIFIED", ctx.organizationId);
@@ -165,6 +180,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
   const requireEmail = ctx.settings.requireEmail;
   const qualified: { id: string; score: number }[] = [];
   const decisions: Record<string, number> = {};
+  const down: string[] = [];
   let inspectionCost = 0;
   const aiMock = isMock || (await ctx.mode("anthropic")) === "mock";
 
@@ -312,10 +328,19 @@ export const leadFinder: AgentHandler = async (ctx) => {
         inspectionCost += q.costUsd;
       }
       decisions[qualification] = (decisions[qualification] ?? 0) + 1;
+    } else if (websiteStatus === "unreachable" && websiteUrl && !isMock) {
+      await ctx.heartbeat();
+      const q = await checkDown({ organizationId: ctx.organizationId, usage: { ...ctx.usage, businessId: business.id }, mock: false, log: ctx.log }, { id: business.id, name: place.name, url: websiteUrl }, auditError ?? undefined);
+      qualification = q.qualification;
+      if (q.qualification === "website_down") redesignScore = 100;
+      decisions[qualification] = (decisions[qualification] ?? 0) + 1;
     }
     // A lead only qualifies when it can actually be emailed (Settings → Autopilot → require email).
     // With a website: the redesign qualification decides. Without one: the lead score decides.
     const isQualified = (qualification ? isQualifiedLead(qualification) : scored.score >= minScore) && (!requireEmail || hasEmail);
+    // A dead website has no page to read an email from: the contact agent looks elsewhere, and
+    // the demo is built as soon as an address is known.
+    if (qualification === "website_down" && !isQualified) down.push(business.id);
     await db()
       .insert(schema.leads)
       .values({ organizationId: ctx.organizationId, businessId: business.id, campaignId: input.campaignId ?? null, qualified: isQualified, status: isQualified ? "qualified" : "new" })
@@ -382,6 +407,8 @@ export const leadFinder: AgentHandler = async (ctx) => {
     );
     if (started) await ctx.log("info", `Triggered ${started} "new qualified lead" automation(s).`);
   }
+
+  for (const id of down) await startDownPipeline(ctx, id);
 
   if (qualified.length && !isMock) {
     await notify(ctx.organizationId, `${qualified.length} new qualified lead${qualified.length === 1 ? "" : "s"}`, `Found in ${params.city} (${found} businesses checked).`, "/businesses", "success");

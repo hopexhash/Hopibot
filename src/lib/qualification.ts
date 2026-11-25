@@ -20,7 +20,7 @@ export const AREA_LABEL: Record<RedesignArea, string> = {
 /** Fixed thresholds. They are deliberately not configurable: quality over quantity. */
 export const THRESHOLDS = { excellentBelow: 25, goodBelow: 40, averageBelow: 55, qualifiedFrom: 70, highPriorityFrom: 85 } as const;
 
-export const QUALIFICATIONS = ["excellent", "good", "average", "rejected", "review", "qualified", "high_priority", "no_email", "not_inspected"] as const;
+export const QUALIFICATIONS = ["excellent", "good", "average", "rejected", "review", "qualified", "high_priority", "website_down", "no_email", "not_inspected"] as const;
 export type Qualification = (typeof QUALIFICATIONS)[number];
 
 export const QUALIFICATION_META: Record<Qualification, { badge: string; tone: "danger" | "warning" | "accent" | "success" | "muted"; help: string }> = {
@@ -31,14 +31,15 @@ export const QUALIFICATION_META: Record<Qualification, { badge: string; tone: "d
   review: { badge: "NEEDS REVIEW", tone: "warning", help: "A possible redesign lead. Look at the screenshots and decide yourself." },
   qualified: { badge: "QUALIFIED LEAD", tone: "accent", help: "A strong redesign prospect with concrete, visible problems." },
   high_priority: { badge: "HIGH-PRIORITY LEAD", tone: "success", help: "An excellent redesign prospect: the website has serious, visible problems." },
+  website_down: { badge: "WEBSITE DOWN – LEAD", tone: "success", help: "The listed website cannot be opened by visitors (checked twice). A demo website is built as soon as a contact email is known." },
   no_email: { badge: "NO EMAIL – NOT INSPECTED", tone: "muted", help: "No public email address, so the website was not inspected." },
   not_inspected: { badge: "NOT INSPECTED", tone: "muted", help: "The website could not be inspected." },
 };
 
 /** What the main leads list shows by default. */
-export const LEAD_QUALIFICATIONS: Qualification[] = ["review", "qualified", "high_priority"];
+export const LEAD_QUALIFICATIONS: Qualification[] = ["review", "qualified", "high_priority", "website_down"];
 export const REJECTED_QUALIFICATIONS: Qualification[] = ["excellent", "good", "average", "rejected", "no_email", "not_inspected"];
-export const isQualifiedLead = (q: string | null | undefined) => q === "qualified" || q === "high_priority";
+export const isQualifiedLead = (q: string | null | undefined) => q === "qualified" || q === "high_priority" || q === "website_down";
 
 /** What the browser measured. Every field is an observation, never a guess. */
 export type Measured = {

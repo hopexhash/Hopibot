@@ -119,7 +119,7 @@ describe("HTML email", () => {
   });
 });
 
-import { classify, computeRedesignScore, isConcreteProblem, measuredNeeds, type AiAssessment, type Measured } from "@/lib/qualification";
+import { classify, computeRedesignScore, isConcreteProblem, isQualifiedLead, measuredNeeds, type AiAssessment, type Measured } from "@/lib/qualification";
 import { mockInspection } from "@/server/inspection/qualify";
 
 describe("website redesign qualification", () => {
@@ -201,5 +201,24 @@ describe("public email extraction", () => {
   it("reads addresses written with HTML character codes and drops malformed ones", () => {
     const html = '<a href="mailto:info@bakker.nl">mail</a> <p>i&#110;&#102;&#111;&#064;t&#104;&#101;pan&#116;&#114;y.&#110;l</p> <img src="logo@2x.png">';
     expect(extractEmails(html).sort()).toEqual(["info@bakker.nl", "info@thepantry.nl"]);
+  });
+});
+
+import { classifyFailure } from "@/server/inspection/reachability";
+
+describe("dead website detection", () => {
+  it("counts only failures a visitor would also hit", () => {
+    expect(classifyFailure(Object.assign(new Error("fetch failed"), { cause: { code: "ENOTFOUND" } })).hard).toBe(true);
+    expect(classifyFailure(Object.assign(new Error("fetch failed"), { cause: { code: "ECONNREFUSED" } })).hard).toBe(true);
+    expect(classifyFailure(new Error("certificate has expired")).hard).toBe(true);
+  });
+  it("never treats a timeout or a blocked request as a dead website", () => {
+    expect(classifyFailure(new Error("This operation was aborted")).hard).toBe(false);
+    expect(classifyFailure(new Error("page.goto: Timeout 30000ms exceeded")).hard).toBe(false);
+    expect(classifyFailure(new Error("example.nl resolves to a blocked address.")).hard).toBe(false);
+  });
+  it("makes a confirmed dead website a lead", () => {
+    expect(isQualifiedLead("website_down")).toBe(true);
+    expect(isQualifiedLead("not_inspected")).toBe(false);
   });
 });

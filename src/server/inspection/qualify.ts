@@ -6,6 +6,7 @@ import { db, schema } from "../db";
 import { domainOf } from "../scoring/lead-score";
 import { assessVisually, calibrationExamples, verifyIndependently } from "./assess";
 import { inspectSite, type SiteInspection } from "./inspect-site";
+import { confirmUnreachable } from "./reachability";
 
 export type QualifyResult = { qualification: Qualification; score: number; reason: string; costUsd: number; inspected: boolean };
 
@@ -67,6 +68,24 @@ async function save(deps: Deps, businessId: string, url: string, row: { qualific
 }
 
 /**
+ * For a website that would not open: confirms whether it is really down for visitors. A
+ * confirmed dead website is a lead by itself (the business needs a working site); anything
+ * uncertain is recorded as "not inspected".
+ */
+export async function checkDown(deps: Deps, b: { id: string; name: string; url: string }, firstError?: string): Promise<QualifyResult> {
+  await deps.log("info", `${b.name}: the website did not open. Checking twice whether it is really down for visitors`, { businessId: b.id, url: b.url, kind: "inspection.reachability", status: "running" });
+  const r = deps.mock ? { down: false, reason: "mock mode" } : await confirmUnreachable(b.url);
+  const q: Qualification = r.down ? "website_down" : "not_inspected";
+  const reason = r.down
+    ? `The website cannot be opened: ${r.reason}. Checked twice on every address variant. A business with a dead website needs a new one.`
+    : `The website could not be inspected, but it is not confirmed down (${r.reason}${firstError ? `; browser: ${firstError.split("\n")[0].slice(0, 100)}` : ""}).`;
+  await save(deps, b.id, b.url, { qualification: q, score: r.down ? 100 : 0, areas: {}, measured: null, assessment: null, verification: null, explanation: reason, costUsd: 0 });
+  if (r.down) await db().update(schema.businesses).set({ websiteStatus: "unreachable" }).where(eq(schema.businesses.id, b.id));
+  await deps.log("info", `${r.down ? "Website qualified" : "Website not inspected"}: ${b.name} — ${QUALIFICATION_META[q].badge}. ${reason}`, { businessId: b.id, url: b.url, qualification: q, kind: "inspection.done", status: r.down ? "completed" : "warning" });
+  return { qualification: q, score: r.down ? 100 : 0, reason, costUsd: 0, inspected: false };
+}
+
+/**
  * Inspects one business's website and decides whether it is a genuine redesign lead.
  * Order matters for cost: the owner's own judgements first (free), then the browser visit
  * (free), then one visual assessment, and the stronger verification only for sites that
@@ -104,7 +123,8 @@ export async function qualifyWebsite(deps: Deps, b: { id: string; name: string; 
     await step(`Opening ${b.url.replace(/^https?:\/\/(www\.)?/, "").replace(/[/?#].*$/, "")} in a real browser`, "open");
     inspection = await inspectSite(b.url, (s) => step(s.message, s.key));
   } catch (err) {
-    return done("not_inspected", 0, `The website could not be opened in the browser (${(err as Error).message.slice(0, 140)}).`, {}, false);
+    // The browser could not open it. Is the site really down for visitors, or was it just slow or blocking us?
+    return checkDown(deps, b, (err as Error).message);
   }
   if (inspection.measured.status >= 400) return done("not_inspected", 0, `The website answered with an error (HTTP ${inspection.measured.status}).`, { measured: inspection.measured, shots: inspection.shots }, false);
 

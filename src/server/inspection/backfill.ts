@@ -24,7 +24,7 @@ export async function backfillInspections(limit = 3) {
       and(
         isNull(b.qualification),
         isNull(b.erasedAt),
-        eq(b.websiteStatus, "has_website"),
+        sql`${b.websiteStatus} in ('has_website','unreachable')`,
         eq(b.isMock, false),
         ne(b.source, "manual"),
         sql`NOT EXISTS (SELECT 1 FROM agent_tasks t WHERE t.organization_id = ${b.organizationId} AND t.idempotency_key = 'inspect:' || ${b.id}::text || ':backfill')`,

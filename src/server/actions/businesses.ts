@@ -119,6 +119,14 @@ export async function addContactAction(businessId: string, email: string, source
       .insert(schema.businessContacts)
       .values({ organizationId: auth.org.id, businessId: b.id, type: "email", value, source: "manual", sourceUrl: src, verificationStatus: "unverified", isGeneric: /^(info|contact|hallo|hello|mail|office)@/.test(value), lawfulBasis: "manually_recorded_public_source" })
       .onConflictDoNothing();
+    if (b.qualification === "website_down") {
+      const [project] = await db().select({ id: schema.websiteProjects.id }).from(schema.websiteProjects).where(eq(schema.websiteProjects.businessId, b.id)).limit(1);
+      if (!project) {
+        await db().update(schema.leads).set({ qualified: true, status: "qualified" }).where(eq(schema.leads.businessId, b.id));
+        const { createTask } = await import("../orchestrator/tasks");
+        await createTask(auth.org.id, null, { agentKey: "research", type: "research_business", businessId: b.id, input: { next: ["generate_website", "qc", "deploy", "sales_email"] }, idempotencyKey: `down-demo:${b.id}`, priority: 3 });
+      }
+    }
     return null;
   });
 }

@@ -5,7 +5,7 @@ import { db, schema } from "../db";
 import { hunterDomainSearch, hunterVerify, mapVerification } from "../integrations/hunter";
 import { safeFetch } from "../net/safe-fetch";
 import { continuePipeline } from "../orchestrator/pipeline";
-import { notifyEvent } from "../orchestrator/tasks";
+import { advanceStage, notifyEvent } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { domainOf } from "../scoring/lead-score";
 
@@ -138,6 +138,10 @@ export const contactResearch: AgentHandler = async (ctx) => {
   }
   if (stored) await notifyEvent(ctx.organizationId, "contactFound", `Contact information found for ${b.name}`, `${stored} email address${stored === 1 ? "" : "es"} saved.`, `/businesses/${b.id}`, "success");
   await ctx.log("info", stored ? `Contact information saved: ${stored} email address${stored === 1 ? "" : "es"}, ${verified} verified.` : "No new email address found.", { kind: stored ? "contact.found" : "contact.none", status: stored ? "completed" : "info" });
+  if (stored && b.qualification === "website_down") {
+    await db().update(schema.leads).set({ qualified: true, status: "qualified" }).where(eq(schema.leads.businessId, b.id));
+    await advanceStage(b.id, "QUALIFIED", ctx.organizationId);
+  }
   // Without any usable email address the business cannot be contacted, so no demo website is built for it.
   if (ctx.settings.requireEmail) {
     const usable = await db()
