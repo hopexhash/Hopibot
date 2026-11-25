@@ -1,5 +1,5 @@
 import "../guard";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { extractEmails } from "../audit/website-audit";
 import { db, schema } from "../db";
 import { hunterDomainSearch, hunterVerify, mapVerification } from "../integrations/hunter";
@@ -16,7 +16,7 @@ export function isGenericEmail(email: string) {
 }
 
 /** Emails must belong to the business's own domain (or a domain it publishes); never guessed. */
-function belongsToBusiness(email: string, businessDomain: string | null, foundOnBusinessSite: boolean) {
+export function belongsToBusiness(email: string, businessDomain: string | null, foundOnBusinessSite: boolean) {
   const emailDomain = email.split("@")[1]?.toLowerCase() ?? "";
   if (businessDomain && (emailDomain === businessDomain || emailDomain.endsWith(`.${businessDomain}`))) return true;
   // Free-mail addresses are accepted only when the business itself publishes them on its site.
@@ -135,6 +135,19 @@ export const contactResearch: AgentHandler = async (ctx) => {
     stored++;
   }
   await ctx.log("info", `Recorded ${stored} email contact(s), ${verified} verified.`);
+  // Without any usable email address the business cannot be contacted, so no demo website is built for it.
+  if (ctx.settings.requireEmail) {
+    const usable = await db()
+      .select({ id: schema.businessContacts.id })
+      .from(schema.businessContacts)
+      .where(and(eq(schema.businessContacts.businessId, b.id), eq(schema.businessContacts.type, "email"), ne(schema.businessContacts.verificationStatus, "invalid")))
+      .limit(1);
+    if (!usable.length) {
+      await ctx.log("info", `No public email address found for ${b.name} — stopped here (no website is generated without a way to contact them).`);
+      await db().insert(schema.crmActivities).values({ organizationId: ctx.organizationId, businessId: b.id, type: "system", content: "No public email address found. Skipped: no demo website or outreach without an email address." });
+      return { status: "completed", output: { emails: 0, verified: 0, skipped: "no_email", mock: b.isMock } };
+    }
+  }
   await continuePipeline(ctx, { businessId: b.id, next: (ctx.task.input.next as string[]) ?? [] });
   return { status: "completed", output: { emails: stored, verified, mock: b.isMock } };
 };

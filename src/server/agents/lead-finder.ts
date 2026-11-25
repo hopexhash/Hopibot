@@ -4,7 +4,8 @@ import { AgentError } from "../integrations/anthropic";
 import { and, eq, or, sql } from "drizzle-orm";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
-import { auditWebsite, mockAudit, type WebsiteAudit } from "../audit/website-audit";
+import { auditWebsite, extractEmails, mockAudit, type WebsiteAudit } from "../audit/website-audit";
+import { belongsToBusiness, isGenericEmail } from "./contact-research";
 import { db, schema } from "../db";
 import { geocodeCity, mockPlaces, searchPlaces, type PlaceResult } from "../integrations/google-places";
 import { IntegrationUnavailableError } from "../integrations/credentials";
@@ -84,6 +85,8 @@ export const leadFinder: AgentHandler = async (ctx) => {
   let found = 0;
   let duplicates = 0;
   let skippedClosed = 0;
+  let noEmail = 0;
+  const requireEmail = ctx.settings.requireEmail;
   const qualified: { id: string; score: number }[] = [];
 
   for (const place of places) {
@@ -190,7 +193,35 @@ export const leadFinder: AgentHandler = async (ctx) => {
     }
     found++;
     await db().insert(schema.leadScores).values({ organizationId: ctx.organizationId, businessId: business.id, score: scored.score, breakdown: scored.breakdown, weights });
-    const isQualified = scored.score >= minScore;
+    // Public email addresses: from the homepage, then from the contact page. Only addresses
+    // that belong to the business are kept; nothing is guessed.
+    let emails: string[] = [];
+    if (isMock) {
+      emails = websiteUrl ? [`info@${domainOf(websiteUrl) ?? "example.invalid"}`] : [];
+    } else if (audit) {
+      const siteDomain = domainOf(websiteUrl);
+      emails = (audit.emails ?? []).filter((e) => belongsToBusiness(e, siteDomain, true));
+      if (!emails.length && audit.contactPageUrl) {
+        try {
+          const r = await safeFetch(audit.contactPageUrl, { timeoutMs: 10000, maxBytes: 1_000_000 });
+          if (r.status < 400) emails = extractEmails(r.body).filter((e) => belongsToBusiness(e, siteDomain, true));
+        } catch {
+          // The contact page could not be read; the business simply has no known email yet.
+        }
+      }
+    }
+    const hasEmail = emails.length > 0;
+    if (!hasEmail) noEmail++;
+    if (!isMock) {
+      for (const e of emails.slice(0, 3)) {
+        await db()
+          .insert(schema.businessContacts)
+          .values({ organizationId: ctx.organizationId, businessId: business.id, type: "email", value: e, isGeneric: isGenericEmail(e), source: "website", sourceUrl: audit?.contactPageUrl ?? websiteUrl ?? null, verificationStatus: "unverified", lawfulBasis: isGenericEmail(e) ? "legitimate_interest_b2b_generic_address" : "legitimate_interest_b2b_review_required", isMock })
+          .onConflictDoNothing();
+      }
+    }
+    // A lead only qualifies when it can actually be emailed (Settings → Autopilot → require email).
+    const isQualified = scored.score >= minScore && (!requireEmail || hasEmail);
     await db()
       .insert(schema.leads)
       .values({ organizationId: ctx.organizationId, businessId: business.id, campaignId: input.campaignId ?? null, qualified: isQualified, status: isQualified ? "qualified" : "new" })
@@ -216,7 +247,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
       qualified.push({ id: business.id, score: scored.score });
       await advanceStage(business.id, "QUALIFIED", ctx.organizationId);
     }
-    await ctx.log("info", `Discovered ${place.name} — score ${scored.score}${isQualified ? " (qualified)" : ""}`, {
+    await ctx.log("info", `Discovered ${place.name} — score ${scored.score}${isQualified ? " (qualified)" : requireEmail && !hasEmail && scored.score >= minScore ? " (not qualified: no public email address)" : ""}`, {
       businessId: business.id,
       websiteStatus,
     });
@@ -230,7 +261,12 @@ export const leadFinder: AgentHandler = async (ctx) => {
   }
 
   // Hand the best prospects to the rest of the pipeline.
-  const actions = input.actions ?? [];
+  let actions: string[] = input.actions ?? [];
+  // When an email address is required, contacts are checked first: it is the cheapest step and
+  // it stops the pipeline before any money is spent on research or a website nobody can receive.
+  if (requireEmail && actions.some((a) => a === "generate_website" || a === "sales_email")) {
+    actions = ["contacts", ...actions.filter((a) => a !== "contacts")];
+  }
   const top = qualified.sort((a, b) => b.score - a.score).slice(0, input.topN ?? qualified.length);
   if (actions.length) {
     for (const b of top) await continuePipeline(ctx, { businessId: b.id, next: actions });
@@ -248,6 +284,6 @@ export const leadFinder: AgentHandler = async (ctx) => {
   }
   return {
     status: "completed",
-    output: { found, qualified: qualified.length, duplicates, skippedClosed, pipelineStarted: actions.length ? top.length : 0, mock: isMock },
+    output: { found, qualified: qualified.length, withoutEmail: noEmail, duplicates, skippedClosed, pipelineStarted: actions.length ? top.length : 0, mock: isMock },
   };
 };

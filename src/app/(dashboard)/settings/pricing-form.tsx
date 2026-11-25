@@ -113,11 +113,12 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
   const [a, setA] = useState(settings.autopilot);
   const [cities, setCities] = useState(settings.autopilot.cities.join(", "));
   const [minOpp, setMinOpp] = useState(String(settings.minOpportunityScore));
+  const [requireEmail, setRequireEmail] = useState(settings.requireEmail);
   const save = () =>
     start(async () => {
       const list = cities.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
       if (a.enabled && (!list.length || !a.categories.length)) return void toast.error("Add at least one city and one industry before switching Autopilot on.");
-      const r = await updateSettingsAction({ autopilot: { ...a, cities: list }, minOpportunityScore: Math.max(0, Math.min(100, Number(minOpp) || 0)) });
+      const r = await updateSettingsAction({ autopilot: { ...a, cities: list }, minOpportunityScore: Math.max(0, Math.min(100, Number(minOpp) || 0)), requireEmail });
       if (!r.ok) return void toast.error(r.error);
       toast.success(a.enabled ? "Autopilot is on. It starts work within the next few minutes during working hours." : "Saved. Autopilot is off.");
       router.refresh();
@@ -188,6 +189,13 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
             <Field label="Minimum opportunity score" hint="No website is generated below this score (0–100).">
               <Input inputMode="numeric" value={minOpp} disabled={!canAdmin} onChange={(e) => setMinOpp(e.target.value)} />
             </Field>
+          </div>
+          <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-surface-2 p-4">
+            <div className="min-w-0">
+              <p className="text-[14px] font-medium">Only pursue businesses with a public email address</p>
+              <p className="mt-1 text-[13px] text-muted">The agency looks for an address on the business's own website. Without one, the lead is saved but not qualified: no research, no demo website, no email draft.</p>
+            </div>
+            <Switch checked={requireEmail} disabled={!canAdmin} onCheckedChange={setRequireEmail} label="Require an email address" />
           </div>
           {canAdmin && (
             <Button onClick={save} loading={pending}>

@@ -44,6 +44,8 @@ export const orgSettingsSchema = z.object({
   /** Packages, care plans and add-ons offered on demo pages (Settings → Pricing). */
   catalog: catalogSchema.default(DEFAULT_CATALOG),
   /** Websites are only generated for leads with at least this opportunity score. */
+  /** Only pursue businesses with a public email address (no demo website or outreach without one). */
+  requireEmail: z.boolean().default(true),
   minOpportunityScore: z.number().int().min(0).max(100).default(40),
   /** Autopilot: the agency runs discovery → demo on its own within these limits. */
   autopilot: z
