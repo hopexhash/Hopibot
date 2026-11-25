@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Worker } from "bullmq";
-import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
+import { RUNTIME_KEYS, type RuntimeKey } from "@/lib/constants";
 import { closeDb } from "@/server/db";
 import { executeTask } from "@/server/orchestrator/executor";
 import { queueName, type TaskJob } from "@/server/orchestrator/queue";
@@ -15,7 +15,7 @@ import { publishHeartbeat, WORKER_ID } from "@/server/health";
  * Postgres, so a task never runs twice concurrently.
  */
 
-const CONCURRENCY: Record<AgentKey, number> = {
+const CONCURRENCY: Record<RuntimeKey, number> = {
   lead_finder: 2,
   research: 6,
   contact_research: 6,
@@ -23,6 +23,7 @@ const CONCURRENCY: Record<AgentKey, number> = {
   quality_control: Number(process.env.QC_CONCURRENCY ?? 2),
   deployment: 3,
   sales: 6,
+  custom: 2,
 };
 
 function log(msg: string, extra?: unknown) {
@@ -30,8 +31,8 @@ function log(msg: string, extra?: unknown) {
 }
 
 async function main() {
-  const only = (process.env.WORKER_AGENTS ?? "").split(",").filter(Boolean) as AgentKey[];
-  const agents = only.length ? AGENT_KEYS.filter((a) => only.includes(a)) : [...AGENT_KEYS];
+  const only = (process.env.WORKER_AGENTS ?? "").split(",").filter(Boolean) as RuntimeKey[];
+  const agents = only.length ? RUNTIME_KEYS.filter((a) => only.includes(a)) : [...RUNTIME_KEYS];
   const connection = createRedis({ forWorker: true });
   const workers = agents.map(
     (agent) =>

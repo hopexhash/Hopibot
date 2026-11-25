@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Blocks,
   Bot,
   Globe,
   HeartPulse,
@@ -37,6 +38,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Workforce",
     items: [
       { href: "/agents", label: "AI Agents", icon: Bot, match: ["/network", "/tasks"], hint: "Your seven AI workers" },
+      { href: "/builder", label: "Agent Builder", icon: Blocks, hint: "Create your own agents" },
       { href: "/terminal", label: "Terminal", icon: TerminalSquare, match: ["/activity"], hint: "Live logs and commands" },
     ],
   },

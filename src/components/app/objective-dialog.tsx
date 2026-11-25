@@ -11,7 +11,7 @@ import { cn, formatUsd } from "@/lib/utils";
 import { planObjectiveAction, startObjectiveAction } from "@/server/actions/orchestrator";
 import type { PlanEstimate } from "@/server/orchestrator/estimate";
 import type { RunPlan } from "@/server/orchestrator/runs";
-import { AGENT_ICON } from "./agent-monitor";
+import { AGENT_ICON } from "./agent-meta";
 
 const EXAMPLES = [
   "Find 50 restaurants in Amsterdam with outdated websites, analyze their online presence, generate professional website previews for the 10 best and prepare personalized outreach emails.",

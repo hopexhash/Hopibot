@@ -135,7 +135,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
 });
 
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  return <label className={cn("mb-1.5 block text-xs font-medium text-foreground", className)} {...props} />;
+  return <label className={cn("mb-1.5 block text-[13px] font-medium text-foreground", className)} {...props} />;
 }
 
 export function Field({
@@ -157,7 +157,7 @@ export function Field({
     <div className={className}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {error ? <p className="mt-1 text-xs text-danger">{error}</p> : hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {error ? <p className="mt-1.5 text-[12.5px] text-danger">{error}</p> : hint ? <p className="mt-1.5 text-[12.5px] leading-snug text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -179,9 +179,9 @@ export function Switch({
       onCheckedChange={onCheckedChange}
       disabled={disabled}
       aria-label={label}
-      className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full bg-surface-3 transition-colors data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border border-border-strong bg-surface-3 transition-colors data-[state=checked]:border-accent data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <RSwitch.Thumb className="block h-4 w-4 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[18px]" />
+      <RSwitch.Thumb className="block h-5 w-5 translate-x-[3px] rounded-full bg-[#b9c9bf] shadow transition-transform data-[state=checked]:translate-x-[23px] data-[state=checked]:bg-accent-foreground" />
     </RSwitch.Root>
   );
 }

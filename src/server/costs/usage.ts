@@ -1,12 +1,12 @@
 import "../guard";
 import { and, eq, gte, sql } from "drizzle-orm";
-import type { AgentKey } from "@/lib/constants";
+import type { RuntimeKey } from "@/lib/constants";
 import { db, schema } from "../db";
 import { getOrgSettings } from "../org";
 
 export type UsageContext = {
   organizationId: string;
-  agentKey?: AgentKey;
+  agentKey?: RuntimeKey;
   taskId?: string;
   businessId?: string | null;
   projectId?: string | null;
@@ -78,7 +78,7 @@ export type BudgetStatus = {
 };
 
 /** Checks organisation daily/monthly limits and the agent's own daily limit. */
-export async function checkBudget(organizationId: string, agentKey?: AgentKey, estimatedCostUsd = 0): Promise<BudgetStatus> {
+export async function checkBudget(organizationId: string, agentKey?: RuntimeKey, estimatedCostUsd = 0): Promise<BudgetStatus> {
   const settings = await getOrgSettings(organizationId);
   const [daily, monthly] = await Promise.all([
     spendSince(organizationId, startOfUtcDay()),

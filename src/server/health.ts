@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import os from "node:os";
 import { sql } from "drizzle-orm";
 import type { Redis } from "ioredis";
-import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
+import { AGENT_KEYS, type AgentKey, type RuntimeKey } from "@/lib/constants";
 import { INTEGRATIONS, type IntegrationKey } from "@/lib/integrations-meta";
 import { db, schema } from "./db";
 import { getCredential, mockModeAllowed } from "./integrations/credentials";
@@ -13,9 +13,9 @@ import { eq } from "drizzle-orm";
 export const WORKER_ID = `${os.hostname()}-${process.pid}-${randomUUID().slice(0, 6)}`;
 const HEARTBEAT_TTL = 45;
 
-export type WorkerBeat = { id: string; host: string; agents: AgentKey[]; startedAt: string; at: string };
+export type WorkerBeat = { id: string; host: string; agents: RuntimeKey[]; startedAt: string; at: string };
 
-export async function publishHeartbeat(r: Redis, info: { agents: AgentKey[]; startedAt: string }) {
+export async function publishHeartbeat(r: Redis, info: { agents: RuntimeKey[]; startedAt: string }) {
   const beat: WorkerBeat = { id: WORKER_ID, host: os.hostname(), agents: info.agents, startedAt: info.startedAt, at: new Date().toISOString() };
   await r.set(`agencyos:worker:${WORKER_ID}`, JSON.stringify(beat), "EX", HEARTBEAT_TTL);
 }

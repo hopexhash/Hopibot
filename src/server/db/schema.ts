@@ -697,6 +697,8 @@ export const notifications = pgTable(
   {
     id: id(),
     organizationId: orgId(),
+    /** info | success | warning | error | approval | budget */
+    kind: text("kind").notNull().default("info"),
     title: text("title").notNull(),
     body: text("body"),
     href: text("href"),
@@ -704,4 +706,132 @@ export const notifications = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("notifications_org").on(t.organizationId, t.createdAt)],
+);
+
+// ───────────────────────── Custom agents (Agent Builder) ─────────────────────────
+
+export const customAgents = pgTable(
+  "custom_agents",
+  {
+    id: id(),
+    organizationId: orgId(),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    /** System instructions written by the operator (or generated and then reviewed). */
+    instructions: text("instructions").notNull(),
+    model: text("model").notNull(),
+    effort: text("effort").notNull().default("medium"),
+    maxOutputTokens: integer("max_output_tokens").notNull().default(8000),
+    /** Names from the server-side tool registry. Anything not listed is never offered to the model. */
+    tools: text("tools").array().notNull().default(sql`'{}'::text[]`),
+    /** What the agent may do beyond reading: validated again on every tool call. */
+    permissions: jsonb("permissions").$type<{ writeCrm: boolean; usePaidApis: boolean; startAgents: boolean }>().notNull(),
+    memoryEnabled: boolean("memory_enabled").notNull().default(false),
+    /** Notes the agent chose to remember between runs (only when memory is enabled). */
+    memory: text("memory").notNull().default(""),
+    dailyBudgetUsd: money("daily_budget_usd").notNull().default(1),
+    maxRunSeconds: integer("max_run_seconds").notNull().default(300),
+    maxSteps: integer("max_steps").notNull().default(15),
+    maxRetries: integer("max_retries").notNull().default(1),
+    /** draft (only test runs) | active | paused */
+    status: text("status").notNull().default("draft"),
+    /** Set after a test run finished successfully; required before activation. */
+    testedAt: timestamp("tested_at", { withTimezone: true }),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("custom_agents_org").on(t.organizationId, t.createdAt)],
+);
+
+// ───────────────────────── Outreach campaigns ─────────────────────────
+
+export const emailCampaigns = pgTable(
+  "email_campaigns",
+  {
+    id: id(),
+    organizationId: orgId(),
+    name: text("name").notNull(),
+    /** draft | awaiting_approval | active | paused | completed | cancelled */
+    status: text("status").notNull().default("draft"),
+    subjectTemplate: text("subject_template").notNull(),
+    bodyTemplate: text("body_template").notNull(),
+    followUpEnabled: boolean("follow_up_enabled").notNull().default(false),
+    followUpAfterDays: integer("follow_up_after_days").notNull().default(5),
+    followUpSubject: text("follow_up_subject"),
+    followUpBody: text("follow_up_body"),
+    /** Hard cap on emails this campaign may send per UTC day. */
+    dailyLimit: integer("daily_limit").notNull().default(20),
+    startAt: timestamp("start_at", { withTimezone: true }),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("email_campaigns_org").on(t.organizationId, t.status)],
+);
+
+export const campaignRecipients = pgTable(
+  "campaign_recipients",
+  {
+    id: id(),
+    organizationId: orgId(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => emailCampaigns.id, { onDelete: "cascade" }),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    toEmail: text("to_email"),
+    /** pending | sent | follow_up_sent | skipped | failed | replied */
+    status: text("status").notNull().default("pending"),
+    skipReason: text("skip_reason"),
+    introEmailId: uuid("intro_email_id").references(() => salesEmails.id, { onDelete: "set null" }),
+    followUpEmailId: uuid("follow_up_email_id").references(() => salesEmails.id, { onDelete: "set null" }),
+    introSentAt: timestamp("intro_sent_at", { withTimezone: true }),
+    followUpDueAt: timestamp("follow_up_due_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("campaign_recipient_unique").on(t.campaignId, t.businessId), index("campaign_recipients_status").on(t.campaignId, t.status)],
+);
+
+// ───────────────────────── Finance & CRM extras ─────────────────────────
+
+/** Operating expenses entered by hand (hosting, tools, freelancers). API usage is tracked separately. */
+export const expenses = pgTable(
+  "expenses",
+  {
+    id: id(),
+    organizationId: orgId(),
+    /** hosting | email | software | contractor | other */
+    category: text("category").notNull(),
+    description: text("description").notNull(),
+    amountCents: integer("amount_cents").notNull(),
+    currency: text("currency").notNull().default("eur"),
+    incurredOn: timestamp("incurred_on", { withTimezone: true }).notNull(),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("expenses_org_date").on(t.organizationId, t.incurredOn)],
+);
+
+export const crmTasks = pgTable(
+  "crm_tasks",
+  {
+    id: id(),
+    organizationId: orgId(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    doneAt: timestamp("done_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("crm_tasks_business").on(t.businessId, t.doneAt), index("crm_tasks_org_due").on(t.organizationId, t.dueAt)],
 );

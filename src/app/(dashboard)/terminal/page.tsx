@@ -1,20 +1,22 @@
 import { PageHeader } from "@/components/app/page";
-import { Terminal } from "@/components/app/terminal";
-import { AGENT_KEYS } from "@/lib/constants";
-import { requireAuth } from "@/server/auth";
-import { getLogs } from "@/server/queries/command-center";
+import { TerminalConsole } from "@/components/app/terminal-console";
+import { RUNTIME_KEYS } from "@/lib/constants";
+import { hasRole, requireAuth } from "@/server/auth";
 
-export const metadata = { title: "Live Activity" };
+export const metadata = { title: "Terminal" };
 
-export default async function ActivityPage({ searchParams }: { searchParams: Promise<{ agent?: string }> }) {
+const TABS = ["system", "agents", "executions", "api", "errors", "security"] as const;
+
+export default async function TerminalPage({ searchParams }: { searchParams: Promise<{ agent?: string; tab?: string }> }) {
   const auth = await requireAuth();
-  const { agent } = await searchParams;
-  const valid = agent && (agent === "orchestrator" || (AGENT_KEYS as readonly string[]).includes(agent)) ? agent : "";
-  const logs = await getLogs(auth.org.id, { agent: valid || undefined, limit: 200 });
+  const { agent, tab } = await searchParams;
+  const validAgent = agent && (RUNTIME_KEYS as readonly string[]).includes(agent) ? agent : "";
+  const admin = hasRole(auth.role, "admin");
+  const initialTab = TABS.find((t) => t === tab && (t !== "security" || admin)) ?? "agents";
   return (
     <>
-      <PageHeader eyebrow="AI OPERATIONS // LIVE ACTIVITY" title="Live Activity" description="Real agent logs as they are written. Filter by agent, search, pause, copy or download." />
-      <Terminal key={valid} initial={logs} initialAgent={valid} height="min(68dvh, 720px)" title="HOPIBOT://TERMINAL" />
+      <PageHeader eyebrow="Workforce" title="Terminal" description="Watch everything your agents do as it happens, and control the system by typing commands or asking in plain language." />
+      <TerminalConsole key={`${initialTab}:${validAgent}`} initialTab={initialTab} initialAgent={validAgent} canSeeSecurity={admin} />
     </>
   );
 }

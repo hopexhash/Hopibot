@@ -74,7 +74,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
               <TR key={r.id}>
                 <TD className="mono whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em]">
                   <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#00ff78" }} />
-                  {meta?.name ?? r.agentKey}
+                  {meta?.name ?? (r.agentKey === "custom" ? String((r.input as { customAgentName?: string }).customAgentName ?? "Custom agent") : r.agentKey)}
                 </TD>
                 <TD className="max-w-[320px]">
                   <div className="mono truncate text-[12px]">{r.type}</div>

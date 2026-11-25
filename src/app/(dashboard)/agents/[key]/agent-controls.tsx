@@ -23,8 +23,8 @@ export function AgentToggle({ agentKey, enabled, canAdmin }: { agentKey: string;
   const router = useRouter();
   const [pending, start] = useTransition();
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="text-muted">{enabled ? "Enabled" : "Disabled"}</span>
+    <div className="flex items-center gap-2.5 text-[13px]">
+      <span className="text-muted">{enabled ? "Active" : "Paused"}</span>
       <Switch
         checked={enabled}
         disabled={!canAdmin || pending}
@@ -52,12 +52,12 @@ export function TestAgentButton({ agentKey }: { agentKey: string }) {
         start(async () => {
           const r = await testAgentAction(agentKey);
           if (!r.ok) return void toast.error(r.error);
-          toast.success("Test task queued — watch the console below.");
+          toast.success("Started one task. Follow it under History or Activity log.");
           router.refresh();
         })
       }
     >
-      <FlaskConical /> Test agent
+      <FlaskConical /> Run once
     </Button>
   );
 }
@@ -101,8 +101,8 @@ export function AgentConfigForm({ agentKey, config, models, usesLlm, canAdmin }:
               ))}
             </Select>
           </Field>
-          <Field label="Temperature" hint="Not supported by current Claude models — stored for future models, never sent." className="col-span-2">
-            <Input type="number" step={0.1} min={0} max={1} value={c.temperature ?? ""} placeholder="Not supported" onChange={(e) => set("temperature", e.target.value === "" ? null : Number(e.target.value))} disabled={!canAdmin} />
+          <Field label="Temperature" hint="Current Claude models no longer accept a temperature setting. Use Effort instead." className="col-span-2">
+            <Input value="Not adjustable" disabled />
           </Field>
         </div>
       )}

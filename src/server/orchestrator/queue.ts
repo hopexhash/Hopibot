@@ -1,15 +1,15 @@
 import "../guard";
 import { Queue } from "bullmq";
-import { AGENT_KEYS, type AgentKey } from "@/lib/constants";
+import { AGENT_KEYS, RUNTIME_KEYS, type RuntimeKey } from "@/lib/constants";
 import { redis, withTimeout } from "../redis";
 
 export type TaskJob = { taskId: string; organizationId: string };
 
-export const queueName = (agent: AgentKey) => `agent-${agent}`;
+export const queueName = (agent: RuntimeKey) => `agent-${agent}`;
 
-const g = globalThis as unknown as { __agencyosQueues?: Map<AgentKey, Queue<TaskJob>> };
+const g = globalThis as unknown as { __agencyosQueues?: Map<RuntimeKey, Queue<TaskJob>> };
 
-export function getQueue(agent: AgentKey): Queue<TaskJob> {
+export function getQueue(agent: RuntimeKey): Queue<TaskJob> {
   if (!g.__agencyosQueues) g.__agencyosQueues = new Map();
   let q = g.__agencyosQueues.get(agent);
   if (!q) {
@@ -36,8 +36,8 @@ export async function enqueue(task: {
   priority: number;
   scheduledAt: Date;
 }) {
-  const agent = task.agentKey as AgentKey;
-  if (!AGENT_KEYS.includes(agent)) throw new Error(`Unknown agent ${task.agentKey}`);
+  const agent = task.agentKey as RuntimeKey;
+  if (!RUNTIME_KEYS.includes(agent)) throw new Error(`Unknown agent ${task.agentKey}`);
   const delay = Math.max(0, task.scheduledAt.getTime() - Date.now());
   // Deterministic job id: re-enqueueing the same scheduling of a task is a no-op.
   const jobId = `${task.id}_${task.attempts}_${task.scheduledAt.getTime()}`;

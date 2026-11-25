@@ -1,4 +1,4 @@
-import type { AgentKey } from "@/lib/constants";
+import type { RuntimeKey } from "@/lib/constants";
 import type { IntegrationKey, IntegrationMode } from "@/lib/integrations-meta";
 import type { OrgSettings } from "@/lib/settings";
 import type { schema } from "../db";
@@ -8,7 +8,7 @@ export type TaskRow = typeof schema.agentTasks.$inferSelect;
 export type AgentConfig = typeof schema.agentConfigurations.$inferSelect;
 
 export type TaskSpec = {
-  agentKey: AgentKey;
+  agentKey: RuntimeKey;
   type: string;
   businessId?: string | null;
   projectId?: string | null;
@@ -45,7 +45,7 @@ export type AgentResult =
 export type AgentHandler = (ctx: AgentContext) => Promise<AgentResult>;
 
 /** Paid providers each agent may call (for budget checks). */
-export const AGENT_PAID: Record<AgentKey, boolean> = {
+export const AGENT_PAID: Record<RuntimeKey, boolean> = {
   lead_finder: true,
   research: true,
   contact_research: true,
@@ -53,4 +53,5 @@ export const AGENT_PAID: Record<AgentKey, boolean> = {
   quality_control: false,
   deployment: false,
   sales: true,
+  custom: true,
 };

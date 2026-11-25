@@ -31,6 +31,19 @@ const DEFAULT_AGENT_LIMITS: Partial<Record<AgentKey, { concurrency: number; maxT
   sales: { concurrency: 4, maxTasksPerRun: 100, dailySpendLimitUsd: 5 },
 };
 
+/**
+ * The custom-agent runtime is one internal "agent" row that every custom agent's tasks run
+ * under (queue, concurrency, retries). Created on demand for workspaces that predate it.
+ */
+export async function ensureCustomRuntime(organizationId: string, tx: Database = db()) {
+  const [agent] = await tx
+    .insert(schema.agents)
+    .values({ organizationId, key: "custom", name: "Custom agents", description: "Runs the agents you create in the Agent Builder." })
+    .onConflictDoUpdate({ target: [schema.agents.organizationId, schema.agents.key], set: { name: "Custom agents" } })
+    .returning({ id: schema.agents.id });
+  await tx.insert(schema.agentConfigurations).values({ organizationId, agentId: agent.id, instructions: "", concurrency: 2, maxTasksPerRun: 100, maxRetries: 1 }).onConflictDoNothing();
+}
+
 /** Idempotently ensures the seven agents and their configuration rows exist. */
 export async function ensureAgents(organizationId: string, tx: Database = db()) {
   for (const key of AGENT_KEYS) {

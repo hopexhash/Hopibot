@@ -11,6 +11,10 @@ export const AGENT_KEYS = [
 ] as const;
 export type AgentKey = (typeof AGENT_KEYS)[number];
 
+/** Everything the worker can execute: the seven built-in agents plus the custom-agent runtime. */
+export const RUNTIME_KEYS = [...AGENT_KEYS, "custom"] as const;
+export type RuntimeKey = (typeof RUNTIME_KEYS)[number];
+
 export const AGENT_META: Record<AgentKey, { name: string; short: string; description: string; color: string }> = {
   lead_finder: {
     name: "Lead Discovery",
@@ -53,6 +57,72 @@ export const AGENT_META: Record<AgentKey, { name: string; short: string; descrip
     short: "Outreach",
     description: "Writes personal outreach emails and offers from the research. Nothing is ever sent without your approval.",
     color: "#ec4899",
+  },
+};
+
+/** What each built-in agent works with and where its limits are (shown on the agent page). */
+export const AGENT_CAPABILITIES: Record<AgentKey, { tools: { name: string; about: string }[]; can: string[]; cannot: string[]; approval: string | null }> = {
+  lead_finder: {
+    tools: [
+      { name: "Google Places", about: "Searches for real local businesses by city and type." },
+      { name: "Website checker", about: "Opens a business's website to see if it exists and how good it is." },
+      { name: "Lead scoring", about: "Scores each business 0–100 with the weights you set in Settings." },
+    ],
+    can: ["Save new leads to the CRM", "Skip duplicates automatically", "Start the next agents for qualified leads"],
+    cannot: ["Contact a business", "Save private individuals"],
+    approval: null,
+  },
+  research: {
+    tools: [
+      { name: "Claude (AI)", about: "Reads the collected material and writes the profile and website brief." },
+      { name: "Website reader", about: "Fetches public pages of the business's current site." },
+    ],
+    can: ["Write a research profile on the lead", "Separate verified facts from assumptions"],
+    cannot: ["Invent reviews, awards, prices or opening hours", "Follow instructions hidden in a web page"],
+    approval: null,
+  },
+  contact_research: {
+    tools: [
+      { name: "Website contact pages", about: "Reads publicly listed emails, phone numbers and contact forms." },
+      { name: "Hunter.io", about: "Looks up and verifies business email addresses (when connected)." },
+    ],
+    can: ["Record public contact details with their source"],
+    cannot: ["Guess an email address", "Use private or personal addresses"],
+    approval: null,
+  },
+  website_builder: {
+    tools: [
+      { name: "Claude (AI)", about: "Writes the content and chooses the structure of the site." },
+      { name: "Template library", about: "Professional layouts per type of business." },
+    ],
+    can: ["Create and revise website versions", "Fix issues reported by Quality Assurance"],
+    cannot: ["Publish a website", "Invent facts about the business"],
+    approval: null,
+  },
+  quality_control: {
+    tools: [{ name: "Test browser", about: "Opens each generated site on desktop, tablet and phone and checks links, forms, speed and accessibility." }],
+    can: ["Score a website", "Send it back to be fixed", "Mark it ready"],
+    cannot: ["Change the website itself"],
+    approval: null,
+  },
+  deployment: {
+    tools: [
+      { name: "Preview hosting", about: "Puts a website online at a private preview link." },
+      { name: "Vercel + GitHub", about: "Deploys through your own accounts when they are connected." },
+    ],
+    can: ["Publish private previews", "Verify that a deployment really loads"],
+    cannot: ["Buy domains", "Publish on a customer's domain by itself"],
+    approval: "Publishing on a real domain always waits for your approval.",
+  },
+  sales: {
+    tools: [
+      { name: "Claude (AI)", about: "Writes a personal email and offer from the research." },
+      { name: "Resend", about: "Delivers an email, only after you approved it." },
+      { name: "Suppression list", about: "Blocks anyone who unsubscribed or bounced." },
+    ],
+    can: ["Draft emails and offers", "Move leads through the CRM after a send"],
+    cannot: ["Send anything without your approval", "Email someone who unsubscribed", "Use pressure or misleading subject lines"],
+    approval: "Every email waits for your approval before it is sent.",
   },
 };
 

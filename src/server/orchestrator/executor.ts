@@ -1,6 +1,6 @@
 import "../guard";
 import { and, count, eq } from "drizzle-orm";
-import type { AgentKey } from "@/lib/constants";
+import type { RuntimeKey } from "@/lib/constants";
 import { AgentError } from "../integrations/anthropic";
 import { IntegrationUnavailableError, integrationMode } from "../integrations/credentials";
 import { checkBudget } from "../costs/usage";
@@ -12,8 +12,8 @@ import { refreshRunStatus } from "./runs";
 import { createApproval, resumeTask } from "./control";
 import { AGENT_PAID, type AgentContext, type AgentHandler, type TaskRow } from "./types";
 
-let handlers: Record<AgentKey, AgentHandler> | null = null;
-async function getHandler(agent: AgentKey): Promise<AgentHandler> {
+let handlers: Record<RuntimeKey, AgentHandler> | null = null;
+async function getHandler(agent: RuntimeKey): Promise<AgentHandler> {
   if (!handlers) handlers = (await import("../agents")).AGENT_HANDLERS;
   return handlers[agent];
 }
@@ -42,7 +42,7 @@ export async function executeTask(taskId: string): Promise<"ran" | "skipped" | "
   const [task] = await db().select().from(schema.agentTasks).where(eq(schema.agentTasks.id, taskId));
   if (!task || task.status !== "PENDING") return "skipped";
   if (task.scheduledAt.getTime() > Date.now() + 1000) return "deferred";
-  const agentKey = task.agentKey as AgentKey;
+  const agentKey = task.agentKey as RuntimeKey;
 
   const loaded = await loadAgent(task.organizationId, agentKey);
   if (!loaded) {

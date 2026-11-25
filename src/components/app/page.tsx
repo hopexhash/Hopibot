@@ -129,3 +129,27 @@ export function Section({ title, description, actions, children, className }: { 
     </section>
   );
 }
+
+/** Tabs that are plain links (work without JavaScript, keep state in the URL, scroll sideways on phones). */
+export function LinkTabs({ tabs, current, href }: { tabs: { key: string; label: string; count?: number }[]; current: string; href: (key: string) => string }) {
+  return (
+    <div className="-mx-3.5 mb-5 flex gap-1 overflow-x-auto border-b border-border px-3.5 sm:mx-0 sm:px-0" role="tablist">
+      {tabs.map((t) => (
+        <Link
+          key={t.key}
+          href={href(t.key)}
+          role="tab"
+          aria-selected={current === t.key}
+          scroll={false}
+          className={cn(
+            "-mb-px flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 text-[13px] font-medium transition-colors",
+            current === t.key ? "border-accent text-accent" : "border-transparent text-muted hover:text-foreground",
+          )}
+        >
+          {t.label}
+          {t.count ? <span className="tabular rounded-md bg-surface-3 px-1.5 text-[11px] text-muted">{t.count}</span> : null}
+        </Link>
+      ))}
+    </div>
+  );
+}

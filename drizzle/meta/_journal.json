@@ -29,6 +29,13 @@
       "when": 1795608421316,
       "tag": "0003_private_rls_helpers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795616969967,
+      "tag": "0004_platform_expansion",
+      "breakpoints": true
     }
   ]
 }
