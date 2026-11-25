@@ -1,7 +1,7 @@
 import "../guard";
 import { and, desc, eq, gt, like, sql } from "drizzle-orm";
 import { PROGRESS_KINDS } from "@/lib/activity";
-import { BUSINESS_CATEGORIES } from "@/lib/constants";
+import { AGENT_KEYS, BUSINESS_CATEGORIES } from "@/lib/constants";
 import { resolveMarket } from "@/lib/markets";
 import { parseOrgSettings, type OrgSettings } from "@/lib/settings";
 import { checkBudget } from "../costs/usage";
@@ -192,6 +192,8 @@ export async function getAutonomyStatus(organizationId: string, settings: OrgSet
     state,
     blockers,
     workersOnline: workers.workers.length,
+    agentsOnline: workers.covered.length,
+    agentsTotal: AGENT_KEYS.length,
     tasks: { running: tasks.running, waiting: tasks.waiting, approval: tasks.approval },
     today: { discovered: disc.n, qualified: qual.n, websites: web.n, deployed: dep.n, costUsd: budget.daily.spent },
     limits: { discovery: a.dailyDiscoveryLimit, websites: a.dailyWebsiteLimit, dailyUsd: budget.daily.limit },

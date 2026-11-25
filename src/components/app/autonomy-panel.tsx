@@ -133,7 +133,10 @@ export function AutonomyPanel({ status, canAdmin, children }: { status: Autonomy
 
       <div className="relative mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-[12.5px] text-muted">
         <span>
-          <b className="tabular font-semibold text-foreground">{status.workersOnline}</b> worker{status.workersOnline === 1 ? "" : "s"} online
+          <b className="tabular font-semibold text-foreground">
+            {status.agentsOnline}/{status.agentsTotal}
+          </b>{" "}
+          agents online
         </span>
         <span>
           <b className="tabular font-semibold text-foreground">{status.tasks.running}</b> tasks executing
