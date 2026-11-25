@@ -5,6 +5,7 @@ import { db, schema } from "../db";
 import { hunterDomainSearch, hunterVerify, mapVerification } from "../integrations/hunter";
 import { safeFetch } from "../net/safe-fetch";
 import { continuePipeline } from "../orchestrator/pipeline";
+import { notifyEvent } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { domainOf } from "../scoring/lead-score";
 
@@ -30,6 +31,7 @@ export const contactResearch: AgentHandler = async (ctx) => {
     .from(schema.businesses)
     .where(and(eq(schema.businesses.id, businessId), eq(schema.businesses.organizationId, ctx.organizationId)));
   if (!b) throw new Error("Business not found");
+  await ctx.log("info", `Searching for publicly listed contact details of ${b.name}: homepage, contact page${(await ctx.mode("hunter")) === "live" ? " and Hunter" : ""}`, { kind: "contact.searching", status: "running" });
 
   // Suppressed businesses are never researched further for outreach.
   const domain = domainOf(b.websiteUrl);
@@ -134,7 +136,8 @@ export const contactResearch: AgentHandler = async (ctx) => {
       });
     stored++;
   }
-  await ctx.log("info", `Recorded ${stored} email contact(s), ${verified} verified.`);
+  if (stored) await notifyEvent(ctx.organizationId, "contactFound", `Contact information found for ${b.name}`, `${stored} email address${stored === 1 ? "" : "es"} saved.`, `/businesses/${b.id}`, "success");
+  await ctx.log("info", stored ? `Contact information saved: ${stored} email address${stored === 1 ? "" : "es"}, ${verified} verified.` : "No new email address found.", { kind: stored ? "contact.found" : "contact.none", status: stored ? "completed" : "info" });
   // Without any usable email address the business cannot be contacted, so no demo website is built for it.
   if (ctx.settings.requireEmail) {
     const usable = await db()

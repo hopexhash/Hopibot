@@ -8,7 +8,7 @@ import { FONT_FAMILIES } from "@/sites/fonts";
 import { db, schema } from "../db";
 import { claudeStructured } from "../integrations/anthropic";
 import { IntegrationUnavailableError } from "../integrations/credentials";
-import { advanceStage } from "../orchestrator/tasks";
+import { advanceStage, notifyEvent } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
 import { buildMockSpec } from "../website/mock-spec";
 import { attachStockPhotos } from "../website/photos";
@@ -169,7 +169,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
       spec = buildMockSpec(b, design.key);
       changeSummary = isMock ? "Initial version (MOCK — generated from templates without Claude)." : "Initial version from listing data.";
     } else {
-      await ctx.log("info", `Generating website with the "${design.name}" design (${design.industry}) — ${chosen.reason}.`);
+      await ctx.log("info", `Designing the website with the "${design.name}" design (${design.industry}) — ${chosen.reason}.`, { kind: "website.generating", status: "running" });
       const res = await claudeStructured({
         ctx: ctx.usage,
         operation: "generate_website",
@@ -274,7 +274,8 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   });
   await db().update(schema.agentTasks).set({ projectId: project.id }).where(eq(schema.agentTasks.id, ctx.task.id));
   await advanceStage(b.id, "DEMO_GENERATED", ctx.organizationId);
-  await ctx.log("info", `Saved version ${version.versionNo}: ${changeSummary}`, { projectId: project.id, versionId: version.id });
+  if (type === "generate_website") await notifyEvent(ctx.organizationId, "websiteGenerated", `Website generated for ${b.name}`, changeSummary.slice(0, 200), `/websites/${project.id}`, "success");
+  await ctx.log("info", `Website version ${version.versionNo} built: ${changeSummary}`, { projectId: project.id, versionId: version.id, kind: "website.generated", status: "completed" });
 
   // Every new version is tested before it can be marked ready.
   await spawnQc(ctx, b.id, project.id, version.id, next, iteration);

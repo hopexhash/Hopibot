@@ -233,7 +233,16 @@ async function checkNavLinks(links: string[]): Promise<string[]> {
   });
 }
 
-export async function inspectSite(rawUrl: string): Promise<SiteInspection> {
+export type InspectionStep = { key: string; message: string };
+
+export async function inspectSite(rawUrl: string, onStep?: (step: InspectionStep) => unknown): Promise<SiteInspection> {
+  const report = async (key: string, message: string) => {
+    try {
+      await onStep?.({ key, message });
+    } catch {
+      // Reporting progress must never break the inspection.
+    }
+  };
   const started = Date.now();
   const withScheme = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
   const url = ALLOW_LOCAL ? withScheme : validateUrl(withScheme).toString();
@@ -246,6 +255,7 @@ export async function inspectSite(rawUrl: string): Promise<SiteInspection> {
     await guard(desktop, counters);
     await guard(mobile, { failed: 0 });
 
+    await report("desktop", "Rendering the desktop version (1440px wide)");
     const d = await open(desktop, url, (page) => {
       page.on("pageerror", () => consoleErrors++);
       page.on("console", (msg) => {
@@ -259,6 +269,7 @@ export async function inspectSite(rawUrl: string): Promise<SiteInspection> {
     const desktopBottom = await shot(d.page);
     const finalUrl = d.page.url();
 
+    await report("mobile", "Rendering the phone version (390px wide) and checking the responsive layout");
     const m = await open(mobile, url);
     const mobileTop = await shot(m.page);
     const mFacts = await m.page.evaluate(mobileFacts);
@@ -267,6 +278,7 @@ export async function inspectSite(rawUrl: string): Promise<SiteInspection> {
     await m.page.waitForTimeout(600);
     const mobileMid = await shot(m.page);
 
+    await report("checks", "Checking navigation links, footer copyright and contact options");
     const brokenNavLinks = await checkNavLinks(facts.navLinks);
     const { text, navLinks, ...rest } = facts;
     return {

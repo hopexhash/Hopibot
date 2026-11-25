@@ -5,7 +5,12 @@ import { redis, withTimeout } from "../redis";
 
 export type TaskJob = { taskId: string; organizationId: string };
 
-export const queueName = (agent: RuntimeKey) => `agent-${agent}`;
+/**
+ * Queue generation. Bump it when a worker running outdated code must be cut off: workers
+ * of an older generation keep listening on queues that nothing writes to any more.
+ */
+export const QUEUE_GENERATION = 2;
+export const queueName = (agent: RuntimeKey) => `agent${QUEUE_GENERATION}-${agent}`;
 
 const g = globalThis as unknown as { __agencyosQueues?: Map<RuntimeKey, Queue<TaskJob>> };
 

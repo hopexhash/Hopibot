@@ -8,6 +8,7 @@ import { INTEGRATIONS, type IntegrationKey } from "@/lib/integrations-meta";
 import { db, schema } from "./db";
 import { getCredential, mockModeAllowed } from "./integrations/credentials";
 import { redis, withTimeout } from "./redis";
+import { QUEUE_GENERATION } from "./orchestrator/queue";
 import { eq } from "drizzle-orm";
 
 export const WORKER_ID = `${os.hostname()}-${process.pid}-${randomUUID().slice(0, 6)}`;
@@ -17,7 +18,7 @@ export type WorkerBeat = { id: string; host: string; agents: RuntimeKey[]; start
 
 export async function publishHeartbeat(r: Redis, info: { agents: RuntimeKey[]; startedAt: string }) {
   const beat: WorkerBeat = { id: WORKER_ID, host: os.hostname(), agents: info.agents, startedAt: info.startedAt, at: new Date().toISOString() };
-  await r.set(`agencyos:worker:${WORKER_ID}`, JSON.stringify(beat), "EX", HEARTBEAT_TTL);
+  await r.set(`agencyos:worker${QUEUE_GENERATION}:${WORKER_ID}`, JSON.stringify(beat), "EX", HEARTBEAT_TTL);
 }
 
 /** Live workers = heartbeats that have not expired (published every 15 s, TTL 45 s). */
@@ -27,7 +28,7 @@ export async function liveWorkers(): Promise<{ ok: boolean; workers: WorkerBeat[
     const keys: string[] = [];
     let cursor = "0";
     do {
-      const [next, batch] = await withTimeout(r.scan(cursor, "MATCH", "agencyos:worker:*", "COUNT", 100));
+      const [next, batch] = await withTimeout(r.scan(cursor, "MATCH", `agencyos:worker${QUEUE_GENERATION}:*`, "COUNT", 100));
       cursor = next;
       keys.push(...batch);
     } while (cursor !== "0" && keys.length < 500);

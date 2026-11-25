@@ -13,7 +13,7 @@ import { safeFetch } from "../net/safe-fetch";
 import { continuePipeline } from "../orchestrator/pipeline";
 import { triggerQualifiedLeadWorkflows } from "../orchestrator/recovery";
 import { discoveryParamsSchema } from "../orchestrator/runs";
-import { advanceStage, notify } from "../orchestrator/tasks";
+import { advanceStage, notify, notifyEvent } from "../orchestrator/tasks";
 import type { AgentHandler } from "../orchestrator/types";
 import { dedupeKey, domainOf, scoreLead } from "../scoring/lead-score";
 import { isQualifiedLead, QUALIFICATION_META, type Qualification } from "@/lib/qualification";
@@ -96,7 +96,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
   let outsideMarket = 0;
   const queryParts = [params.businessName || category.label, params.keywords, `in ${params.city}, ${params.country}`].filter(Boolean);
   const query = queryParts.join(" ");
-  await ctx.log("info", `Searching Google Places for "${query}"${isMock ? " (MOCK MODE)" : ""}`, { params });
+  await ctx.log("info", `Searching Google Maps for ${category.label.toLowerCase()} in ${params.city}${isMock ? " (MOCK MODE)" : ""}`, { params, kind: "discovery.search", status: "running" });
 
   // Over-fetch to leave room for duplicates and filtered results.
   const fetchCount = Math.min(60, Math.ceil(params.limit * 1.5));
@@ -114,7 +114,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
       regionCode: market.code.toLowerCase(),
     });
   }
-  await ctx.log("info", `Google Places returned ${places.length} result(s).`);
+  await ctx.log("info", `Found ${places.length} potential business${places.length === 1 ? "" : "es"}. Filtering out duplicates and closed businesses.`, { kind: "discovery.results", status: "info" });
 
   let found = 0;
   let duplicates = 0;
@@ -229,6 +229,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
       continue;
     }
     found++;
+    await ctx.log("info", `New business: ${place.name}${websiteUrl ? ` — ${domainOf(websiteUrl) ?? websiteUrl}` : " — no website found"}`, { kind: "lead.discovered", status: "info", businessId: business.id, url: websiteUrl ?? undefined });
     await db().insert(schema.leadScores).values({ organizationId: ctx.organizationId, businessId: business.id, score: scored.score, breakdown: scored.breakdown, weights });
     // Public email addresses: from the homepage, then from the contact page. Only addresses
     // that belong to the business are kept; nothing is guessed.
@@ -249,6 +250,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
     }
     const hasEmail = emails.length > 0;
     if (!hasEmail) noEmail++;
+    if (hasEmail) await ctx.log("info", `Found a publicly listed email address for ${place.name}`, { kind: "contact.found", status: "completed", businessId: business.id });
     if (!isMock) {
       for (const e of emails.slice(0, 3)) {
         await db()
@@ -305,10 +307,12 @@ export const leadFinder: AgentHandler = async (ctx) => {
     if (isQualified) {
       qualified.push({ id: business.id, score: redesignScore ?? scored.score });
       await advanceStage(business.id, "QUALIFIED", ctx.organizationId);
+      await ctx.log("info", `Saved ${place.name} to the CRM as a ${qualification === "high_priority" ? "high-priority" : "qualified"} lead`, { kind: "lead.qualified", status: "completed", businessId: business.id });
+      if (qualification === "high_priority" && !isMock) await notifyEvent(ctx.organizationId, "highQualityLead", `High-priority lead: ${place.name}`, `Redesign score ${redesignScore}. The website has serious, visible problems.`, `/businesses/${business.id}`, "success");
     }
     if (!qualification || qualification === "no_email") {
       const why = qualification === "no_email" ? `${QUALIFICATION_META.no_email.badge}: no public email address, so the website was not inspected` : `no website (${websiteStatus}), lead score ${scored.score}${isQualified ? " (qualified)" : requireEmail && !hasEmail ? " (not qualified: no public email address)" : " (not qualified)"}`;
-      await ctx.log("info", `Discovered ${place.name} — ${why}`, { businessId: business.id, websiteStatus });
+      await ctx.log("info", `${place.name} — ${why}`, { businessId: business.id, websiteStatus, kind: "lead.skipped", status: "info" });
     }
   }
 
@@ -319,10 +323,13 @@ export const leadFinder: AgentHandler = async (ctx) => {
       .where(eq(schema.discoveryCampaigns.id, input.campaignId));
   }
 
+  if (duplicates || skippedClosed || outsideMarket) {
+    await ctx.log("info", `Skipped ${duplicates} already in the CRM, ${skippedClosed} closed and ${outsideMarket} outside ${market.name}.`, { kind: "discovery.filtered", status: "info" });
+  }
   const summary = Object.entries(decisions)
     .map(([k, n]) => `${n} × ${QUALIFICATION_META[k as Qualification].badge}`)
     .join(", ");
-  if (summary) await ctx.log("info", `Website qualification: ${summary}. AI cost for inspections: $${inspectionCost.toFixed(3)}.`);
+  if (summary) await ctx.log("info", `Website qualification finished: ${summary}. AI cost for inspections: $${inspectionCost.toFixed(3)}.`, { kind: "inspection.summary", status: "completed" });
 
   // Hand the best prospects to the rest of the pipeline.
   let actions: string[] = input.actions ?? [];
@@ -334,7 +341,7 @@ export const leadFinder: AgentHandler = async (ctx) => {
   const top = qualified.sort((a, b) => b.score - a.score).slice(0, input.topN ?? qualified.length);
   if (actions.length) {
     for (const b of top) await continuePipeline(ctx, { businessId: b.id, next: actions });
-    await ctx.log("info", `Started the pipeline for the top ${top.length} prospect(s).`);
+    await ctx.log("info", `Handed the best ${top.length} lead${top.length === 1 ? "" : "s"} to the next agents.`, { kind: "discovery.handoff", status: "completed" });
   } else if (qualified.length) {
     const started = await triggerQualifiedLeadWorkflows(
       ctx.organizationId,

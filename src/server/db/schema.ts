@@ -578,9 +578,16 @@ export const agentLogs = pgTable(
     level: text("level").notNull().default("info"), // debug | info | warn | error
     message: text("message").notNull(),
     data: jsonb("data").$type<Record<string, unknown> | null>(),
+    /** Structured event fields for the Live Operations feed (see lib/activity). */
+    category: text("category"),
+    kind: text("kind"),
+    /** running | completed | failed | waiting | warning | info */
+    status: text("status"),
+    businessId: uuid("business_id"),
+    url: text("url"),
     createdAt: createdAt(),
   },
-  (t) => [index("logs_org_created").on(t.organizationId, t.createdAt), index("logs_task").on(t.taskId)],
+  (t) => [index("logs_org_created").on(t.organizationId, t.createdAt), index("logs_task").on(t.taskId), index("logs_org_id").on(t.organizationId, t.id), index("logs_run_kind").on(t.runId, t.kind)],
 );
 
 export const approvals = pgTable(

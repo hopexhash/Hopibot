@@ -409,30 +409,35 @@ export type ActivityEntry = {
   runId: string | null;
   businessId: string | null;
   businessName: string | null;
+  category: string;
+  kind: string | null;
+  status: string;
+  url: string | null;
 };
 
-/** Human-readable activity (agent_logs joined to the business the task was about). */
-export async function getActivity(
-  orgId: string,
-  limit = 40,
-  afterId?: number,
-  filter: { agent?: string; level?: string } = {},
-): Promise<ActivityEntry[]> {
-  const levels =
-    filter.level === "error"
-      ? ["error"]
-      : filter.level === "warn"
-        ? ["warn", "error"]
-        : ["info", "warn", "error"];
+export type ActivityFilter = { agent?: string; level?: string; category?: string; q?: string; beforeId?: number };
+
+/**
+ * The Live Operations feed: real agent events, newest first, joined to the business they
+ * concern. `afterId` returns only newer events (live updates and catching up after a
+ * dropped connection); `beforeId` pages back through history.
+ */
+export async function getActivity(orgId: string, limit = 40, afterId?: number, filter: ActivityFilter = {}): Promise<ActivityEntry[]> {
+  const levels = filter.level === "error" ? ["error"] : filter.level === "warn" ? ["warn", "error"] : ["info", "warn", "error"];
+  const search = filter.q?.trim().slice(0, 80).replace(/[%_\\]/g, "\\$&");
   const rows = await q(sql`
-    SELECT l.id, l.agent_key, l.level, l.message, l.created_at, l.task_id, l.run_id, t.business_id, b.name AS business_name
+    SELECT l.id, l.agent_key, l.level, l.message, l.created_at, l.task_id, l.run_id, l.category, l.kind, l.status, l.url,
+      coalesce(l.business_id, t.business_id) AS business_id, b.name AS business_name
     FROM agent_logs l
     LEFT JOIN agent_tasks t ON t.id = l.task_id
-    LEFT JOIN businesses b ON b.id = t.business_id AND b.erased_at IS NULL
+    LEFT JOIN businesses b ON b.id = coalesce(l.business_id, t.business_id) AND b.erased_at IS NULL
     WHERE l.organization_id = ${orgId}
       AND l.level IN ${sql.raw(`(${levels.map((x) => `'${x}'`).join(",")})`)}
       ${afterId ? sql`AND l.id > ${afterId}` : sql``}
+      ${filter.beforeId ? sql`AND l.id < ${filter.beforeId}` : sql``}
       ${filter.agent ? sql`AND l.agent_key = ${filter.agent}` : sql``}
+      ${filter.category ? sql`AND l.category = ${filter.category}` : sql``}
+      ${search ? sql`AND (l.message ILIKE ${`%${search}%`} OR b.name ILIKE ${`%${search}%`} OR l.url ILIKE ${`%${search}%`})` : sql``}
     ORDER BY l.id DESC LIMIT ${limit}
   `);
   return rows.map((r) => ({
@@ -445,5 +450,9 @@ export async function getActivity(
     runId: r.run_id ? String(r.run_id) : null,
     businessId: r.business_id ? String(r.business_id) : null,
     businessName: r.business_name ? String(r.business_name) : null,
+    category: String(r.category ?? "system"),
+    kind: r.kind ? String(r.kind) : null,
+    status: String(r.status ?? (r.level === "error" ? "failed" : r.level === "warn" ? "warning" : "info")),
+    url: r.url ? String(r.url) : null,
   }));
 }

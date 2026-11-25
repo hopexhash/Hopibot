@@ -46,6 +46,17 @@ export const orgSettingsSchema = z.object({
   /** Websites are only generated for leads with at least this opportunity score. */
   /** Only pursue businesses with a public email address (no demo website or outreach without one). */
   requireEmail: z.boolean().default(true),
+  /** Which events create a notification (bell icon). */
+  notifications: z
+    .object({
+      highQualityLead: z.boolean().default(true),
+      contactFound: z.boolean().default(false),
+      websiteGenerated: z.boolean().default(false),
+      deployed: z.boolean().default(true),
+      criticalError: z.boolean().default(true),
+      dailyLimit: z.boolean().default(true),
+    })
+    .default({ highQualityLead: true, contactFound: false, websiteGenerated: false, deployed: true, criticalError: true, dailyLimit: true }),
   minOpportunityScore: z.number().int().min(0).max(100).default(40),
   /** Autopilot: the agency runs discovery → demo on its own within these limits. */
   autopilot: z

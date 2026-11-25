@@ -7,7 +7,7 @@ import { checkBudget } from "../costs/usage";
 import { db, schema } from "../db";
 import { getOrgSettings } from "../org";
 import { backoffMs, claimTask, transitionTask } from "./state-machine";
-import { createTask, notify, promoteDependents, safeEnqueue, writeLog } from "./tasks";
+import { createTask, notifyEvent, promoteDependents, safeEnqueue, writeLog } from "./tasks";
 import { refreshRunStatus } from "./runs";
 import { createApproval, resumeTask } from "./control";
 import { AGENT_PAID, type AgentContext, type AgentHandler, type TaskRow } from "./types";
@@ -88,7 +88,7 @@ export async function executeTask(taskId: string): Promise<"ran" | "skipped" | "
 
   const settings = await getOrgSettings(task.organizationId);
   const log: AgentContext["log"] = (level, message, data) =>
-    writeLog(task.organizationId, { taskId: task.id, runId: task.runId, agentKey, level, message, data });
+    writeLog(task.organizationId, { taskId: task.id, runId: task.runId, agentKey, level, message, data, businessId: task.businessId });
 
   const heartbeat = async () => {
     await db().update(schema.agentTasks).set({ heartbeatAt: new Date() }).where(eq(schema.agentTasks.id, task.id));
@@ -132,17 +132,17 @@ export async function executeTask(taskId: string): Promise<"ran" | "skipped" | "
   };
 
   const started = Date.now();
-  await log("info", `Started ${claimed.type} (attempt ${claimed.attempts}/${claimed.maxAttempts})`);
+  await log("info", `Started ${claimed.type.replace(/_/g, " ")}${claimed.attempts > 1 ? ` (attempt ${claimed.attempts} of ${claimed.maxAttempts})` : ""}`, { kind: "task.started", status: "running" });
   try {
     const handler = await getHandler(agentKey);
     const result = await handler(ctx);
     if (result.status === "waiting_for_approval") {
       await transitionTask(task.id, "RUNNING", "WAITING_FOR_APPROVAL", { output: result.output ?? null, waitingReason: result.reason });
       if (result.approval) await createApproval(claimed, result.approval);
-      await log("info", `Waiting for approval: ${result.reason}`);
+      await log("info", `Waiting for your approval: ${result.reason}`, { kind: "task.waiting", status: "waiting" });
     } else {
       const done = await transitionTask(task.id, "RUNNING", "COMPLETED", { output: result.output, completedAt: new Date() });
-      await log("info", `Completed in ${((Date.now() - started) / 1000).toFixed(1)}s`);
+      await log("info", `Completed ${claimed.type.replace(/_/g, " ")} in ${((Date.now() - started) / 1000).toFixed(1)}s`, { kind: "task.completed", status: "completed" });
       if (done) await promoteDependents(done);
     }
   } catch (err) {
@@ -151,7 +151,7 @@ export async function executeTask(taskId: string): Promise<"ran" | "skipped" | "
       err instanceof AgentError ? err.retryable : err instanceof IntegrationUnavailableError ? false : !(e as { code?: string }).code?.startsWith("SSRF");
     const code = (err as { code?: string }).code ?? "ERROR";
     const canRetry = retryable && claimed.attempts < claimed.maxAttempts;
-    await log(canRetry ? "warn" : "error", `${canRetry ? "Attempt failed, will retry" : "Failed"}: ${e.message}`, { code });
+    await log(canRetry ? "warn" : "error", `${canRetry ? "Attempt failed, will retry" : "Failed"}: ${e.message}`, { code, kind: "task.failed", status: canRetry ? "warning" : "failed" });
     if (canRetry) {
       const next = await transitionTask(task.id, "RUNNING", "PENDING", {
         error: { message: e.message, code, retryable },
@@ -177,7 +177,7 @@ async function onTaskFailed(task: TaskRow, message: string) {
     await db().update(schema.websiteProjects).set({ status: "failed", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, task.projectId));
   }
   const name = AGENT_META[task.agentKey as AgentKey]?.name ?? (task.agentKey === "custom" ? String((task.input as { customAgentName?: string }).customAgentName ?? "Custom agent") : task.agentKey);
-  await notify(task.organizationId, `${name} failed`, `${task.type.replace(/_/g, " ")}: ${message}`, "/tasks?status=FAILED", "error");
+  await notifyEvent(task.organizationId, "criticalError", `${name} failed`, `${task.type.replace(/_/g, " ")}: ${message}`, "/tasks?status=FAILED", "error");
 }
 
 export { createTask, createApproval, resumeTask };

@@ -2,24 +2,46 @@ import "../guard";
 import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { PIPELINE_STAGES, type PipelineStage, CLOSED_STAGES } from "@/lib/constants";
 import { db, schema } from "../db";
+import { categoryFor, statusFor } from "@/lib/activity";
 import { enqueue } from "./queue";
 import type { TaskRow, TaskSpec } from "./types";
 
+const str = (v: unknown) => (typeof v === "string" && v ? v : null);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The single place where agents, the executor and the autopilot record what they do. Every
+ * entry is both a log line and a structured activity event (category, kind, status, the
+ * business and URL it concerns). `data.kind`, `data.status`, `data.businessId` and
+ * `data.url` set those fields. Recording an event never fails the work that reported it.
+ */
 export async function writeLog(
   organizationId: string,
-  entry: { taskId?: string | null; runId?: string | null; agentKey: string; level?: string; message: string; data?: Record<string, unknown> },
+  entry: { taskId?: string | null; runId?: string | null; agentKey: string; level?: string; message: string; data?: Record<string, unknown>; businessId?: string | null },
 ) {
-  await db()
-    .insert(schema.agentLogs)
-    .values({
-      organizationId,
-      taskId: entry.taskId ?? null,
-      runId: entry.runId ?? null,
-      agentKey: entry.agentKey,
-      level: entry.level ?? "info",
-      message: entry.message.slice(0, 2000),
-      data: entry.data ?? null,
-    });
+  const level = entry.level ?? "info";
+  const kind = str(entry.data?.kind);
+  const businessId = str(entry.data?.businessId) ?? entry.businessId ?? null;
+  try {
+    await db()
+      .insert(schema.agentLogs)
+      .values({
+        organizationId,
+        taskId: entry.taskId ?? null,
+        runId: entry.runId ?? null,
+        agentKey: entry.agentKey,
+        level,
+        message: entry.message.slice(0, 2000),
+        data: entry.data ?? null,
+        category: categoryFor(entry.agentKey, kind),
+        kind,
+        status: statusFor(level, str(entry.data?.status)),
+        businessId: businessId && UUID.test(businessId) ? businessId : null,
+        url: str(entry.data?.url)?.slice(0, 500) ?? null,
+      });
+  } catch (err) {
+    console.error("[activity] could not record event:", (err as Error).message);
+  }
 }
 
 async function dependenciesMet(dependsOn: string[]) {
@@ -134,6 +156,28 @@ export async function advanceStage(businessId: string, stage: PipelineStage, org
 }
 
 export type NotificationKind = "info" | "success" | "warning" | "error" | "approval" | "budget";
+
+export const NOTIFICATION_EVENTS = [
+  { key: "highQualityLead", label: "New high-priority lead discovered" },
+  { key: "contactFound", label: "Contact information found" },
+  { key: "websiteGenerated", label: "Website generation completed" },
+  { key: "deployed", label: "Deployment successful" },
+  { key: "criticalError", label: "An agent hit a critical error" },
+  { key: "dailyLimit", label: "Daily lead discovery limit reached" },
+] as const;
+export type NotificationEvent = (typeof NOTIFICATION_EVENTS)[number]["key"];
+
+/** A notification for one of the configurable events; respects Settings → Notifications. */
+export async function notifyEvent(organizationId: string, event: NotificationEvent, title: string, body?: string, href?: string, kind: NotificationKind = "info") {
+  try {
+    const { getOrgSettings } = await import("../org");
+    const settings = await getOrgSettings(organizationId);
+    if (settings.notifications[event] === false) return;
+    await notify(organizationId, title, body, href, kind);
+  } catch (err) {
+    console.error("[notify]", (err as Error).message);
+  }
+}
 
 export async function notify(organizationId: string, title: string, body?: string, href?: string, kind: NotificationKind = "info") {
   await db().insert(schema.notifications).values({ organizationId, kind, title: title.slice(0, 200), body: body?.slice(0, 500), href });

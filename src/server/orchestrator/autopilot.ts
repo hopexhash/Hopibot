@@ -8,7 +8,7 @@ import { db, schema } from "../db";
 import { liveWorkers } from "../health";
 import { integrationMode } from "../integrations/credentials";
 import { startRun } from "./runs";
-import { notify } from "./tasks";
+import { notify, notifyEvent, writeLog } from "./tasks";
 
 const PREFIX = "Autopilot:";
 
@@ -68,7 +68,16 @@ export async function runAutopilot(now = new Date()): Promise<{ started: number 
       db().select({ n: sql<number>`count(*)::int` }).from(schema.workflowRuns).where(and(eq(schema.workflowRuns.organizationId, org.id), like(schema.workflowRuns.objective, `${PREFIX}%`))),
     ]);
     const batch = nextBatch(a, { discovered: d.n, websites: w.n }, runs.n);
-    if (!batch) continue;
+    if (!batch) {
+      if (d.n >= a.dailyDiscoveryLimit) {
+        const [said] = await db().select({ id: schema.agentLogs.id }).from(schema.agentLogs).where(and(eq(schema.agentLogs.organizationId, org.id), eq(schema.agentLogs.kind, "system.daily_limit"), gt(schema.agentLogs.createdAt, dayStart))).limit(1);
+        if (!said) {
+          await writeLog(org.id, { agentKey: "orchestrator", message: `Daily discovery limit reached (${d.n} of ${a.dailyDiscoveryLimit}). Discovery resumes automatically tomorrow.`, data: { kind: "system.daily_limit", status: "waiting" } });
+          await notifyEvent(org.id, "dailyLimit", "Daily lead discovery limit reached", `${d.n} businesses were discovered in the last 24 hours. Work resumes automatically.`, "/settings?tab=autopilot", "info");
+        }
+      }
+      continue;
+    }
     const label = BUSINESS_CATEGORIES.find((c) => c.key === batch.category)?.label.toLowerCase() ?? batch.category;
     try {
       await startRun({

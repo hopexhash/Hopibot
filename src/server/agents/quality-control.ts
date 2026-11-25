@@ -30,7 +30,7 @@ export const qualityControl: AgentHandler = async (ctx) => {
   const verifiedFacts = ((research?.profile as { verifiedFacts?: { fact: string }[] } | undefined)?.verifiedFacts ?? []).map((f) => f.fact).join("\n");
   const integrity = contentIntegrityIssues(spec, verifiedFacts);
 
-  await ctx.log("info", `Testing version ${version.versionNo} on desktop, tablet and mobile…`);
+  await ctx.log("info", `Running quality checks on version ${version.versionNo}: desktop, tablet and phone, SEO, links and accessibility`, { kind: "qc.testing", status: "running" });
   await ctx.heartbeat();
   const report = await runQc({ files, integrityIssues: integrity, expectDemoBanner: true });
   await ctx.heartbeat();
@@ -49,6 +49,8 @@ export const qualityControl: AgentHandler = async (ctx) => {
       .onConflictDoUpdate({ target: [schema.websiteFiles.versionId, schema.websiteFiles.path], set: { content: dataUri, size: dataUri.length } });
   }
   await ctx.log(report.passed ? "info" : "warn", `QC score ${report.score}/100 — ${report.issues.length} issue(s)${report.passed ? " — passed" : ""}`, {
+    kind: "qc.done",
+    status: report.passed ? "completed" : "warning",
     issues: report.issues.slice(0, 10).map((i) => `${i.severity}: ${i.message}`),
   });
 

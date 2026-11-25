@@ -3,7 +3,7 @@ import { Worker } from "bullmq";
 import { RUNTIME_KEYS, type RuntimeKey } from "@/lib/constants";
 import { closeDb } from "@/server/db";
 import { executeTask } from "@/server/orchestrator/executor";
-import { queueName, type TaskJob } from "@/server/orchestrator/queue";
+import { QUEUE_GENERATION, queueName, type TaskJob } from "@/server/orchestrator/queue";
 import { recoverTasks, runScheduler } from "@/server/orchestrator/recovery";
 import { closeQcBrowser } from "@/server/qc/run-qc";
 import { closeInspectionBrowser } from "@/server/inspection/inspect-site";
@@ -89,7 +89,7 @@ async function main() {
     log(`${sig} received, draining…`);
     clearInterval(tick);
     clearInterval(heartbeat);
-    await connection.del(`agencyos:worker:${WORKER_ID}`).catch(() => {});
+    await connection.del(`agencyos:worker${QUEUE_GENERATION}:${WORKER_ID}`).catch(() => {});
     await Promise.allSettled(workers.map((w) => w.close()));
     await closeQcBrowser();
     await closeInspectionBrowser();

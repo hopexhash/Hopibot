@@ -1,6 +1,6 @@
 import "../guard";
 import { and, eq } from "drizzle-orm";
-import { classify, computeRedesignScore, QUALIFICATION_META, REFERENCE_GOOD_SITES, THRESHOLDS, type AiAssessment, type Measured, type Qualification, type Verification } from "@/lib/qualification";
+import { classify, computeRedesignScore, measuredNeeds, QUALIFICATION_META, REFERENCE_GOOD_SITES, THRESHOLDS, type AiAssessment, type Measured, type Qualification, type Verification } from "@/lib/qualification";
 import type { UsageContext } from "../costs/usage";
 import { db, schema } from "../db";
 import { domainOf } from "../scoring/lead-score";
@@ -14,7 +14,7 @@ type Deps = {
   usage: UsageContext;
   /** Development mock mode: no browser, no AI; results are labelled as mock. */
   mock: boolean;
-  log: (level: "info" | "warn", message: string, data?: Record<string, unknown>) => Promise<void>;
+  log: (level: "info" | "warn", message: string, data?: Record<string, unknown>) => Promise<unknown>;
 };
 
 /** Deterministic stand-in used only in development mock mode. */
@@ -76,7 +76,8 @@ export async function qualifyWebsite(deps: Deps, b: { id: string; name: string; 
   const domain = domainOf(b.url);
   const done = async (q: Qualification, score: number, reason: string, extra: Partial<Parameters<typeof save>[3]> = {}, inspected = true): Promise<QualifyResult> => {
     await save(deps, b.id, b.url, { qualification: q, score, areas: {}, measured: null, assessment: null, verification: null, explanation: reason, costUsd: 0, ...extra });
-    await deps.log("info", `${b.name} — ${QUALIFICATION_META[q].badge} (redesign score ${score}). ${reason}`, { businessId: b.id, qualification: q, redesignScore: score, url: b.url });
+    const headline = q === "qualified" || q === "high_priority" ? "Website qualified" : q === "review" ? "Website needs your review" : q === "not_inspected" ? "Website not inspected" : "Website rejected";
+    await deps.log("info", `${headline}: ${b.name} — ${QUALIFICATION_META[q].badge}${inspected ? ` (redesign score ${score})` : ""}. ${reason}`, { businessId: b.id, qualification: q, redesignScore: score, url: b.url, kind: "inspection.done", status: q === "not_inspected" ? "warning" : "completed" });
     return { qualification: q, score, reason, costUsd: extra.costUsd ?? 0, inspected };
   };
 
@@ -97,15 +98,21 @@ export async function qualifyWebsite(deps: Deps, b: { id: string; name: string; 
   }
 
   // 2. Real browser visit: desktop and phone, with screenshots.
+  const step = (message: string, kind: string, status = "running") => deps.log("info", message, { businessId: b.id, url: b.url, kind: `inspection.${kind}`, status });
   let inspection: SiteInspection;
   try {
-    inspection = await inspectSite(b.url);
+    await step(`Opening ${b.url.replace(/^https?:\/\/(www\.)?/, "").replace(/[/?#].*$/, "")} in a real browser`, "open");
+    inspection = await inspectSite(b.url, (s) => step(s.message, s.key));
   } catch (err) {
     return done("not_inspected", 0, `The website could not be opened in the browser (${(err as Error).message.slice(0, 140)}).`, {}, false);
   }
   if (inspection.measured.status >= 400) return done("not_inspected", 0, `The website answered with an error (HTTP ${inspection.measured.status}).`, { measured: inspection.measured, shots: inspection.shots }, false);
 
+  const measuredFindings = Object.values(measuredNeeds(inspection.measured)).flatMap((n) => n.findings);
+  await step(measuredFindings.length ? `Measured ${measuredFindings.length} problem${measuredFindings.length === 1 ? "" : "s"}: ${measuredFindings.slice(0, 2).join("; ")}${measuredFindings.length > 2 ? "…" : ""}` : "Measurements found no technical or mobile problems", "measured", "info");
+
   // 3. Visual assessment of the screenshots.
+  await step("AI is looking at the screenshots: design, typography, layout and mobile view", "assessing");
   const calibration = await calibrationExamples(deps.organizationId);
   const subject = { name: b.name, category: b.category, url: b.url, inspection, calibration };
   let cost = 0;
@@ -118,14 +125,17 @@ export async function qualifyWebsite(deps: Deps, b: { id: string; name: string; 
     return done("not_inspected", 0, `The visual assessment could not run (${(err as Error).message.slice(0, 140)}).`, { measured: inspection.measured, shots: inspection.shots }, false);
   }
   const s = computeRedesignScore(inspection.measured, assessment);
+  await step(`AI visual inspection completed: the design looks ${assessment.verdict}. Redesign score ${s.score}/100.`, "assessed", "info");
 
   // 4. Independent verification, only for sites that could become a lead.
   let verification: Verification | null = null;
   if (s.score >= THRESHOLDS.averageBelow) {
     try {
+      await step("Second, independent check: is there a convincing reason to approach this business?", "verifying");
       const v = await verifyIndependently(deps.usage, subject);
       verification = v.verification;
       cost += v.costUsd;
+      await step(`Independent check: ${v.verification.approach ? "yes, worth approaching" : "no, not worth approaching"}. ${v.verification.reasoning}`, "verified", "info");
     } catch (err) {
       await deps.log("warn", `Verification could not run for ${b.name}: ${(err as Error).message.slice(0, 140)}`);
     }

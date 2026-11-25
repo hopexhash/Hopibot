@@ -30,6 +30,9 @@ export type AgentLiveState = {
   /** Objective of the run the agent is working on right now (null when idle). */
   objective: string | null;
   runId: string | null;
+  /** The task type and the business the agent is working on right now (null when idle). */
+  taskType: string | null;
+  subject: { id: string; name: string; url: string | null } | null;
   /** When this agent last finished a task (completed or failed), and how it ended. */
   lastFinishedAt: string | null;
   lastOutcome: "completed" | "failed" | null;
@@ -59,7 +62,7 @@ export async function getCommandCenterState(orgId: string) {
       SELECT DISTINCT ON (agent_key) agent_key, message, created_at FROM agent_logs
       WHERE organization_id = ${orgId} AND level IN ('info','warn','error') AND agent_key <> 'orchestrator'
         AND created_at > now() - interval '7 days'
-        AND message !~ '^(Started |Completed in |Scheduled )'
+        AND message !~ '^(Started |Completed |Scheduled )'
       ORDER BY agent_key, id DESC`) as unknown as Promise<Row[]>,
     // Progress within runs that are currently active.
     db().execute(sql`
@@ -70,8 +73,8 @@ export async function getCommandCenterState(orgId: string) {
     liveWorkers(),
     // What each agent is working on right now.
     db().execute(sql`
-      SELECT DISTINCT ON (t.agent_key) t.agent_key, r.objective, r.id AS run_id
-      FROM agent_tasks t LEFT JOIN workflow_runs r ON r.id = t.run_id
+      SELECT DISTINCT ON (t.agent_key) t.agent_key, r.objective, r.id AS run_id, t.type AS task_type, t.business_id, b.name AS business_name, b.website_url
+      FROM agent_tasks t LEFT JOIN workflow_runs r ON r.id = t.run_id LEFT JOIN businesses b ON b.id = t.business_id AND b.erased_at IS NULL
       WHERE t.organization_id = ${orgId} AND t.status = 'RUNNING' AND t.heartbeat_at > now() - interval '2 minutes'
       ORDER BY t.agent_key, t.started_at DESC`) as unknown as Promise<Row[]>,
     // Most recently finished task per agent.
@@ -133,6 +136,8 @@ export async function getCommandCenterState(orgId: string) {
       model: a?.model ? String(a.model) : null,
       objective: cur?.objective ? String(cur.objective) : null,
       runId: cur?.run_id ? String(cur.run_id) : null,
+      taskType: cur?.task_type ? String(cur.task_type) : null,
+      subject: cur?.business_id && cur.business_name ? { id: String(cur.business_id), name: String(cur.business_name), url: cur.website_url ? String(cur.website_url) : null } : null,
       lastFinishedAt: last?.completed_at ? new Date(last.completed_at as string).toISOString() : null,
       lastOutcome,
       successRate: finished > 0 ? n(t.completed) / finished : null,
