@@ -111,7 +111,7 @@ export async function runQc(input: {
 
   const b = await browser();
   for (const vp of VIEWPORTS) {
-    const context = await b.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile, deviceScaleFactor: 1, reducedMotion: "reduce" });
+    const context = await b.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile, deviceScaleFactor: 1, reducedMotion: "reduce", locale: "nl-NL" });
     const page = await context.newPage();
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
@@ -240,13 +240,19 @@ export async function runQc(input: {
       if (missing.length) add({ code: "missing_assets", severity: "major", message: `${missing.length} request(s) failed`, viewport: vp.name, detail: missing[0] });
       check(`${vp.name}: no console or page errors`, consoleErrors.length + pageErrors.length === 0);
 
-      await page.evaluate(() => document.querySelectorAll(".reveal").forEach((e) => e.classList.add("in")));
+      await page.evaluate(() => {
+        document.querySelectorAll(".reveal").forEach((e) => e.classList.add("in"));
+        // The form test above submitted the form; show the page as a visitor first sees it.
+        document.querySelectorAll(".form-status.show").forEach((e) => e.classList.remove("show"));
+      });
       const shot = await page.screenshot({ type: "jpeg", quality: 55, fullPage: false });
       screenshots[vp.name] = `data:image/jpeg;base64,${shot.toString("base64")}`;
       // The visual review judges the whole page, not only the first screen: a long capture of
       // the desktop and the phone layout (height capped so the image stays reviewable).
       if (vp.name !== "tablet") {
         // Captured as consecutive parts: one very tall image would be scaled down until the text is unreadable.
+        // Sticky and fixed bars would be repeated in the middle of every part and read as layout bugs.
+        await page.addStyleTag({ content: ".hdr,.util,.mbar,.demo-banner{position:static!important}.mbar{display:none!important}" });
         const h = await page.evaluate(() => document.documentElement.scrollHeight);
         const part = vp.name === "desktop" ? 1500 : 1400;
         for (let k = 0; k < 3 && k * part < h; k++) {

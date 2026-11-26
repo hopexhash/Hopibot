@@ -122,7 +122,7 @@ export async function attachStockPhotos(
     const p = pick(source, n) ?? pick(gallery, n) ?? pick(detail, n) ?? pick(hero, n) ?? pick(about, n);
     if (!p) continue;
     n++;
-    images.push({ key: ref, src: ref === spec.hero.image || isShowcase ? p.src : p.srcSmall, alt: p.alt || "", license: "stock", credit: `${p.photographer} / ${p.source}` });
+    images.push({ key: ref, src: ref === spec.hero.image || isShowcase ? p.src : p.srcSmall, alt: p.alt || `${spec.business.name}${spec.business.city ? `, ${spec.business.city}` : ""}`, license: "stock", credit: `${p.photographer} / ${p.source}` });
     placed.push(p);
   }
   if (provider === "unsplash") void reportUnsplashUse(organizationId, placed);

@@ -1007,6 +1007,29 @@ body:not(.dir-base) .section{padding:var(--sec,120px) 0}
 .center-facts span{padding:24px 16px;font-size:15px;color:var(--muted);border-right:1px solid var(--line-strong)}
 .center-facts span:last-child{border-right:0}
 
+/* Readable secondary button over photographs, whatever the button style */
+.on-image .btn-ghost,.btn-hard .on-image .btn-ghost,.btn-outline .on-image .btn-ghost{background:rgba(0,0,0,.18);color:#fff;border-color:rgba(255,255,255,.75);box-shadow:none}
+/* Long business names */
+.long-name .hdr .brand{font-size:calc(var(--hs)*17px)}
+.long-name .wm{white-space:normal;line-height:.92;text-wrap:balance;word-break:keep-all;hyphens:manual}
+/* Booking: practical facts beside the form */
+.booking-facts{margin-top:34px;border-top:1px solid var(--line-strong)}
+.booking-facts>div{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-strong)}
+.booking-facts dt{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:3px}
+.booking-facts dd{margin:0;color:var(--heading);font-size:15.5px;line-height:1.55}
+.booking-facts dd span{display:flex;justify-content:space-between;gap:16px}
+.booking-facts dd b{font-weight:500;color:var(--text)}
+/* A band of the brand colour gives the page a darker beat: the booking section on identity sites */
+body:not(.dir-base) .booking{background:var(--primary)}
+body:not(.dir-base) .booking-grid>div:first-child{color:color-mix(in srgb,var(--on-primary) 86%,transparent)}
+body:not(.dir-base) .booking-grid>div:first-child h2,body:not(.dir-base) .booking .big-tel,body:not(.dir-base) .booking-facts dd{color:var(--on-primary)}
+body:not(.dir-base) .booking-grid>div:first-child .kicker,body:not(.dir-base) .booking-grid>div:first-child .lead-sm,body:not(.dir-base) .booking-facts dt,body:not(.dir-base) .booking-facts dd b{color:color-mix(in srgb,var(--on-primary) 74%,transparent)}
+body:not(.dir-base) .booking .big-tel svg{color:var(--on-primary)}
+body:not(.dir-base) .booking-facts,body:not(.dir-base) .booking-facts>div{border-color:color-mix(in srgb,var(--on-primary) 26%,transparent)}
+body:not(.dir-base) .booking h2 em{color:var(--on-primary);text-decoration:underline;text-decoration-thickness:.05em;text-underline-offset:.12em}
+/* The marquee strip belongs to the louder directions only */
+body:not(.dir-base):not(.dir-bold-brutalist):not(.dir-playful):not(.dir-creative-studio):not(.dir-industrial):not(.dir-modern-commerce) .ticker{display:none}
+
 /* About without media */
 .about.no-media .about-grid{grid-template-columns:minmax(0,1fr)}
 .about.no-media .about-copy{max-width:940px}
@@ -1116,6 +1139,9 @@ body:not(.dir-base) .nav a:not(.btn):hover::after{transform:scaleX(1)}
   .stack-media{margin-top:36px}
   .stack-media img{height:56vh}
   .hero-stack .hero-meta{flex-direction:column;gap:10px}
+  .long-name .hdr .brand{font-size:calc(var(--hs)*15px);max-width:62vw}
+  .long-name .hdr .brand-name{white-space:normal;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .booking-facts>div{grid-template-columns:1fr;gap:6px}
   .type-plain{padding:64px 0 0}
   .type-center{padding:72px 0 0}
   .center-facts{margin-top:56px;grid-template-columns:1fr}

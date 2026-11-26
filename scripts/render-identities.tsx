@@ -22,6 +22,7 @@ const CASES: [design: string, name: string, statement: string][] = [
   ["hair-salon", "Salon Elise", "Kleur die past bij *wie u bent*."],
   ["studio", "Studio Fit", "Trainen in kleine groepen, *met aandacht*."],
   ["pizzeria", "Pizzeria Da Marco", "Deeg dat *48 uur* de tijd krijgt."],
+  ["luxury-restaurant", "Café-Restaurant Amsterdam", "Eten en drinken in het *Machinepompgebouw*."],
 ];
 const photoMode = process.argv.includes("--photos");
 const recent: Fingerprint[] = [];
@@ -31,6 +32,7 @@ for (const [i, [design, name, statement]] of CASES.entries()) {
   const spec = buildBlueprintSpec({ name, category: "local_service", city: "Zaandam", country: "Netherlands", phone: "+31 75 123 4567", address: "Westzijde 12, 1506 EE Zaandam", openingHours: ["Maandag: Gesloten", "Dinsdag – Vrijdag: 09:00 – 18:00", "Zaterdag: 09:00 – 17:00"], googleMapsUrl: "https://maps.google.com/?q=Zaandam" }, design, 0);
   const seed = seedOf(name);
   const identity = finalizeIdentity(presetIdentity(direction, seed, i % 3 === 0 ? design : "plain", recent, { photos: photoMode }), seed, recent, { photos: photoMode, category: design });
+  if (name.startsWith("Café-Restaurant")) Object.assign(identity.layout, { hero: "wordmark", gallery: "scroller", button: "hard", nav: "block" });
   recent.unshift(fingerprintOf(identity, design));
   spec.theme.identity = identity;
   spec.sections.splice(1, 0, { type: "statement", id: "visie", title: statement, note: "" });

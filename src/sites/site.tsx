@@ -128,9 +128,9 @@ const Icon = ({ name }: { name: (typeof ICONS)[number] }) => {
   return <C aria-hidden="true" strokeWidth={1.7} />;
 };
 
-function Img({ c, refKey, variant, w, h, eager, className }: { c: Ctx; refKey: string; variant: number; w: number; h: number; eager?: boolean; className?: string }) {
+function Img({ c, refKey, variant, w, h, eager, className, noLazy }: { c: Ctx; refKey: string; variant: number; w: number; h: number; eager?: boolean; className?: string; noLazy?: boolean }) {
   const img = resolveImage(c.spec, refKey, c.opts, variant, w, h);
-  return <img className={className} src={img.src} alt={img.alt} width={w} height={h} {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const, decoding: "async" as const })} />;
+  return <img className={className} src={img.src} alt={img.alt} width={w} height={h} {...(eager ? { fetchPriority: "high" as const } : noLazy ? { decoding: "async" as const } : { loading: "lazy" as const, decoding: "async" as const })} />;
 }
 
 function Head({ kicker, title, intro }: { kicker?: string; title: string; intro?: string }) {
@@ -380,7 +380,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
             <div className={`gallery v-${v.gallery}`}>
               {s.images.map((ref, j) => (
                 <figure className="reveal" key={`${ref}-${j}`}>
-                  <Img c={c} refKey={ref} variant={20 + j} w={900} h={900} />
+                  <Img c={c} refKey={ref} variant={20 + j} w={900} h={900} noLazy={(v.gallery === "scroller" || v.gallery === "strip") && j < 4} />
                 </figure>
               ))}
             </div>
@@ -563,13 +563,36 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
           <div className="wrap booking-grid">
             <div className="reveal">
               <span className="kicker">{kick}</span>
-              <h2>{s.title}</h2>
+              <h2>{em(s.title)}</h2>
               <p className="lead-sm">{s.body}</p>
               {b.phone && (
                 <a className="big-tel" href={tel(b.phone)}>
                   <Phone aria-hidden="true" /> {b.phone}
                 </a>
               )}
+              {/* The column beside the form carries the practical facts instead of standing empty. */}
+              {spec.theme.identity && (b.openingHours?.length || b.address) ? (
+                <dl className="booking-facts">
+                  {b.address && (
+                    <div>
+                      <dt>{t.address}</dt>
+                      <dd>{b.address}</dd>
+                    </div>
+                  )}
+                  {b.openingHours?.length ? (
+                    <div>
+                      <dt>{t.hours}</dt>
+                      <dd>
+                        {hoursRows(b.openingHours.slice(0, 7)).map(([d, h]) => (
+                          <span key={d}>
+                            {d} <b>{h}</b>
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              ) : null}
             </div>
             <BookingForm c={c} kind={s.kind} options={s.options} uid={`bk-${s.id}`} />
           </div>
@@ -652,7 +675,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
           <div className={`wrap contact-grid${s.showForm ? "" : " solo"}`}>
             <div className="reveal">
               <span className="kicker">{kick}</span>
-              <h2>{s.title}</h2>
+              <h2>{em(s.title)}</h2>
               <p className="lead-sm">{s.body}</p>
               <ul className="contact-list">
                 {b.phone && (
@@ -826,7 +849,7 @@ function Hero({ c }: { c: Ctx }) {
             {b.city && <span className="eyebrow">{b.city}</span>}
           </div>
           <p className="wm" data-fit aria-hidden="true">
-            {wordmark || b.name}
+            {(wordmark || b.name).replace(/-/g, "-\u200b")}
           </p>
           <div className="wrap type-foot">
             <div className="reveal hero-copy">
@@ -1083,7 +1106,7 @@ function Hero({ c }: { c: Ctx }) {
             {b.city && <span className="eyebrow">{b.city}</span>}
           </div>
           <p className="wm" data-fit aria-hidden="true">
-            {wordmark || b.name}
+            {(wordmark || b.name).replace(/-/g, "-\u200b")}
           </p>
           <div className="wrap wm-bottom">
             <div className="reveal hero-copy">
@@ -1214,7 +1237,7 @@ export function SiteDocument({ spec, opts, css, script }: { spec: SiteSpec; opts
         <style dangerouslySetInnerHTML={{ __html: css }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       </head>
-      <body className={`d-${design.skin ?? design.key} dir-${spec.theme.identity?.direction ?? "base"} m-${design.mode} hv-${v.hero} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
+      <body className={`${cleanName.length > 20 ? "long-name " : ""}d-${design.skin ?? design.key} dir-${spec.theme.identity?.direction ?? "base"} m-${design.mode} hv-${v.hero} nav-${v.nav} head-${v.head} btn-${v.button} ftr-${v.footer}`} style={vars}>
         <a className="skip" href="#main">
           {t.skip}
         </a>

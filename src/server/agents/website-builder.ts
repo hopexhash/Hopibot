@@ -22,7 +22,7 @@ const SPEC_GUIDE = `You produce a SiteSpec JSON document that our design system 
 - The creative brief decides the brand identity and the page structure. Build exactly the sections it lists, in that order (you may drop one when the verified data cannot fill it honestly). Do not add sections by habit.
 - theme: copy the values given under "Theme to use". The identity is applied by the system.
 - Image references: "art:hero" for the hero, "art:about" for an about section, "art:g1".."art:g6" in a gallery, "art:show" for a showcase. Only reference keys from "images" if they are already present.
-- Headlines: short, specific and concrete, max ~8 words; mark at most one key phrase with *asterisks* for emphasis. Write like a good copywriter for this exact business, not like a template: no "Welcome to", no "Quality and service", no filler.
+- Headlines: short, specific and concrete, max ~8 words; emphasis with *asterisks* is allowed in the hero headline and in at most one other headline on the whole page, never in every heading. Write like a good copywriter for this exact business, not like a template: no "Welcome to", no "Quality and service", no filler.
 - "statement": one confident sentence (max ~16 words) expressing what this business stands for, grounded in the research. "showcase": a short caption for a full-width photograph.
 - Sections available: about, services, menu, features, process, gallery, hours, faq, cta, statement, showcase, contact, packages, team, booking, beforeafter, order, testimonials.
 - "menu" only for food businesses. "booking" kinds: reservation (restaurants), appointment (salons, garages, clinics), quote (trades), order (takeaway).
