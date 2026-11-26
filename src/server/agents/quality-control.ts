@@ -94,6 +94,24 @@ export const qualityControl: AgentHandler = async (ctx) => {
           return { status: "completed", output: { score: report.score, visual: outcome.overall, passed: false, refining: true } };
         }
         await stage(10, line, outcome.passed ? "completed" : "warning");
+        // An improvement round can make things worse. The version that scored higher is the one shown.
+        if (visualRound >= 1 && isCurrent) {
+          const [prev] = await db()
+            .select({ id: schema.websiteVersions.id, versionNo: schema.websiteVersions.versionNo, qcReport: schema.websiteVersions.qcReport })
+            .from(schema.websiteVersions)
+            .where(and(eq(schema.websiteVersions.projectId, project.id), eq(schema.websiteVersions.versionNo, version.versionNo - 1)));
+          const prevReport = prev?.qcReport as { passed?: boolean; score?: number; visual?: { overall?: number } } | null;
+          const prevOverall = prevReport?.visual?.overall;
+          if (prev && prevReport?.passed && typeof prevOverall === "number" && prevOverall > outcome.overall) {
+            await db()
+              .update(schema.websiteProjects)
+              .set({ currentVersionId: prev.id, status: "ready", qualityScore: prevReport.score ?? report.score, previewUrl: `/p/${project.slug}`, updatedAt: new Date() })
+              .where(eq(schema.websiteProjects.id, project.id));
+            await stage(10, `the improvement round scored lower (${outcome.overall} against ${prevOverall}): keeping version ${prev.versionNo}`, "warning");
+            await continuePipeline(ctx, { businessId: project.businessId, projectId: project.id, next: input.next ?? [] });
+            return { status: "completed", output: { score: prevReport.score ?? report.score, visual: prevOverall, passed: true, keptVersion: prev.versionNo } };
+          }
+        }
       } catch (err) {
         // The review is an extra pair of eyes; if it cannot run, the tested site still goes ahead.
         await stage(10, `the design review could not run (${(err as Error).message.slice(0, 140)}); continuing with the tested version`, "warning");
