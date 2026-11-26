@@ -339,41 +339,36 @@
   line-height: 1.5;
   color: var(--muted);
 }
-.hopi.v3 .wx-end {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: min(70vw, 420px);
-  scroll-snap-align: start;
-}
+/* The last tile: same size as a project, one solid block of the accent colour. */
 .hopi.v3 .wx-all {
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 12px;
-  width: clamp(180px, 19vw, 280px);
-  aspect-ratio: 1;
-  border: 1px solid var(--line-2);
-  border-radius: 50%;
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: center;
-  transition:
-    background-color 0.4s ease,
-    color 0.4s ease,
-    border-color 0.4s ease,
-    translate 0.6s var(--ease-out);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 16 / 10;
+  padding: clamp(16px, 2.2vw, 34px);
+  border-radius: 3px;
+  background: var(--accent);
+  color: #0c0c0d;
+  overflow: hidden;
+  transition: background-color 0.45s var(--ease-out);
 }
-.hopi.v3 .wx-all span {
-  max-width: 11ch;
+.hopi.v3 .wx-all-t {
+  max-width: 9ch;
+  font-size: clamp(34px, 9.4vw, 60px);
+  font-weight: 600;
+  letter-spacing: -0.058em;
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 .hopi.v3 .wx-all svg {
-  width: 22px;
-  height: 22px;
-  transition: transform 0.5s var(--ease-out);
+  position: absolute;
+  right: clamp(14px, 2vw, 30px);
+  top: clamp(14px, 2vw, 30px);
+  width: clamp(30px, 4.4vw, 64px);
+  height: clamp(30px, 4.4vw, 64px);
+  stroke-width: 1.6;
+  transition: transform 0.6s var(--ease-out);
 }
 @media (hover: hover) {
   .hopi.v3 .wx-card:hover .wx-media img {
@@ -384,12 +379,10 @@
     color: var(--accent);
   }
   .hopi.v3 .wx-all:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #0c0c0d;
+    background: #f2eee6;
   }
   .hopi.v3 .wx-all:hover svg {
-    transform: translate(4px, -4px);
+    transform: translate(6px, -6px);
   }
 }
 @media (min-width: 900px) {
@@ -431,6 +424,9 @@
 }
 .hopi.v3 [data-hs="on"] .wx-item {
   width: min(56vw, calc((100vh - 290px) * 1.6));
+}
+.hopi.v3 [data-hs="on"] .wx-all-t {
+  font-size: clamp(48px, 6vw, 112px);
 }
 .hopi.v3 [data-hs="on"] .wx-sticky::before,
 .hopi.v3 [data-hs="on"] .wx-sticky::after {

@@ -10,7 +10,7 @@ const VERT = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
  * accent colour bouncing up from below. uM is the pointer, uV how fast it moves.
  */
 const FRAG = `precision highp float;
-uniform vec2 uRes;uniform float uT;uniform vec2 uM;uniform float uV;uniform vec2 uC;uniform float uK;uniform vec3 uA;uniform vec3 uBg;
+uniform vec2 uRes;uniform float uT;uniform vec2 uM;uniform float uV;uniform vec2 uC;uniform float uK;uniform vec3 uA;uniform vec3 uBg;uniform float uE;
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
 float map(vec3 p){
@@ -31,22 +31,52 @@ void main(){
   vec3 col=uBg;
   float b=dot(ro,rd);float h=b*b-(16.-5.3);
   if(h>0.){
-    float t=-b-sqrt(h);float md=9.;bool hit=false;vec3 p=ro;
-    for(int i=0;i<56;i++){p=ro+rd*t;float d=map(p);md=min(md,d);if(d<.003){hit=true;break;}t+=d*.78;if(t>7.)break;}
-    if(hit){
+    float t=-b-sqrt(h);float md=9.;float tm=t;bool hit=false;vec3 p=ro;
+    for(int i=0;i<56;i++){p=ro+rd*t;float d=map(p);if(d<md){md=d;tm=t;}if(d<.003){hit=true;break;}t+=d*.78;if(t>7.)break;}
+    col+=uA*.09*exp(-max(md,0.)*6.5);
+    // Edge smoothing: a ray that only just misses still gets part of the surface's colour,
+    // by how far it passed (measured against uE pixels at that distance).
+    float aa=uE*.5*tm/(uRes.y*uK);
+    float cov=hit?1.:clamp(1.-md/aa,0.,1.);
+    if(cov>0.){
+      if(!hit)p=ro+rd*tm;
       vec3 n=nrm(p);vec3 r=reflect(rd,n);
       float fr=pow(1.-max(dot(n,-rd),0.),2.4);
       float strips=smoothstep(.46,.58,sin(r.y*8.5+r.x*2.6+uT*.12)*.5+.5);
       float sky=smoothstep(-.15,.95,r.y);
       vec3 env=mix(vec3(.018,.018,.022),vec3(.97,.94,.88),strips*(.12+.88*sky));
       env+=uA*smoothstep(.05,-.85,r.y)*.95;
-      col=env*(.3+.7*fr)+uA*fr*.4;
-      col*=.82+.18*n.y;
-    }else{
-      col+=uA*.09*exp(-md*6.5);
+      vec3 sc=env*(.3+.7*fr)+uA*fr*.4;
+      sc*=.82+.18*n.y;
+      col=mix(col,sc,cov);
     }
   }
   gl_FragColor=vec4(col,1.);
+}`;
+
+/**
+ * Second pass: the sculpture is first drawn into a texture, then copied to the screen through
+ * FXAA (fast approximate anti-aliasing, after Timothy Lottes). It finds contrast edges and
+ * blends along them, which removes the stair-steps on the silhouette and on the reflections
+ * at any drawing resolution, for a few texture reads per pixel.
+ */
+const SMOOTH = `precision mediump float;
+uniform sampler2D uTex;uniform vec2 uRes;
+void main(){
+  vec2 px=1./uRes;vec2 uv=gl_FragCoord.xy*px;
+  vec3 L=vec3(.299,.587,.114);
+  vec3 m=texture2D(uTex,uv).rgb;
+  float nw=dot(texture2D(uTex,uv+vec2(-1.,-1.)*px).rgb,L),ne=dot(texture2D(uTex,uv+vec2(1.,-1.)*px).rgb,L);
+  float sw=dot(texture2D(uTex,uv+vec2(-1.,1.)*px).rgb,L),se=dot(texture2D(uTex,uv+vec2(1.,1.)*px).rgb,L);
+  float lm=dot(m,L);
+  float lo=min(lm,min(min(nw,ne),min(sw,se))),hi=max(lm,max(max(nw,ne),max(sw,se)));
+  vec2 dir=vec2(-((nw+ne)-(sw+se)),(nw+sw)-(ne+se));
+  float red=max((nw+ne+sw+se)*.03125,.0078125);
+  dir=clamp(dir/(min(abs(dir.x),abs(dir.y))+red),-8.,8.)*px;
+  vec3 a=.5*(texture2D(uTex,uv+dir*(1./3.-.5)).rgb+texture2D(uTex,uv+dir*(2./3.-.5)).rgb);
+  vec3 b=a*.5+.25*(texture2D(uTex,uv-dir*.5).rgb+texture2D(uTex,uv+dir*.5).rgb);
+  float lb=dot(b,L);
+  gl_FragColor=vec4((lb<lo||lb>hi)?a:b,1.);
 }`;
 
 /**
@@ -69,7 +99,11 @@ export function HeroSculpture() {
 
     const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" });
     let prog: WebGLProgram | null = null;
+    let post: WebGLProgram | null = null;
+    let target: WebGLFramebuffer | null = null;
+    let texture: WebGLTexture | null = null;
     const U: Record<string, WebGLUniformLocation | null> = {};
+    const P: Record<string, WebGLUniformLocation | null> = {};
     if (gl) {
       const make = (type: number, src: string) => {
         const sh = gl.createShader(type)!;
@@ -79,25 +113,42 @@ export function HeroSculpture() {
         canvas.dataset.gl = `compile: ${gl.getShaderInfoLog(sh) ?? ""}`.slice(0, 300);
         return null;
       };
-      const vs = make(gl.VERTEX_SHADER, VERT);
-      const fs = make(gl.FRAGMENT_SHADER, FRAG);
-      if (vs && fs) {
-        prog = gl.createProgram()!;
-        gl.attachShader(prog, vs);
-        gl.attachShader(prog, fs);
-        gl.linkProgram(prog);
-        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) prog = null;
-      }
+      const link = (frag: string) => {
+        const vs = make(gl.VERTEX_SHADER, VERT);
+        const fs = make(gl.FRAGMENT_SHADER, frag);
+        if (!vs || !fs) return null;
+        const pr = gl.createProgram()!;
+        gl.attachShader(pr, vs);
+        gl.attachShader(pr, fs);
+        gl.bindAttribLocation(pr, 0, "a"); // both programs draw the same triangle
+        gl.linkProgram(pr);
+        return gl.getProgramParameter(pr, gl.LINK_STATUS) ? pr : null;
+      };
+      prog = link(FRAG);
       if (prog) {
-        gl.useProgram(prog);
         gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-        const loc = gl.getAttribLocation(prog, "a");
-        gl.enableVertexAttribArray(loc);
-        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-        for (const n of ["uRes", "uT", "uM", "uV", "uC", "uK", "uA", "uBg"]) U[n] = gl.getUniformLocation(prog, n);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.useProgram(prog);
+        for (const n of ["uRes", "uT", "uM", "uV", "uC", "uK", "uA", "uBg", "uE"]) U[n] = gl.getUniformLocation(prog, n);
         gl.uniform3f(U.uA, 1, 0.302, 0.137);
         gl.uniform3f(U.uBg, 0.047, 0.047, 0.051);
+        // The smoothing pass is an extra: without it the sculpture is drawn straight to the screen.
+        post = link(SMOOTH);
+        texture = post ? gl.createTexture() : null;
+        target = post ? gl.createFramebuffer() : null;
+        if (post && texture && target) {
+          gl.useProgram(post);
+          P.uTex = gl.getUniformLocation(post, "uTex");
+          P.uRes = gl.getUniformLocation(post, "uRes");
+          gl.uniform1i(P.uTex, 0);
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        } else post = null;
       }
     }
     const live = Boolean(gl && prog);
@@ -106,11 +157,15 @@ export function HeroSculpture() {
     // frame of the sculpture instead of animating it.
     const info = gl?.getExtension("WEBGL_debug_renderer_info");
     const renderer = gl && info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
-    const software = /swiftshader|llvmpipe|software|basic render/i.test(renderer);
+    // (In development, ?gl=live animates anyway, to judge the picture on a machine without a chip.)
+    const forced = process.env.NODE_ENV !== "production" && window.location.search.includes("gl=live");
+    const software = !forced && /swiftshader|llvmpipe|software|basic render/i.test(renderer);
     let still = reduce || software;
     if (!live && chars.length === 0) return;
 
-    let budget = still ? 170_000 : fine ? 720_000 : 300_000;
+    // Pixels drawn per frame. Enough for crisp edges on a phone's dense screen; it is lowered
+    // automatically when a device cannot keep up.
+    let budget = still ? 200_000 : fine ? 1_600_000 : 1_300_000;
     let w = 1;
     let h = 1;
     let cxo = 0; // where the sculpture sits, in units of the hero's height from the centre
@@ -123,12 +178,20 @@ export function HeroSculpture() {
       cyo = wide ? 0.03 : 0.2;
       k = wide ? 0.62 : 0.5;
       if (!live || !gl) return;
-      const scale = Math.min(Math.min(window.devicePixelRatio || 1, 1.5), Math.sqrt(budget / Math.max(1, r.width * r.height)));
+      const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), Math.sqrt(budget / Math.max(1, r.width * r.height)));
       w = Math.max(2, Math.round(r.width * scale));
       h = Math.max(2, Math.round(r.height * scale));
       canvas.width = w;
       canvas.height = h;
       gl.viewport(0, 0, w, h);
+      if (post && texture && target) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, target);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) post = null;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
     };
 
     let visible = true;
@@ -174,19 +237,30 @@ export function HeroSculpture() {
     let raf = 0;
     let start = 0;
     let slow = 0;
+    let stalls = 0;
     let frames = 0;
     let prev = 0;
     let shown = false;
     const draw = (t: number) => {
       if (!gl || !live) return;
       const sy = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)));
+      gl.useProgram(prog);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, post ? target : null);
       gl.uniform2f(U.uRes, w, h);
       gl.uniform1f(U.uT, t);
       gl.uniform2f(U.uM, mx, my);
       gl.uniform1f(U.uV, energy);
       gl.uniform2f(U.uC, cxo, cyo + sy * 0.22);
       gl.uniform1f(U.uK, k * (1 + sy * 0.35));
+      gl.uniform1f(U.uE, still ? 2.6 : 1.5); // a still frame is drawn smaller, so its edge is softened more
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (post) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.useProgram(post);
+        gl.uniform2f(P.uRes, w, h);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
       if (!shown) {
         shown = true;
         canvas.classList.add("is-live");
@@ -220,6 +294,15 @@ export function HeroSculpture() {
       // Too slow for a few dozen frames in a row: draw fewer pixels.
       if (live && prev && !still) {
         const dt = now - prev;
+        // A frame that takes this long means the device is far out of its depth: halve at once
+        // instead of waiting for the average.
+        if (dt > 110 && ++stalls >= 2) {
+          stalls = 0;
+          if (budget > 240_000) {
+            budget *= 0.5;
+            resize();
+          } else still = true;
+        }
         if (dt > 26) slow++;
         if (++frames >= 45) {
           if (slow > 20) {

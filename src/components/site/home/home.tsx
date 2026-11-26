@@ -2,7 +2,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
-import { projectPath, selectedProjects } from "@/lib/site/projects";
+import { allProjects, projectPath, selectedProjects } from "@/lib/site/projects";
 import { faqLd, plain, serviceLd } from "@/lib/site/seo";
 import type { SiteData } from "@/server/site";
 import { ContactSection, Faq, JsonLd, SiteFooter } from "../parts";
@@ -143,10 +143,13 @@ export function Home({ data }: { data: SiteData }) {
                     </Link>
                   </li>
                 ))}
-                <li className="wx-end">
-                  <Link href="/werk" className="wx-all" data-magnetic="0.2">
-                    <span>{HOME.work.all}</span>
+                <li className="wx-item wx-end">
+                  <Link href="/werk" className="wx-all" data-cursor="Open" data-pt="Werk">
+                    <span className="mono">
+                      {no(allProjects().length - 1)} conceptprojecten
+                    </span>
                     <ArrowUpRight aria-hidden="true" />
+                    <span className="wx-all-t">{HOME.work.all}</span>
                   </Link>
                 </li>
               </ol>
