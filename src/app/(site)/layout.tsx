@@ -35,7 +35,9 @@ export const viewport: Viewport = { themeColor: "#f4f1ea", colorScheme: "light",
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const data = await getSiteData();
   return (
-    <html lang="nl">
+    // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
+    // router to jump straight to the top when another page opens instead.
+    <html lang="nl" data-scroll-behavior="smooth">
       <body className={`hopi ${display.variable} ${sans.variable}`}>
         {children}
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
