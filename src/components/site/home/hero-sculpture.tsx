@@ -248,12 +248,12 @@ export function HeroSculpture() {
     let lastT = 12;
     let lastScroll = -1;
     let restUntil = 0;
+    let odd = false;
     const draw = (t: number) => {
       if (!gl || !live) return;
       lastT = t;
-      // With a mouse the sculpture grows and rises as you scroll past; on touch screens it
-      // rests during scrolling (see the frame loop), so it does not follow the scroll either.
-      const sy = fine ? Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight))) : 0;
+      // The sculpture grows and rises a little as you scroll past it.
+      const sy = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)));
       gl.useProgram(prog);
       gl.bindFramebuffer(gl.FRAMEBUFFER, post ? target : null);
       gl.uniform2f(U.uRes, w, h);
@@ -283,8 +283,9 @@ export function HeroSculpture() {
         return;
       }
       if (!start) start = now;
-      // Touch screens: while a finger is scrolling, the graphics chip belongs to the scroll.
-      // The sculpture holds its last frame and carries on a moment after the page stops.
+      // Touch screens: while a finger is scrolling the sculpture keeps moving, but is drawn
+      // every other frame, which leaves the graphics chip room to keep the scroll smooth.
+      let skip = false;
       if (!fine) {
         const y = window.scrollY;
         if (y !== lastScroll) {
@@ -292,8 +293,8 @@ export function HeroSculpture() {
           restUntil = now + 160;
         }
         if (now < restUntil) {
-          prev = 0;
-          return;
+          odd = !odd;
+          skip = odd;
         }
       }
       const t = (now - start) / 1000 + 8;
@@ -304,7 +305,7 @@ export function HeroSculpture() {
       mx += (tx - mx) * 0.055;
       my += (ty - my) * 0.055;
       energy *= 0.965;
-      if (!still) draw(t);
+      if (!still && !skip) draw(t);
       if (charsDirty) {
         charsDirty = false;
         for (const c of chars) {

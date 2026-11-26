@@ -336,6 +336,12 @@ export function Fx() {
       document.documentElement.addEventListener("pointerleave", onLeaveWindow);
     }
     s.rescan();
+    // Opened through a link to a section (/#contact): the sideways work section has just been
+    // given its full height, which moved everything below it. Go to the section again.
+    if (window.location.hash) {
+      const el = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+      if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: "instant", block: "start" }));
+    }
     raf = requestAnimationFrame(tick);
 
     return () => {

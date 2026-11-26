@@ -32,6 +32,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const BOOT = `(function(){var d=document.documentElement;d.classList.add('fx');d.style.setProperty('--vh0',innerHeight+'px');try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&(location.hash||location.pathname==='/')){history.scrollRestoration='manual';if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);var top=function(){scrollTo({top:0,left:0,behavior:'instant'})};top();addEventListener('load',function(){top();setTimeout(function(){history.scrollRestoration='auto'},600)})}}catch(e){}})()`;
+
 export const viewport: Viewport = { themeColor: "#0c0c0d", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 /** Root layout of the public website (the control room has its own, see src/app/(app)). */
@@ -42,9 +44,13 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     // router to jump straight to the top when another page opens instead.
     <html lang="nl" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`hopi v3 ${mono.variable}`}>
-        {/* Before the first paint: mark the page as scripted (text that animates in is never shown and
-            then hidden) and record the screen height once (phones: see --vh0 in the stylesheets). */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('fx');document.documentElement.style.setProperty('--vh0',innerHeight+'px')" }} />
+        {/* Before the first paint:
+            - mark the page as scripted (text that animates in is never shown and then hidden) and
+              record the screen height once (phones: see --vh0 in the stylesheets);
+            - a reload starts the page over: the section in the address (#contact) is dropped and
+              the page opens at the top, instead of jumping back to where it was. A first visit
+              through a link to a section still goes to that section. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
         <PullGuy />
         {/* The page is one opaque sheet: whatever lies behind it only shows when it is pulled away. */}
         <div className="pg">{children}</div>
