@@ -4,7 +4,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: 92px;
+  scroll-padding-top: 0px;
 }
 body {
   margin: 0;
@@ -46,22 +46,22 @@ body {
 .hopi {
   /* Identity: light paper, near-black ink, forest green as the brand colour and an electric
      green for actions and highlights (always with dark text on it). */
-  --paper: #f7f8f6;
-  --paper-2: #eef1ec;
+  --paper: #f2eee6;
+  --paper-2: #e9e4d9;
   --card: #ffffff;
-  --ink: #111512;
+  --ink: #0c0c0d;
   --ink-2: #29302b;
-  --mint: #e6f8d8;
+  --mint: #e6dfd1;
   --grey: #858b86;
-  --muted: rgba(17, 21, 18, 0.7);
+  --muted: rgba(12, 12, 13, 0.7);
   /* Small print: still at least 4.5:1 on both paper tones. */
-  --soft: rgba(17, 21, 18, 0.64);
-  --line: rgba(17, 21, 18, 0.12);
-  --line-2: rgba(17, 21, 18, 0.22);
-  --green: #183d2b;
-  --green-2: #a8f36d;
-  --glow: #a8f36d;
-  --night: #111512;
+  --soft: rgba(12, 12, 13, 0.64);
+  --line: rgba(12, 12, 13, 0.12);
+  --line-2: rgba(12, 12, 13, 0.22);
+  --green: #0c0c0d;
+  --green-2: #ff4d23;
+  --glow: #ff4d23;
+  --night: #0c0c0d;
   --radius: 22px;
   /* Motion system (mirrors src/lib/motion.ts) */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -207,7 +207,7 @@ body {
 }
 .hopi .btn-green {
   background: var(--green-2);
-  color: #04140c;
+  color: #0c0c0d;
 }
 .hopi .btn-green:hover {
   background: var(--glow);
@@ -222,7 +222,7 @@ body {
   transition: background 0.25s ease, box-shadow 0.25s ease, backdrop-filter 0.25s ease;
 }
 .hopi .hdr.scrolled {
-  background: rgba(247, 248, 246, 0.86);
+  background: rgba(242, 238, 230, 0.86);
   backdrop-filter: saturate(1.4) blur(14px);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);
   box-shadow: 0 1px 0 var(--line);
@@ -347,7 +347,7 @@ body {
   top: -22%;
   width: min(70vw, 860px);
   aspect-ratio: 1;
-  background: radial-gradient(closest-side, rgba(168, 243, 109, 0.2), transparent 72%);
+  background: radial-gradient(closest-side, rgba(255, 77, 35, 0.2), transparent 72%);
   animation: ambient-a 22s var(--ease-in-out) infinite alternate;
 }
 .hopi .ambient i:nth-child(2) {
@@ -372,7 +372,7 @@ body {
 .hopi .ambient b {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(17, 21, 18, 0.085) 1px, transparent 1.4px);
+  background-image: radial-gradient(rgba(12, 12, 13, 0.085) 1px, transparent 1.4px);
   background-size: 26px 26px;
   mask-image: radial-gradient(60% 55% at 72% 34%, #000 0%, transparent 78%);
   -webkit-mask-image: radial-gradient(60% 55% at 72% 34%, #000 0%, transparent 78%);
@@ -390,7 +390,7 @@ body {
     height: 6px;
     border-radius: 50%;
     background: var(--green-2);
-    box-shadow: 0 0 12px 2px rgba(168, 243, 109, 0.45);
+    box-shadow: 0 0 12px 2px rgba(255, 77, 35, 0.45);
     opacity: 0;
     animation: mote 14s linear infinite;
   }
@@ -483,7 +483,7 @@ body {
   background: var(--card);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.8) inset,
-    0 40px 80px -32px rgba(17, 21, 18, 0.45),
+    0 40px 80px -32px rgba(12, 12, 13, 0.45),
     0 0 0 1px var(--line);
   overflow: hidden;
 }
@@ -494,7 +494,7 @@ body {
   height: 34px;
   padding: 0 14px;
   border-bottom: 1px solid var(--line);
-  background: #f1f3ef;
+  background: #e9e4d9;
 }
 .hopi .browser-bar i {
   width: 10px;
@@ -506,7 +506,7 @@ body {
   margin: 0 auto;
   padding: 3px 14px;
   border-radius: 999px;
-  background: rgba(17, 21, 18, 0.06);
+  background: rgba(12, 12, 13, 0.06);
   font-size: 11.5px;
   color: var(--soft);
   transform: translateX(-16px);
@@ -524,7 +524,7 @@ body {
   border-radius: 30px;
   border: 7px solid var(--ink);
   background: var(--ink);
-  box-shadow: 0 34px 60px -22px rgba(17, 21, 18, 0.6);
+  box-shadow: 0 34px 60px -22px rgba(12, 12, 13, 0.6);
   overflow: hidden;
 }
 .hopi .phone img {
@@ -564,7 +564,7 @@ body {
   height: 8px;
   border-radius: 50%;
   background: var(--green-2);
-  box-shadow: 0 0 0 4px rgba(168, 243, 109, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 77, 35, 0.25);
 }
 @media (min-width: 1020px) {
   .hopi .hero-grid {
@@ -733,11 +733,11 @@ body {
 /* Process (dark) */
 .hopi .dark {
   background: var(--night);
-  color: #eef3ef;
-  --muted: rgba(238, 243, 239, 0.66);
-  --soft: rgba(238, 243, 239, 0.48);
-  --line: rgba(238, 243, 239, 0.12);
-  --line-2: rgba(238, 243, 239, 0.24);
+  color: #f2eee6;
+  --muted: rgba(242, 238, 230, 0.66);
+  --soft: rgba(242, 238, 230, 0.48);
+  --line: rgba(242, 238, 230, 0.12);
+  --line-2: rgba(242, 238, 230, 0.24);
   position: relative;
   overflow: hidden;
 }
@@ -746,8 +746,8 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(40% 50% at 100% 0%, rgba(168, 243, 109, 0.22), transparent 70%),
-    radial-gradient(30% 40% at 0% 100%, rgba(168, 243, 109, 0.1), transparent 70%);
+    radial-gradient(40% 50% at 100% 0%, rgba(255, 77, 35, 0.22), transparent 70%),
+    radial-gradient(30% 40% at 0% 100%, rgba(255, 77, 35, 0.1), transparent 70%);
   pointer-events: none;
 }
 .hopi .dark .eyebrow {
@@ -824,8 +824,8 @@ body {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
-  --muted: rgba(247, 248, 246, 0.68);
-  --line: rgba(247, 248, 246, 0.14);
+  --muted: rgba(242, 238, 230, 0.68);
+  --line: rgba(242, 238, 230, 0.14);
 }
 .hopi .price-badge {
   position: absolute;
@@ -834,7 +834,7 @@ body {
   padding: 6px 12px;
   border-radius: 999px;
   background: var(--green-2);
-  color: #04140c;
+  color: #0c0c0d;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -892,7 +892,7 @@ body {
   margin-top: auto;
 }
 .hopi .price.featured .btn-line {
-  border-color: rgba(247, 248, 246, 0.3);
+  border-color: rgba(242, 238, 230, 0.3);
   color: var(--paper);
 }
 .hopi .plans {
@@ -1048,7 +1048,7 @@ body {
   border-radius: var(--radius);
   background: var(--card);
   border: 1px solid var(--line);
-  box-shadow: 0 30px 70px -40px rgba(17, 21, 18, 0.35);
+  box-shadow: 0 30px 70px -40px rgba(12, 12, 13, 0.35);
 }
 .hopi .row {
   display: grid;
@@ -1094,7 +1094,7 @@ body {
 .hopi .field textarea:focus {
   outline: none;
   border-color: var(--green);
-  box-shadow: 0 0 0 4px rgba(168, 243, 109, 0.18);
+  box-shadow: 0 0 0 4px rgba(255, 77, 35, 0.18);
 }
 .hopi .check {
   display: grid;
@@ -1146,7 +1146,7 @@ body {
 }
 .hopi .form-done p {
   margin: 0;
-  color: rgba(247, 248, 246, 0.72);
+  color: rgba(242, 238, 230, 0.72);
 }
 .hopi .hp {
   position: absolute;
@@ -1168,7 +1168,7 @@ body {
   overflow: hidden;
   border-radius: calc(var(--radius) + 8px);
   background: var(--green-2);
-  color: #04140c;
+  color: #0c0c0d;
   padding: clamp(40px, 7vw, 88px) clamp(26px, 6vw, 80px);
   display: grid;
   gap: 28px;
@@ -1548,7 +1548,7 @@ body {
   top: 46px;
   padding: 5px 11px;
   border-radius: 999px;
-  background: rgba(17, 21, 18, 0.86);
+  background: rgba(12, 12, 13, 0.86);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -1744,7 +1744,7 @@ body {
 }
 .hopi .branch:hover {
   transform: translateY(-3px);
-  box-shadow: 0 18px 36px -24px rgba(17, 21, 18, 0.5);
+  box-shadow: 0 18px 36px -24px rgba(12, 12, 13, 0.5);
 }
 .hopi .branch img {
   border-radius: 10px;
@@ -2165,7 +2165,7 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(17, 21, 18, 0.96);
+  background: rgba(12, 12, 13, 0.96);
   color: var(--paper);
   transform: translateY(110%);
   transition: transform 0.3s ease;
@@ -2213,7 +2213,7 @@ body {
   border-radius: 20px;
   background: var(--card);
   border: 1px solid var(--line-2);
-  box-shadow: 0 30px 70px -30px rgba(17, 21, 18, 0.55);
+  box-shadow: 0 30px 70px -30px rgba(12, 12, 13, 0.55);
   font-size: 15px;
 }
 .hopi .consent a {
@@ -2382,14 +2382,14 @@ body {
 }
 @media (hover: hover) {
   .hopi .btn-dark:hover {
-    box-shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(168, 243, 109, 0.14);
+    box-shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(255, 77, 35, 0.14);
   }
   .hopi .btn-green:hover {
-    box-shadow: 0 14px 34px -14px rgba(0, 150, 80, 0.7), 0 0 0 4px rgba(168, 243, 109, 0.2);
+    box-shadow: 0 14px 34px -14px rgba(0, 150, 80, 0.7), 0 0 0 4px rgba(255, 77, 35, 0.2);
   }
   .hopi .btn-line:hover {
     transform: translateY(-1px);
-    background: rgba(17, 21, 18, 0.03);
+    background: rgba(12, 12, 13, 0.03);
   }
   .hopi .price,
   .hopi .post,
@@ -2406,7 +2406,7 @@ body {
   .hopi .card:hover {
     transform: translateY(-3px);
     border-color: var(--line-2);
-    box-shadow: 0 22px 44px -30px rgba(17, 21, 18, 0.45);
+    box-shadow: 0 22px 44px -30px rgba(12, 12, 13, 0.45);
   }
   .hopi .related-card svg,
   .hopi .work-links svg,
@@ -2780,7 +2780,7 @@ body {
 .hopi .field input:focus,
 .hopi .field select:focus,
 .hopi .field textarea:focus {
-  box-shadow: 0 0 0 4px rgba(168, 243, 109, 0.45);
+  box-shadow: 0 0 0 4px rgba(255, 77, 35, 0.45);
 }
 .hopi .versus-col.yes {
   background: var(--green);
@@ -2800,12 +2800,12 @@ body {
   margin-left: 6px;
   border-radius: 50%;
   background: var(--green-2);
-  color: #111512;
+  color: #0c0c0d;
 }
 @media (hover: hover) {
   .hopi .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 16px 36px -16px rgba(17, 21, 18, 0.55), 0 0 0 4px rgba(168, 243, 109, 0.35);
+    box-shadow: 0 16px 36px -16px rgba(12, 12, 13, 0.55), 0 0 0 4px rgba(255, 77, 35, 0.35);
   }
   .hopi .btn-primary:hover svg {
     transform: translateX(3px) rotate(-45deg);
@@ -2818,9 +2818,9 @@ body {
   overflow: hidden;
   background: #fff;
   box-shadow:
-    0 0 0 1px rgba(17, 21, 18, 0.1),
-    0 30px 60px -28px rgba(17, 21, 18, 0.45),
-    0 12px 24px -16px rgba(17, 21, 18, 0.25);
+    0 0 0 1px rgba(12, 12, 13, 0.1),
+    0 30px 60px -28px rgba(12, 12, 13, 0.45),
+    0 12px 24px -16px rgba(12, 12, 13, 0.25);
 }
 .hopi .frame-bar {
   display: flex;
@@ -2828,15 +2828,15 @@ body {
   gap: 5px;
   height: 28px;
   padding: 0 12px;
-  background: #f1f3ef;
-  border-bottom: 1px solid rgba(17, 21, 18, 0.08);
-  color: rgba(17, 21, 18, 0.72);
+  background: #e9e4d9;
+  border-bottom: 1px solid rgba(12, 12, 13, 0.08);
+  color: rgba(12, 12, 13, 0.72);
 }
 .hopi .frame-bar i {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(17, 21, 18, 0.16);
+  background: rgba(12, 12, 13, 0.16);
 }
 .hopi .frame-bar span {
   margin-left: 8px;
@@ -2926,8 +2926,8 @@ body {
   gap: 4px;
   padding: 5px;
   border-radius: 999px;
-  background: rgba(17, 21, 18, 0.92);
-  color: #f7f8f6;
+  background: rgba(12, 12, 13, 0.92);
+  color: #f2eee6;
   font-size: 13px;
   font-weight: 600;
   box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.6);
@@ -2945,11 +2945,11 @@ body {
   height: 38px;
   padding: 0 12px;
   border-radius: 999px;
-  color: #f7f8f6;
+  color: #f2eee6;
 }
 .hopi .dir-switch a[aria-current="true"] {
-  background: #a8f36d;
-  color: #111512;
+  background: #ff4d23;
+  color: #0c0c0d;
 }
 
 .hopi .sr-only {

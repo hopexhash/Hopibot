@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Menu, X } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useEffect, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { submitInquiryAction, type InquiryState } from "@/server/actions/site";
+import { fxState } from "./fx-state";
 
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
@@ -154,83 +155,124 @@ export function ConsentLink() {
 
 // ───────────────────────── Navigation ─────────────────────────
 
-/** "#contact" on pages that have the form; the homepage form everywhere else. */
-function toForm(e: ReactMouseEvent<HTMLAnchorElement>) {
-  if (document.getElementById("contact")) return;
-  e.preventDefault();
-  // A full navigation, so the browser lands on the form after the homepage has loaded.
-  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-  window.location.href = "/#contact";
-}
-
-const LINKS = [
-  { href: "/website-laten-maken", label: "Website laten maken" },
-  { href: "/#werk", label: "Voorbeelden" },
+const MENU = [
+  { href: "/werk", label: "Werk" },
+  { href: "/#diensten", label: "Diensten" },
   { href: "/#werkwijze", label: "Werkwijze" },
   { href: "/prijzen", label: "Prijzen" },
   { href: "/blog", label: "Blog" },
+  { href: "/#contact", label: "Contact" },
+];
+const QUICK = [
+  { href: "/website-laten-maken", label: "Website laten maken" },
+  { href: "/website-redesign", label: "Website redesign" },
+  { href: "/website-onderhoud", label: "Website onderhoud" },
 ];
 
+/**
+ * Navigation: a wordmark, one call to action and a menu button, drawn in "difference" so
+ * they stay legible over any section. The bar steps away while you scroll down and returns
+ * when you scroll up. The menu is a full-screen panel that opens from the button; it is in
+ * the page from the start (its links are ordinary links) and inert until opened.
+ */
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 8);
-    on();
+    let last = window.scrollY;
+    const on = () => {
+      const y = window.scrollY;
+      if (y < 140 || y < last - 4) setHidden(false);
+      else if (y > last + 4) setHidden(true);
+      last = y;
+    };
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
   useEffect(() => {
-    document.documentElement.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+    const root = document.documentElement;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      button.current?.focus();
+    };
+    root.classList.add("menu-open");
+    fxState.scroller?.stop();
+    window.addEventListener("keydown", onKey);
     return () => {
-      document.documentElement.style.overflow = "";
+      root.classList.remove("menu-open");
+      fxState.scroller?.start();
+      window.removeEventListener("keydown", onKey);
     };
   }, [open]);
   const current = (href: string) => (!href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`)) ? ("page" as const) : undefined);
+  // Another page: the menu stays until the page curtain has closed over it.
+  const leave = (href: string) => () => window.setTimeout(() => setOpen(false), href.split("#")[0] === pathname || href.startsWith("#") ? 0 : 520);
   return (
     <>
-    <header className={`hdr${scrolled ? " scrolled" : ""}${open ? " open" : ""}`}>
-      <a className="skip" href="#inhoud">
-        Naar de inhoud
-      </a>
-      <div className="wrap hdr-in">
-        <Link href="/" className="brand" aria-label="HOPI, naar de homepage" onClick={() => setOpen(false)}>
-          <HopiMark />
-          HOPI
-        </Link>
-        <nav className="nav" aria-label="Hoofdmenu">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} aria-current={current(l.href)}>
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-        <a href="#contact" className="btn btn-dark hdr-cta" data-track="cta_click" data-track-label="header" onClick={toForm}>
-          Gratis ontwerp
+      <header className={`nv${hidden && !open ? " is-hidden" : ""}${open ? " is-open" : ""}`}>
+        <a className="skip" href="#inhoud">
+          Naar de inhoud
         </a>
-        <button type="button" className="menu-btn" aria-expanded={open} aria-controls="site-menu" aria-label={open ? "Menu sluiten" : "Menu openen"} onClick={() => setOpen((o) => !o)}>
-          {open ? <X /> : <Menu />}
+        <Link href="/" className="nv-logo" aria-label="HOPI, naar de homepage" onClick={leave("/")}>
+          HOPI
+          <i aria-hidden="true" />
+        </Link>
+        <span className="nv-tag mono" aria-hidden="true">
+          Digital agency
+        </span>
+        <Link href="/#contact" className="nv-cta mono" data-track="cta_click" data-track-label="header" onClick={leave("/#contact")}>
+          Start een project
+        </Link>
+        <button ref={button} type="button" className="nv-btn" aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen((o) => !o)}>
+          <span className="mono">{open ? "Sluit" : "Menu"}</span>
+          <i aria-hidden="true">
+            <b />
+            <b />
+          </i>
         </button>
-      </div>
-    </header>
-      {/* A sibling of the header, not a child: the header's blurred background would otherwise
-          become the box this full-screen panel is positioned in, squeezing it to nothing. */}
-      {open && (
-        <nav id="site-menu" className="menu" aria-label="Menu">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="m-link" aria-current={current(l.href)} onClick={() => setOpen(false)}>
-              {l.label}
-            </Link>
-          ))}
-          <a href="#contact" className="btn btn-dark" data-track="cta_click" data-track-label="menu" onClick={(e) => {
-              setOpen(false);
-              toForm(e);
-            }}>
-            Vraag een gratis ontwerp aan <ArrowRight />
-          </a>
+      </header>
+      <div id="site-menu" className={`mn${open ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-label="Menu" inert={!open}>
+        <nav aria-label="Hoofdmenu" className="mn-main">
+          <ol>
+            {MENU.map((l, i) => (
+              <li key={l.href} style={{ "--i": i } as CSSProperties}>
+                <Link href={l.href} className="mn-link" aria-current={current(l.href)} onClick={leave(l.href)}>
+                  <span className="mono" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="mn-t">
+                    <span>{l.label}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
         </nav>
-      )}
+        <div className="mn-side">
+          <div>
+            <p className="mono">Diensten</p>
+            <ul>
+              {QUICK.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} onClick={leave(l.href)}>
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="mono">Nieuw project</p>
+            <Link href="/#contact" className="btn btn-accent" data-track="cta_click" data-track-label="menu" onClick={leave("/#contact")}>
+              Start een project <ArrowRight aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
@@ -271,9 +313,9 @@ export function StickyCta({ from, whatsapp }: { from: string | null; whatsapp: s
             <WhatsAppIcon />
           </a>
         )}
-        <a href="#contact" className="btn btn-green" tabIndex={show ? 0 : -1} data-track="cta_click" data-track-label="sticky" onClick={toForm}>
-          Gratis ontwerp
-        </a>
+        <Link href="/#contact" className="btn btn-green" tabIndex={show ? 0 : -1} data-track="cta_click" data-track-label="sticky">
+          Start een project
+        </Link>
       </div>
       {/* Desktop: a floating button in the corner. On phones the bar above carries it once the visitor scrolls. */}
       {whatsapp && (

@@ -1,20 +1,16 @@
-import { HomeC } from "@/components/site/home/direction-c";
+import { Home } from "@/components/site/home/home";
 import { pageMeta } from "@/lib/site/seo";
 import { getSiteData } from "@/server/site";
 
 export async function generateMetadata() {
   const { prices } = await getSiteData();
   return pageMeta({
-    title: "HOPI | Jouw nieuwe website. Eerst zien, dan betalen",
-    description: `Webdesignbureau voor ondernemers in Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Vanaf ${prices.from}.`,
+    title: "HOPI | Webdesign bureau: website laten maken die blijft hangen",
+    description: `Webdesign bureau voor Nederland en België. Website, webshop of webapplicatie laten maken: je ziet eerst gratis een ontwerp. Websites vanaf ${prices.from}.`,
     path: "/",
   });
 }
 
-/**
- * The homepage is design direction C ("Podium"). The other two directions stay viewable on
- * /ontwerp/a and /ontwerp/b; swapping the component here switches the homepage.
- */
 export default async function HomePage() {
-  return <HomeC data={await getSiteData()} />;
+  return <Home data={await getSiteData()} />;
 }

@@ -4,14 +4,15 @@ import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS } from "@/lib/site/landing";
 import { articleLd, breadcrumbLd, faqLd, organizationLd, plain, serviceLd } from "@/lib/site/seo";
 import { informal } from "@/lib/site/text";
-import { HOME, HOME_FAQ, PORTFOLIO, PROCESS, SERVICES } from "@/lib/site/home";
+import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
+import { PROJECTS, projectPath, selectedProjects } from "@/lib/site/projects";
 import { WORK, workByKey } from "@/lib/site/work";
 import { existsSync } from "node:fs";
 import sitemap from "@/app/sitemap";
 
 const VARS = { starter: eur(29900), business: eur(49900), premium: eur(79900), from: eur(29900), hosting: eur(4900), care: eur(7900), growth: eur(14900), vat: "21%" };
-const STATIC = ["/", "/prijzen", "/blog", "/privacy", "/cookies", "/algemene-voorwaarden"];
-const PATHS = new Set([...STATIC, ...ALL_LANDINGS.map((l) => l.path), ...ARTICLES.map((a) => `/blog/${a.slug}`)]);
+const STATIC = ["/", "/werk", "/prijzen", "/blog", "/privacy", "/cookies", "/algemene-voorwaarden"];
+const PATHS = new Set([...STATIC, ...ALL_LANDINGS.map((l) => l.path), ...ARTICLES.map((a) => `/blog/${a.slug}`), ...PROJECTS.map((p) => projectPath(p.key))]);
 const linksIn = (text: string) => [...text.matchAll(/\]\((\/[^)#]*)/g)].map((m) => m[1]);
 
 describe("public website: SEO content", () => {
@@ -86,23 +87,31 @@ describe("public website: SEO content", () => {
     }
   });
 
-  it("builds the homepage only from demos, pages and prices that exist", () => {
-    // Every portfolio category shows a labelled demo whose files are there, and links to a real page.
-    expect(PORTFOLIO).toHaveLength(7);
-    for (const p of PORTFOLIO) {
+  it("shows only concept work whose files exist, and says that it is concept work", () => {
+    expect(selectedProjects()).toHaveLength(6);
+    for (const p of PROJECTS) {
       const w = workByKey(p.key);
       expect(w?.demo, p.key).toBe(true);
-      expect(PATHS.has(p.industry), p.industry).toBe(true);
-      for (const f of [`demo/${p.key}.html`, `work/${p.key}-d-1440.webp`, `work/${p.key}-d-720.webp`, `work/${p.key}-tall-960.webp`]) expect(existsSync(`public/site/${f}`), f).toBe(true);
+      expect(p.concept).toBe(true);
+      expect(p.decisions).toHaveLength(3);
+      for (const f of [`demo/${p.key}.html`, `work/${p.key}-d-1440.webp`, `work/${p.key}-d-720.webp`, `work/${p.key}-tall-960.webp`, `work/${p.key}-m-780.webp`]) expect(existsSync(`public/site/${f}`), f).toBe(true);
     }
+    expect(new Set(PROJECTS.map((p) => p.key)).size).toBe(PROJECTS.length);
+    expect(HOME.work.note).toMatch(/fictieve bedrijven/);
+    expect(HOME.work.note).toMatch(/geen klantprojecten/);
+  });
+
+  it("builds the homepage from pages and prices that exist", () => {
     expect(SERVICES).toHaveLength(6);
     expect(PROCESS).toHaveLength(4);
+    for (const s of SERVICES) expect(PATHS.has(s.href) || s.href === "/#contact", s.href).toBe(true);
     // No amounts in the copy: prices come from Settings through placeholders.
     const copy = JSON.stringify([HOME, SERVICES, PROCESS, HOME_FAQ]);
     expect(copy).not.toMatch(/€\s?\d/);
-    for (const f of HOME_FAQ) for (const href of linksIn(f.a)) expect(PATHS.has(href), href).toBe(true);
-    // The design previews are for the owner only.
-    expect(sitemap().some((e) => e.url.includes("/ontwerp"))).toBe(false);
+    const texts = [...HOME_FAQ.map((f) => f.a), ...HOME.why.items.map((i) => i.text)];
+    for (const t of texts) for (const href of linksIn(t)) expect(PATHS.has(href), href).toBe(true);
+    // The Dutch H1 says what HOPI is.
+    expect(HOME.h1).toMatch(/[Ww]ebdesign bureau/);
   });
 
   it("lists exactly the indexable pages in the sitemap", () => {

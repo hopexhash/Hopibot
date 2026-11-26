@@ -1,67 +1,90 @@
 /**
- * Content of the homepage. The three design directions (src/components/site/home) show
- * exactly this content, so they differ in design only. Prices are never written here: they
- * come from Settings → Pricing.
+ * Content of the homepage. Prices are never written here: they come from Settings → Pricing
+ * through the {from} placeholder. The two display statements are in English on purpose (the
+ * agency's signature lines); everything a visitor has to understand or Google has to index
+ * is Dutch.
  */
 export const HOME = {
-  eyebrow: "Webdesign voor ondernemers in Nederland & België",
-  /** The second part is the emphasised phrase. */
-  headline: ["Jouw bedrijf verdient een website die", "indruk maakt."] as const,
-  intro: "Wij ontwerpen en bouwen professionele websites op maat. Bekijk eerst gratis jouw ontwerp. Tevreden? Dan bouwen wij verder.",
-  cta: "Vraag gratis ontwerp aan",
-  cta2: "Ontdek onze websites",
-  trust: ["Gratis ontwerp vooraf", "Geen verplichtingen", "Transparante prijzen"],
-  usp: {
-    title: ["Eerst zien.", "Dan beslissen."] as const,
-    text: "Bij de meeste bureaus betaal je vooraf en zie je pas weken later wat je krijgt. Bij HOPI zie je eerst een ontwerp van je eigen website, met jouw naam, jouw diensten en jouw stijl. Pas als je tevreden bent, bouwen wij verder.",
-    points: [
-      { title: "Gratis ontwerp", text: "Je betaalt niets om te zien hoe jouw website wordt." },
-      { title: "Helemaal van jou", text: "Geen voorbeeld van een ander, maar jouw naam, diensten en stijl." },
-      { title: "Geen verplichtingen", text: "Bevalt het niet? Dan stopt het daar en betaal je niets." },
+  kicker: "Webdesign bureau · Nederland & België",
+  /** Display statement of the hero (English). */
+  statement: ["We make the", "internet feel", "different."] as const,
+  /** The page's H1: what HOPI is, in the words people search for. */
+  h1: "Webdesign bureau voor websites, webshops en webapplicaties die mensen onthouden.",
+  lead: "Je ziet eerst een ontwerp van je eigen website. Pas daarna beslis je.",
+  cta: "Start een project",
+  cta2: "Bekijk ons werk",
+  disciplines: ["Webdesign", "Development", "E-commerce", "Branding", "AI"],
+
+  intro: {
+    label: "Introductie",
+    /** Lights up word by word while you scroll. */
+    statement: "HOPI is een digitaal bureau. Wij ontwerpen en bouwen websites, webshops en webapplicaties die er anders uitzien, snel laden en doen wat ze moeten doen. Geen sjablonen. Geen verrassingen.",
+    text: "Of je nu een professionele website wilt laten maken, een webshop wilt laten bouwen of je huidige website wilt vernieuwen: wij werken als webdesign bureau voor ondernemers in heel Nederland en België, van Amsterdam tot Antwerpen.",
+    facts: [
+      { label: "Werkgebied", value: "Nederland & België" },
+      { label: "Werkwijze", value: "Eerst zien, dan betalen" },
+      { label: "Website vanaf", value: "{from}" },
     ],
   },
-  portfolioTitle: ["Elke branche een", "eigen gezicht."] as const,
-  portfolioText: "Geen twee websites hetzelfde. Elk ontwerp krijgt zijn eigen letters, kleuren en opbouw. Bekijk de voorbeelden en klik door de hele website.",
-  portfolioNote: "Dit zijn demo-ontwerpen voor fictieve bedrijven, gemaakt om te laten zien wat we leveren. Het zijn geen klantprojecten.",
-  servicesTitle: ["Alles geregeld,", "van ontwerp tot onderhoud."] as const,
-  processTitle: ["In vier stappen", "online."] as const,
-  pricingTitle: ["Duidelijke prijzen.", "Geen verrassingen."] as const,
-  pricingText: "Een vast bedrag voor je website. Het ontwerp vooraf is altijd gratis.",
+
+  work: {
+    label: "Geselecteerd werk",
+    title: ["Geselecteerd", "werk"] as const,
+    note: "Conceptprojecten: ontwerpen die wij maakten voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten.",
+    all: "Bekijk al het werk",
+  },
+
+  services: {
+    label: "Diensten",
+    title: "Wat wij maken",
+    text: "Eén team voor ontwerp, techniek en alles wat daarna komt.",
+    note: "Websites hebben bij ons een vaste prijs. Webshops, applicaties, branding en AI-oplossingen maken we op offerte.",
+  },
+
+  why: {
+    label: "Waarom HOPI",
+    items: [
+      { title: ["Eerst zien.", "Dan beslissen."], text: "Je krijgt een ontwerp van je eigen website voordat je iets betaalt. Bevalt het niet, dan stopt het daar en zit je nergens aan vast." },
+      { title: ["Geen", "sjablonen."], text: "Elk ontwerp krijgt zijn eigen letters, kleuren en opbouw. Geen twee websites hetzelfde, en zeker niet die van je concurrent." },
+      { title: ["Vaste", "prijzen."], text: "Een website heeft bij ons een vast bedrag, vanaf {from} exclusief btw. Je weet vooraf waar je aan toe bent. [Bekijk de prijzen](/prijzen)." },
+      { title: ["Eén", "aanspreekpunt."], text: "Van het eerste ontwerp tot hosting en [onderhoud](/website-onderhoud) daarna. Jij hoeft niets technisch te doen." },
+    ],
+  },
+
+  process: {
+    label: "Werkwijze",
+    title: "Van idee tot live",
+  },
+
+  closing: {
+    /** Display statement of the closing section (English). */
+    statement: ["Let's build", "something", "extraordinary."] as const,
+    text: "Vertel ons over je project. Je ontvangt eerst een ontwerp, gratis en vrijblijvend.",
+  },
 };
 
-/** Portfolio categories, each with the demo that represents it (keys from work.ts). */
-export const PORTFOLIO = [
-  { category: "Restaurants", key: "de-gouden-lepel", industry: "/website-laten-maken/restaurant" },
-  { category: "Automotive", key: "garage-jansen", industry: "/website-laten-maken/garage" },
-  { category: "Beauty", key: "beauty-by-noor", industry: "/website-laten-maken/schoonheidssalon" },
-  { category: "Bouw", key: "bouwbedrijf-de-vries", industry: "/website-laten-maken/bouwbedrijf" },
-  { category: "Zorg", key: "tandartspraktijk-centrum", industry: "/website-laten-maken/tandarts" },
-  { category: "Horeca", key: "koffiebar-noord", industry: "/website-laten-maken/restaurant" },
-  { category: "Zakelijke diensten", key: "makelaardij-maas", industry: "/website-laten-maken/makelaar" },
-] as const;
-
 export const SERVICES = [
-  { title: "Webdesign", text: "Een eigen ontwerp dat past bij jouw bedrijf en jouw klanten. Geen standaard sjabloon." },
-  { title: "Ontwikkeling", text: "Wij bouwen het ontwerp uit tot een snelle, veilige website die op elk scherm werkt." },
-  { title: "Mobiel", text: "Eerst ontworpen voor de telefoon, want daar zoeken de meeste klanten je op." },
-  { title: "SEO-basis", text: "Duidelijke opbouw, snelle pagina's en nette techniek, zodat Google begrijpt wat je doet." },
-  { title: "Hosting", text: "Je website online op je eigen domeinnaam, met SSL-beveiliging en back-ups." },
-  { title: "Onderhoud", text: "Updates, beveiliging en kleine wijzigingen. Jij hoeft er niet naar om te kijken." },
+  { title: "Website laten maken", en: "Website development", text: "Een website op maat, ontworpen voor jouw bedrijf en gebouwd om snel te laden op elk scherm.", tags: ["Ontwerp", "Development", "Mobiel", "SEO-basis"], href: "/website-laten-maken", more: "Meer over een website laten maken" },
+  { title: "Webshops", en: "E-commerce development", text: "Een webshop die verkoopt zonder gedoe: heldere productpagina's, een soepele bestelling en betalen zoals je klanten gewend zijn.", tags: ["Productpagina's", "Afrekenen", "Betalingen"], href: "/#contact", more: "Vraag een offerte aan" },
+  { title: "Website redesign", en: "Website redesign", text: "Je huidige website opnieuw ontworpen. Je legt het nieuwe ontwerp naast het oude en beslist dan pas.", tags: ["Nieuw ontwerp", "Zelfde domein", "Betere techniek"], href: "/website-redesign", more: "Meer over een website redesign" },
+  { title: "Webapplicaties", en: "Custom web applications", text: "Portalen, dashboards en tools die precies doen wat jouw bedrijf nodig heeft.", tags: ["Portalen", "Dashboards", "Koppelingen"], href: "/#contact", more: "Bespreek je idee" },
+  { title: "Branding & design", en: "Branding & digital design", text: "Logo, kleuren, letters en beeldtaal die online en offline kloppen.", tags: ["Logo", "Huisstijl", "Beeldtaal"], href: "/#contact", more: "Vraag een offerte aan" },
+  { title: "AI-oplossingen", en: "AI solutions", text: "Slimme assistenten en automatisering die werk uit handen nemen, van de eerste aanvraag tot de opvolging.", tags: ["Assistenten", "Automatisering", "Koppelingen"], href: "/#contact", more: "Bespreek je idee" },
 ];
 
 export const PROCESS = [
-  { title: "Vertel ons over jouw bedrijf", text: "Vul het formulier in. Heb je al een website, dan kijken we daar ook naar." },
-  { title: "Ontvang gratis jouw ontwerp", text: "Je ziet jouw nieuwe website, met je eigen naam, diensten en stijl." },
-  { title: "Wij bouwen jouw website", text: "Tevreden? Dan kies je een pakket en maken we alles samen definitief." },
-  { title: "Jouw website gaat live", text: "Op je eigen domeinnaam. Wij regelen hosting, beveiliging en onderhoud." },
+  { title: "Vertel ons over je bedrijf", text: "Vul het formulier in of stuur een bericht. Heb je al een website, dan kijken we daar ook naar." },
+  { title: "Ontvang je ontwerp", text: "Je ziet jouw nieuwe website, met je eigen naam, diensten en stijl. Gratis en vrijblijvend.", free: true },
+  { title: "Wij bouwen", text: "Tevreden? Dan kies je een pakket en maken we teksten, beeld en details samen definitief." },
+  { title: "Je gaat live", text: "Op je eigen domeinnaam. Wij regelen hosting, beveiliging en onderhoud." },
 ];
 
 export const HOME_FAQ = [
   { q: "Is het ontwerp echt gratis?", a: "Ja. Je ziet eerst een ontwerp van je eigen website. Pas als het bevalt en je een pakket kiest, betaal je. Bevalt het niet, dan zit je nergens aan vast." },
-  { q: "Wat kost een website bij HOPI?", a: "Een one-page website kost {starter}, een complete website {business} en een op maat ontworpen website {premium}. Dat zijn eenmalige bedragen, exclusief {vat} btw. Hosting en onderhoud kosten vanaf {hosting} per maand. Het volledige overzicht staat op de pagina [prijzen](/prijzen)." },
+  { q: "Wat kost een website laten maken bij HOPI?", a: "Een one-page website kost {starter}, een complete website {business} en een op maat ontworpen website {premium}. Dat zijn eenmalige bedragen, exclusief {vat} btw. Hosting en onderhoud kosten vanaf {hosting} per maand. Het volledige overzicht staat op de pagina [prijzen](/prijzen)." },
+  { q: "Is HOPI een website bouwer waarmee ik zelf aan de slag moet?", a: "Nee. Een website bouwer is een programma waarin je zelf sleept en typt. Wij zijn een bureau: wij ontwerpen en bouwen je website voor je. Het verschil lees je in [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen)." },
   { q: "Hoe snel staat mijn website online?", a: "Dat hangt af van het pakket en van hoe snel teksten en foto's rond zijn. Zodra je akkoord geeft op het ontwerp, spreken we samen een planning af." },
-  { q: "Heb ik al een domeinnaam nodig?", a: "Nee. Heb je er al een, dan koppelen we die. Zo niet, dan helpen we je een passende domeinnaam te registreren." },
-  { q: "Kan ik later nog dingen laten aanpassen?", a: "Ja. Met een [onderhoudsabonnement](/website-onderhoud) passen wij kleine dingen voor je aan, zoals openingstijden, een menukaart of nieuwe foto's." },
   { q: "Ik heb al een website. Kan die vervangen worden?", a: "Ja. We maken een nieuw ontwerp dat je naast je huidige website kunt leggen. Lees meer over een [website redesign](/website-redesign)." },
-  { q: "Voor wie werkt HOPI?", a: "Voor ondernemers in Nederland en België: van restaurants en kappers tot loodgieters en bouwbedrijven, zzp'ers en mkb. Ook als je nog helemaal geen website hebt." },
+  { q: "Maken jullie ook webshops en webapplicaties?", a: "Ja. Die maken we op offerte, omdat elke webshop en elke applicatie anders is. Vertel ons wat je nodig hebt via het formulier, dan hoor je wat het kost voordat je beslist." },
+  { q: "Voor wie werkt HOPI?", a: "Voor ondernemers in Nederland en België: van restaurants en kappers tot bouwbedrijven, zzp'ers en mkb. Ook als je nog helemaal geen website hebt." },
 ];

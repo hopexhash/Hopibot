@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { JsonLd } from "@/components/site/parts";
+import { Fx } from "@/components/site/fx";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
 import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
 import { getSiteData } from "@/server/site";
 import "./site.css";
+import "./v3.css";
 
-// One family for headlines and running text: Plus Jakarta Sans, a geometric sans that stays
-// friendly at large sizes and readable at small ones. (site.css points --font-display at it.)
-const sans = Plus_Jakarta_Sans({ variable: "--font-text", subsets: ["latin"], display: "swap" });
+// Geist for everything that is read or shouted (a variable font, so weight can move), Geist
+// Mono for the small technical labels.
+const sans = Geist({ variable: "--font-geist", subsets: ["latin"], display: "swap" });
+const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap", preload: false });
 
 // Public pages are prerendered and refreshed in the background, so a visitor never waits
 // for the database. Prices and company details follow Settings within a few minutes
@@ -30,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: "#f7f8f6", colorScheme: "light", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#0c0c0d", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 /** Root layout of the public website (the control room has its own, see src/app/(app)). */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -38,9 +41,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
     // router to jump straight to the top when another page opens instead.
-    <html lang="nl" data-scroll-behavior="smooth">
-      <body className={`hopi ${sans.variable}`}>
+    <html lang="nl" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={`hopi v3 ${sans.variable} ${mono.variable}`}>
+        {/* Marks the page as scripted before it paints, so text that animates in is never shown and then hidden. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('fx')" }} />
         {children}
+        <Fx />
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />
         <Reveal />
         <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />

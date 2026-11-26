@@ -1,0 +1,1062 @@
+/*
+ * HOPI identity v3: charcoal, warm off-white and one electric accent. Geist for type,
+ * Geist Mono for small labels. This file holds the tokens, the shared chrome (navigation,
+ * menu, footer, cursor, page curtain, buttons, forms) and the look of the inner pages.
+ * The homepage sections are in components/site/home/home.css.
+ */
+.hopi.v3 {
+  --paper: #f2eee6;
+  --paper-2: #e9e4d9;
+  --card: #f7f4ee;
+  --ink: #0c0c0d;
+  --ink-2: #29292b;
+  --muted: #57554f;
+  --soft: #5f5d57;
+  --line: rgba(12, 12, 13, 0.14);
+  --line-2: rgba(12, 12, 13, 0.32);
+  --accent: #ff4d23;
+  /* The accent for text on off-white (the pure accent is too light to read there). */
+  --accent-ink: #bf320c;
+  --green: var(--accent-ink);
+  --green-2: var(--accent);
+  --glow: var(--accent);
+  --mint: #e6dfd1;
+  --night: #0c0c0d;
+  --grey: #8a8780;
+  --radius: 4px;
+  --font-text: var(--font-geist);
+  --font-display: var(--font-geist);
+  --wrap: 1480px;
+  --gutter: clamp(18px, 3.2vw, 48px);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.76, 0, 0.24, 1);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.008em;
+}
+.hopi.v3 [data-theme="dark"],
+.hopi.v3 .dark,
+.hopi.v3 .contact-section {
+  --paper: #0c0c0d;
+  --paper-2: #151517;
+  --card: #151517;
+  --ink: #f2eee6;
+  --ink-2: rgba(242, 238, 230, 0.86);
+  --muted: rgba(242, 238, 230, 0.68);
+  --soft: rgba(242, 238, 230, 0.54);
+  --line: rgba(242, 238, 230, 0.16);
+  --line-2: rgba(242, 238, 230, 0.34);
+  --green: var(--accent);
+  --accent-ink: var(--accent);
+  background: #0c0c0d;
+  color: #f2eee6;
+}
+.hopi.v3 ::selection {
+  background: var(--accent);
+  color: #0c0c0d;
+}
+.hopi.v3 :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+html.lenis,
+html.lenis body {
+  scroll-behavior: auto !important;
+}
+.hopi.v3 main {
+  padding-top: 84px;
+}
+.hopi.v3 main.m-flush {
+  padding-top: 0;
+}
+.hopi.v3 .wrap3 {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.hopi.v3 .mono {
+  font-family: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.hopi.v3 .lbl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+}
+.hopi.v3 .lbl span {
+  color: var(--accent-ink);
+}
+.hopi.v3 .disp {
+  margin: 0;
+  font-size: clamp(44px, 8.6vw, 156px);
+  font-weight: 600;
+  letter-spacing: -0.058em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.hopi.v3 .chip {
+  display: inline-block;
+  padding: 6px 10px;
+  background: #0c0c0d;
+  color: #f2eee6;
+  font-style: normal;
+  font-size: 11px;
+}
+.hopi.v3 em {
+  font-style: normal;
+  color: var(--green);
+}
+
+/* ── Split text ─────────────────────────────────────────── */
+.hopi.v3 .w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.hopi.v3 .wi,
+.hopi.v3 .c,
+.hopi.v3 .cw {
+  display: inline-block;
+}
+.hopi.v3 .l {
+  display: block;
+  white-space: nowrap;
+}
+.hopi.v3 .cw + .cw {
+  margin-left: 0.2em;
+}
+.fx .hopi.v3 [data-in] .wi {
+  transform: translateY(108%);
+  transition: transform 1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+.fx .hopi.v3 [data-in].is-in .wi {
+  transform: none;
+}
+
+/* ── Buttons: a label, a hairline, and a fill that rises on hover ── */
+.hopi.v3 .btn {
+  min-height: 56px;
+  padding: 0 26px;
+  gap: 14px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: none;
+  transform: none;
+  translate: var(--mx, 0) var(--my, 0);
+  background-image: linear-gradient(var(--btn-fill, var(--accent)), var(--btn-fill, var(--accent)));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0%;
+  transition:
+    background-size 0.5s var(--ease-out),
+    color 0.3s ease,
+    border-color 0.3s ease,
+    translate 0.6s var(--ease-out);
+}
+.hopi.v3 .btn svg {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  transition: transform 0.45s var(--ease-out);
+}
+.hopi.v3 .btn-dark,
+.hopi.v3 .btn-primary {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+.hopi.v3 .btn-line,
+.hopi.v3 .btn-ghost {
+  border-color: var(--line-2);
+  background-color: transparent;
+  color: var(--ink);
+}
+.hopi.v3 .btn-green,
+.hopi.v3 .btn-accent {
+  --btn-fill: var(--ink);
+  background-color: var(--accent);
+  color: #0c0c0d;
+}
+.hopi.v3 .btn:hover {
+  box-shadow: none;
+  transform: none;
+  background-size: 100% 100%;
+  color: #0c0c0d;
+  border-color: transparent;
+}
+.hopi.v3 .btn-green:hover,
+.hopi.v3 .btn-accent:hover {
+  color: var(--paper);
+}
+.hopi.v3 .btn:hover svg {
+  transform: translateX(5px);
+}
+.hopi.v3 .btn-wa,
+.hopi.v3 .btn-wa:hover {
+  background-image: none;
+  color: #fff;
+}
+.hopi.v3 [data-magnetic] {
+  translate: var(--mx, 0) var(--my, 0);
+  transition: translate 0.6s var(--ease-out);
+}
+.hopi.v3 [data-magnetic]:hover {
+  transition-duration: 0.14s;
+}
+
+/* ── Navigation ─────────────────────────────────────────── */
+.hopi.v3 .nv {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px var(--gutter);
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transition: transform 0.6s var(--ease-out);
+}
+.hopi.v3 .nv > * {
+  pointer-events: auto;
+}
+.hopi.v3 .nv.is-hidden {
+  transform: translateY(-110%);
+}
+.hopi.v3 .nv-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-height: 44px;
+  align-items: center;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+.hopi.v3 .nv-logo i {
+  width: 7px;
+  height: 7px;
+  margin-top: 9px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.5s var(--ease-out);
+}
+.hopi.v3 .nv-logo:hover i {
+  transform: scale(1.9);
+}
+.hopi.v3 .nv-tag {
+  display: none;
+  opacity: 0.72;
+}
+.hopi.v3 .nv-cta {
+  display: none;
+  margin-left: auto;
+  position: relative;
+  padding: 14px 0;
+}
+.hopi.v3 .nv-cta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-out);
+}
+.hopi.v3 .nv-cta:hover::after {
+  transform: scaleX(0);
+}
+.hopi.v3 .nv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.hopi.v3 .nv-btn i {
+  position: relative;
+  width: 34px;
+  height: 12px;
+}
+.hopi.v3 .nv-btn b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: currentColor;
+  transition:
+    transform 0.5s var(--ease-out),
+    top 0.5s var(--ease-out);
+}
+.hopi.v3 .nv-btn b + b {
+  top: 10px;
+}
+.hopi.v3 .nv-btn:hover b + b {
+  transform: scaleX(0.55);
+  transform-origin: right;
+}
+.hopi.v3 .nv.is-open .nv-btn b {
+  top: 5px;
+  transform: rotate(45deg);
+}
+.hopi.v3 .nv.is-open .nv-btn b + b {
+  transform: rotate(-45deg);
+}
+@media (min-width: 760px) {
+  .hopi.v3 .nv-cta {
+    display: inline-block;
+  }
+  .hopi.v3 .nv-btn {
+    margin-left: 18px;
+  }
+}
+@media (min-width: 1000px) {
+  .hopi.v3 .nv-tag {
+    display: inline;
+  }
+}
+
+/* Full-screen menu: opens as a circle from the button */
+.hopi.v3 .mn {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-content: end;
+  gap: 34px;
+  padding: 104px var(--gutter) max(26px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: #0c0c0d;
+  color: #f2eee6;
+  --line: rgba(242, 238, 230, 0.16);
+  --line-2: rgba(242, 238, 230, 0.34);
+  --ink: #f2eee6;
+  --paper: #0c0c0d;
+  clip-path: circle(0% at calc(100% - 46px) 38px);
+  visibility: hidden;
+  transition:
+    clip-path 0.85s var(--ease-io),
+    visibility 0s 0.85s;
+}
+.hopi.v3 .mn.is-open {
+  clip-path: circle(150% at calc(100% - 46px) 38px);
+  visibility: visible;
+  transition:
+    clip-path 0.95s var(--ease-io),
+    visibility 0s;
+}
+.hopi.v3 .mn ol,
+.hopi.v3 .mn ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hopi.v3 .mn-link {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(10px, 1.6vw, 22px);
+  font-size: clamp(42px, min(10.4vw, 12.4vh), 150px);
+  font-weight: 600;
+  letter-spacing: -0.058em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    opacity 0.4s ease,
+    color 0.3s ease,
+    transform 0.6s var(--ease-out);
+}
+.hopi.v3 .mn-link .mono {
+  padding-top: 0.9em;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+.hopi.v3 .mn-t {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+.hopi.v3 .mn-t span {
+  display: block;
+  transform: translateY(112%);
+  transition: transform 0.5s var(--ease-io);
+}
+.hopi.v3 .mn.is-open .mn-t span {
+  transform: none;
+  transition: transform 1s var(--ease-out);
+  transition-delay: calc(0.28s + var(--i, 0) * 70ms);
+}
+.hopi.v3 .mn-link[aria-current="page"] {
+  color: var(--accent);
+}
+@media (hover: hover) {
+  .hopi.v3 .mn ol:hover .mn-link {
+    opacity: 0.28;
+  }
+  .hopi.v3 .mn ol .mn-link:hover {
+    opacity: 1;
+    color: var(--accent);
+    transform: translateX(0.14em);
+  }
+}
+.hopi.v3 .mn-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.hopi.v3 .mn.is-open .mn-side {
+  opacity: 1;
+  transition: opacity 0.8s ease 0.7s;
+}
+.hopi.v3 .mn-side p {
+  margin: 0 0 12px;
+  color: rgba(242, 238, 230, 0.56);
+}
+.hopi.v3 .mn-side li a {
+  display: inline-block;
+  padding: 5px 0;
+  font-size: 17px;
+}
+.hopi.v3 .mn-side li a:hover {
+  color: var(--accent);
+}
+@media (max-width: 520px) {
+  .hopi.v3 .mn-side {
+    grid-template-columns: 1fr;
+  }
+  .hopi.v3 .mn-side .btn {
+    width: 100%;
+  }
+}
+@media (min-width: 1000px) {
+  .hopi.v3 .mn {
+    grid-template-columns: 1.7fr 1fr;
+    align-items: end;
+    gap: 60px;
+  }
+  .hopi.v3 .mn-side {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    padding: 0 0 12px;
+    border: 0;
+  }
+}
+
+/* ── Cursor follower, floating picture, page curtain ───────── */
+.hopi.v3 .cur,
+.hopi.v3 .peek {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.fx-fine .hopi.v3 .cur,
+.fx-fine .hopi.v3 .peek {
+  display: block;
+}
+.hopi.v3 .cur {
+  z-index: 120;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.cur-on .hopi.v3 .cur {
+  opacity: 1;
+}
+.hopi.v3 .cur::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition:
+    transform 0.45s var(--ease-out),
+    background-color 0.3s ease;
+}
+.hopi.v3 .cur.is-link::before {
+  transform: scale(3.8);
+  background: rgba(255, 77, 35, 0.22);
+}
+.hopi.v3 .cur.is-label::before {
+  transform: scale(9.4);
+}
+.hopi.v3 .cur.is-down::before {
+  transform: scale(0.6);
+}
+.hopi.v3 .cur.is-label.is-down::before {
+  transform: scale(8.2);
+}
+.hopi.v3 .cur span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #0c0c0d;
+  transition:
+    transform 0.45s var(--ease-out),
+    opacity 0.25s ease;
+}
+.hopi.v3 .cur.is-label span {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+.fx-fine .hopi.v3 [data-cursor] {
+  cursor: none;
+}
+.hopi.v3 .peek {
+  z-index: 110;
+}
+.hopi.v3 .peek div {
+  position: absolute;
+  left: 34px;
+  top: -150px;
+  width: min(30vw, 420px);
+  aspect-ratio: 16 / 10;
+  background: #151517 top / cover no-repeat;
+  clip-path: inset(50% 50% 50% 50%);
+  transition: clip-path 0.55s var(--ease-out);
+}
+.hopi.v3 .peek.is-on div {
+  clip-path: inset(0);
+}
+.hopi.v3 .pt {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  visibility: hidden;
+  pointer-events: none;
+}
+.hopi.v3 .pt i {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateY(101%);
+}
+.hopi.v3 .pt i + i {
+  background: #0c0c0d;
+}
+.hopi.v3 .pt b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 var(--gutter);
+  color: #f2eee6;
+  font-size: clamp(46px, 12vw, 210px);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+}
+.hopi.v3 .pt b span {
+  display: block;
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(40%);
+}
+.pt-cover .hopi.v3 .pt {
+  visibility: visible;
+  pointer-events: auto;
+}
+.pt-cover .hopi.v3 .pt i {
+  transform: none;
+  transition: transform 0.55s var(--ease-io);
+}
+.pt-cover .hopi.v3 .pt i + i {
+  transition-delay: 0.07s;
+}
+.pt-cover .hopi.v3 .pt b span {
+  clip-path: inset(0);
+  transform: none;
+  transition:
+    clip-path 0.6s var(--ease-out) 0.2s,
+    transform 0.7s var(--ease-out) 0.2s;
+}
+.pt-reveal .hopi.v3 .pt {
+  visibility: visible;
+}
+.pt-reveal .hopi.v3 .pt i {
+  transform: translateY(-101%);
+  transition: transform 0.7s var(--ease-io) 0.08s;
+}
+.pt-reveal .hopi.v3 .pt i + i {
+  transition-delay: 0s;
+}
+.pt-reveal .hopi.v3 .pt b span {
+  clip-path: inset(0);
+  transform: translateY(-140%);
+  opacity: 0;
+  transition:
+    transform 0.5s var(--ease-io),
+    opacity 0.3s ease 0.1s;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.hopi.v3 .ft {
+  padding: clamp(48px, 7vw, 100px) 0 24px;
+  border-top: 1px solid rgba(242, 238, 230, 0.14);
+  overflow: hidden;
+}
+.hopi.v3 .ft-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 26px;
+  padding-bottom: clamp(38px, 6vw, 84px);
+}
+.hopi.v3 .ft-claim {
+  margin: 0;
+  max-width: 23ch;
+  font-size: clamp(25px, 3.1vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+}
+.hopi.v3 .ft-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 38px 22px;
+  padding: clamp(28px, 4vw, 52px) 0;
+  border-top: 1px solid var(--line);
+}
+.hopi.v3 .ft h2 {
+  margin: 0 0 14px;
+  color: var(--soft);
+}
+.hopi.v3 .ft h2.ft-sub {
+  margin-top: 26px;
+}
+.hopi.v3 .ft ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hopi.v3 .ft-grid li {
+  margin: 0;
+  font-size: 16.5px;
+  overflow-wrap: anywhere;
+}
+.hopi.v3 .ft-grid a {
+  display: inline-block;
+  padding: 6px 0;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 calc(100% - 4px) / 0 1px;
+  transition:
+    background-size 0.5s var(--ease-out),
+    color 0.3s ease;
+}
+.hopi.v3 .ft-grid a:hover {
+  background-size: 100% 1px;
+  color: var(--accent);
+}
+.hopi.v3 .ft-mark {
+  display: flex;
+  align-items: flex-end;
+  margin: clamp(26px, 5vw, 70px) 0 16px;
+  padding-top: 0.06em;
+  overflow: hidden;
+  font-size: min(30.5vw, 520px);
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  line-height: 0.76;
+  user-select: none;
+}
+.hopi.v3 .ft-mark span {
+  display: inline-block;
+}
+.fx .hopi.v3 .ft-mark[data-in] span {
+  transform: translateY(108%);
+  transition: transform 1.2s var(--ease-out);
+  transition-delay: calc(var(--i) * 90ms);
+}
+.fx .hopi.v3 .ft-mark[data-in].is-in span {
+  transform: none;
+}
+.hopi.v3 .ft-mark i {
+  width: 0.17em;
+  height: 0.17em;
+  margin: 0 0 0.04em auto;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: ft-beat 2.6s var(--ease-io) infinite;
+}
+@keyframes ft-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.62);
+  }
+}
+.hopi.v3 .ft-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--soft);
+}
+.hopi.v3 .ft-legal > * {
+  padding: 8px 0;
+}
+.hopi.v3 .ft-legal span:first-child {
+  margin-right: auto;
+}
+.hopi.v3 .ft-legal a:hover,
+.hopi.v3 .ft-legal button:hover {
+  color: var(--accent);
+}
+.hopi.v3 .ft-legal button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+@media (min-width: 900px) {
+  .hopi.v3 .ft-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ── Closing sections shared by every page: request form and call-to-action band ── */
+.hopi.v3 .contact-section {
+  padding: clamp(60px, 9vw, 130px) 0 clamp(70px, 10vw, 150px);
+}
+.hopi.v3 .contact-copy .h2 {
+  font-size: clamp(40px, 6.4vw, 104px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.hopi.v3 .contact-list svg {
+  color: var(--accent);
+}
+.hopi.v3 .form {
+  gap: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.hopi.v3 .field > span {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hopi.v3 .field small {
+  color: var(--soft);
+  text-transform: none;
+}
+.hopi.v3 .field input,
+.hopi.v3 .field select,
+.hopi.v3 .field textarea {
+  padding: 12px 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 19px;
+  box-shadow: none;
+  transition: border-color 0.3s ease;
+}
+.hopi.v3 .field textarea {
+  min-height: 110px;
+}
+.hopi.v3 .field input::placeholder,
+.hopi.v3 .field textarea::placeholder {
+  color: var(--soft);
+}
+.hopi.v3 .field input:focus,
+.hopi.v3 .field select:focus,
+.hopi.v3 .field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+.hopi.v3 .field select option {
+  background: #151517;
+  color: #f2eee6;
+}
+.hopi.v3 .form .btn {
+  --btn-fill: #f2eee6;
+  margin-top: 8px;
+  min-height: 64px;
+  background-color: var(--accent);
+  color: #0c0c0d;
+}
+.hopi.v3 .form .btn:hover {
+  color: #0c0c0d;
+}
+.hopi.v3 .form-note,
+.hopi.v3 .check {
+  color: var(--muted);
+}
+.hopi.v3 .check input {
+  accent-color: var(--accent);
+}
+.hopi.v3 .form-done {
+  border-radius: 2px;
+  background: var(--accent);
+  color: #0c0c0d;
+}
+.hopi.v3 .band-section {
+  padding: 0;
+}
+.hopi.v3 .band-section .wrap {
+  max-width: none;
+  padding: 0;
+}
+.hopi.v3 .band {
+  display: grid;
+  gap: 30px;
+  justify-items: start;
+  padding: clamp(54px, 9vw, 140px) var(--gutter);
+  border-radius: 0;
+  background: var(--accent);
+  color: #0c0c0d;
+  overflow: hidden;
+}
+.hopi.v3 .band::before,
+.hopi.v3 .band::after {
+  display: none;
+}
+.hopi.v3 .band h2 {
+  max-width: 16ch;
+  font-size: clamp(36px, 7vw, 120px);
+  font-weight: 600;
+  letter-spacing: -0.058em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.hopi.v3 .band .btn {
+  --btn-fill: #f2eee6;
+  background-color: #0c0c0d;
+  color: #f2eee6;
+}
+
+/* ── Inner pages: the same identity on the existing content ── */
+.hopi.v3 .ambient,
+.hopi.v3 .dark::before {
+  display: none;
+}
+.hopi.v3 .eyebrow {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.hopi.v3 .eyebrow::before,
+.hopi.v3 .dark .eyebrow::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transform: none;
+  background: var(--accent);
+}
+.hopi.v3 .dark .eyebrow {
+  color: var(--muted);
+}
+.hopi.v3 .hero {
+  padding-top: clamp(20px, 4vw, 56px);
+}
+.hopi.v3 .hero h1,
+.hopi.v3 .page-hero h1,
+.hopi.v3 .article-head h1 {
+  font-size: clamp(38px, 6vw, 100px);
+  font-weight: 600;
+  letter-spacing: -0.052em;
+  line-height: 0.95;
+  hyphens: manual;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+.hopi.v3 .article-head h1 {
+  font-size: clamp(34px, 5vw, 80px);
+}
+.hopi.v3 .hero h1 em {
+  padding: 0;
+  margin: 0;
+  background: none;
+  color: var(--green);
+}
+.hopi.v3 .hero .lead {
+  color: var(--muted);
+  letter-spacing: -0.015em;
+}
+.hopi.v3 .ticks svg {
+  color: var(--accent-ink);
+}
+.hopi.v3 .section-head h2,
+.hopi.v3 .h2 {
+  font-size: clamp(34px, 5.2vw, 84px);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 0.96;
+}
+.hopi.v3 h3 {
+  letter-spacing: -0.03em;
+}
+.hopi.v3 .section.tint {
+  background: var(--paper-2);
+}
+.hopi.v3 .price,
+.hopi.v3 .related-card,
+.hopi.v3 .post,
+.hopi.v3 .plans,
+.hopi.v3 .addons,
+.hopi.v3 .faq details,
+.hopi.v3 .promise-item,
+.hopi.v3 .versus > * {
+  border-radius: 2px;
+}
+.hopi.v3 .price {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid var(--line-2);
+}
+.hopi.v3 .price.featured {
+  border-color: #0c0c0d;
+  background: #0c0c0d;
+  color: #f2eee6;
+}
+.hopi.v3 .price-badge {
+  border-radius: 0;
+  background: var(--accent);
+  color: #0c0c0d;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hopi.v3 .price .amount b {
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+.hopi.v3 .price .feat svg {
+  color: var(--accent-ink);
+}
+.hopi.v3 .price.featured .feat svg {
+  color: var(--accent);
+}
+.hopi.v3 .browser,
+.hopi.v3 .phone,
+.hopi.v3 .frame {
+  border-radius: 6px;
+}
+.hopi.v3 .tag,
+.hopi.v3 .demo-tag {
+  border-radius: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hopi.v3 .crumbs {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hopi.v3 .sticky-cta {
+  background: #0c0c0d;
+  color: #f2eee6;
+}
+.hopi.v3 .sticky-cta .btn {
+  min-height: 46px;
+  padding: 0 16px;
+}
+.hopi.v3 .wa-fab {
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hopi.v3 .wi,
+  .hopi.v3 .ft-mark span,
+  .hopi.v3 .mn-t span {
+    transform: none !important;
+  }
+  .hopi.v3 .cur,
+  .hopi.v3 .peek,
+  .hopi.v3 .pt {
+    display: none !important;
+  }
+}
+
+/* Phones: WhatsApp lives in the request bar and the contact section, not in a floating button. */
+@media (max-width: 759px) {
+  .hopi.v3 .wa-fab {
+    display: none;
+  }
+}
+.hopi.v3 .hero {
+  overflow-x: clip;
+}
+/* The navigation steps away while scrolling, so sections can land flush with the top. */
+.hopi.v3 main > section[id],
+.hopi.v3 main > [id] {
+  scroll-margin-top: 0;
+}
+/* Keep the legal links clear of the floating WhatsApp button when there is one. */
+@media (min-width: 760px) {
+  .hopi.v3:has(.wa-fab) .ft-legal {
+    padding-right: 190px;
+  }
+}

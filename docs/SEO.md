@@ -205,3 +205,36 @@ What to follow monthly (Search Console + GA4): impressions, clicks, CTR and aver
 | Content rules as tests | `tests/unit/site-seo.test.ts` |
 
 Adding a landing page or article means adding one entry to the data file; the route, sitemap, footer and tests pick it up.
+
+## Rebuild of the public website (identity v3)
+
+The design, navigation and motion of the public website were rebuilt from the ground up; the
+URLs, the request form, prices from Settings, structured data and the blog were kept.
+
+- **New indexable pages:** `/werk` and nine project pages `/werk/<project>`. All nine are
+  concept designs for fictional businesses and say so on the page, in the alt texts and in
+  the meta description. The sitemap now lists 35 pages.
+- **Homepage:** the H1 is the Dutch line "Webdesign bureau voor websites, webshops en
+  webapplicaties die mensen onthouden." The large English statements in the hero and the
+  closing section are display lines (`lang="en"`), not headings. Title and description carry
+  "webdesign bureau" and "website laten maken"; the introduction uses "professionele website
+  laten maken", "webshop laten bouwen" and "van Amsterdam tot Antwerpen" as a service area,
+  not as an office location. One FAQ answers the "website bouwer" search intent.
+- **Structured data:** the homepage adds one `Service` per service next to `ProfessionalService`,
+  `WebSite` and `FAQPage`. No address is published until one is filled in under Settings.
+- **Content stays in the HTML.** The WebGL sculpture is decoration (`aria-hidden`); all text,
+  including the animated headlines, is ordinary text cut into spans on the server.
+- **Measured** (production build, Lighthouse mobile with real throttling, machine without a
+  graphics chip): homepage performance 88, LCP 1.9 s, CLS 0; inner pages 91–95; SEO and best
+  practices 100. Accessibility is 100 on dark-topped pages and 97 on light-topped pages: the
+  checker does not understand that the navigation is drawn in "difference" blending and
+  reports white-on-light, while on screen it is black on off-white.
+
+Open points for the owner:
+
+1. **Services.** Webshops, web applications, branding and AI solutions are now offered on the
+   homepage "op offerte" (no prices). The automated pipeline only builds websites; these
+   other services are delivered by hand.
+2. **Social links.** The footer shows WhatsApp and a Google profile only when they are set
+   under Settings. No other social profiles exist in Settings, so none are shown.
+3. **Language.** The site is Dutch; only the two display statements are English.
