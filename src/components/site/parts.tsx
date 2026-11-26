@@ -375,7 +375,8 @@ export function PullGuy() {
       <div className="pull" aria-hidden="true">
         <svg className="pull-guy" viewBox="0 0 132 110">
           <path className="pull-arm" d="M100 70q20-6 22-30" />
-          <path className="pull-body" d="M60 6c32 0 48 24 48 56v48H12V62C12 30 28 6 60 6Z" />
+          {/* The body runs on far below the drawing: however far the page is pulled, he reaches it. */}
+          <path className="pull-body" d="M60 6c32 0 48 24 48 56v1900H12V62C12 30 28 6 60 6Z" />
           <g className="pull-eyes">
             <ellipse cx="44" cy="46" rx="11" ry="13" />
             <ellipse cx="76" cy="46" rx="11" ry="13" />
