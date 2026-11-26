@@ -42,7 +42,18 @@ const GLYPHS = "アイウエオカキクケコサシスセソタチツテトナ�
  * Subtle Matrix digital rain. Deliberately low-key: sparse columns, low opacity, ~24 fps,
  * capped device-pixel ratio, paused when the tab is hidden, disabled for reduced motion.
  */
-export function MatrixRain() {
+export function MatrixRain({
+  className = "pointer-events-none fixed inset-0 z-0 opacity-[0.16]",
+  density = 0.34,
+  fontSize = 15,
+}: {
+  /** Glyph size in CSS pixels (larger for screens watched from a distance). */
+  fontSize?: number;
+  /** Positioning and strength of the layer. */
+  className?: string;
+  /** Share of columns raining at once. */
+  density?: number;
+} = {}) {
   const enabled = useRainEnabled();
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -59,7 +70,7 @@ export function MatrixRain() {
     // On phones the content fills the whole screen, so stray glyphs show through the page
     // and read as a rendering glitch rather than as a backdrop.
     if (isSmall) return;
-    const font = isSmall ? 13 : 15;
+    const font = isSmall ? 13 : fontSize;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let w = 0;
     let h = 0;
@@ -77,7 +88,7 @@ export function MatrixRain() {
         len,
         chars: Array.from({ length: len }, glyph),
         // Only some columns rain at a time: keeps it sparse and readable.
-        active: Math.random() < (isSmall ? 0.28 : 0.34),
+        active: Math.random() < (isSmall ? 0.28 : density),
       };
     };
     const resize = () => {
@@ -141,8 +152,8 @@ export function MatrixRain() {
       document.removeEventListener("visibilitychange", onVis);
       ctx.clearRect(0, 0, w, h);
     };
-  }, [enabled]);
+  }, [enabled, density, fontSize]);
 
   if (!enabled) return null;
-  return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-[0.16]" />;
+  return <canvas ref={ref} aria-hidden className={className} />;
 }

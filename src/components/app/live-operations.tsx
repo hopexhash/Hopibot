@@ -13,6 +13,7 @@ import type {
 } from "@/server/queries/command-center";
 import type { AutonomyStatus } from "@/server/orchestrator/autopilot";
 import type { ActivityEntry } from "@/server/queries/metrics";
+import { MatrixRain } from "./matrix-rain";
 import { LogoMark } from "./sidebar";
 import { useCommandCenter, useNow } from "./live";
 
@@ -832,7 +833,10 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
   const rows = items.slice(0, 10);
 
   return (
-    <div className="absolute left-1/2 top-1/2" style={{ width: TV_W, height: TV_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
+    <>
+    {/* Digital rain behind the wall: stronger than on the normal pages, panels stay readable. */}
+    <MatrixRain className="pointer-events-none absolute inset-0 z-0 opacity-[0.8]" density={0.55} fontSize={20} />
+    <div className="absolute left-1/2 top-1/2 z-10" style={{ width: TV_W, height: TV_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
       <div className="flex h-full w-full flex-col gap-6 p-9">
         <header className="flex flex-none items-center gap-6">
           <LogoMark animated className="h-[72px] w-[72px] flex-none drop-shadow-[0_0_14px_rgba(0,255,120,0.55)]" />
@@ -863,7 +867,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
 
         <div className="grid min-h-0 flex-1 grid-cols-[800px_minmax(0,1fr)] gap-6">
           <div className="flex min-h-0 flex-col gap-5">
-            <div className="panel flex-none p-6">
+            <div className="panel tv-glass flex-none p-6">
               <p className="text-[14px] font-semibold uppercase tracking-[0.16em] text-accent/80">{status?.objective ? (status.objective.active ? "Current objective" : "Last objective") : "Objective"}</p>
               <p className="mt-2 line-clamp-2 min-h-[2.6em] text-[24px] font-medium leading-snug first-letter:uppercase">{status?.objective?.text ?? (status ? "No objective yet." : "Loading…")}</p>
               {status?.objective && status.objective.stages.length > 0 && (
@@ -889,7 +893,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
 
             <div className="grid flex-none grid-cols-3 gap-4">
               {numbers.map((n) => (
-                <div key={n.label} className="panel px-5 py-3">
+                <div key={n.label} className="panel tv-glass px-5 py-3">
                   <p className="truncate text-[14px] text-muted">{n.label}</p>
                   <p className="tabular mt-1 text-[36px] font-semibold leading-none">{n.value}</p>
                   <p className="mt-1.5 truncate text-[13px] text-subtle">{n.sub}</p>
@@ -897,7 +901,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
               ))}
             </div>
 
-            <div className="panel flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="panel tv-glass flex min-h-0 flex-1 flex-col overflow-hidden">
               <p className="flex-none border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
                 Agents <span className="ml-2 font-normal normal-case tracking-normal text-muted">{allOffline ? "no worker online" : working ? `${working} working now` : <Idle />}</span>
               </p>
@@ -923,7 +927,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
             </div>
           </div>
 
-          <div className="panel flex min-h-0 flex-col overflow-hidden">
+          <div className="panel tv-glass flex min-h-0 flex-col overflow-hidden">
             <p className="flex flex-none items-center gap-3 border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
               <span className="relative flex h-3 w-3">
                 <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-60", offline ? "bg-danger" : "animate-ping bg-accent")} />
@@ -963,5 +967,6 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
         </div>
       </div>
     </div>
+    </>
   );
 }

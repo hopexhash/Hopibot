@@ -530,3 +530,10 @@ main .flex > .flex-1 {
     opacity: 1 !important;
   }
 }
+
+/* Full-screen wall: panels let the digital rain show through faintly */
+.panel.tv-glass {
+  background:
+    linear-gradient(180deg, rgba(0, 255, 120, 0.03), transparent 40%),
+    rgba(9, 23, 16, 0.7);
+}
