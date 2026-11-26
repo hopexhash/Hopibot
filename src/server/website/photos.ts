@@ -49,7 +49,12 @@ const FOOD_FIT = {
 };
 const FOOD_MISFIT = /hotel|lobby|bedroom|office|laptop|phone|wedding|conference|hospital|classroom|bathroom|sink\b/i;
 
+/** Landmarks, skylines and signage make a stock photo recognisably somewhere else. */
+const PLACE_MISFIT = /church|cathedral|kerk|tower|toren|station|skyline|cityscape|aerial|landmark|monument|canal|gracht|bridge|street sign|signage|\bsign\b|billboard|flag|museum|palace|castle|windmill/i;
+
 export function fitPhotos(list: StockPhoto[], scene: ArtScene, slot: "hero" | "about" | "gallery" | "detail"): StockPhoto[] {
+  const generic = list.filter((p) => !PLACE_MISFIT.test(p.alt));
+  list = generic.length >= 2 ? generic : list;
   if (!FOOD_SCENES.has(scene)) return list;
   const ok = list.filter((p) => !FOOD_MISFIT.test(p.alt));
   const want = slot === "detail" ? new RegExp(`${FOOD_FIT.gallery.source}|${FOOD_FIT.hero.source}`, "i") : FOOD_FIT[slot];
@@ -83,7 +88,9 @@ export async function attachStockPhotos(
   queries?: Partial<Record<"hero" | "about" | "gallery" | "detail", string>>,
 ): Promise<{ spec: SiteSpec; added: number }> {
   const base = DIRECTION[scene] ?? DIRECTION.service;
-  const q = (k: "hero" | "about" | "gallery" | "detail") => (queries?.[k] && queries[k]!.trim().length >= 3 ? queries[k]!.trim() : base[k]);
+  const place = new RegExp(`\\b(${[spec.business.city, "amsterdam", "rotterdam", "utrecht", "netherlands", "dutch", "holland", "belgium", "belgian", "antwerp", "brussels"].filter(Boolean).map((x) => String(x).toLowerCase().replace(/[^a-z ]/g, "")).filter((x) => x.length > 2).join("|")})\\b`, "gi");
+  const clean = (x: string) => x.replace(place, " ").replace(/\s+/g, " ").trim();
+  const q = (k: "hero" | "about" | "gallery" | "detail") => (queries?.[k] && clean(queries[k]!).length >= 3 ? clean(queries[k]!) : base[k]);
   const dir = { hero: q("hero"), about: q("about"), gallery: q("gallery"), detail: q("detail") };
   const refs = new Set<string>([spec.hero.image, "art:about2", "art:cta", "art:side1", "art:side2"]);
   for (const s of spec.sections) {

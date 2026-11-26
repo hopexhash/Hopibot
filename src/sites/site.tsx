@@ -63,6 +63,7 @@ export type RenderOptions = {
 const T = {
   nl: {
     demoA: "Demonstratie",
+    mood: "Sfeerbeelden. De definitieve website gebruikt uw eigen foto's.",
     demoB: (agency: string, biz: string) => ` — een ontwerpconcept gemaakt door ${agency}. Dit is niet de officiële website van ${biz}.`,
     menu: "Menu", skip: "Naar inhoud", phone: "Telefoon", email: "E-mail", address: "Adres", hours: "Openingstijden",
     hoursTbc: "Openingstijden worden nog bevestigd.", name: "Naam", message: "Bericht", send: "Verstuur bericht",
@@ -76,6 +77,7 @@ const T = {
   },
   fr: {
     demoA: "Démonstration",
+    mood: "Images d'ambiance. Le site définitif utilise vos propres photos.",
     demoB: (agency: string, biz: string) => ` — un concept de design créé par ${agency}. Ceci n'est pas le site officiel de ${biz}.`,
     menu: "Menu", skip: "Aller au contenu", phone: "Téléphone", email: "E-mail", address: "Adresse", hours: "Heures d'ouverture",
     hoursTbc: "Les heures d'ouverture restent à confirmer.", name: "Nom", message: "Message", send: "Envoyer le message",
@@ -89,6 +91,7 @@ const T = {
   },
   en: {
     demoA: "Demonstration",
+    mood: "Mood images. The final website uses your own photographs.",
     demoB: (agency: string, biz: string) => ` — a design concept created by ${agency}. This is not the official website of ${biz}.`,
     menu: "Menu", skip: "Skip to content", phone: "Phone", email: "Email", address: "Address", hours: "Opening hours",
     hoursTbc: "Opening hours to be confirmed.", name: "Name", message: "Message", send: "Send message",
@@ -384,6 +387,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
                 </figure>
               ))}
             </div>
+            {spec.images.some((i) => i.license === "stock") && <p className="mood-note wrap">{t.mood}</p>}
           </div>
         </section>
       );
@@ -479,7 +483,7 @@ function renderSection(s: SiteSection, i: number, c: Ctx): ReactNode {
       return (
         <section id={s.id} className="showcase" key={s.id}>
           <div className="showcase-media" data-parallax>
-            <Img c={c} refKey={s.image} variant={33} w={1800} h={1000} />
+            <Img c={c} refKey={s.image} variant={33} w={1800} h={1000} noLazy />
           </div>
           <div className="wrap">
             <div className="showcase-copy reveal">
@@ -932,7 +936,25 @@ function Hero({ c }: { c: Ctx }) {
           <div className="stack-media reveal" data-parallax>
             <Img c={c} refKey={h.image} variant={1} w={1800} h={900} eager />
           </div>
-          <div className="wrap">{meta}</div>
+          <div className="wrap">
+            <div className="hero-meta">
+              {(b.address || b.city) && (
+                <span>
+                  <MapPin aria-hidden="true" /> {b.address || b.city}
+                </span>
+              )}
+              {hoursToday && (
+                <span>
+                  <Clock aria-hidden="true" /> {hoursToday}
+                </span>
+              )}
+              {b.phone && (
+                <span>
+                  <Phone aria-hidden="true" /> {b.phone}
+                </span>
+              )}
+            </div>
+          </div>
         </section>
       );
     case "offset":

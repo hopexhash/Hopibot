@@ -146,7 +146,7 @@ Architecture
 - 4 to 9 sections after the hero, each with a one-line purpose. Types: ${SECTION_TYPES.join(", ")}.
 - "statement" is one large sentence of the brand's point of view (use at most once). "showcase" is a full-width photograph with a caption (only with photographs). "menu" only for food. "contact" is always last.
 
-Imagery: four English stock-photo search phrases of 2–5 words that fit this business's actual offer and mood (for example "espresso bar counter morning", not "coffee").`,
+Imagery: four English stock-photo search phrases of 2–5 words that fit this business's actual offer and mood (for example "espresso bar counter morning", not "coffee"). Describe subject, light and mood only: never a city, country, landmark or building name, because stock photos of named places show somewhere else. Prefer close subjects (food, hands, materials, details, interiors) over wide views of a venue.`,
       prompt: [
         `Business: ${input.business.name}${input.business.city ? `, ${input.business.city}` : ""}`,
         `Industry: ${profile.label}. Typical audience: ${profile.audience}. What visitors want: ${profile.goal}.`,

@@ -938,10 +938,10 @@ body:not(.dir-base) .section{padding:var(--sec,120px) 0}
 
 /* Hero — stack: headline across the full width, one wide photograph underneath */
 .hero-stack{padding:84px 0 0}
-.stack-head h1{font-size:calc(var(--hs)*clamp(44px,8.4vw,132px));max-width:16ch;line-height:calc(var(--heading-lh)*.96)}
-.stack-row{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:end;margin-top:38px}
+.stack-head h1{font-size:calc(var(--hs)*clamp(44px,8.4vw,132px));line-height:calc(var(--heading-lh)*.96);text-wrap:balance}
+.stack-row{max-width:680px;margin-top:38px}
 .stack-row .lead{margin-top:0}
-.stack-row .hero-actions{margin-top:0;justify-content:flex-end}
+.stack-row .hero-actions{margin-top:28px}
 .stack-media{margin-top:60px;overflow:hidden}
 .stack-media img{width:100%;height:min(68vh,720px);object-fit:cover;display:block}
 .hero-stack .hero-meta{margin:0;padding:22px 0;justify-content:space-between;border-bottom:1px solid var(--line-strong)}
@@ -1014,8 +1014,8 @@ body:not(.dir-base) .section{padding:var(--sec,120px) 0}
 .long-name .wm{white-space:normal;line-height:.92;text-wrap:balance;word-break:keep-all;hyphens:manual}
 /* Booking: practical facts beside the form */
 .booking-facts{margin-top:34px;border-top:1px solid var(--line-strong)}
-.booking-facts>div{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-strong)}
-.booking-facts dt{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:3px}
+.booking-facts>div{display:grid;grid-template-columns:150px 1fr;gap:24px;padding:16px 0;border-bottom:1px solid var(--line-strong)}
+.booking-facts dt{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:3px}
 .booking-facts dd{margin:0;color:var(--heading);font-size:15.5px;line-height:1.55}
 .booking-facts dd span{display:flex;justify-content:space-between;gap:16px}
 .booking-facts dd b{font-weight:500;color:var(--text)}
@@ -1029,6 +1029,14 @@ body:not(.dir-base) .booking-facts,body:not(.dir-base) .booking-facts>div{border
 body:not(.dir-base) .booking h2 em{color:var(--on-primary);text-decoration:underline;text-decoration-thickness:.05em;text-underline-offset:.12em}
 /* The marquee strip belongs to the louder directions only */
 body:not(.dir-base):not(.dir-bold-brutalist):not(.dir-playful):not(.dir-creative-studio):not(.dir-industrial):not(.dir-modern-commerce) .ticker{display:none}
+
+/* Identity sites: the name itself is the logo, set in the brand's display face */
+body:not(.dir-base) .hdr .brand-mark,body:not(.dir-base) .ftr .brand-mark{display:none}
+body:not(.dir-base) .hdr .brand{font-size:calc(var(--hs)*23px);letter-spacing:var(--heading-track)}
+body:not(.dir-base).long-name .hdr .brand{font-size:calc(var(--hs)*18px)}
+/* Quieter directions drop the small label above every heading */
+.dir-modern-minimal .section-head .kicker,.dir-architectural .section-head .kicker,.dir-scandinavian .section-head .kicker,.dir-hospitality .section-head .kicker,.dir-luxury-editorial .section-head .kicker{display:none}
+.mood-note{margin-top:18px;font-size:12.5px;color:var(--muted);font-style:italic}
 
 /* About without media */
 .about.no-media .about-grid{grid-template-columns:minmax(0,1fr)}
@@ -1122,8 +1130,8 @@ body:not(.dir-base) .nav a:not(.btn):hover::after{transform:scaleX(1)}
 [data-parallax] img{will-change:transform}
 
 @media (max-width:1000px){
-  .stack-row,.type-foot,.ledger-grid,.offset-grid,.banner-foot{grid-template-columns:1fr;gap:36px}
-  .stack-row .hero-actions,.type-mark .hero-actions,.type-mark .hero-meta,.type-banner .hero-actions{justify-content:flex-start}
+  .type-foot,.ledger-grid,.offset-grid,.banner-foot{grid-template-columns:1fr;gap:36px}
+  .type-mark .hero-actions,.type-mark .hero-meta,.type-banner .hero-actions{justify-content:flex-start}
   .offset-media{max-width:520px;order:2}
   .hero-offset{padding:56px 0 72px}
   .svc.v-index .svc-item{grid-template-columns:44px minmax(0,1fr);gap:8px 16px}
