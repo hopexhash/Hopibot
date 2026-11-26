@@ -1260,3 +1260,14 @@ html.lenis body {
     transform: scaleY(0.08);
   }
 }
+/* The form block never grows wider than its column (long labels wrap instead). */
+.hopi.v3 .form {
+  grid-template-columns: minmax(0, 1fr);
+}
+.hopi.v3 .form .row,
+.hopi.v3 .form .field {
+  min-width: 0;
+}
+.hopi.v3 .field > span {
+  overflow-wrap: anywhere;
+}
