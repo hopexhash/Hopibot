@@ -293,11 +293,11 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
             ) : (
               lines.map((l) =>
                 "local" in l ? (
-                  <div key={l.key} className={cn("whitespace-pre-wrap break-words", l.kind === "cmd" ? "mt-1 text-accent" : (TONE[l.tone ?? ""] ?? "text-[#b8d6c2]"))}>
+                  <div key={l.key} className={cn("term-line whitespace-pre-wrap break-words", l.kind === "cmd" ? "mt-1 text-accent" : (TONE[l.tone ?? ""] ?? "text-[#b8d6c2]"))}>
                     {l.text}
                   </div>
                 ) : (
-                  <div key={l.key} className="flex gap-2 hover:bg-[rgba(0,255,120,0.04)]">
+                  <div key={l.key} className="term-line flex gap-2 transition-colors duration-150 hover:bg-[rgba(0,255,120,0.04)]">
                     <span className="shrink-0 text-subtle" suppressHydrationWarning>
                       [{hhmmss(l.at)}]
                     </span>

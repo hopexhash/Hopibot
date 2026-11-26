@@ -37,7 +37,7 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="mono rounded-lg border border-border-strong bg-[#08100c] px-3 py-2 text-xs shadow-[0_0_24px_-6px_rgba(0,255,120,0.4)]">
+    <div className="animate-pop-in mono rounded-lg border border-border-strong bg-[#08100c] px-3 py-2 text-xs shadow-[0_0_24px_-6px_rgba(0,255,120,0.4)]">
       <div className="mono mb-1 font-medium text-foreground">{label}</div>
       {payload.map((p) => (
         <div key={p.dataKey} className="flex items-center gap-2 text-muted">
@@ -150,7 +150,7 @@ export function ChartCard({
                 <YAxis {...axisProps} allowDecimals={false} tickFormatter={fmt ? (v) => fmt(Number(v)) : undefined} width={56} />
                 <Tooltip cursor={{ fill: "var(--surface-2)" }} content={<ChartTooltip format={fmt} />} />
                 {series.map((s, i) => (
-                  <Bar key={s.key} dataKey={s.key} name={s.label} fill={SERIES[i]} radius={[4, 4, 0, 0]} stackId={series.length > 1 ? "s" : undefined} stroke="var(--surface)" strokeWidth={series.length > 1 ? 2 : 0} maxBarSize={28} />
+                  <Bar animationDuration={700} animationEasing="ease-out" key={s.key} dataKey={s.key} name={s.label} fill={SERIES[i]} radius={[4, 4, 0, 0]} stackId={series.length > 1 ? "s" : undefined} stroke="var(--surface)" strokeWidth={series.length > 1 ? 2 : 0} maxBarSize={28} />
                 ))}
               </BarChart>
             ) : kind === "line" ? (
@@ -160,7 +160,7 @@ export function ChartCard({
                 <YAxis {...axisProps} tickFormatter={fmt ? (v) => fmt(Number(v)) : undefined} width={56} />
                 <Tooltip cursor={{ stroke: "var(--border-strong)" }} content={<ChartTooltip format={fmt} />} />
                 {series.map((s, i) => (
-                  <Line key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={SERIES[i]} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--surface)" }} />
+                  <Line animationDuration={900} animationEasing="ease-out" key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={SERIES[i]} strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--surface)" }} />
                 ))}
               </LineChart>
             ) : (
@@ -178,7 +178,7 @@ export function ChartCard({
                 <YAxis {...axisProps} allowDecimals={false} tickFormatter={fmt ? (v) => fmt(Number(v)) : undefined} width={56} />
                 <Tooltip cursor={{ stroke: "var(--border-strong)" }} content={<ChartTooltip format={fmt} />} />
                 {series.map((s, i) => (
-                  <Area key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={SERIES[i]} strokeWidth={2} fill={`url(#fill-${s.key})`} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--surface)" }} />
+                  <Area animationDuration={900} animationEasing="ease-out" key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={SERIES[i]} strokeWidth={2} fill={`url(#fill-${s.key})`} activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--surface)" }} />
                 ))}
               </AreaChart>
             )}
@@ -210,7 +210,7 @@ export function FunnelCard({ title, description, steps, className }: { title: st
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-3">
-                <div className="h-full rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(0,255,120,0.7)]" style={{ width: `${(s.value / maxV) * 100}%`, background: "linear-gradient(90deg, #008f39, #00ff78)" }} />
+                <div className="bar-grow h-full rounded-full transition-[width] duration-700 shadow-[0_0_10px_rgba(0,255,120,0.7)]" style={{ width: `${(s.value / maxV) * 100}%`, background: "linear-gradient(90deg, #008f39, #00ff78)" }} />
               </div>
             </div>
           );
@@ -228,7 +228,7 @@ export function MiniBars({ data, className }: { data: { label: string; value: nu
           <XAxis type="number" hide />
           <YAxis type="category" dataKey="label" {...axisProps} width={110} />
           <Tooltip cursor={{ fill: "var(--surface-2)" }} content={<ChartTooltip />} />
-          <Bar dataKey="value" name="Value" radius={[0, 4, 4, 0]} maxBarSize={14}>
+          <Bar animationDuration={700} animationEasing="ease-out" dataKey="value" name="Value" radius={[0, 4, 4, 0]} maxBarSize={14}>
             {data.map((d, i) => (
               <Cell key={i} fill={d.color ?? "var(--chart-1)"} />
             ))}

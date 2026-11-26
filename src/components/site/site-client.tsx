@@ -3,8 +3,10 @@
 import { ArrowRight, CheckCircle2, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { submitInquiryAction, type InquiryState } from "@/server/actions/site";
+
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /** The HOPI hexagon, drawn for light backgrounds. */
 export function HopiMark({ className }: { className?: string }) {
@@ -275,7 +277,7 @@ export function StickyCta({ from, whatsapp }: { from: string | null; whatsapp: s
       </div>
       {/* Desktop: a floating button in the corner. On phones the bar above carries it once the visitor scrolls. */}
       {whatsapp && (
-        <a href={whatsapp} target="_blank" rel="noopener" className={`wa-fab${show ? " lifted" : ""}`} aria-label="Stuur ons een WhatsApp" data-track="whatsapp_click" data-track-label="floating">
+        <a href={whatsapp} target="_blank" rel="noopener" className={`wa-fab${show ? " lifted" : ""}`} aria-label="WhatsApp ons: stuur ons een bericht" data-track="whatsapp_click" data-track-label="floating">
           <WhatsAppIcon />
           <span>WhatsApp ons</span>
         </a>
@@ -285,29 +287,82 @@ export function StickyCta({ from, whatsapp }: { from: string | null; whatsapp: s
 }
 
 /**
- * Fades sections in as they scroll into view. Only elements that start below the first
- * screen are hidden, and only once this script runs, so nothing is lost without JavaScript.
+ * Site motion that needs the browser (everything else is CSS):
+ *  - sections fade up as they scroll into view, once; siblings arriving together are
+ *    staggered. Only elements that start below the first screen are hidden, and only once
+ *    this script runs, so nothing is lost without JavaScript;
+ *  - opening another page fades the new page in (not on the first load);
+ *  - with a mouse on a large screen, the hero preview follows the pointer by a few pixels.
  */
 export function Reveal() {
   const pathname = usePathname();
+  const first = useRef(true);
+  // Before the browser paints the new page, so it never shows fully and then fades.
+  useIsoLayoutEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const main = document.querySelector<HTMLElement>(".hopi main");
+    main?.classList.add("nav-enter");
+    return () => main?.classList.remove("nav-enter");
+  }, [pathname]);
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const els = [...document.querySelectorAll<HTMLElement>(".hopi [data-reveal]")].filter((el) => el.getBoundingClientRect().top > window.innerHeight * 0.92);
     els.forEach((el) => el.classList.add("pre", "rev"));
     const io = new IntersectionObserver(
       (entries) => {
+        let i = 0;
         for (const e of entries) {
           if (!e.isIntersecting) continue;
-          e.target.classList.remove("pre");
-          io.unobserve(e.target);
+          const el = e.target as HTMLElement;
+          // Cards that enter in the same moment arrive one after another.
+          const delay = Math.min(i++, 4) * 70;
+          if (delay && !el.classList.contains("stagger")) {
+            el.style.transitionDelay = `${delay}ms`;
+            window.setTimeout(() => (el.style.transitionDelay = ""), delay + 900);
+          }
+          el.classList.remove("pre");
+          io.unobserve(el);
         }
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
     );
     els.forEach((el) => io.observe(el));
+
+    // Hero depth: pointer devices and wide screens only.
+    const visual = document.querySelector<HTMLElement>(".hopi .hero-visual");
+    const hero = visual?.closest<HTMLElement>(".hero");
+    let frame = 0;
+    const onMove = (e: PointerEvent) => {
+      if (!visual || !hero || frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const r = hero.getBoundingClientRect();
+        visual.style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
+        visual.style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
+      });
+    };
+    const onLeave = () => {
+      visual?.style.setProperty("--px", "0");
+      visual?.style.setProperty("--py", "0");
+    };
+    const depth = Boolean(hero) && window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 1020px)").matches;
+    if (depth) {
+      hero!.addEventListener("pointermove", onMove, { passive: true });
+      hero!.addEventListener("pointerleave", onLeave);
+    }
     return () => {
       io.disconnect();
       els.forEach((el) => el.classList.remove("pre"));
+      cancelAnimationFrame(frame);
+      if (depth) {
+        hero!.removeEventListener("pointermove", onMove);
+        hero!.removeEventListener("pointerleave", onLeave);
+      }
     };
   }, [pathname]);
   return null;

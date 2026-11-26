@@ -147,7 +147,7 @@ export function DiscoveryForm({ defaultMinScore, activeCampaignId }: { defaultMi
           </div>
         ) : (
           <>
-            <Progress value={pct} tone={failed ? "danger" : c.status === "COMPLETED" ? "success" : "accent"} />
+            <Progress value={pct} tone={failed ? "danger" : c.status === "COMPLETED" ? "success" : "accent"} active={!failed && c.status !== "COMPLETED" && pct < 100} />
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               {[
                 ["Found", c.found],

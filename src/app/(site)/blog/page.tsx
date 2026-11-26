@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Breadcrumbs, ContactSection, JsonLd, SiteFooter } from "@/components/site/parts";
+import { Breadcrumbs, HeroAmbient, ContactSection, JsonLd, SiteFooter } from "@/components/site/parts";
 import { SiteHeader } from "@/components/site/site-client";
 import { ARTICLES } from "@/lib/site/blog";
 import { abs, breadcrumbLd, pageMeta } from "@/lib/site/seo";
@@ -24,6 +24,7 @@ export default async function BlogIndex() {
       <SiteHeader />
       <main id="inhoud">
         <section className="hero page-hero simple">
+          <HeroAmbient />
           <div className="wrap">
             <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow enter">Blog</span>

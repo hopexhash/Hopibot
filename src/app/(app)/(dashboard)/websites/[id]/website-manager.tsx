@@ -184,7 +184,17 @@ export function WebsiteManager({
                   key={frameKey}
                   src={previewSrc}
                   title={`Preview of ${business.name}`}
-                  className="h-[72vh] rounded-lg border border-border bg-white shadow-[var(--shadow-md)] transition-all duration-300"
+                  // Uncovered when the preview has really loaded (no timer). The ref covers a
+                  // preview that finished loading before this component became interactive.
+                  ref={(el) => {
+                    try {
+                      if (el?.contentDocument?.readyState === "complete" && el.contentDocument.body?.childElementCount) el.setAttribute("data-loaded", "true");
+                    } catch {
+                      el?.setAttribute("data-loaded", "true");
+                    }
+                  }}
+                  onLoad={(e) => e.currentTarget.setAttribute("data-loaded", "true")}
+                  className="reveal-media h-[72vh] rounded-lg border border-border bg-white shadow-[var(--shadow-md)]"
                   style={{ width: DEVICES.find((d) => d.key === device)!.width, maxWidth: "100%" }}
                   sandbox="allow-scripts allow-same-origin"
                 />

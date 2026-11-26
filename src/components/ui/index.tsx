@@ -9,16 +9,16 @@ import { cn } from "@/lib/utils";
 // ───────────────────────── Button ─────────────────────────
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[13.5px] font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
+  "btn-m inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[13.5px] font-medium disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,120,0.7)]",
+        primary: "btn-lift bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,120,0.7)]",
         secondary: "border border-border bg-surface-2 text-foreground hover:bg-surface-3 hover:border-border-strong hover:text-accent",
         ghost: "text-muted hover:bg-accent-soft hover:text-accent",
-        danger: "bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,77,97,0.6)] hover:opacity-90",
+        danger: "btn-lift bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,77,97,0.6)] hover:opacity-90",
         "danger-ghost": "text-danger hover:bg-danger-soft",
-        success: "bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover",
+        success: "btn-lift bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover",
       },
       size: { sm: "h-9 px-3 text-[12.5px]", md: "h-10 px-4", lg: "h-12 px-5 text-[14.5px]", icon: "h-10 w-10", "icon-sm": "h-9 w-9" },
     },
@@ -100,7 +100,7 @@ export function MockBadge({ className }: { className?: string }) {
 // ───────────────────────── Form controls ─────────────────────────
 
 const fieldBase =
-  "w-full rounded-xl border border-border-strong bg-[#050d09] px-3.5 text-[16px] text-foreground placeholder:text-subtle transition-colors focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13.5px]";
+  "w-full rounded-xl border border-border-strong bg-[#050d09] px-3.5 text-[16px] text-foreground placeholder:text-subtle field-m focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13.5px]";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
@@ -157,7 +157,7 @@ export function Field({
     <div className={className}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {error ? <p className="mt-1.5 text-[12.5px] text-danger">{error}</p> : hint ? <p className="mt-1.5 text-[12.5px] leading-snug text-muted">{hint}</p> : null}
+      {error ? <p role="alert" className="field-error mt-1.5 text-[12.5px] text-danger">{error}</p> : hint ? <p className="mt-1.5 text-[12.5px] leading-snug text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -209,11 +209,11 @@ export function Dialog({
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
-        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=open]:animate-fade-in" />
+        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in" />
         <RDialog.Content
           className={cn(
             // Phones: a bottom sheet (thumb-reachable, keyboard-safe). Larger screens: centred modal.
-            "fixed z-50 flex flex-col border border-border-strong bg-[#06100b] shadow-[0_0_60px_-12px_rgba(0,255,120,0.3)] data-[state=open]:animate-fade-in",
+            "modal-m fixed z-50 flex flex-col border border-border-strong bg-[#06100b] shadow-[0_0_60px_-12px_rgba(0,255,120,0.3)] data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in",
             "inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-3xl pb-[var(--safe-bottom)]",
             "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-3rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-0",
             width,
@@ -254,7 +254,7 @@ export function DropdownContent({ className, align = "end", ...props }: React.Co
         align={align}
         sideOffset={6}
         className={cn(
-          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,120,0.3)] data-[state=open]:animate-fade-in",
+          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,120,0.3)] origin-[var(--radix-dropdown-menu-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in",
           className,
         )}
         {...props}
@@ -286,7 +286,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <RTabs.Trigger
       className={cn(
-        "relative -mb-px flex h-11 items-center whitespace-nowrap border-b-2 border-transparent px-3 text-[13px] font-medium text-muted transition-colors hover:text-foreground data-[state=active]:border-accent data-[state=active]:text-accent",
+        "tab-m -mb-px flex h-11 items-center whitespace-nowrap px-3 text-[13px] font-medium text-muted transition-colors duration-200 hover:text-foreground data-[state=active]:text-accent",
         className,
       )}
       {...props}
@@ -308,7 +308,7 @@ export function Tooltip({ content, children, side }: { content: React.ReactNode;
           <RTooltip.Content
             side={side}
             sideOffset={8}
-            className="z-50 max-w-xs rounded-lg border border-border-strong bg-[#08100c] px-2.5 py-1.5 text-xs text-foreground shadow-lg data-[state=delayed-open]:animate-fade-in"
+            className="z-50 max-w-xs rounded-lg border border-border-strong bg-[#08100c] px-2.5 py-1.5 text-xs text-foreground shadow-lg origin-[var(--radix-tooltip-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=delayed-open]:animate-pop-in data-[state=instant-open]:animate-pop-in"
           >
             {content}
           </RTooltip.Content>
@@ -324,11 +324,12 @@ export function Skeleton({ className }: { className?: string }) {
   return <div className={cn("skeleton", className)} aria-hidden />;
 }
 
-export function Progress({ value, className, tone = "accent" }: { value: number; className?: string; tone?: "accent" | "success" | "warning" | "danger" }) {
+/** `active` marks work that is under way right now (a slow sheen runs along the bar); measures such as budgets stay still. */
+export function Progress({ value, className, tone = "accent", active }: { value: number; className?: string; tone?: "accent" | "success" | "warning" | "danger"; active?: boolean }) {
   const color = { accent: "bg-accent", success: "bg-success", warning: "bg-warning", danger: "bg-danger" }[tone];
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn("h-full rounded-full transition-all duration-700", color, tone === "accent" && "shadow-[0_0_10px_#00ff78]")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div className={cn("progress-fill h-full rounded-full", color, tone === "accent" && "shadow-[0_0_10px_#00ff78]")} data-active={active === true} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
@@ -347,12 +348,21 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-14 text-center", className)}>
-      {icon && <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent [&_svg]:size-5">{icon}</div>}
+    <div className={cn("flex animate-fade-in flex-col items-center justify-center px-6 py-14 text-center", className)}>
+      {icon && <div className="mb-4 flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent [&_svg]:size-5">{icon}</div>}
       <p className="text-[15px] font-semibold">{title}</p>
       {description && <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-muted">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
+  );
+}
+
+/** A check mark that draws itself. Use it where something has really just completed. */
+export function CheckDraw({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={cn("check-draw", className)} fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M5 12.5l4.5 4.5L19 7.5" pathLength={1} />
+    </svg>
   );
 }
 

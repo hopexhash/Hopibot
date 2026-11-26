@@ -107,6 +107,16 @@ export function BusinessTable({
   const router = useRouter();
   const sp = useSearchParams();
   const pathname = usePathname();
+  // Leads that appeared in the same view while it was open (found by the agents just now)
+  // get one fading highlight. A change of filter or page is a different view: nothing is "new".
+  const view = sp.toString();
+  const [seen, setSeen] = useState<{ view: string; rows: BusinessTableRow[]; fresh: Set<string> }>({ view, rows, fresh: new Set() });
+  if (seen.rows !== rows || seen.view !== view) {
+    const known = new Set(seen.rows.map((r) => r.id));
+    const added = seen.view === view ? rows.filter((r) => !known.has(r.id)).map((r) => r.id) : [];
+    setSeen({ view, rows, fresh: seen.view === view ? new Set([...seen.fresh, ...(added.length <= 20 ? added : [])]) : new Set() });
+  }
+  const fresh = seen.fresh;
   const all = rows.length > 0 && rows.every((r) => selected.has(r.id));
   const toggle = (id: string) =>
     setSelected((s) =>
@@ -231,11 +241,13 @@ export function BusinessTable({
                 Select all
               </label>
             </li>
-            {rows.map((r) => (
+            {rows.map((r, i) => (
               <li
                 key={r.id}
+                style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
                 className={cn(
-                  "panel flex gap-3 p-3.5",
+                  fresh.has(r.id) ? "row-new" : "row-in",
+                  "panel panel-hover flex gap-3 p-3.5",
                   selected.has(r.id) && "bg-accent-soft/40",
                 )}
               >
@@ -325,10 +337,11 @@ export function BusinessTable({
               </tr>
             </THead>
             <tbody>
-              {rows.map((r) => (
+              {rows.map((r, i) => (
                 <TR
                   key={r.id}
-                  className={cn(selected.has(r.id) && "bg-accent-soft/40")}
+                  style={{ animationDelay: `${Math.min(i, 12) * 22}ms` }}
+                  className={cn(fresh.has(r.id) ? "row-new" : "row-in", selected.has(r.id) && "bg-accent-soft/40")}
                 >
                   <TD>
                     <input

@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { Check, CircleAlert, Loader2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CheckDraw } from "@/components/ui";
 import { WEBSITE_STAGES } from "@/lib/website-stages";
 import { cn, formatDateTime } from "@/lib/utils";
 import { db, schema } from "@/server/db";
@@ -35,7 +35,7 @@ export async function WebsiteProgress({ businessId, organizationId, status, visu
   const reached = Math.max(0, ...latest.keys());
 
   return (
-    <Card className="mb-4">
+    <Card className={cn("mb-4", working && "building-line")}>
       <CardHeader>
         <div>
           <CardTitle>How this website was made</CardTitle>
@@ -50,17 +50,18 @@ export async function WebsiteProgress({ businessId, organizationId, status, visu
             const state = !e ? (s.n < reached ? "skipped" : "pending") : e.status === "running" ? (working ? "running" : "done") : e.status === "warning" ? "warning" : "done";
             const detail = e ? e.message.replace(/^[^:]+:\s*/, "") : state === "skipped" ? "Did not run for this version." : "";
             return (
-              <li key={s.n} className="flex gap-3 rounded-lg px-2 py-2">
+              <li key={s.n} className={cn("flex gap-3 rounded-lg px-2 py-2 transition-colors duration-300", state === "running" && "bg-[rgba(255,196,61,0.05)]")}>
                 <span
                   className={cn(
-                    "mt-0.5 grid h-6 w-6 flex-none place-items-center rounded-full border text-[11px] font-semibold tabular",
-                    state === "done" && "border-accent bg-accent-soft text-accent",
+                    "mt-0.5 grid h-6 w-6 flex-none place-items-center rounded-full border text-[11px] font-semibold tabular transition-colors duration-300",
+                    // While the site is being built, a stage that finishes gets one ring; a finished site is shown calmly.
+                    state === "done" && cn("border-accent bg-accent-soft text-accent", working && "done-ring"),
                     state === "running" && "border-warning text-warning",
                     state === "warning" && "border-warning bg-warning-soft text-warning",
                     (state === "pending" || state === "skipped") && "border-border text-subtle",
                   )}
                 >
-                  {state === "done" ? <Check className="h-3.5 w-3.5" /> : state === "running" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : state === "warning" ? <CircleAlert className="h-3.5 w-3.5" /> : String(s.n).padStart(2, "0")}
+                  {state === "done" ? working ? <CheckDraw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" /> : state === "running" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : state === "warning" ? <CircleAlert className="h-3.5 w-3.5" /> : String(s.n).padStart(2, "0")}
                 </span>
                 <span className="min-w-0">
                   <span className={cn("block text-[13.5px] font-medium", (state === "pending" || state === "skipped") && "text-muted")}>
@@ -87,7 +88,7 @@ export async function WebsiteProgress({ businessId, organizationId, status, visu
                     <span className="tabular text-muted">{v}</span>
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                    <div className={cn("h-full rounded-full", v >= 75 ? "bg-accent" : v >= 60 ? "bg-warning" : "bg-danger")} style={{ width: `${v}%` }} />
+                    <div className={cn("bar-grow h-full rounded-full", v >= 75 ? "bg-accent" : v >= 60 ? "bg-warning" : "bg-danger")} style={{ width: `${v}%` }} />
                   </div>
                 </li>
               ))}

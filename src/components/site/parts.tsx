@@ -15,6 +15,22 @@ export function JsonLd({ data }: { data: unknown }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }} />;
 }
 
+/** Ambient layer behind a hero: two slow lights, a faint dot texture and a few rising motes. Decorative only. */
+export function HeroAmbient() {
+  return (
+    <div className="ambient" aria-hidden="true">
+      <i />
+      <i />
+      <b />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+}
+
 export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   return (
     <nav className="crumbs" aria-label="Kruimelpad">
@@ -75,7 +91,7 @@ export function Devices({ work, phone, eager, className = "devices", sizes = "(m
 export function WorkCard({ work, linkIndustry = true }: { work: Work; linkIndustry?: boolean }) {
   return (
     <article className="work-card" data-reveal>
-      <a className="work-shot" href={demoHref(work.key)} target="_blank" rel="noopener nofollow" data-track="portfolio_click" data-track-label={work.key} aria-label={`Bekijk de live demo van ${work.name} (opent in een nieuw tabblad)`}>
+      <a className="work-shot" href={demoHref(work.key)} target="_blank" rel="noopener nofollow" data-track="portfolio_click" data-track-label={work.key} aria-label={`Demo-ontwerp ${work.name}: bekijk de live demo (opent in een nieuw tabblad)`}>
         <Devices work={work} className="work-devices" sizes="(min-width: 760px) 44vw, 80vw" />
         <span className="demo-tag">Demo-ontwerp</span>
       </a>

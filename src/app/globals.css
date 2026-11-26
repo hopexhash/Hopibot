@@ -4,6 +4,13 @@
 
 /* ── HOPI Bot Matrix design tokens (single dark theme) ───────────── */
 :root {
+  /* Motion system (see src/lib/motion.ts) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dur-micro: 180ms;
+  --dur-base: 260ms;
+  --dur-reveal: 600ms;
   color-scheme: dark;
   --background: #030806;
   --surface: #091710;
@@ -74,7 +81,16 @@
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
   --shadow-card: var(--shadow-md);
   --shadow-pop: var(--shadow-lg);
-  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-fade-in: fade-in 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-out: fade-out 0.16s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-overlay-in: overlay-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-overlay-out: overlay-out 0.18s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-modal-in: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-modal-out: modal-out 0.18s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-pop-in: pop-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pop-out: pop-out 0.12s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-badge-swap: badge-swap 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-float-soft: float-soft 5s ease-in-out infinite;
   --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
   --animate-blink: blink 1.05s steps(1) infinite;
 }
@@ -87,6 +103,73 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes overlay-out {
+  to {
+    opacity: 0;
+  }
+}
+/* Dialogs: a small rise and settle. Phones show them as a bottom sheet, so they travel further. */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--modal-shift, 12px)) scale(var(--modal-scale, 0.98));
+  }
+}
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--modal-shift, 12px)) scale(var(--modal-scale, 0.98));
+  }
+}
+/* Menus and tooltips grow out of the control that opened them. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-3px);
+  }
+}
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+/* A status that just changed: one soft pulse of its own colour. */
+@keyframes badge-swap {
+  0% {
+    opacity: 0;
+    transform: translateY(3px) scale(0.94);
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  45% {
+    opacity: 1;
+    transform: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 22%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 @keyframes pulse-dot {
@@ -195,11 +278,19 @@ main .flex > .flex-1 {
   min-width: 0;
 }
 .panel-hover {
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    translate var(--dur-base) var(--ease-out);
 }
 .panel-hover:hover {
   border-color: var(--border-strong);
   box-shadow: var(--glow-soft);
+}
+@media (hover: hover) {
+  .panel-hover:hover {
+    translate: 0 -2px;
+  }
 }
 /* Corner brackets for "monitoring terminal" cards */
 .brackets {
@@ -271,9 +362,11 @@ main .flex > .flex-1 {
 }
 .skeleton {
   border-radius: 10px;
-  background: linear-gradient(90deg, rgba(0, 255, 120, 0.04) 25%, rgba(0, 255, 120, 0.09) 37%, rgba(0, 255, 120, 0.04) 63%);
+  background: linear-gradient(90deg, rgba(0, 255, 120, 0.04) 25%, rgba(0, 255, 120, 0.1) 37%, rgba(0, 255, 120, 0.04) 63%);
   background-size: 200% 100%;
-  animation: shimmer 1.4s linear infinite;
+  animation:
+    shimmer 1.6s var(--ease-in-out) infinite,
+    fade-in 0.3s var(--ease-out) both;
 }
 
 /* React Flow on dark */
@@ -536,4 +629,316 @@ main .flex > .flex-1 {
   background:
     linear-gradient(180deg, rgba(0, 255, 120, 0.03), transparent 40%),
     rgba(9, 23, 16, 0.7);
+}
+
+/* ───────────────────────── Motion system ───────────────────────── */
+
+/* Page change inside the control room: the new page settles in; the frame never moves. */
+.page-enter {
+  animation: page-enter var(--dur-base) var(--ease-out) both;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Groups of tiles arrive one after another (capped, so long lists never wait). */
+.animate-fade-in:nth-child(2) { animation-delay: 40ms; }
+.animate-fade-in:nth-child(3) { animation-delay: 80ms; }
+.animate-fade-in:nth-child(4) { animation-delay: 120ms; }
+.animate-fade-in:nth-child(5) { animation-delay: 160ms; }
+.animate-fade-in:nth-child(6) { animation-delay: 200ms; }
+.animate-fade-in:nth-child(7) { animation-delay: 240ms; }
+.animate-fade-in:nth-child(n + 8) { animation-delay: 280ms; }
+[role="dialog"].animate-fade-in,
+[data-radix-popper-content-wrapper] .animate-fade-in {
+  animation-delay: 0ms;
+}
+
+/* Buttons: lift on hover (pointer devices only), settle on press, arrows lean forward. */
+.btn-m {
+  transition:
+    translate var(--dur-micro) var(--ease-out),
+    scale var(--dur-micro) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-out),
+    border-color var(--dur-micro) var(--ease-out),
+    color var(--dur-micro) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    opacity var(--dur-micro) var(--ease-out);
+}
+.btn-m svg[class*="lucide-arrow-right"],
+.btn-m svg[class*="lucide-chevron-right"],
+.btn-m svg[class*="lucide-send"] {
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+@media (hover: hover) {
+  .btn-lift:hover {
+    translate: 0 -1px;
+  }
+  .btn-m:hover svg[class*="lucide-arrow-right"],
+  .btn-m:hover svg[class*="lucide-chevron-right"],
+  .btn-m:hover svg[class*="lucide-send"] {
+    transform: translateX(2px);
+  }
+}
+.btn-m:active {
+  translate: 0 0;
+}
+
+/* Fields: the focus ring fades in instead of snapping. */
+.field-m {
+  transition:
+    border-color var(--dur-micro) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    background-color var(--dur-micro) var(--ease-out);
+}
+.field-error {
+  animation: field-error 0.36s var(--ease-out) both;
+}
+@keyframes field-error {
+  0% {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Tabs: the indicator grows under the active tab. */
+.tab-m {
+  position: relative;
+}
+.tab-m::after {
+  content: "";
+  position: absolute;
+  inset: auto 10px -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(0, 255, 120, 0.6);
+  transform: scaleX(0);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.tab-m[data-state="active"]::after,
+.tab-m[aria-selected="true"]::after,
+.tab-m[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* Dialog sizes of travel: a sheet on phones, a small settle on larger screens. */
+.modal-m {
+  --modal-shift: 40px;
+  --modal-scale: 1;
+}
+@media (min-width: 640px) {
+  .modal-m {
+    --modal-shift: 10px;
+    --modal-scale: 0.98;
+  }
+}
+
+/* A check that draws itself when something really completed. */
+.check-draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: check-draw 0.42s var(--ease-out) 0.06s forwards;
+}
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.done-ring {
+  animation: done-ring 0.7s var(--ease-out) both;
+}
+@keyframes done-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 120, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgba(0, 255, 120, 0);
+  }
+}
+
+/* Progress that is under way carries a slow sheen; finished or idle bars are still. */
+.progress-fill {
+  position: relative;
+  overflow: hidden;
+  transition: width 0.7s var(--ease-out);
+}
+.progress-fill[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-100%);
+  animation: progress-sheen 1.8s var(--ease-in-out) infinite;
+}
+@keyframes progress-sheen {
+  to {
+    transform: translateX(100%);
+  }
+}
+/* Bars that grow into place the first time they are shown. */
+.bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 0.7s var(--ease-out) both;
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* A running agent: the status light breathes with a soft halo. */
+.status-live {
+  position: relative;
+}
+.status-live::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: status-halo 2s var(--ease-out) infinite;
+}
+@keyframes status-halo {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+.status-dot {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+/* Rows of leads, tasks and log lines arriving. */
+.row-in {
+  animation: row-in 0.34s var(--ease-out) both;
+}
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+/* A record that appeared while you were watching: one fading highlight, then it is a normal row. */
+.row-new {
+  animation:
+    row-in 0.4s var(--ease-out) both,
+    row-new 2.6s var(--ease-out) both;
+}
+@keyframes row-new {
+  0%,
+  35% {
+    background-color: rgba(0, 255, 120, 0.09);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 2px 0 0 transparent;
+  }
+}
+.term-line {
+  animation: term-line 0.2s var(--ease-out) both;
+}
+@keyframes term-line {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+.term-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1.05s steps(1) infinite;
+}
+
+/* Phone navigation drawer */
+.drawer-in {
+  animation: drawer-in 0.3s var(--ease-out) both;
+}
+@keyframes drawer-in {
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+}
+
+/* A preview that has finished loading is uncovered, never popped in. */
+.reveal-media {
+  opacity: 0;
+  transform: scale(1.012);
+  transition:
+    opacity 0.5s var(--ease-out),
+    transform 0.7s var(--ease-out);
+  /* Safety net: content is never left hidden if the load event is missed. */
+  animation: reveal-anyway 0.4s var(--ease-out) 3s forwards;
+}
+@keyframes reveal-anyway {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal-media[data-loaded="true"] {
+  opacity: 1;
+  transform: none;
+}
+/* Work in progress on a website: a thin line travelling along the top of its card. */
+.building-line {
+  position: relative;
+  overflow: hidden;
+}
+.building-line::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%);
+  animation: progress-sheen 2.2s var(--ease-in-out) infinite;
+}
+
+/* Sonner toasts: a touch more spring-free glide, in the product's curve. */
+[data-sonner-toast] {
+  transition-timing-function: var(--ease-out) !important;
+}
+[data-sonner-toast][data-type="error"] [data-icon] {
+  animation: field-error 0.4s var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .check-draw path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .reveal-media {
+    opacity: 1;
+    transform: none;
+  }
+  .status-live::after,
+  .progress-fill[data-active="true"]::after,
+  .building-line::before {
+    display: none;
+  }
 }

@@ -119,7 +119,7 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
             </span>
           )}
         </div>
-        <Progress value={pct ?? 0} />
+        <Progress value={pct ?? 0} active={pct != null && pct < 100} />
       </div>
 
       <dl className="mt-3.5 grid grid-cols-4 gap-2 border-t border-border pt-3">

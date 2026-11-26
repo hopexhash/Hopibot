@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, ChevronsLeft, ChevronsRight, Cpu, HeartPulse, KanbanSquare, Menu, Search, TerminalSquare, X, type LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useState, useSyncExternalStore } from "react";
@@ -57,6 +58,7 @@ function Brand({ collapsed }: { collapsed?: boolean }) {
 
 function NavList({ collapsed, counts, onNavigate }: { collapsed?: boolean; counts: Record<string, number>; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const markerId = useId();
   const active = activeHref(pathname);
   return (
     <nav className="flex flex-col gap-4" aria-label="Main">
@@ -82,7 +84,14 @@ function NavList({ collapsed, counts, onNavigate }: { collapsed?: boolean; count
                       : "text-muted hover:bg-[rgba(0,255,120,0.05)] hover:text-foreground",
                   )}
                 >
-                  {isActive && <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-accent shadow-[0_0_10px_#00ff78]" />}
+                  {isActive && (
+                    <motion.span
+                      // One marker per list (desktop rail, phone drawer): it slides to the page you open.
+                      layoutId={`nav-marker-${markerId}`}
+                      transition={{ type: "tween", duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute -left-3 top-1/2 -mt-2.5 h-5 w-[3px] rounded-r bg-accent shadow-[0_0_10px_#00ff78]"
+                    />
+                  )}
                   <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-colors", isActive ? "text-accent" : "text-subtle group-hover:text-accent/80")} strokeWidth={1.75} />
                   {!collapsed && <span className="truncate">{label}</span>}
                   {count ? (
@@ -119,8 +128,8 @@ export function SubNav({ section }: { section: keyof typeof SUB_NAV }) {
           role="tab"
           aria-selected={current === t.href}
           className={cn(
-            "-mb-px flex h-11 shrink-0 items-center whitespace-nowrap border-b-2 px-3 text-[13px] font-medium transition-colors",
-            current === t.href ? "border-accent text-accent" : "border-transparent text-muted hover:text-foreground",
+            "tab-m -mb-px flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-[13px] font-medium transition-colors duration-200",
+            current === t.href ? "text-accent" : "text-muted hover:text-foreground",
           )}
         >
           {t.label}
@@ -207,8 +216,8 @@ export function MobileNav({ counts }: { counts: Record<string, number> }) {
       {open &&
         createPortal(
           <div className="fixed inset-0 z-[60] lg:hidden">
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" onClick={() => setOpen(false)} />
-            <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col border-r border-border-strong bg-[#040a07] px-4 pb-[calc(var(--safe-bottom)+16px)] pt-[calc(var(--safe-top)+16px)] shadow-[0_0_60px_-10px_rgba(0,255,120,0.25)] animate-fade-in">
+            <div className="absolute inset-0 animate-overlay-in bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+            <div className="drawer-in absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col border-r border-border-strong bg-[#040a07] px-4 pb-[calc(var(--safe-bottom)+16px)] pt-[calc(var(--safe-top)+16px)] shadow-[0_0_60px_-10px_rgba(0,255,120,0.25)] animate-fade-in">
               <div className="flex items-center justify-between">
                 <Brand />
                 <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted" onClick={() => setOpen(false)} aria-label="Close navigation">

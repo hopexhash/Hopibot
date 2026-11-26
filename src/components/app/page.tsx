@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { HelpTip } from "@/components/ui";
+import { CountUp } from "./count-up";
 
 export function PageHeader({
   title,
@@ -96,7 +97,7 @@ export function StatCard({
         </p>
         {icon && <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl [&_svg]:size-4", ICON_TONE[tone])}>{icon}</div>}
       </div>
-      <p className={cn("tabular mt-2.5 text-[26px] font-semibold leading-none tracking-tight sm:text-[28px]", VALUE_TONE[tone])}>{value}</p>
+      <p className={cn("tabular mt-2.5 text-[26px] font-semibold leading-none tracking-tight sm:text-[28px]", VALUE_TONE[tone])}>{typeof value === "string" || typeof value === "number" ? <CountUp value={value} /> : value}</p>
       <div className="mt-2 flex min-h-[18px] flex-wrap items-center gap-x-2 gap-y-0.5">
         {delta && <DeltaBadge delta={delta} />}
         {sub && <span className="min-w-0 truncate text-[12px] text-muted">{sub}</span>}
@@ -142,8 +143,8 @@ export function LinkTabs({ tabs, current, href }: { tabs: { key: string; label: 
           aria-selected={current === t.key}
           scroll={false}
           className={cn(
-            "-mb-px flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 text-[13px] font-medium transition-colors",
-            current === t.key ? "border-accent text-accent" : "border-transparent text-muted hover:text-foreground",
+            "tab-m -mb-px flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap px-3 text-[13px] font-medium transition-colors duration-200",
+            current === t.key ? "text-accent" : "text-muted hover:text-foreground",
           )}
         >
           {t.label}

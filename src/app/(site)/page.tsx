@@ -1,6 +1,6 @@
 import { ArrowRight, Check, Gauge, MessageCircle, PenTool, ShieldCheck, Smartphone, Wrench, X } from "lucide-react";
 import Link from "next/link";
-import { ContactSection, CtaBand, Devices, Faq, JsonLd, PriceCards, SiteFooter, Steps, WorkCard } from "@/components/site/parts";
+import { ContactSection, CtaBand, Devices, Faq, HeroAmbient, JsonLd, PriceCards, SiteFooter, Steps, WorkCard } from "@/components/site/parts";
 import { SiteHeader, WhatsAppIcon } from "@/components/site/site-client";
 import { faqLd, pageMeta, plain } from "@/lib/site/seo";
 import { WORK, workByKey } from "@/lib/site/work";
@@ -48,10 +48,11 @@ export default async function HomePage() {
       <main id="inhoud">
         {/* Hero: what, for whom, what it costs and the next step */}
         <section className="hero">
+          <HeroAmbient />
           <div className="wrap hero-grid">
             <div>
               <span className="eyebrow enter">Webdesign voor ondernemers in NL & BE</span>
-              <h1 className="enter">
+              <h1 className="enter lines">
                 <span>Jouw nieuwe website.</span>{" "}
                 <span>
                   Eerst zien, <em>dan betalen.</em>
@@ -114,7 +115,7 @@ export default async function HomePage() {
               </h2>
               <p>Een website laten maken begint meestal met een offerte en een aanbetaling. Wat je krijgt, zie je pas weken later. Wij draaien de volgorde om.</p>
             </div>
-            <div className="versus" data-reveal>
+            <div className="versus stagger" data-reveal>
               <div className="versus-col">
                 <h3>Zo gaat het vaak</h3>
                 <ul>

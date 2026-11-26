@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { Breadcrumbs, ContactSection, Faq, JsonLd, PriceCards, Related, SiteFooter, Steps } from "@/components/site/parts";
+import { Breadcrumbs, HeroAmbient, ContactSection, Faq, JsonLd, PriceCards, Related, SiteFooter, Steps } from "@/components/site/parts";
 import { SiteHeader } from "@/components/site/site-client";
 import { eur } from "@/lib/catalog";
 import { breadcrumbLd, faqLd, pageMeta, plain, serviceLd } from "@/lib/site/seo";
@@ -40,6 +40,7 @@ export default async function PricingPage() {
       <SiteHeader />
       <main id="inhoud">
         <section className="hero page-hero simple">
+          <HeroAmbient />
           <div className="wrap">
             <Breadcrumbs crumbs={CRUMBS} />
             <span className="eyebrow enter">Prijzen</span>

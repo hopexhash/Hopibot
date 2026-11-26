@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ACTIVITY_CATEGORIES, categoryTag } from "@/lib/activity";
 import { AGENT_KEYS, AGENT_META, type AgentKey } from "@/lib/constants";
+import { EASE } from "@/lib/motion";
 import { cn, formatDuration, timeAgo } from "@/lib/utils";
 import type {
   AgentLiveState,
@@ -156,6 +157,20 @@ function agentLine(a: AgentLiveState) {
   return IDLE_REASON[a.key] ?? "Idle. Waiting for work";
 }
 
+/**
+ * Text that changes because the agent's real state changed (Idle → Running, a new task):
+ * the old value slips out, the new one settles in. First render is not animated.
+ */
+function Swap({ id, children, className = "inline-block" }: { id: string; children: React.ReactNode; className?: string }) {
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.span key={id} className={className} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.16, ease: EASE.out }}>
+        {children}
+      </motion.span>
+    </AnimatePresence>
+  );
+}
+
 function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
   const st = AGENT_STATE[a.status];
   const tone = TONE[st.tone];
@@ -174,9 +189,10 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
       >
         <span
           className={cn(
-            "h-2 w-2 flex-none rounded-full",
+            "status-dot h-2 w-2 flex-none rounded-full",
             tone.dot,
-            a.status === "running" && "animate-pulse-dot",
+            tone.text,
+            a.status === "running" && "status-live animate-pulse-dot",
           )}
         />
         <span className="min-w-0 flex-1">
@@ -190,7 +206,7 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
                 tone.text,
               )}
             >
-              {st.label}
+              <Swap id={a.status}>{st.label}</Swap>
             </span>
             {runtime && (
               <span className="tabular flex-none text-[11px] text-muted">
@@ -236,18 +252,21 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
         >
           <span
             className={cn(
-              "h-1.5 w-1.5 flex-none rounded-full",
+              "status-dot h-1.5 w-1.5 flex-none rounded-full",
               tone.dot,
-              a.status === "running" && "animate-pulse-dot",
+              tone.text,
+              a.status === "running" && "status-live animate-pulse-dot",
             )}
           />
-          {st.label}
+          <Swap id={a.status}>{st.label}</Swap>
           {runtime && (
             <span className="tabular font-normal text-muted">· {runtime}</span>
           )}
         </p>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.5em] text-[12.5px] leading-snug text-muted">
-          {agentLine(a)}
+        <p className="mt-1.5 min-h-[2.5em] text-[12.5px] leading-snug text-muted">
+          <Swap id={agentLine(a)} className="line-clamp-2">
+            {agentLine(a)}
+          </Swap>
         </p>
         {a.status === "running" && a.subject && (
           <p className="mt-1 truncate text-[12px] text-foreground">
@@ -646,13 +665,15 @@ export function LiveOperations({
                     key={e.id}
                     initial={{
                       opacity: 0,
+                      y: -8,
                       backgroundColor: "rgba(0,255,120,0.09)",
                     }}
                     animate={{
                       opacity: 1,
+                      y: 0,
                       backgroundColor: "rgba(0,255,120,0)",
                     }}
-                    transition={{ duration: 0.9 }}
+                    transition={{ duration: 0.32, ease: EASE.out, backgroundColor: { duration: 1.6, ease: "easeOut" } }}
                     className="border-b border-[rgba(0,255,120,0.05)] px-3.5 py-2.5 sm:px-5"
                   >
                     <div className="flex items-center gap-2 font-mono text-[11.5px]">
@@ -682,7 +703,7 @@ export function LiveOperations({
                           className={cn(
                             "h-1.5 w-1.5 rounded-full",
                             t.dot,
-                            tone === "running" && "animate-pulse-dot",
+                            tone === "running" && "status-live animate-pulse-dot",
                           )}
                         />
                         {t.label}

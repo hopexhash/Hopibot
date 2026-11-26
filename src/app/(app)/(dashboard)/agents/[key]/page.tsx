@@ -156,7 +156,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
                       {live.progress!.done}/{live.progress!.total} · {pct}%
                     </span>
                   </div>
-                  <Progress value={pct} />
+                  <Progress value={pct} active={pct < 100} />
                 </div>
               )}
             </CardContent>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +49,20 @@ const MAP: Record<string, { label: string; tone: Tone; pulse?: boolean }> = {
 
 export function StatusBadge({ status, className, label }: { status: string; className?: string; label?: string }) {
   const m = MAP[status] ?? { label: status.replace(/_/g, " ").toLowerCase(), tone: "neutral" as Tone };
+  // Animate only a change seen while the page is open (for example Running → Completed),
+  // never the first appearance: a table full of badges must not flicker on load.
+  const previous = useRef(status);
+  const [changed, setChanged] = useState(false);
+  useEffect(() => {
+    if (previous.current !== status) {
+      previous.current = status;
+      setChanged(true);
+    }
+  }, [status]);
   return (
-    <Badge tone={m.tone} className={cn("capitalize-first", className)}>
+    <Badge key={status} tone={m.tone} className={cn("capitalize-first", changed && "animate-badge-swap", className)}>
       <span
-        className={cn("inline-block h-1.5 w-1.5 rounded-full bg-current", m.pulse && "animate-pulse-dot")}
+        className={cn("status-dot inline-block h-1.5 w-1.5 rounded-full bg-current", m.pulse && "animate-pulse-dot")}
         aria-hidden
       />
       {label ?? m.label}

@@ -5,7 +5,7 @@ import { INDUSTRIES, type Landing } from "@/lib/site/landing";
 import { breadcrumbLd, faqLd, pageMeta, plain, serviceLd, type Crumb } from "@/lib/site/seo";
 import { demoHref, WORK, workByKey } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
-import { AddonList, Breadcrumbs, ContactSection, Devices, Faq, JsonLd, PriceCards, Related, SiteFooter, Steps } from "./parts";
+import { AddonList, Breadcrumbs, ContactSection, Devices, Faq, HeroAmbient, JsonLd, PriceCards, Related, SiteFooter, Steps } from "./parts";
 import { rich } from "./rich";
 import { SiteHeader } from "./site-client";
 
@@ -48,7 +48,7 @@ function Section({ s, v, alt }: { s: Landing["sections"][number]; v: Record<stri
           {s.body?.map((p) => <p key={p}>{rich(p, v)}</p>)}
         </div>
         {s.items && (
-          <div className="cards" data-reveal>
+          <div className="cards stagger" data-reveal>
             {s.items.map((it) => (
               <div key={it.title} className="card">
                 <h3>{it.title}</h3>
@@ -58,7 +58,7 @@ function Section({ s, v, alt }: { s: Landing["sections"][number]; v: Record<stri
           </div>
         )}
         {s.list && (
-          <ul className="checks" data-reveal>
+          <ul className="checks stagger" data-reveal>
             {s.list.map((x) => (
               <li key={x}>
                 <Check strokeWidth={2.4} aria-hidden="true" />
@@ -90,6 +90,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
       <SiteHeader />
       <main id="inhoud">
         <section className="hero page-hero">
+          <HeroAmbient />
           <div className="wrap">
             <Breadcrumbs crumbs={crumbs} />
             <div className="hero-grid">
