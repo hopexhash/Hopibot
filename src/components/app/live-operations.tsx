@@ -116,6 +116,20 @@ const AGENT_STATE: Record<
   offline: { label: "OFFLINE", tone: "failed" },
 };
 
+/** "Idle" with dots that count 3 → 2 → 1 → 2 → 3 (static when reduced motion is preferred). */
+export function Idle({ className }: { className?: string }) {
+  return (
+    <span className={className}>
+      Idle
+      <span className="idle-dots" aria-hidden="true">
+        <span>.</span>
+        <span>.</span>
+        <span>.</span>
+      </span>
+    </span>
+  );
+}
+
 /** What each agent is waiting for when it has nothing to do (its place in the pipeline). */
 const IDLE_REASON: Record<string, string> = {
   lead_finder: "Idle. Waiting for the next discovery batch",
@@ -513,7 +527,7 @@ export function LiveOperations({
                 agents.every((a) => a.status === "offline") ? (
                 <span className="text-danger">No worker online</span>
               ) : (
-                "All agents idle"
+                <Idle className="font-semibold tracking-[0.08em] text-foreground/80" />
               )}
             </span>
           )
@@ -598,11 +612,15 @@ export function LiveOperations({
         aria-live="polite"
       >
         {showAgents && !filtered && agents.length > 0 && working === 0 && (
-          <p className="flex items-center gap-2.5 border-b border-[rgba(0,255,120,0.05)] px-4 py-3 font-mono text-[12.5px] text-subtle">
-            <span className="h-1.5 w-1.5 flex-none rounded-full bg-subtle" />
-            {agents.every((a) => a.status === "offline")
-              ? "No worker is online. Nothing is running."
-              : "All agents are idle. New activity appears here the moment an agent starts working."}
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[rgba(0,255,120,0.05)] px-4 py-3.5 font-mono text-subtle">
+            {agents.every((a) => a.status === "offline") ? (
+              <span className="text-[12.5px]">No worker is online. Nothing is running.</span>
+            ) : (
+              <>
+                <Idle className="text-[15px] font-semibold tracking-[0.1em] text-foreground/85" />
+                <span className="text-[12px]">New activity appears here the moment an agent starts working.</span>
+              </>
+            )}
           </p>
         )}
         {items.length === 0 ? (
@@ -881,7 +899,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
 
             <div className="panel flex min-h-0 flex-1 flex-col overflow-hidden">
               <p className="flex-none border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
-                Agents <span className="ml-2 font-normal normal-case tracking-normal text-muted">{allOffline ? "no worker online" : working ? `${working} working now` : "all idle"}</span>
+                Agents <span className="ml-2 font-normal normal-case tracking-normal text-muted">{allOffline ? "no worker online" : working ? `${working} working now` : <Idle />}</span>
               </p>
               <ul className="flex min-h-0 flex-1 flex-col justify-between py-1">
                 {agents.map((a) => {
@@ -912,6 +930,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
                 <span className={cn("relative inline-flex h-3 w-3 rounded-full", offline ? "bg-danger" : "bg-accent")} />
               </span>
               Activity feed
+              {!allOffline && !working && <Idle className="ml-1 font-normal normal-case tracking-[0.08em] text-muted" />}
             </p>
             <ol className="min-h-0 flex-1 overflow-hidden bg-[rgba(1,4,3,0.55)]">
               {rows.length === 0 && <li className="px-6 py-10 text-[20px] text-muted">No activity recorded yet.</li>}
