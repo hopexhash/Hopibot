@@ -184,7 +184,7 @@ const paymentSchema = z.object({
 
 /** Manual payment / subscription record (for payments received outside Stripe). */
 export async function recordPaymentAction(businessId: string, input: z.input<typeof paymentSchema>) {
-  return action({ name: "business.record_payment", role: "admin", revalidate: ["/businesses", "/"] }, async (auth) => {
+  return action({ name: "business.record_payment", role: "admin", revalidate: ["/businesses", "/command"] }, async (auth) => {
     const b = await owned(auth.org.id, z.string().uuid().parse(businessId));
     if (b.isMock) throw new UserError("Payments cannot be recorded for mock businesses.");
     const p = paymentSchema.parse(input);

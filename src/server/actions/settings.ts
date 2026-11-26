@@ -9,7 +9,7 @@ import { getOrgSettings } from "../org";
 import { action, UserError } from "./_util";
 
 export async function updateSettingsAction(patch: Record<string, unknown>) {
-  return action({ name: "settings.update", role: "admin", revalidate: ["/settings", "/costs", "/"], auditTarget: () => ({ type: "organization", metadata: { keys: Object.keys(patch) } }) }, async (auth) => {
+  return action({ name: "settings.update", role: "admin", revalidate: ["/settings", "/costs", "/command"], auditTarget: () => ({ type: "organization", metadata: { keys: Object.keys(patch) } }) }, async (auth) => {
     const current = await getOrgSettings(auth.org.id);
     const merged = orgSettingsSchema.parse({ ...current, ...patch });
     if (merged.senderEmail && !z.string().email().safeParse(merged.senderEmail).success) throw new UserError("Sender email is not a valid address.");
@@ -71,7 +71,7 @@ export async function removeMemberAction(userId: string) {
 
 /** Switches autonomous mode between ACTIVE and PAUSED. Running tasks finish; no new batches start while paused. */
 export async function setAutonomousModeAction(enabled: boolean) {
-  return action({ name: enabled ? "autonomy.resume" : "autonomy.pause", role: "admin", revalidate: ["/", "/settings"], auditTarget: () => ({ type: "organization", metadata: { enabled } }) }, async (auth) => {
+  return action({ name: enabled ? "autonomy.resume" : "autonomy.pause", role: "admin", revalidate: ["/command", "/settings"], auditTarget: () => ({ type: "organization", metadata: { enabled } }) }, async (auth) => {
     const current = await getOrgSettings(auth.org.id);
     const merged = orgSettingsSchema.parse({ ...current, autopilot: { ...current.autopilot, enabled } });
     await db().update(schema.organizations).set({ settings: merged, updatedAt: new Date() }).where(eq(schema.organizations.id, auth.org.id));

@@ -11,7 +11,7 @@ import { action, UserError } from "./_util";
 
 export async function decideApprovalAction(approvalId: string, approve: boolean, reason?: string) {
   return action(
-    { name: approve ? "approval.approve" : "approval.reject", role: "admin", revalidate: ["/"], auditTarget: () => ({ type: "approval", id: approvalId, metadata: { reason } }) },
+    { name: approve ? "approval.approve" : "approval.reject", role: "admin", revalidate: ["/command"], auditTarget: () => ({ type: "approval", id: approvalId, metadata: { reason } }) },
     async (auth) => {
       const id = z.string().uuid().parse(approvalId);
       const [a] = await db().select().from(schema.approvals).where(and(eq(schema.approvals.id, id), eq(schema.approvals.organizationId, auth.org.id)));

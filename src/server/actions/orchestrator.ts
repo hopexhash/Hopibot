@@ -22,7 +22,7 @@ export async function planObjectiveAction(objective: string) {
 
 export async function startObjectiveAction(objective: string, plan: RunPlan) {
   return action(
-    { name: "orchestrator.start_run", revalidate: ["/"], auditTarget: (r: { runId: string }) => ({ type: "workflow_run", id: r.runId }) },
+    { name: "orchestrator.start_run", revalidate: ["/command"], auditTarget: (r: { runId: string }) => ({ type: "workflow_run", id: r.runId }) },
     async (auth) => {
       const parsed = planSchema.parse(plan);
       const run = await startRun({ organizationId: auth.org.id, plan: parsed, objective: objective.slice(0, 2000), createdBy: auth.user.id, isMock: mockModeAllowed() });

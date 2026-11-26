@@ -31,7 +31,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Command",
     items: [
-      { href: "/", label: "Command Center", icon: LayoutDashboard, hint: "Everything at a glance" },
+      { href: "/command", label: "Command Center", icon: LayoutDashboard, hint: "Everything at a glance" },
       { href: "/approvals", label: "Approvals", icon: ShieldCheck, hint: "Things waiting for your OK" },
     ],
   },
@@ -74,11 +74,9 @@ export const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
 
 /** The nav item a pathname belongs to: the longest matching prefix wins. */
 export function activeHref(pathname: string): string | null {
-  if (pathname === "/") return "/";
   let best: { href: string; len: number } | null = null;
   for (const item of NAV_ITEMS) {
     for (const prefix of [item.href, ...(item.match ?? [])]) {
-      if (prefix === "/") continue;
       if ((pathname === prefix || pathname.startsWith(`${prefix}/`)) && (!best || prefix.length > best.len)) best = { href: item.href, len: prefix.length };
     }
   }

@@ -16,7 +16,7 @@ const expenseSchema = z.object({
 
 /** Records an operating expense by hand (hosting, tools, freelancers). API usage is metered separately. */
 export async function addExpenseAction(input: unknown) {
-  return action({ name: "expense.add", role: "admin", revalidate: ["/revenue", "/analytics", "/"], auditTarget: (r: { id: string }) => ({ type: "expense", id: r.id }) }, async (auth) => {
+  return action({ name: "expense.add", role: "admin", revalidate: ["/revenue", "/analytics", "/command"], auditTarget: (r: { id: string }) => ({ type: "expense", id: r.id }) }, async (auth) => {
     const e = expenseSchema.parse(input);
     const date = new Date(`${e.incurredOn}T12:00:00Z`);
     if (date.getTime() > Date.now() + 86_400_000) throw new UserError("The date is in the future.");
@@ -29,7 +29,7 @@ export async function addExpenseAction(input: unknown) {
 }
 
 export async function deleteExpenseAction(id: string) {
-  return action({ name: "expense.delete", role: "admin", revalidate: ["/revenue", "/analytics", "/"], auditTarget: () => ({ type: "expense", id }) }, async (auth) => {
+  return action({ name: "expense.delete", role: "admin", revalidate: ["/revenue", "/analytics", "/command"], auditTarget: () => ({ type: "expense", id }) }, async (auth) => {
     await db().delete(schema.expenses).where(and(eq(schema.expenses.id, z.string().uuid().parse(id)), eq(schema.expenses.organizationId, auth.org.id)));
     return null;
   });

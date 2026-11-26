@@ -99,7 +99,7 @@ export async function restoreVersionAction(versionId: string) {
 
 export async function setWebsiteApprovalAction(projectId: string, approve: boolean) {
   return action(
-    { name: approve ? "website.approve" : "website.reject", revalidate: ["/websites", "/previews", "/"], auditTarget: () => ({ type: "website_project", id: projectId }) },
+    { name: approve ? "website.approve" : "website.reject", revalidate: ["/websites", "/previews", "/command"], auditTarget: () => ({ type: "website_project", id: projectId }) },
     async (auth) => {
       const p = await ownedProject(auth.org.id, projectId);
       if (approve && p.status !== "ready") throw new UserError("Only websites that passed quality control can be approved.");
@@ -164,7 +164,7 @@ const domainSchema = z
 
 /** Publishing the official website / connecting a customer domain always needs approval. */
 export async function requestPublishAction(projectId: string, domain: string, confirmation: boolean) {
-  return action({ name: "website.request_publish", revalidate: ["/websites", "/"] }, async (auth) => {
+  return action({ name: "website.request_publish", revalidate: ["/websites", "/command"] }, async (auth) => {
     const p = await ownedProject(auth.org.id, projectId);
     if (!confirmation) throw new UserError("Confirm that the business has authorised publication.");
     if (p.approvalStatus !== "approved") throw new UserError("Approve the website before requesting publication.");

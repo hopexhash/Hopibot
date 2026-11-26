@@ -43,7 +43,7 @@ export function LogoMark({ className, animated }: { className?: string; animated
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 px-1" aria-label="HOPI Bot — Command Center">
+    <Link href="/command" className="flex items-center gap-2.5 px-1" aria-label="HOPI Bot — Command Center">
       <LogoMark animated className="h-9 w-9 shrink-0 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
       {!collapsed && (
         <div className="min-w-0 leading-none">
@@ -229,7 +229,7 @@ export function MobileNav({ counts }: { counts: Record<string, number> }) {
 const TABS: { href: string; label: string; icon: LucideIcon; hub?: boolean }[] = [
   { href: "/agents", label: "Agents", icon: Bot },
   { href: "/terminal", label: "Terminal", icon: TerminalSquare },
-  { href: "/", label: "Command", icon: Cpu, hub: true },
+  { href: "/command", label: "Command", icon: Cpu, hub: true },
   { href: "/pipeline", label: "CRM", icon: KanbanSquare },
   { href: "/health", label: "Health", icon: HeartPulse },
 ];

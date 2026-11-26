@@ -58,7 +58,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
           <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </button>
         {/* Phones: the logo alone, centred in the header. */}
-        <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI Bot — Command Center">
+        <Link href="/command" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI Bot — Command Center">
           <LogoMark animated className="h-11 w-11 drop-shadow-[0_0_10px_rgba(0,255,120,0.5)]" />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 text-[13px] lg:flex">
@@ -88,9 +88,9 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
           </span>
         </Link>
 
-        {pathname !== "/" && (
+        {pathname !== "/command" && (
           <Button asChild variant="primary" size="sm" className="hidden h-10 px-3.5 text-[13px] sm:inline-flex">
-            <Link href="/?objective=1">
+            <Link href="/command?objective=1">
               <Wand2 /> New objective
             </Link>
           </Button>

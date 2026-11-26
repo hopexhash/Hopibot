@@ -70,7 +70,7 @@ export function ObjectiveDialog({ label = "New objective", size = "md", variant 
     if (!v) {
       setPlan(null);
       setAdjust(false);
-      if (params.get("objective")) router.replace("/");
+      if (params.get("objective")) router.replace("/command");
     }
   };
 

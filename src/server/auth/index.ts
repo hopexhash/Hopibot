@@ -1,7 +1,7 @@
 import "../guard";
 import { and, eq, gt } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import type { Role } from "@/lib/constants";
 import { parseOrgSettings, type OrgSettings } from "@/lib/settings";
@@ -115,11 +115,14 @@ export const getAuth = cache(async (): Promise<AuthContext | null> => {
   return { user: row.user, org: { ...row.org, settings: parseOrgSettings(row.org.settings) }, role: row.role };
 });
 
-/** For pages: redirects to /login when unauthenticated. */
+/**
+ * For pages. Visitors who are not signed in get "page not found": the control room does not
+ * reveal that it exists, and the sign-in page only answers at the secret address.
+ */
 export async function requireAuth(minRole: Role = "viewer"): Promise<AuthContext> {
   const auth = await getAuth();
-  if (!auth) redirect("/login");
-  if (!hasRole(auth.role, minRole)) redirect("/?forbidden=1");
+  if (!auth) notFound();
+  if (!hasRole(auth.role, minRole)) redirect("/command?forbidden=1");
   return auth;
 }
 

@@ -6,7 +6,7 @@ import { action } from "./_util";
 
 /** Marks every unread notification in the workspace as read. */
 export async function markNotificationsReadAction() {
-  return action({ name: "notifications.read", role: "viewer", revalidate: ["/"] }, async (auth) => {
+  return action({ name: "notifications.read", role: "viewer", revalidate: ["/command"] }, async (auth) => {
     await db()
       .update(schema.notifications)
       .set({ readAt: new Date() })

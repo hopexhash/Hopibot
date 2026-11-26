@@ -57,7 +57,7 @@ const approveSchema = z.object({
 });
 
 export async function approveAndSendAction(id: string, confirmations: z.input<typeof approveSchema>) {
-  return action({ name: "email.approve_send", role: "admin", revalidate: ["/emails", "/"], auditTarget: () => ({ type: "sales_email", id, metadata: confirmations }) }, async (auth) => {
+  return action({ name: "email.approve_send", role: "admin", revalidate: ["/emails", "/command"], auditTarget: () => ({ type: "sales_email", id, metadata: confirmations }) }, async (auth) => {
     const conf = approveSchema.parse(confirmations);
     let e = await ownedEmail(auth.org.id, id);
     if (e.status !== "awaiting_approval") throw new UserError(`Only emails awaiting approval can be sent (this one is ${e.status}).`);
@@ -131,7 +131,7 @@ export async function sendEmailTestAction(id: string) {
 }
 
 export async function rejectEmailAction(id: string) {
-  return action({ name: "email.reject", revalidate: ["/emails", "/"], auditTarget: () => ({ type: "sales_email", id }) }, async (auth) => {
+  return action({ name: "email.reject", revalidate: ["/emails", "/command"], auditTarget: () => ({ type: "sales_email", id }) }, async (auth) => {
     const e = await ownedEmail(auth.org.id, id);
     if (["sent", "sending"].includes(e.status)) throw new UserError("This email was already sent.");
     await db().update(schema.salesEmails).set({ status: "cancelled", updatedAt: new Date() }).where(eq(schema.salesEmails.id, e.id));

@@ -167,7 +167,7 @@ const approveSchema = z.object({
 
 /** Approves a campaign as a whole. From here the scheduler may send within the daily limit. */
 export async function decideCampaignAction(id: string, approve: boolean, confirmations?: unknown) {
-  return action({ name: approve ? "campaign.approve" : "campaign.reject", role: "admin", revalidate: ["/campaigns", "/approvals", "/"], auditTarget: () => ({ type: "email_campaign", id, metadata: (confirmations ?? {}) as Record<string, unknown> }) }, async (auth) => {
+  return action({ name: approve ? "campaign.approve" : "campaign.reject", role: "admin", revalidate: ["/campaigns", "/approvals", "/command"], auditTarget: () => ({ type: "email_campaign", id, metadata: (confirmations ?? {}) as Record<string, unknown> }) }, async (auth) => {
     const c = await owned(auth.org.id, id);
     if (c.status !== "awaiting_approval") throw new UserError("This campaign is not waiting for approval.");
     if (approve) {

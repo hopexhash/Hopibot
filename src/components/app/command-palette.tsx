@@ -21,7 +21,7 @@ const HIT_ICON: Record<Hit["type"], LucideIcon> = { lead: Building2, website: Gl
 const HIT_GROUP: Record<Hit["type"], string> = { lead: "Leads & customers", website: "Websites", run: "Executions", email: "Emails" };
 
 const ACTIONS: Entry[] = [
-  { key: "a-objective", group: "Quick actions", title: "Create new objective", subtitle: "Tell your agents what to do", href: "/?objective=1", icon: Wand2, keywords: "start run launch new" },
+  { key: "a-objective", group: "Quick actions", title: "Create new objective", subtitle: "Tell your agents what to do", href: "/command?objective=1", icon: Wand2, keywords: "start run launch new" },
   { key: "a-discover", group: "Quick actions", title: "Find new leads", subtitle: "Start a lead discovery", href: "/discovery", icon: Search, keywords: "search businesses discovery" },
   { key: "a-failed", group: "Quick actions", title: "Show failed tasks", subtitle: "Anything that needs a retry", href: "/tasks?status=FAILED", icon: TriangleAlert, keywords: "errors failed agents" },
   { key: "a-spend", group: "Quick actions", title: "View API spending", subtitle: "What the AI has cost so far", href: "/costs", icon: CircleDollarSign, keywords: "cost budget money usage" },
