@@ -343,7 +343,7 @@ export function SiteFooter({ data }: { data: SiteData }) {
           </Link>
         </div>
         <div className="ft-row">
-          <Link href="/" className="ft-logo" aria-label="HOPI, naar de homepage">
+          <Link href="/" className="ft-logo" aria-label="HOPI, naar de homepage" data-home="">
             HOPI
             <i aria-hidden="true" />
           </Link>

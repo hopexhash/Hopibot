@@ -237,7 +237,7 @@ export function SiteHeader() {
         <a className="skip" href="#inhoud">
           Naar de inhoud
         </a>
-        <Link href="/" className="nv-logo" aria-label="HOPI, naar de homepage" onClick={leave("/")}>
+        <Link href="/" className="nv-logo" aria-label="HOPI, naar de homepage" data-home="" onClick={leave("/")}>
           HOPI
           <i aria-hidden="true" />
         </Link>

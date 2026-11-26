@@ -270,6 +270,28 @@ export function Fx() {
         return;
       }
       if (url.origin !== window.location.origin || /^\/(site|api|p|d|u)\//.test(url.pathname)) return;
+      // The wordmark starts the website over: a real page load of the homepage, at the top,
+      // with its opening animation, from wherever you are (also from the homepage itself).
+      if (a.dataset.home !== undefined) {
+        e.preventDefault();
+        if (s.busy) return;
+        s.busy = true;
+        const fresh = () => {
+          try {
+            window.history.scrollRestoration = "manual"; // a reload would otherwise return to the old position
+          } catch {}
+          window.scrollTo({ top: 0, behavior: "instant" });
+          if (window.location.pathname === "/") {
+            window.history.replaceState(null, "", "/");
+            window.location.reload();
+          } else window.location.assign("/");
+        };
+        if (reduce) return fresh();
+        if (ptLabel.current) ptLabel.current.textContent = "HOPI";
+        root.classList.add("pt-cover");
+        window.setTimeout(fresh, 620);
+        return;
+      }
       // "Start a project" goes to the request form of the page you are on, when it has one.
       const here = url.pathname === "/" && url.hash === "#contact" && document.getElementById("contact");
       if (here || url.pathname === window.location.pathname) {
