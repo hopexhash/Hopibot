@@ -435,7 +435,7 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
       <div className="form-done" role="status">
         <CheckCircle2 />
         <h3>Bedankt, we hebben je aanvraag.</h3>
-        <p>We nemen zo snel mogelijk contact met je op om je gratis ontwerp te bespreken.</p>
+        <p>We gaan aan de slag met een ontwerp van je website. Zodra het klaar is, hoor je van ons.</p>
       </div>
     );
   }

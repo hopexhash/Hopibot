@@ -160,3 +160,28 @@ describe("public website: WhatsApp link", () => {
     expect(whatsappLink("+31")).toBeNull();
   });
 });
+
+describe("website enquiry: the email with the design", () => {
+  it("writes a fixed, personal text with the preview link exactly once", async () => {
+    const { inquiryPreviewEmail } = await import("@/lib/inquiry-email");
+    const e = inquiryPreviewEmail({ contactName: "Sanne de Boer", company: "Bakkerij De Boer", previewUrl: "https://example.test/d/bakkerij-de-boer", senderName: "Umut", agencyName: "HOPI" });
+    expect(e.subject).toBe("Je websiteontwerp voor Bakkerij De Boer staat klaar");
+    expect(e.body.startsWith("Hoi Sanne,")).toBe(true);
+    expect(e.body.split("https://example.test/d/bakkerij-de-boer")).toHaveLength(2);
+    expect(e.body).toMatch(/zit je nergens aan vast/);
+    expect(e.body.endsWith("Umut\nHOPI")).toBe(true);
+    // No name given: still a normal greeting, and the agency signs once.
+    const anon = inquiryPreviewEmail({ contactName: null, company: "X", previewUrl: "u", senderName: "", agencyName: "HOPI" });
+    expect(anon.body.startsWith("Hoi,")).toBe(true);
+    expect(anon.body.endsWith("Groet,\nHOPI")).toBe(true);
+  });
+
+  it("only allows sending when email is really connected and the sender is known", async () => {
+    const { inquirySendBlocker } = await import("@/lib/inquiry-email");
+    const ok = { resendLive: true, agencyName: "HOPI", senderEmail: "hallo@example.test", agencyAddress: "Straat 1" };
+    expect(inquirySendBlocker(ok)).toBeNull();
+    expect(inquirySendBlocker({ ...ok, resendLive: false })).toMatch(/not connected/);
+    expect(inquirySendBlocker({ ...ok, agencyAddress: "" })).toMatch(/agency address/);
+    expect(inquirySendBlocker({ ...ok, senderEmail: "", agencyName: "" })).toMatch(/agency name, sender email/);
+  });
+});

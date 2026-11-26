@@ -1,4 +1,5 @@
 import "../guard";
+import { INQUIRY_SOURCE, inquiryPreviewEmail, inquirySendBlocker } from "@/lib/inquiry-email";
 import { assessOutreach } from "@/lib/outreach-compliance";
 import { buildEmailHtml, demoUrl } from "../sales/email-html";
 import { and, desc, eq, ne } from "drizzle-orm";
@@ -268,7 +269,90 @@ async function sendApproved(ctx: AgentContext) {
   return { status: "completed" as const, output: { sent: !isMock, mock: isMock, providerMessageId } };
 }
 
+/**
+ * The owner approved the design of someone who asked for it through the website: write them
+ * the fixed "your design is ready" email and, when sending is really possible, send it on
+ * that approval. When it is not, the email waits in the Email Centre and the owner is told
+ * why; it is never marked as sent.
+ */
+async function inquiryPreview(ctx: AgentContext) {
+  const businessId = ctx.task.businessId!;
+  const approverId = String(ctx.task.input.approvedBy ?? "");
+  const [b] = await db()
+    .select()
+    .from(schema.businesses)
+    .where(and(eq(schema.businesses.id, businessId), eq(schema.businesses.organizationId, ctx.organizationId)));
+  if (!b) throw new AgentError("Business not found.", "NOT_FOUND", false);
+  if (b.erasedAt) return { status: "completed" as const, output: { skipped: "business erased (GDPR)" } };
+  if (b.source !== INQUIRY_SOURCE) throw new AgentError("This business did not ask for a design through the website.", "NOT_AN_ENQUIRY", false);
+  const [project] = await db()
+    .select()
+    .from(schema.websiteProjects)
+    .where(and(eq(schema.websiteProjects.id, ctx.task.projectId ?? ""), eq(schema.websiteProjects.businessId, b.id)));
+  if (!project || project.status !== "ready" || project.approvalStatus !== "approved") throw new AgentError("The design is not approved, so nothing is sent.", "NOT_APPROVED", false);
+  const [already] = await db()
+    .select({ id: schema.salesEmails.id })
+    .from(schema.salesEmails)
+    .where(and(eq(schema.salesEmails.businessId, b.id), eq(schema.salesEmails.kind, "intro"), ne(schema.salesEmails.status, "cancelled")))
+    .limit(1);
+  if (already) return { status: "completed" as const, output: { skipped: "an email for this design already exists", emailId: already.id } };
+  const [contact] = await db()
+    .select()
+    .from(schema.businessContacts)
+    .where(and(eq(schema.businessContacts.businessId, b.id), eq(schema.businessContacts.type, "email"), eq(schema.businessContacts.source, "inquiry")))
+    .orderBy(desc(schema.businessContacts.createdAt))
+    .limit(1);
+  if (!contact) {
+    await notify(ctx.organizationId, "Design approved, but there is no address to send it to", b.name, `/businesses/${b.id}`, "warning");
+    return { status: "completed" as const, output: { skipped: "no enquiry address" } };
+  }
+  if (await isSuppressed(ctx.organizationId, contact.value)) {
+    await ctx.log("info", `${contact.value} is suppressed: no email written.`);
+    return { status: "completed" as const, output: { skipped: "suppressed" } };
+  }
+
+  const s = ctx.settings;
+  const text = inquiryPreviewEmail({ contactName: typeof b.sourceData?.contactName === "string" ? b.sourceData.contactName : null, company: b.name, previewUrl: demoUrl(project.slug), senderName: s.senderName, agencyName: s.agencyName });
+  const token = randomToken(24);
+  const verdict = assessOutreach({ country: b.country, permission: b.contactPermission, contact: { isGeneric: contact.isGeneric, source: contact.source } });
+  const blocker =
+    inquirySendBlocker({ resendLive: (await ctx.mode("resend")) === "live", agencyName: s.agencyName, senderEmail: s.senderEmail, agencyAddress: s.agencyAddress }) ??
+    (contact.isMock ? "The address is a test address." : verdict.decision !== "send" ? verdict.reason : !approverId ? "No approver was recorded." : null);
+  const [email] = await db()
+    .insert(schema.salesEmails)
+    .values({
+      organizationId: ctx.organizationId,
+      businessId: b.id,
+      projectId: project.id,
+      contactId: contact.id,
+      kind: "intro",
+      subject: text.subject,
+      bodyText: text.body + complianceFooter("nl", s, unsubscribeUrl(token)),
+      toEmail: contact.value,
+      proposal: { lang: "nl", previewDescription: "Requested through the website form." } as Record<string, unknown>,
+      crmNotes: blocker ? `Reply to a website enquiry. Not sent yet: ${blocker}` : "Reply to a website enquiry, sent on approval of the design.",
+      status: blocker ? "awaiting_approval" : "approved",
+      approvedBy: blocker ? null : approverId,
+      approvedAt: blocker ? null : new Date(),
+      unsubscribeToken: token,
+      isMock: false,
+    })
+    .returning();
+  if (blocker) {
+    await createApproval(ctx.task, { kind: "send_email", subjectType: "sales_email", subjectId: email.id, summary: `Send the design to ${b.name} (${contact.value})`, payload: { subject: text.subject } });
+    await db().insert(schema.crmActivities).values({ organizationId: ctx.organizationId, businessId: b.id, type: "system", content: `Design approved. The email with the preview is written but NOT sent: ${blocker}`.slice(0, 1000) });
+    await notify(ctx.organizationId, "Design approved, but the email was not sent", `${b.name}: ${blocker} The email is waiting in the Email Centre.`, `/emails/${email.id}`, "warning");
+    await ctx.log("warn", `Preview email for ${b.name} written but not sent: ${blocker}`);
+    return { status: "completed" as const, output: { emailId: email.id, sent: false, reason: blocker } };
+  }
+  await db().insert(schema.crmActivities).values({ organizationId: ctx.organizationId, businessId: b.id, type: "system", content: `Design approved; the email with the preview is being sent to ${contact.value}.` });
+  await ctx.spawn({ agentKey: "sales", type: "send_email", businessId: b.id, input: { emailId: email.id }, idempotencyKey: `send:${email.id}`, priority: 1, maxAttempts: 3 });
+  await ctx.log("info", `Preview email for ${b.name} queued for sending to ${contact.value}.`);
+  return { status: "completed" as const, output: { emailId: email.id, sent: "queued" } };
+}
+
 export const sales: AgentHandler = async (ctx) => {
   if (ctx.task.type === "send_email") return sendApproved(ctx);
+  if (ctx.task.type === "send_inquiry_preview") return inquiryPreview(ctx);
   return draftIntro(ctx);
 };

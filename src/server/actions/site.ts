@@ -7,6 +7,7 @@ import { db, schema } from "../db";
 import { saveLead } from "../leads/save";
 import { notify } from "../orchestrator/tasks";
 import { rateLimit, RateLimitError } from "../ratelimit";
+import { startInquiryBuild } from "../sales/inquiry";
 import { getSiteOrg } from "../site";
 
 export type InquiryState = { ok: true } | { ok: false; error: string } | null;
@@ -36,9 +37,10 @@ const inquirySchema = z.object({
 const GENERIC = /^(info|contact|hallo|hello|mail|office|kantoor|post|welkom|receptie|sales|service|admin)@/i;
 
 /**
- * Contact form of the public website. The enquiry becomes a business in the CRM with the
- * person's request recorded as the reason we may contact them, and a notification for the
- * agency. Automated outreach stays off for this business: a person answers.
+ * Contact form of the public website. The enquiry becomes a qualified lead in the CRM with
+ * the person's request recorded as the reason we may contact them, and the bot starts on
+ * their design straight away (research, build, test). Nothing is sent to them until the
+ * owner has approved that design.
  */
 export async function submitInquiryAction(_prev: InquiryState, form: FormData): Promise<InquiryState> {
   // Bots fill every field, people never see this one.
@@ -80,6 +82,23 @@ export async function submitInquiryAction(_prev: InquiryState, form: FormData): 
     .where(eq(schema.businesses.id, businessId));
   const lines = [`Aanvraag via de website van ${p.name} (${p.email}${p.phone ? `, ${p.phone}` : ""}).`, p.package ? `Pakket: ${p.package}.` : null, `Pagina: ${p.source}`, p.message ? `Bericht: ${p.message}` : null].filter(Boolean);
   await db().insert(schema.crmActivities).values({ organizationId: org.id, businessId, type: "note", content: lines.join("\n").slice(0, 2500), metadata: { source: "website_inquiry", package: p.package, page: p.source } });
-  await notify(org.id, "New enquiry from the website", `${p.company} (${p.name})${p.package ? `, package ${p.package}` : ""}`, `/businesses/${businessId}`, "success");
+  // They asked for it themselves: a lead, whatever the score of their current website says.
+  await db().update(schema.leads).set({ qualified: true, status: "qualified" }).where(eq(schema.leads.businessId, businessId));
+  let build: Awaited<ReturnType<typeof startInquiryBuild>> | "failed" = "failed";
+  try {
+    build = await startInquiryBuild(org.id, businessId, p.company);
+  } catch (err) {
+    // The request itself is safe in the CRM; a person can start the design by hand.
+    console.error("Could not start the design for an enquiry", err);
+  }
+  const next =
+    build === "started"
+      ? "The bot has started on their design; you will be asked to approve it."
+      : build === "exists"
+        ? "They already have a design or one in progress."
+        : build === "capped"
+          ? "Today's limit of automatic designs is reached: start this one yourself from the business page."
+          : "The design could not be started automatically: start it from the business page.";
+  await notify(org.id, "New enquiry from the website", `${p.company} (${p.name})${p.package ? `, package ${p.package}` : ""}. ${next}`, `/businesses/${businessId}`, build === "started" || build === "exists" ? "success" : "warning");
   return { ok: true };
 }

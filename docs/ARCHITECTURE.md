@@ -125,3 +125,28 @@ revisited per route later.
 * All lists are server-paginated and indexed on `(organization_id, …)`.
 * Long-running steps (QC, deployment) are isolated per task; failures retry with backoff.
 * Cost limits stop runaway spend before it happens.
+
+## Website enquiries (inbound leads)
+
+Someone who fills in the request form on the public website asked for a design, so the flow
+differs from cold outreach:
+
+1. `submitInquiryAction` (`src/server/actions/site.ts`) stores the business with the request
+   as the recorded permission to contact, marks the lead as qualified (stage `INTERESTED`)
+   and calls `startInquiryBuild` (`src/server/sales/inquiry.ts`).
+2. `startInquiryBuild` starts a normal run for that one business: research → build → quality
+   control → preview. It does nothing when a design already exists or is in progress, and
+   stops starting designs automatically after `INQUIRY_BUILDS_PER_DAY` (10) in 24 hours; the
+   owner is then notified to start it by hand. Agent budgets apply as for every run.
+3. The design waits for the owner. On the website page the button reads "Approve & send"
+   and names the address the design will go to.
+4. Approving creates the sales task `send_inquiry_preview`. It writes a fixed Dutch email
+   (`src/lib/inquiry-email.ts`, not model-written) with the link to the demo page and the
+   usual sender details and opt-out link.
+   - Email connected (Resend live) and agency name, sender address and postal address filled
+     in: the email is recorded as approved by the person who approved the design and sent
+     through the same `send_email` task as every other email (suppression list and
+     permission are re-checked at send time).
+   - Otherwise: the email is stored as "awaiting approval", never marked as sent, and the
+     owner gets a warning that says what is missing. It can be sent from the Email Centre
+     once that is fixed.

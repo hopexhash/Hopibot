@@ -74,7 +74,7 @@ export function WebsiteManager({
   canAdmin,
 }: {
   project: { id: string; slug: string; status: string; approvalStatus: string; qualityScore: number | null; templateKey: string; currentVersionId: string | null; previewUrl: string | null; updatedAt: string };
-  business: { id: string; name: string; city: string | null; stage: string; isMock: boolean };
+  business: { id: string; name: string; city: string | null; stage: string; isMock: boolean; inquiryEmail?: string | null };
   versions: Version[];
   spec: SiteSpec | null;
   deployments: Deployment[];
@@ -309,8 +309,28 @@ export function WebsiteManager({
               <CardTitle>Review</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
-              <Button variant="success" disabled={project.status !== "ready" || pending || project.approvalStatus === "approved"} onClick={() => run(() => setWebsiteApprovalAction(project.id, true) as Promise<Res>, "Website approved")}>
-                <Check /> Approve
+              {business.inquiryEmail && project.approvalStatus !== "approved" && (
+                <p className="col-span-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-xs leading-relaxed text-muted">
+                  Requested through the website. Approving sends the design to <span className="font-medium text-foreground">{business.inquiryEmail}</span>.
+                </p>
+              )}
+              <Button
+                variant="success"
+                disabled={project.status !== "ready" || pending || project.approvalStatus === "approved"}
+                onClick={() =>
+                  start(async () => {
+                    const r = await setWebsiteApprovalAction(project.id, true);
+                    if (!r.ok) return void toast.error(r.error);
+                    if (r.data?.inquiry) {
+                      // Never claim the email went out when it could not.
+                      if (r.data.blocker) toast.warning(`Approved, but the email was not sent. ${r.data.blocker} It is waiting in the Email Centre.`, { duration: 12000 });
+                      else toast.success(`Approved. The design is being emailed to ${business.inquiryEmail ?? "the requester"}.`);
+                    } else toast.success("Website approved");
+                    router.refresh();
+                  })
+                }
+              >
+                <Check /> {business.inquiryEmail ? "Approve & send" : "Approve"}
               </Button>
               <Button variant="danger-ghost" disabled={pending || project.approvalStatus === "rejected"} onClick={() => run(() => setWebsiteApprovalAction(project.id, false) as Promise<Res>, "Website rejected")}>
                 <X /> Reject

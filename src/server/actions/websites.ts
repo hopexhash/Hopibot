@@ -10,6 +10,8 @@ import { createApproval } from "../orchestrator/control";
 import { createTask } from "../orchestrator/tasks";
 import { action, UserError } from "./_util";
 import { isCustomerStage } from "@/lib/constants";
+import { INQUIRY_SOURCE, inquirySendBlocker } from "@/lib/inquiry-email";
+import { integrationMode } from "../integrations/credentials";
 
 async function ownedProject(orgId: string, projectId: string) {
   const [p] = await db()
@@ -107,6 +109,22 @@ export async function setWebsiteApprovalAction(projectId: string, approve: boole
       await db().insert(schema.crmActivities).values({ organizationId: auth.org.id, businessId: p.businessId, userId: auth.user.id, type: "system", content: `Website preview ${approve ? "approved" : "rejected"}` });
       if (approve) {
         await capture(auth.org.id, auth.user.id, "website_approved", { projectId: p.id });
+        // Someone who asked for this design through the website gets it by email on this
+        // approval. The sales agent re-checks everything and only sends when it really can.
+        const [biz] = await db().select({ source: schema.businesses.source }).from(schema.businesses).where(eq(schema.businesses.id, p.businessId));
+        if (biz?.source === INQUIRY_SOURCE) {
+          await createTask(auth.org.id, null, {
+            agentKey: "sales",
+            type: "send_inquiry_preview",
+            businessId: p.businessId,
+            projectId: p.id,
+            input: { approvedBy: auth.user.id },
+            idempotencyKey: `inquiry-preview:${p.id}`,
+            priority: 1,
+          });
+          const st = auth.org.settings;
+          return { inquiry: true as const, blocker: inquirySendBlocker({ resendLive: (await integrationMode(auth.org.id, "resend")) === "live", agencyName: st.agencyName, senderEmail: st.senderEmail, agencyAddress: st.agencyAddress }) };
+        }
         // Next step: the sales agent writes the introduction email. It only drafts; sending
         // still waits for a person to approve that email.
         const [existing] = await db()
