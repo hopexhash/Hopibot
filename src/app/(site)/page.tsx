@@ -1,7 +1,7 @@
 import { ArrowRight, Check, Gauge, MessageCircle, PenTool, ShieldCheck, Smartphone, Wrench, X } from "lucide-react";
 import Link from "next/link";
 import { ContactSection, CtaBand, Devices, Faq, JsonLd, PriceCards, SiteFooter, Steps, WorkCard } from "@/components/site/parts";
-import { SiteHeader } from "@/components/site/site-client";
+import { SiteHeader, WhatsAppIcon } from "@/components/site/site-client";
 import { faqLd, pageMeta, plain } from "@/lib/site/seo";
 import { WORK, workByKey } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
@@ -66,6 +66,14 @@ export default async function HomePage() {
                   Bekijk voorbeelden
                 </a>
               </div>
+              {data.whatsapp && (
+                <p className="hero-wa enter">
+                  Liever even appen?{" "}
+                  <a href={data.whatsapp} target="_blank" rel="noopener" data-track="whatsapp_click" data-track-label="hero" data-track-location="/">
+                    <WhatsAppIcon /> Stuur ons een WhatsApp
+                  </a>
+                </p>
+              )}
               <ul className="ticks enter">
                 <li>
                   <Check strokeWidth={2.4} aria-hidden="true" /> Gratis ontwerp vooraf

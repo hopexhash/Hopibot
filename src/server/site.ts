@@ -23,6 +23,13 @@ export const getSiteOrg = cache(async (): Promise<{ id: string; settings: OrgSet
   return { id: row.id, settings, catalog: parseCatalog(settings.catalog) };
 });
 
+/** wa.me link for a number in international form; null for anything that is not a full number. */
+export function whatsappLink(number: string, text = "Hallo HOPI, ik heb een vraag over een nieuwe website.") {
+  const digits = number.replace(/\D/g, "");
+  if (!number.trim().startsWith("+") || digits.length < 8 || digits.length > 15) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
 export type SiteData = {
   catalog: Catalog;
   name: string;
@@ -31,6 +38,8 @@ export type SiteData = {
   address: string;
   kvk: string;
   site: OrgSettings["site"];
+  /** Link that opens a WhatsApp chat with a first line already typed; null when no number is set. */
+  whatsapp: string | null;
   /** Formatted prices used inside running text, so copy never hardcodes an amount. */
   prices: Record<"starter" | "business" | "premium" | "from" | "hosting" | "care" | "growth" | "vat", string>;
   fromCents: number | null;
@@ -68,6 +77,7 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
     address: s.agencyAddress,
     kvk: s.kvkNumber,
     site: s.site,
+    whatsapp: whatsappLink(s.site.whatsapp),
     prices: { starter: pkg("starter"), business: pkg("business"), premium: pkg("premium"), from: fromCents !== null ? eur(fromCents) : "op aanvraag", hosting: plan("hosting"), care: plan("care"), growth: plan("growth"), vat: `${catalog.vatPct}%` },
     fromCents,
   };

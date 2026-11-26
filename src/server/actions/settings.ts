@@ -14,6 +14,7 @@ export async function updateSettingsAction(patch: Record<string, unknown>) {
     const merged = orgSettingsSchema.parse({ ...current, ...patch });
     if (merged.senderEmail && !z.string().email().safeParse(merged.senderEmail).success) throw new UserError("Sender email is not a valid address.");
     const site = merged.site;
+    if (site.whatsapp && !/^\+[1-9]\d{7,14}$/.test(site.whatsapp.replace(/[\s().-]/g, ""))) throw new UserError("Write the WhatsApp number with the country code, for example +31612345678.");
     if (site.gaId && !/^G-[A-Z0-9]{4,}$/.test(site.gaId)) throw new UserError("The Google Analytics ID looks like G-XXXXXXXXXX.");
     if (site.gtmId && !/^GTM-[A-Z0-9]{4,}$/.test(site.gtmId)) throw new UserError("The Tag Manager ID looks like GTM-XXXXXXX.");
     if (site.googleVerification && !/^[A-Za-z0-9_-]{10,}$/.test(site.googleVerification)) throw new UserError("Paste only the verification code from Search Console (the part inside content=\"…\").");

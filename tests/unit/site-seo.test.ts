@@ -120,3 +120,13 @@ describe("public website: structured data", () => {
     expect(informal("Menu of diensten bijwerken")).toBe("Menu of diensten bijwerken");
   });
 });
+
+describe("public website: WhatsApp link", () => {
+  it("builds a chat link only for a full international number", async () => {
+    const { whatsappLink } = await import("@/server/site");
+    expect(whatsappLink("+31 6 1234 5678")).toBe(`https://wa.me/31612345678?text=${encodeURIComponent("Hallo HOPI, ik heb een vraag over een nieuwe website.")}`);
+    expect(whatsappLink("")).toBeNull();
+    expect(whatsappLink("0612345678")).toBeNull();
+    expect(whatsappLink("+31")).toBeNull();
+  });
+});

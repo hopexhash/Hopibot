@@ -8,7 +8,7 @@ import { informal } from "@/lib/site/text";
 import { demoHref, type Work } from "@/lib/site/work";
 import type { SiteData } from "@/server/site";
 import { rich as rich_ } from "./rich";
-import { ConsentLink, ContactForm, HopiMark } from "./site-client";
+import { ConsentLink, ContactForm, HopiMark, WhatsAppIcon } from "./site-client";
 
 /** Structured data. `<` is escaped so copy can never close the script element. */
 export function JsonLd({ data }: { data: unknown }) {
@@ -275,6 +275,11 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
             {b}
           </h2>
           <p>{text}</p>
+          {data.whatsapp && (
+            <a href={data.whatsapp} target="_blank" rel="noopener" className="btn btn-wa" data-track="whatsapp_click" data-track-label="contact" data-track-location={source}>
+              <WhatsAppIcon /> Stuur ons een WhatsApp
+            </a>
+          )}
           <ul className="contact-list">
             {data.phone && (
               <li>
@@ -325,6 +330,13 @@ export function SiteFooter({ data }: { data: SiteData }) {
               {data.email && (
                 <li>
                   <a href={`mailto:${data.email}`}>{data.email}</a>
+                </li>
+              )}
+              {data.whatsapp && (
+                <li>
+                  <a href={data.whatsapp} target="_blank" rel="noopener" data-track="whatsapp_click" data-track-label="footer">
+                    WhatsApp
+                  </a>
                 </li>
               )}
               {data.address && <li>{data.address}</li>}

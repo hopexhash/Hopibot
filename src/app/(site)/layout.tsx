@@ -40,7 +40,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <html lang="nl" data-scroll-behavior="smooth">
       <body className={`hopi ${display.variable} ${sans.variable}`}>
         {children}
-        <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
+        <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />
         <Reveal />
         <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />
         <JsonLd data={organizationLd({ name: data.name, email: data.email, phone: data.phone, address: data.address, kvk: data.kvk, googleBusinessUrl: data.site.googleBusinessUrl, fromCents: data.fromCents })} />

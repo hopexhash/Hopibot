@@ -15,6 +15,8 @@ export default function PrivacyPage() {
           <h2>Welke gegevens</h2>
           <p>Als je het contactformulier invult, ontvangen wij je naam, bedrijfsnaam, e-mailadres en, als je die invult, je telefoonnummer, plaats, huidige website en je bericht. We leggen ook vast vanaf welke pagina je het formulier hebt verstuurd.</p>
 
+          {d.whatsapp && <p>Stuur je ons een bericht via WhatsApp, dan ontvangen wij je telefoonnummer, je profielnaam en je bericht. WhatsApp is een dienst van Meta; op het gebruik daarvan zijn ook de voorwaarden en het privacybeleid van WhatsApp van toepassing.</p>}
+
           <h2>Waarvoor</h2>
           <p>We gebruiken deze gegevens alleen om je aanvraag te beantwoorden, een ontwerp voor je website te maken en je een aanbod te doen. We verkopen je gegevens niet aan anderen.</p>
 

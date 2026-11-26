@@ -2158,3 +2158,106 @@ body {
 .hopi .menu a.m-link[aria-current="page"] {
   color: var(--green);
 }
+
+/* WhatsApp: only rendered when a number is set under Settings */
+.hopi .btn-wa {
+  background: #1faa59;
+  color: #fff;
+  margin-top: 22px;
+}
+.hopi .btn-wa:hover {
+  background: #178a47;
+  transform: translateY(-1px);
+}
+.hopi .btn-wa svg,
+.hopi .hero-wa svg {
+  width: 20px;
+  height: 20px;
+}
+.hopi .btn-wa:hover svg {
+  transform: none;
+}
+.hopi .hero-wa {
+  margin-top: 18px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.hopi .hero-wa a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  font-weight: 600;
+  color: #127a3e;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  vertical-align: middle;
+}
+.hopi .hero-wa a:hover {
+  color: var(--ink);
+}
+.hopi .wa-fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 44;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 20px 0 16px;
+  border-radius: 999px;
+  background: #1faa59;
+  color: #fff;
+  font-size: 15.5px;
+  font-weight: 600;
+  box-shadow: 0 14px 34px -12px rgba(18, 122, 62, 0.75);
+  transition: transform 0.25s ease, background 0.2s ease, opacity 0.25s ease;
+}
+.hopi .wa-fab:hover {
+  background: #178a47;
+  transform: translateY(-2px);
+}
+.hopi .wa-fab svg {
+  width: 26px;
+  height: 26px;
+}
+.hopi .wa-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: #1faa59;
+  color: #fff;
+}
+.hopi .wa-mini svg {
+  width: 24px;
+  height: 24px;
+}
+@media (max-width: 959px) {
+  /* Round button only; it gives way to the bar (which has its own WhatsApp button) after scrolling. */
+  .hopi .wa-fab {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    width: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+  .hopi .wa-fab span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .hopi .wa-fab.lifted {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+  }
+}

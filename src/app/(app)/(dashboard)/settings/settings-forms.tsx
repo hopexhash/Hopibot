@@ -43,6 +43,7 @@ export function WebsiteForm({ settings, canAdmin }: { settings: OrgSettings; can
       <CardContent>
         <div className="grid gap-3 md:grid-cols-2">
           {f("phone", "Phone number on the website", "Shown in the contact section and footer. Leave empty to show no number.", "+31 6 12345678")}
+          {f("whatsapp", "WhatsApp number", "With country code. Adds a 'Stuur een WhatsApp' button to the website. Leave empty to hide it.", "+31612345678")}
           {f("googleBusinessUrl", "Google Business Profile link", "The public link of your profile. Used to tell Google the website and the profile belong together.", "https://g.page/…")}
           {f("googleVerification", "Search Console verification code", "In Search Console choose the HTML tag method and paste only the code inside content=\"…\".")}
           {f("gaId", "Google Analytics 4 ID", "Measures visits and form submissions, only after a visitor accepts cookies.", "G-XXXXXXXXXX")}
@@ -50,7 +51,7 @@ export function WebsiteForm({ settings, canAdmin }: { settings: OrgSettings; can
         </div>
         {canAdmin && (
           <div className="mt-4 flex justify-end">
-            <Button variant="primary" loading={pending} onClick={() => save({ site: { ...s, phone: s.phone.trim(), gaId: s.gaId.trim().toUpperCase(), gtmId: s.gtmId.trim().toUpperCase(), googleVerification: s.googleVerification.trim(), googleBusinessUrl: s.googleBusinessUrl.trim() } }, "Website settings saved")}>
+            <Button variant="primary" loading={pending} onClick={() => save({ site: { ...s, phone: s.phone.trim(), whatsapp: s.whatsapp.trim(), gaId: s.gaId.trim().toUpperCase(), gtmId: s.gtmId.trim().toUpperCase(), googleVerification: s.googleVerification.trim(), googleBusinessUrl: s.googleBusinessUrl.trim() } }, "Website settings saved")}>
               Save
             </Button>
           </div>

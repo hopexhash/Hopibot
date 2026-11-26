@@ -20,6 +20,8 @@ export const orgSettingsSchema = z.object({
   site: z
     .object({
       phone: z.string().max(30).default(""),
+      /** WhatsApp number in international form (+31612345678). Shows "Stuur een WhatsApp" on the website. */
+      whatsapp: z.string().max(30).default(""),
       /** Google Analytics 4 measurement ID (G-XXXXXXX). Loaded only after cookie consent. */
       gaId: z.string().max(20).default(""),
       /** Google Tag Manager container ID (GTM-XXXXXX). Loaded only after cookie consent. */
@@ -29,7 +31,7 @@ export const orgSettingsSchema = z.object({
       /** Public link of the Google Business Profile. */
       googleBusinessUrl: z.string().max(300).default(""),
     })
-    .default({ phone: "", gaId: "", gtmId: "", googleVerification: "", googleBusinessUrl: "" }),
+    .default({ phone: "", whatsapp: "", gaId: "", gtmId: "", googleVerification: "", googleBusinessUrl: "" }),
   dailySpendLimitUsd: z.number().min(0).max(100000).default(25),
   monthlySpendLimitUsd: z.number().min(0).max(1000000).default(300),
   /** Warn (notification + banner) when spend reaches this share of a limit. */
