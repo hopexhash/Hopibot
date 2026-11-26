@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, MockBadge } from "@/component
 import { formatDateTime, formatEur } from "@/lib/utils";
 import { hasRole, requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
+import { publishedAddressReview } from "@/server/sales/outreach-review";
 import { isSuppressed } from "@/server/suppression";
 import { EmailReview } from "./email-review";
 
@@ -30,6 +31,9 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
   ]);
   const s = auth.org.settings;
   const suppressed = e.toEmail ? await isSuppressed(auth.org.id, e.toEmail) : false;
+  // A published general address can be confirmed while approving instead of on a separate page.
+  const review = e.status === "awaiting_approval" ? await publishedAddressReview(e) : null;
+  const publishedSource = review && review.contact.value === e.toEmail ? review.sourceUrl : null;
   const checks = [
     { label: "Recipient address present", ok: Boolean(e.toEmail) },
     { label: "Recipient not on suppression list", ok: !suppressed },
@@ -58,11 +62,20 @@ export default async function EmailPage({ params }: { params: Promise<{ id: stri
         }
         actions={<StatusBadge status={e.status} label={e.status === "sent" && e.isMock ? "Simulated (not sent)" : undefined} />}
       />
-      {e.blockedReason && <div className="mb-4 rounded-xl border border-danger/20 bg-danger-soft px-4 py-3 text-[13px] text-danger">{e.blockedReason}</div>}
+      {e.blockedReason && !publishedSource && <div className="mb-4 rounded-xl border border-danger/20 bg-danger-soft px-4 py-3 text-[13px] text-danger">{e.blockedReason}</div>}
+      {publishedSource && (
+        <div className="mb-4 rounded-xl border border-warning/20 bg-warning-soft px-4 py-3 text-[13px] text-warning">
+          One check before sending: open{" "}
+          <a href={publishedSource} target="_blank" rel="noopener noreferrer nofollow" className="underline">
+            the page where this address was found
+          </a>{" "}
+          and confirm the business published it for being contacted. You can tick this in the approve dialog.
+        </div>
+      )}
       {e.status === "sent" && e.isMock && <div className="mb-4 rounded-xl border border-warning/20 bg-warning-soft px-4 py-3 text-[13px] text-warning">Mock mode: this email was not actually sent. Configure Resend to send real email.</div>}
       <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
         <Card className="p-5">
-          <EmailReview email={{ id: e.id, subject: e.subject, bodyText: e.bodyText, toEmail: e.toEmail, status: e.status, kind: e.kind, blockedReason: e.blockedReason }} canAdmin={hasRole(auth.role, "admin")} checks={checks} />
+          <EmailReview email={{ id: e.id, subject: e.subject, bodyText: e.bodyText, toEmail: e.toEmail, status: e.status, kind: e.kind, blockedReason: e.blockedReason }} publishedSource={publishedSource} canAdmin={hasRole(auth.role, "admin")} checks={checks} />
         </Card>
         <div className="space-y-4">
           <Card>

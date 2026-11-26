@@ -4,6 +4,7 @@ import { renderTemplate, unknownVariables } from "@/lib/campaign-template";
 import { addRecipients, processCampaigns, templateProblems } from "@/server/campaigns/service";
 import { closeDb, db, schema } from "@/server/db";
 import { saveLead } from "@/server/leads/save";
+import { publishedAddressReview } from "@/server/sales/outreach-review";
 import { canConnect, makeOrg } from "./helpers";
 
 const ok = await canConnect();
@@ -145,5 +146,26 @@ describe.skipIf(!ok)("saving leads", () => {
     // Market restriction: a business outside the Netherlands and Belgium is never stored.
     await expect(saveLead(org.id, { ...input, name: "Zahnarzt Müller", country: "Germany" }, { weights: WEIGHTS, minScore: 60, audit: false })).rejects.toThrow(/supported markets/);
     expect(again).toMatchObject({ status: "duplicate", id: first.status === "created" ? first.id : "" });
+  });
+});
+
+describe.skipIf(!ok)("confirming a published address while approving", () => {
+  it("only offers it for a general address the business published, with permission not yet recorded", async () => {
+    const { org } = await makeOrg();
+    const b = await lead(org.id, "Garage Noord", null);
+    const add = async (value: string, isGeneric: boolean, sourceUrl: string | null) =>
+      (await db().insert(schema.businessContacts).values({ organizationId: org.id, businessId: b.id, type: "email", value, source: "website", sourceUrl, verificationStatus: "unverified", isGeneric }).returning())[0];
+    const general = await add("info@garagenoord.nl", true, "https://garagenoord.nl/contact");
+    const personal = await add("jan@garagenoord.nl", false, "https://garagenoord.nl/team");
+    const noSource = await add("post@garagenoord.nl", true, null);
+    const blocked = "Permission needed — check the address.";
+    expect((await publishedAddressReview({ blockedReason: blocked, contactId: general.id, businessId: b.id }))?.sourceUrl).toBe("https://garagenoord.nl/contact");
+    // Personal addresses, addresses without a page to check and other block reasons stay blocked.
+    expect(await publishedAddressReview({ blockedReason: blocked, contactId: personal.id, businessId: b.id })).toBeNull();
+    expect(await publishedAddressReview({ blockedReason: blocked, contactId: noSource.id, businessId: b.id })).toBeNull();
+    expect(await publishedAddressReview({ blockedReason: "Recipient is on the suppression list.", contactId: general.id, businessId: b.id })).toBeNull();
+    // Once a business is marked as not to be contacted, approving cannot override it.
+    await db().update(schema.businesses).set({ contactPermission: "not_allowed" }).where(eq(schema.businesses.id, b.id));
+    expect(await publishedAddressReview({ blockedReason: blocked, contactId: general.id, businessId: b.id })).toBeNull();
   });
 });

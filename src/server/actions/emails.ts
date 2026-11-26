@@ -11,6 +11,7 @@ import { createTask } from "../orchestrator/tasks";
 import { isSuppressed } from "../suppression";
 import { action, UserError } from "./_util";
 import { CLOSED_STAGES } from "@/lib/constants";
+import { publishedAddressReview } from "../sales/outreach-review";
 
 async function ownedEmail(orgId: string, id: string) {
   const [e] = await db()
@@ -51,16 +52,35 @@ export async function updateEmailAction(id: string, input: z.input<typeof editSc
 const approveSchema = z.object({
   lawfulBasisConfirmed: z.literal(true, { message: "Confirm the lawful basis for contacting this business." }),
   recipientIsBusiness: z.literal(true, { message: "Confirm the recipient is a business address, not a private individual." }),
+  /** The operator checked that the business itself published this general address for being contacted. */
+  publishedAddressConfirmed: z.boolean().optional(),
 });
 
 export async function approveAndSendAction(id: string, confirmations: z.input<typeof approveSchema>) {
   return action({ name: "email.approve_send", role: "admin", revalidate: ["/emails", "/"], auditTarget: () => ({ type: "sales_email", id, metadata: confirmations }) }, async (auth) => {
-    approveSchema.parse(confirmations);
-    const e = await ownedEmail(auth.org.id, id);
+    const conf = approveSchema.parse(confirmations);
+    let e = await ownedEmail(auth.org.id, id);
     if (e.status !== "awaiting_approval") throw new UserError(`Only emails awaiting approval can be sent (this one is ${e.status}).`);
-    if (!e.toEmail) throw new UserError("Add a recipient address first.");
-    if (e.blockedReason) throw new UserError(e.blockedReason);
-    if (await isSuppressed(auth.org.id, e.toEmail)) throw new UserError("The recipient is on the suppression list.");
+    const toEmail = e.toEmail;
+    if (!toEmail) throw new UserError("Add a recipient address first.");
+    if (e.blockedReason) {
+      const review = await publishedAddressReview(e);
+      if (!review || !conf.publishedAddressConfirmed || review.contact.value !== toEmail) throw new UserError(e.blockedReason);
+      // Record the basis on the business, with where the address was found and who checked it.
+      await db()
+        .update(schema.businesses)
+        .set({
+          contactPermission: "legitimate_interest",
+          permissionSource: `General address ${review.contact.value} published by the business on ${review.sourceUrl}; checked by ${auth.user.email} when approving the first email.`.slice(0, 300),
+          permissionAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.businesses.id, e.businessId));
+      await db().insert(schema.crmActivities).values({ organizationId: auth.org.id, businessId: e.businessId, userId: auth.user.id, type: "system", content: `Contact permission recorded: published general address (${review.sourceUrl})`, metadata: { permission: "legitimate_interest", source: review.sourceUrl } });
+      await db().update(schema.salesEmails).set({ blockedReason: null, updatedAt: new Date() }).where(eq(schema.salesEmails.id, e.id));
+      e = { ...e, blockedReason: null };
+    }
+    if (await isSuppressed(auth.org.id, toEmail)) throw new UserError("The recipient is on the suppression list.");
     const s = auth.org.settings;
     if (!s.agencyName || !s.senderEmail || !s.agencyAddress) throw new UserError("Complete your agency name, address and sender email in Settings — they are required in every outreach email.");
     if (!e.bodyText.includes(e.unsubscribeToken)) throw new UserError("The opt-out link is missing from the email.");

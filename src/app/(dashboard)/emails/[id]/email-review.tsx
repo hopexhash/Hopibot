@@ -19,7 +19,9 @@ export function EmailReview({
   email,
   canAdmin,
   checks,
+  publishedSource = null,
 }: {
+  publishedSource?: string | null;
   email: {
     id: string;
     subject: string;
@@ -40,6 +42,9 @@ export function EmailReview({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [lawful, setLawful] = useState(false);
   const [isBusiness, setIsBusiness] = useState(false);
+  const [published, setPublished] = useState(false);
+  // Blocked only for the recorded permission, which can be confirmed in the dialog.
+  const blocked = Boolean(email.blockedReason) && !publishedSource;
   const editable = ["draft", "awaiting_approval", "blocked"].includes(
     email.status,
   );
@@ -151,7 +156,7 @@ export function EmailReview({
               disabled={
                 !canAdmin ||
                 dirty ||
-                Boolean(email.blockedReason) ||
+                blocked ||
                 checks.some((c) => !c.ok)
               }
               onClick={() => setConfirmOpen(true)}
@@ -181,13 +186,14 @@ export function EmailReview({
           <Button
             variant="success"
             loading={pending}
-            disabled={!lawful || !isBusiness}
+            disabled={!lawful || !isBusiness || (Boolean(publishedSource) && !published)}
             onClick={() =>
               run(
                 () =>
                   approveAndSendAction(email.id, {
                     lawfulBasisConfirmed: lawful as true,
                     recipientIsBusiness: isBusiness as true,
+                    publishedAddressConfirmed: published,
                   }) as Promise<Res>,
                 "Approved — sending now",
                 () => setConfirmOpen(false),
@@ -213,6 +219,23 @@ export function EmailReview({
             a published business address — not a private individual or sole
             trader without consent.
           </label>
+          {publishedSource && (
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                className="mt-1 accent-[var(--accent)]"
+                checked={published}
+                onChange={(e) => setPublished(e.target.checked)}
+              />
+              <span>
+                I opened{" "}
+                <a href={publishedSource} target="_blank" rel="noopener noreferrer nofollow" className="text-accent underline">
+                  the page where this address was found
+                </a>
+                : the business published it itself for being contacted. This is recorded on the business as the lawful basis.
+              </span>
+            </label>
+          )}
           <label className="flex items-start gap-2">
             <input
               type="checkbox"

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { siteSpecSchema } from "@/lib/site-spec";
 import { randomToken } from "../crypto";
@@ -105,7 +105,27 @@ export async function setWebsiteApprovalAction(projectId: string, approve: boole
       if (approve && p.status !== "ready") throw new UserError("Only websites that passed quality control can be approved.");
       await db().update(schema.websiteProjects).set({ approvalStatus: approve ? "approved" : "rejected", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, p.id));
       await db().insert(schema.crmActivities).values({ organizationId: auth.org.id, businessId: p.businessId, userId: auth.user.id, type: "system", content: `Website preview ${approve ? "approved" : "rejected"}` });
-      if (approve) await capture(auth.org.id, auth.user.id, "website_approved", { projectId: p.id });
+      if (approve) {
+        await capture(auth.org.id, auth.user.id, "website_approved", { projectId: p.id });
+        // Next step: the sales agent writes the introduction email. It only drafts; sending
+        // still waits for a person to approve that email.
+        const [existing] = await db()
+          .select({ id: schema.salesEmails.id })
+          .from(schema.salesEmails)
+          .where(and(eq(schema.salesEmails.businessId, p.businessId), eq(schema.salesEmails.kind, "intro"), ne(schema.salesEmails.status, "cancelled")))
+          .limit(1);
+        if (!existing) {
+          await createTask(auth.org.id, null, {
+            agentKey: "sales",
+            type: "draft_intro_email",
+            businessId: p.businessId,
+            projectId: p.id,
+            input: { next: [] },
+            idempotencyKey: `draft-intro:${p.id}:${p.currentVersionId}`,
+            priority: 2,
+          });
+        }
+      }
       return null;
     },
   );
