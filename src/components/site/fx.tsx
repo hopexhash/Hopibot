@@ -239,6 +239,17 @@ export function Fx() {
       if (scroller) scroller.scrollTo(el, { offset: 0, duration: 1.25 });
       else el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     };
+    // The open menu holds the page still (on phones it is pinned in place). A jump to a section
+    // must wait until the menu has let go, however long closing takes on this device.
+    const afterMenu = (fn: () => void) => {
+      if (!root.classList.contains("menu-open")) return fn();
+      const t0 = performance.now();
+      const wait = () => {
+        if (root.classList.contains("menu-open") && performance.now() - t0 < 2500) return void requestAnimationFrame(wait);
+        requestAnimationFrame(() => requestAnimationFrame(fn));
+      };
+      wait();
+    };
     s.finish = () => {
       window.clearTimeout(s.timer);
       root.classList.add("pt-reveal");
@@ -306,9 +317,7 @@ export function Fx() {
         const target = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
         if (url.hash && target) {
           window.history.pushState(null, "", url.hash);
-          // From the open menu: wait until it has released the page before scrolling.
-          if (root.classList.contains("menu-open")) window.setTimeout(() => scrollToEl(target), 160);
-          else scrollToEl(target);
+          afterMenu(() => scrollToEl(target));
         } else if (scroller) scroller.scrollTo(0, { duration: 1.2 });
         else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
         return;

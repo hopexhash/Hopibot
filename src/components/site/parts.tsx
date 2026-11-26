@@ -310,7 +310,7 @@ function Spark() {
 }
 
 /**
- * Footer: a band of very large words that keeps moving, one closing line with the main
+ * Footer: a band of very large words that moves at one steady pace, one closing line with the main
  * action, and a single quiet row. Navigation lives in the menu, contact details in the
  * request section and company details on the legal pages, so none of that is repeated here.
  */
@@ -318,7 +318,7 @@ export function SiteFooter({ data }: { data: SiteData }) {
   const tracking = Boolean(data.site.gaId || data.site.gtmId);
   return (
     <footer className="ft" data-theme="dark">
-      <div className="ft-band" aria-hidden="true" data-p>
+      <div className="ft-band" aria-hidden="true">
         <div className="ft-band-in">
           {[0, 1].map((n) => (
             <p key={n}>

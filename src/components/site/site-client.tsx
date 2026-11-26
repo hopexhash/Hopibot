@@ -230,7 +230,12 @@ export function SiteHeader() {
   }, [open]);
   const current = (href: string) => (!href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`)) ? ("page" as const) : undefined);
   // Another page: the menu stays until the page curtain has closed over it.
-  const leave = (href: string) => () => window.setTimeout(() => setOpen(false), href.split("#")[0] === pathname || href.startsWith("#") ? 0 : 520);
+  // ...and closes at once when the link stays on this page: a section of it, or the request
+  // form that most pages have themselves ("/#contact" then means the form here).
+  const leave = (href: string) => () => {
+    const here = href.split("#")[0] === pathname || href.startsWith("#") || (href === "/#contact" && document.getElementById("contact") !== null);
+    window.setTimeout(() => setOpen(false), here ? 0 : 520);
+  };
   return (
     <>
       <header className={`nv${hidden && !open ? " is-hidden" : ""}${open ? " is-open" : ""}`}>

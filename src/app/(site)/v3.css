@@ -652,16 +652,17 @@ html.lenis body {
   border-bottom: 1px solid var(--line);
   user-select: none;
 }
-/* Two movements at once: it travels by itself, and scrolling pushes it along a little. */
+/* One steady movement. It is deliberately not tied to scrolling: pushing it along while
+   scrolling down meant holding it back while scrolling up, which read as stuttering. */
 .hopi.v3 .ft-band-in {
   display: flex;
   width: max-content;
-  transform: translate3d(calc(var(--p, 0.5) * -12vw), 0, 0);
 }
 .hopi.v3 .ft-band p {
   display: flex;
   margin: 0;
   animation: ft-run 34s linear infinite;
+  will-change: transform;
 }
 .hopi.v3 .ft-band span {
   display: inline-flex;
@@ -1068,8 +1069,7 @@ html.lenis body {
 
 @media (prefers-reduced-motion: reduce) {
   .hopi.v3 .wi,
-  .hopi.v3 .mn-t span,
-  .hopi.v3 .ft-band-in {
+  .hopi.v3 .mn-t span {
     transform: none !important;
   }
   .hopi.v3 .cur,
