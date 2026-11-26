@@ -362,3 +362,33 @@ export function SiteFooter({ data }: { data: SiteData }) {
     </footer>
   );
 }
+
+/**
+ * Behind the page, at the very top: when a visitor pulls the page down past its start (the
+ * rubber-band on phones and trackpads), the gap that opens shows this little character
+ * looking over the edge instead of an empty background. It is decoration only, sits under
+ * the page and is never in the way; a second, plain layer does the same for the bottom.
+ */
+export function PullGuy() {
+  return (
+    <>
+      <div className="pull" aria-hidden="true">
+        <svg className="pull-guy" viewBox="0 0 132 110">
+          <path className="pull-arm" d="M100 70q20-6 22-30" />
+          <path className="pull-body" d="M60 6c32 0 48 24 48 56v48H12V62C12 30 28 6 60 6Z" />
+          <g className="pull-eyes">
+            <ellipse cx="44" cy="46" rx="11" ry="13" />
+            <ellipse cx="76" cy="46" rx="11" ry="13" />
+            <g className="pull-look">
+              <circle cx="46" cy="48" r="5.2" />
+              <circle cx="78" cy="48" r="5.2" />
+            </g>
+          </g>
+          <path className="pull-mouth" d="M51 71q9 8 18 0" />
+        </svg>
+        <span className="mono">Hoi! Hoger kan niet.</span>
+      </div>
+      <div className="pull pull-b" aria-hidden="true" />
+    </>
+  );
+}

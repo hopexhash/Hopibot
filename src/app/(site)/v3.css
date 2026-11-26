@@ -1122,3 +1122,136 @@ html.lenis body {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
+
+/* ── Behind the page: the character that looks over the edge when the page is pulled down ── */
+.hopi.v3 .pg {
+  background: var(--paper);
+}
+.hopi.v3 .pull {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: -1; /* above the bare background, below the page */
+  height: 50vh;
+  background: var(--paper);
+  color: var(--ink);
+  pointer-events: none;
+}
+/* Pages that open dark (homepage, projects): the gap continues their first section. */
+.hopi.v3:has(main.m-flush) .pull {
+  background: #0c0c0d;
+  color: #f2eee6;
+}
+.hopi.v3 .pull.pull-b {
+  inset: auto 0 0 0;
+  background: #0c0c0d;
+}
+.hopi.v3 .pull-guy {
+  position: absolute;
+  left: calc(var(--gutter) + 78px);
+  top: 12px;
+  width: 80px;
+  height: auto;
+  overflow: visible;
+  transform-origin: 50% 100%;
+}
+.hopi.v3 .pull-body {
+  fill: var(--accent);
+}
+.hopi.v3 .pull-arm {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+}
+.hopi.v3 .pull-eyes ellipse {
+  fill: #f2eee6;
+}
+.hopi.v3 .pull-eyes {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.hopi.v3 .pull-look circle,
+.hopi.v3 .pull-mouth {
+  fill: #0c0c0d;
+}
+.hopi.v3 .pull-mouth {
+  fill: none;
+  stroke: #0c0c0d;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.hopi.v3 .pull .mono {
+  position: absolute;
+  right: var(--gutter);
+  top: 62px;
+  opacity: 0.7;
+}
+/* He only moves while he can be seen. He hops up, then idles: bobbing, glancing, blinking, waving. */
+.is-pull .hopi.v3 .pull-guy {
+  animation:
+    pull-pop 0.6s var(--ease-out),
+    pull-bob 1.5s ease-in-out 0.6s infinite alternate;
+}
+.is-pull .hopi.v3 .pull-arm {
+  animation: pull-wave 0.42s ease-in-out infinite alternate;
+}
+.is-pull .hopi.v3 .pull-look {
+  animation: pull-glance 2.6s var(--ease-io) infinite;
+}
+.is-pull .hopi.v3 .pull-eyes {
+  animation: pull-blink 2.9s linear infinite;
+}
+@keyframes pull-pop {
+  0% {
+    transform: translateY(70%) scale(0.7, 1.25);
+  }
+  55% {
+    transform: translateY(-8%) scale(1.08, 0.92);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes pull-bob {
+  to {
+    transform: translateY(5px) scale(1.03, 0.97);
+  }
+}
+@keyframes pull-wave {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(20deg);
+  }
+}
+@keyframes pull-glance {
+  0%,
+  20% {
+    transform: translate(0, 0);
+  }
+  30%,
+  55% {
+    transform: translate(5px, -2px);
+  }
+  65%,
+  85% {
+    transform: translate(-5px, 1px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes pull-blink {
+  0%,
+  44%,
+  50%,
+  100% {
+    transform: scaleY(1);
+  }
+  47% {
+    transform: scaleY(0.08);
+  }
+}

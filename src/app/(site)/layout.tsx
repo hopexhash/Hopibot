@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
-import { JsonLd } from "@/components/site/parts";
+import { JsonLd, PullGuy } from "@/components/site/parts";
 import { Fx } from "@/components/site/fx";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
 import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
@@ -45,7 +45,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {/* Before the first paint: mark the page as scripted (text that animates in is never shown and
             then hidden) and record the screen height once (phones: see --vh0 in the stylesheets). */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('fx');document.documentElement.style.setProperty('--vh0',innerHeight+'px')" }} />
-        {children}
+        <PullGuy />
+        {/* The page is one opaque sheet: whatever lies behind it only shows when it is pulled away. */}
+        <div className="pg">{children}</div>
         <Fx />
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />
         <Reveal />

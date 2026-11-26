@@ -112,8 +112,14 @@ export function Fx() {
       measure();
     };
 
+    let pulled = false;
     const update = () => {
       const y = window.scrollY;
+      // Pulled past the top (rubber-band): wake the character behind the page.
+      if (y < -1 !== pulled) {
+        pulled = y < -1;
+        root.classList.toggle("is-pull", pulled);
+      }
       if (!dirty && y === lastY) return;
       lastY = y;
       dirty = false;
@@ -348,7 +354,7 @@ export function Fx() {
       document.documentElement.removeEventListener("pointerleave", onLeaveWindow);
       scroller?.destroy();
       fxState.scroller = null;
-      root.classList.remove("fx-fine", "cur-on", "pt-cover", "pt-reveal");
+      root.classList.remove("fx-fine", "cur-on", "pt-cover", "pt-reveal", "is-pull");
     };
   }, [router]);
 
