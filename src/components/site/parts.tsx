@@ -1,11 +1,11 @@
-import { ArrowRight, ArrowUpRight, Check, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import { eur, type Catalog } from "@/lib/catalog";
 import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS, INDUSTRIES } from "@/lib/site/landing";
 import type { Crumb } from "@/lib/site/seo";
 import { informal } from "@/lib/site/text";
-import { demoHref, type Work } from "@/lib/site/work";
+import type { Work } from "@/lib/site/work";
 import type { SiteData } from "@/server/site";
 import { rich as rich_ } from "./rich";
 import { ConsentLink, ContactForm, HopiMark, WhatsAppIcon } from "./site-client";
@@ -85,34 +85,6 @@ export function Devices({ work, phone, eager, className = "devices", sizes = "(m
         <Shot k={p.key} view="m" alt={`Demo-ontwerp op een telefoon: ${p.name}`} eager={eager} sizes="(min-width: 1020px) 180px, 30vw" />
       </div>
     </div>
-  );
-}
-
-export function WorkCard({ work, linkIndustry = true }: { work: Work; linkIndustry?: boolean }) {
-  return (
-    <article className="work-card" data-reveal>
-      <a className="work-shot" href={demoHref(work.key)} target="_blank" rel="noopener nofollow" data-track="portfolio_click" data-track-label={work.key} aria-label={`Demo-ontwerp ${work.name}: bekijk de live demo (opent in een nieuw tabblad)`}>
-        <Devices work={work} className="work-devices" sizes="(min-width: 760px) 44vw, 80vw" />
-        <span className="demo-tag">Demo-ontwerp</span>
-      </a>
-      <div className="work-meta">
-        <div>
-          <h3>{work.name}</h3>
-          <p>{work.note}</p>
-        </div>
-        <span className="work-type">{work.type}</span>
-      </div>
-      <div className="work-links">
-        <a href={demoHref(work.key)} target="_blank" rel="noopener nofollow" data-track="portfolio_click" data-track-label={work.key}>
-          Bekijk live demo <ArrowUpRight aria-hidden="true" />
-        </a>
-        {linkIndustry && (
-          <Link href={`/website-laten-maken/${work.industry}`}>
-            Website voor {work.type.toLowerCase()} <ArrowRight aria-hidden="true" />
-          </Link>
-        )}
-      </div>
-    </article>
   );
 }
 

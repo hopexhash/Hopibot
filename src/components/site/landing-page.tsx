@@ -5,6 +5,7 @@ import { INDUSTRIES, type Landing } from "@/lib/site/landing";
 import { breadcrumbLd, faqLd, pageMeta, plain, serviceLd, type Crumb } from "@/lib/site/seo";
 import { demoHref, WORK, workByKey } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
+import { CareVisual } from "./care-visual";
 import { AddonList, Breadcrumbs, ContactSection, Devices, Faq, HeroAmbient, JsonLd, PriceCards, Related, SiteFooter, Steps } from "./parts";
 import { rich } from "./rich";
 import { SiteHeader } from "./site-client";
@@ -126,12 +127,16 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
                   </li>
                 </ul>
               </div>
-              <div className="hero-visual enter">
-                <Devices work={heroWork} phone={heroPhone} eager />
-                <span className="tag">
-                  <b /> Demo-ontwerp
-                </span>
-              </div>
+              {l.path === "/website-onderhoud" ? (
+                <CareVisual />
+              ) : (
+                <div className="hero-visual enter">
+                  <Devices work={heroWork} phone={heroPhone} eager />
+                  <span className="tag">
+                    <b /> Demo-ontwerp
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </section>

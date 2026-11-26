@@ -13,7 +13,7 @@ const CASES: [design: string, name: string, statement: string, key: string | nul
   ["barbershop", "Barbershop The Gents", "Een goede knipbeurt begint met *luisteren*.", "barbershop-the-gents"],
   ["garage", "Garage Jansen", "Eerlijk advies, *vaste prijzen* en uw auto dezelfde dag terug.", "garage-jansen"],
   ["luxury-restaurant", "Restaurant De Gouden Lepel", "Seizoenen op het bord, *rust* aan tafel.", "de-gouden-lepel"],
-  ["coffee-shop", "Koffiebar Noord", "Koffie van branders die we *bij naam* kennen.", null],
+  ["coffee-shop", "Koffiebar Noord", "Koffie van branders die we *bij naam* kennen.", "koffiebar-noord"],
   ["construction", "Bouwbedrijf De Vries", "We bouwen wat we beloven, *op de afgesproken dag*.", "bouwbedrijf-de-vries"],
   ["beauty-salon", "Beauty by Noor", "Tijd voor uzelf, *zonder haast*.", "beauty-by-noor"],
   ["cleaning", "Schoon & Fris", "Een schone zaak is *uw visitekaartje*.", null],

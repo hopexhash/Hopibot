@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, Inter_Tight } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { JsonLd } from "@/components/site/parts";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
 import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
 import { getSiteData } from "@/server/site";
 import "./site.css";
 
-const display = Instrument_Serif({ variable: "--font-display", subsets: ["latin"], weight: "400", style: ["normal", "italic"], display: "swap" });
-const sans = Inter_Tight({ variable: "--font-text", subsets: ["latin"], display: "swap" });
+// One family for headlines and running text: Plus Jakarta Sans, a geometric sans that stays
+// friendly at large sizes and readable at small ones. (site.css points --font-display at it.)
+const sans = Plus_Jakarta_Sans({ variable: "--font-text", subsets: ["latin"], display: "swap" });
 
 // Public pages are prerendered and refreshed in the background, so a visitor never waits
 // for the database. Prices and company details follow Settings within a few minutes
@@ -29,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: "#f4f1ea", colorScheme: "light", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f7f8f6", colorScheme: "light", width: "device-width", initialScale: 1 };
 
 /** Root layout of the public website (the control room has its own, see src/app/(app)). */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -38,7 +39,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
     // router to jump straight to the top when another page opens instead.
     <html lang="nl" data-scroll-behavior="smooth">
-      <body className={`hopi ${display.variable} ${sans.variable}`}>
+      <body className={`hopi ${sans.variable}`}>
         {children}
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />
         <Reveal />

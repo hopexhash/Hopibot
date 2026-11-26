@@ -4,7 +4,9 @@ import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS } from "@/lib/site/landing";
 import { articleLd, breadcrumbLd, faqLd, organizationLd, plain, serviceLd } from "@/lib/site/seo";
 import { informal } from "@/lib/site/text";
-import { WORK } from "@/lib/site/work";
+import { HOME, HOME_FAQ, PORTFOLIO, PROCESS, SERVICES } from "@/lib/site/home";
+import { WORK, workByKey } from "@/lib/site/work";
+import { existsSync } from "node:fs";
 import sitemap from "@/app/sitemap";
 
 const VARS = { starter: eur(29900), business: eur(49900), premium: eur(79900), from: eur(29900), hosting: eur(4900), care: eur(7900), growth: eur(14900), vat: "21%" };
@@ -82,6 +84,25 @@ describe("public website: SEO content", () => {
       expect(w.demo).toBe(true);
       expect(PATHS.has(`/website-laten-maken/${w.industry}`), w.key).toBe(true);
     }
+  });
+
+  it("builds the homepage only from demos, pages and prices that exist", () => {
+    // Every portfolio category shows a labelled demo whose files are there, and links to a real page.
+    expect(PORTFOLIO).toHaveLength(7);
+    for (const p of PORTFOLIO) {
+      const w = workByKey(p.key);
+      expect(w?.demo, p.key).toBe(true);
+      expect(PATHS.has(p.industry), p.industry).toBe(true);
+      for (const f of [`demo/${p.key}.html`, `work/${p.key}-d-1440.webp`, `work/${p.key}-d-720.webp`, `work/${p.key}-tall-960.webp`]) expect(existsSync(`public/site/${f}`), f).toBe(true);
+    }
+    expect(SERVICES).toHaveLength(6);
+    expect(PROCESS).toHaveLength(4);
+    // No amounts in the copy: prices come from Settings through placeholders.
+    const copy = JSON.stringify([HOME, SERVICES, PROCESS, HOME_FAQ]);
+    expect(copy).not.toMatch(/€\s?\d/);
+    for (const f of HOME_FAQ) for (const href of linksIn(f.a)) expect(PATHS.has(href), href).toBe(true);
+    // The design previews are for the owner only.
+    expect(sitemap().some((e) => e.url.includes("/ontwerp"))).toBe(false);
   });
 
   it("lists exactly the indexable pages in the sitemap", () => {

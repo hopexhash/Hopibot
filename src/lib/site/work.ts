@@ -25,5 +25,8 @@ export const WORK: Work[] = [
   { key: "makelaardij-maas", name: "Makelaardij Maas", type: "Makelaar", industry: "makelaar", note: "Uitgesproken letters en een frisse kleur voor een makelaar met een eigen gezicht.", demo: true },
 ];
 
-export const workByKey = (key: string) => WORK.find((w) => w.key === key);
+/** Shown in the homepage portfolio only (hospitality has no landing page of its own yet). */
+export const EXTRA_WORK: Work[] = [{ key: "koffiebar-noord", name: "Koffiebar Noord", type: "Koffiebar", industry: "restaurant", note: "Licht, strak en modern: de kaart en de openingstijden staan voorop.", demo: true }];
+
+export const workByKey = (key: string) => [...WORK, ...EXTRA_WORK].find((w) => w.key === key);
 export const demoHref = (key: string) => `/site/demo/${key}.html`;
