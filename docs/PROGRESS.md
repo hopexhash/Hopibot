@@ -171,3 +171,13 @@ Pipeline (website builder + quality control), each stage reported as an event:
 Verified here: rendering of all directions at 390/768/1440px without overflow, the mock pipeline end to end, unit and integration tests.
 Not verified in the sandbox: the three AI calls (creative direction, writing, visual review) with a live key.
 Not built: AI-generated images, multi-page sites, page transitions between pages, a template library page for the new directions.
+
+## Public website: SEO, conversion and trust (26 Nov 2026)
+
+- The website (`src/app/(site)`) and the control room (`src/app/(app)`) are separate root layouts. Public pages are Dutch documents, prebuilt and refreshed every 5 minutes, with their own stylesheet.
+- 25 indexable pages: home, pillar page, eight industries, zzp, mkb, onderhoud, redesign, prices, blog with six articles, terms, privacy, cookies. Content lives in `src/lib/site/*.ts`.
+- Technical SEO: sitemap, robots, canonicals, Open Graph, JSON-LD (organisation, website, breadcrumbs, service + offers, FAQ, blog posts).
+- Portfolio: eight live demo sites of fictional businesses (`scripts/render-demos.tsx`), labelled as demos, never indexed.
+- Measurement: GA4 / Tag Manager / Search Console from Settings → Agency → Public website & Google; consent banner only when an ID is set.
+- Hidden addresses return one neutral 404 before any page code runs.
+- Audit, keyword map, open decisions and roadmap: `docs/SEO.md`.

@@ -1,28 +1,49 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Inter_Tight } from "next/font/google";
+import { JsonLd } from "@/components/site/parts";
+import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
+import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
+import { getSiteData } from "@/server/site";
 import "./site.css";
 
 const display = Instrument_Serif({ variable: "--font-display", subsets: ["latin"], weight: "400", style: ["normal", "italic"], display: "swap" });
 const sans = Inter_Tight({ variable: "--font-text", subsets: ["latin"], display: "swap" });
 
-const url = process.env.APP_URL ?? "https://hopibot.vercel.app";
+// Public pages are prerendered and refreshed in the background, so a visitor never waits
+// for the database. Prices and company details follow Settings within a few minutes
+// (saving Settings refreshes them at once).
+export const revalidate = 300;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(url),
-  title: { default: "HOPI | Websites voor ondernemers in Nederland en België", template: "%s | HOPI" },
-  description: "HOPI ontwerpt en bouwt moderne websites voor ondernemers. U ziet eerst gratis een ontwerp van uw eigen website; pas als het u bevalt, gaan we verder.",
-  // The public website may be found; the control room keeps the root layout's noindex.
-  robots: { index: true, follow: true },
-  openGraph: { type: "website", locale: "nl_NL", siteName: "HOPI", title: "HOPI | Websites die klanten opleveren", description: "Eerst gratis een ontwerp van uw eigen website. Vaste prijzen, gemaakt voor mobiel.", images: ["/site/work/garage-jansen-d.jpg"] },
-  appleWebApp: { capable: false, title: "HOPI" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getSiteData();
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: "HOPI | Website laten maken: eerst zien, dan betalen", template: "%s | HOPI" },
+    description: "HOPI ontwerpt en bouwt websites voor ondernemers in Nederland en België. Je ziet eerst gratis een ontwerp van je eigen website en betaalt pas als het bevalt.",
+    applicationName: "HOPI",
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+    openGraph: { type: "website", locale: "nl_NL", siteName: "HOPI", images: [{ url: OG_IMAGE, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image" },
+    formatDetection: { telephone: false },
+    ...(data.site.googleVerification ? { verification: { google: data.site.googleVerification } } : {}),
+  };
+}
 
-export const viewport: Viewport = { themeColor: "#f4f1ea", colorScheme: "light" };
+export const viewport: Viewport = { themeColor: "#f4f1ea", colorScheme: "light", width: "device-width", initialScale: 1 };
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+/** Root layout of the public website (the control room has its own, see src/app/(app)). */
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const data = await getSiteData();
   return (
-    <div lang="nl" className={`hopi ${display.variable} ${sans.variable}`}>
-      {children}
-    </div>
+    <html lang="nl">
+      <body className={`hopi ${display.variable} ${sans.variable}`}>
+        {children}
+        <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
+        <Reveal />
+        <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />
+        <JsonLd data={organizationLd({ name: data.name, email: data.email, phone: data.phone, address: data.address, kvk: data.kvk, googleBusinessUrl: data.site.googleBusinessUrl, fromCents: data.fromCents })} />
+        <JsonLd data={websiteLd()} />
+      </body>
+    </html>
   );
 }

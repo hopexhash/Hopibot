@@ -14,7 +14,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
     <html lang="en">
       <body style={{ margin: 0, minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#030806", color: "#e8f5ec", fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", padding: 24 }}>
         <div style={{ maxWidth: 420, width: "100%", border: "1px solid rgba(0,255,120,0.18)", borderRadius: 18, padding: 28, background: "#091710", textAlign: "center" }}>
-          <div style={{ fontSize: 12, letterSpacing: "0.16em", color: "#00ff78", fontWeight: 600 }}>HOPI BOT</div>
+          <div style={{ fontSize: 12, letterSpacing: "0.16em", color: "#00ff78", fontWeight: 600 }}>HOPI</div>
           <h1 style={{ fontSize: 20, margin: "14px 0 8px", fontWeight: 600 }}>Something went wrong on our side</h1>
           <p style={{ fontSize: 14, lineHeight: 1.6, color: "#84998d", margin: 0 }}>
             The page could not be loaded. Nothing you did caused this, and your data is safe. Try again in a moment.

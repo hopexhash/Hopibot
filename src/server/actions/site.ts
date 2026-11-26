@@ -19,8 +19,8 @@ const optional = (max: number) =>
     .transform((v) => v || null);
 
 const inquirySchema = z.object({
-  name: z.string().trim().min(2, "Vul uw naam in.").max(80),
-  company: z.string().trim().min(2, "Vul de naam van uw bedrijf in.").max(120),
+  name: z.string().trim().min(2, "Vul je naam in.").max(80),
+  company: z.string().trim().min(2, "Vul de naam van je bedrijf in.").max(120),
   email: z.string().trim().toLowerCase().email("Vul een geldig e-mailadres in.").max(160),
   phone: optional(30),
   city: optional(80),
@@ -28,7 +28,9 @@ const inquirySchema = z.object({
   website: optional(200),
   package: optional(40),
   message: z.string().trim().max(2000).default(""),
-  consent: z.literal("on", { message: "Geef toestemming om contact met u op te nemen." }),
+  /** Page the form was sent from (for knowing which pages bring in enquiries). */
+  source: z.string().trim().max(120).regex(/^\/[a-z0-9\-/]*$/).catch("/"),
+  consent: z.literal("on", { message: "Geef toestemming om contact met je op te nemen." }),
 });
 
 const GENERIC = /^(info|contact|hallo|hello|mail|office|kantoor|post|welkom|receptie|sales|service|admin)@/i;
@@ -47,7 +49,7 @@ export async function submitInquiryAction(_prev: InquiryState, form: FormData): 
   try {
     await rateLimit(`inquiry:${(await clientIp()) ?? "unknown"}`, 5, 3600);
   } catch (err) {
-    if (err instanceof RateLimitError) return { ok: false, error: "U heeft al een paar aanvragen verstuurd. Probeer het later opnieuw." };
+    if (err instanceof RateLimitError) return { ok: false, error: "Je hebt al een paar aanvragen verstuurd. Probeer het later opnieuw." };
     throw err;
   }
   const org = await getSiteOrg();
@@ -56,7 +58,7 @@ export async function submitInquiryAction(_prev: InquiryState, form: FormData): 
   const website = p.website ? (/^https?:\/\//i.test(p.website) ? p.website : `https://${p.website}`) : null;
   const saved = await saveLead(
     org.id,
-    { name: p.company, category: "local_service", city: p.city, country: p.country, phone: p.phone, websiteUrl: website, source: "website_inquiry", sourceData: { contactName: p.name, package: p.package } },
+    { name: p.company, category: "local_service", city: p.city, country: p.country, phone: p.phone, websiteUrl: website, source: "website_inquiry", sourceData: { contactName: p.name, package: p.package, page: p.source } },
     { weights: org.settings.scoringWeights, minScore: org.settings.minLeadScore, audit: false },
   );
   const businessId = saved.id;
@@ -76,8 +78,8 @@ export async function submitInquiryAction(_prev: InquiryState, form: FormData): 
       updatedAt: now,
     })
     .where(eq(schema.businesses.id, businessId));
-  const lines = [`Aanvraag via de website van ${p.name} (${p.email}${p.phone ? `, ${p.phone}` : ""}).`, p.package ? `Pakket: ${p.package}.` : null, p.message ? `Bericht: ${p.message}` : null].filter(Boolean);
-  await db().insert(schema.crmActivities).values({ organizationId: org.id, businessId, type: "note", content: lines.join("\n").slice(0, 2500), metadata: { source: "website_inquiry", package: p.package } });
+  const lines = [`Aanvraag via de website van ${p.name} (${p.email}${p.phone ? `, ${p.phone}` : ""}).`, p.package ? `Pakket: ${p.package}.` : null, `Pagina: ${p.source}`, p.message ? `Bericht: ${p.message}` : null].filter(Boolean);
+  await db().insert(schema.crmActivities).values({ organizationId: org.id, businessId, type: "note", content: lines.join("\n").slice(0, 2500), metadata: { source: "website_inquiry", package: p.package, page: p.source } });
   await notify(org.id, "New enquiry from the website", `${p.company} (${p.name})${p.package ? `, package ${p.package}` : ""}`, `/businesses/${businessId}`, "success");
   return { ok: true };
 }

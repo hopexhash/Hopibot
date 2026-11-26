@@ -16,6 +16,20 @@ export const orgSettingsSchema = z.object({
   senderEmail: z.string().max(200).default(""),
   replyToEmail: z.string().max(200).default(""),
   previewBaseDomain: z.string().max(200).default(""),
+  /** Public website: contact details and Google services (Settings → Website). All optional. */
+  site: z
+    .object({
+      phone: z.string().max(30).default(""),
+      /** Google Analytics 4 measurement ID (G-XXXXXXX). Loaded only after cookie consent. */
+      gaId: z.string().max(20).default(""),
+      /** Google Tag Manager container ID (GTM-XXXXXX). Loaded only after cookie consent. */
+      gtmId: z.string().max(20).default(""),
+      /** Google Search Console verification code (the content of the meta tag). */
+      googleVerification: z.string().max(100).default(""),
+      /** Public link of the Google Business Profile. */
+      googleBusinessUrl: z.string().max(300).default(""),
+    })
+    .default({ phone: "", gaId: "", gtmId: "", googleVerification: "", googleBusinessUrl: "" }),
   dailySpendLimitUsd: z.number().min(0).max(100000).default(25),
   monthlySpendLimitUsd: z.number().min(0).max(1000000).default(300),
   /** Warn (notification + banner) when spend reaches this share of a limit. */

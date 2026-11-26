@@ -9,10 +9,15 @@ import { getOrgSettings } from "../org";
 import { action, UserError } from "./_util";
 
 export async function updateSettingsAction(patch: Record<string, unknown>) {
-  return action({ name: "settings.update", role: "admin", revalidate: ["/settings", "/costs", "/command"], auditTarget: () => ({ type: "organization", metadata: { keys: Object.keys(patch) } }) }, async (auth) => {
+  return action({ name: "settings.update", role: "admin", revalidate: ["/settings", "/costs", "/command", "/(site)"], auditTarget: () => ({ type: "organization", metadata: { keys: Object.keys(patch) } }) }, async (auth) => {
     const current = await getOrgSettings(auth.org.id);
     const merged = orgSettingsSchema.parse({ ...current, ...patch });
     if (merged.senderEmail && !z.string().email().safeParse(merged.senderEmail).success) throw new UserError("Sender email is not a valid address.");
+    const site = merged.site;
+    if (site.gaId && !/^G-[A-Z0-9]{4,}$/.test(site.gaId)) throw new UserError("The Google Analytics ID looks like G-XXXXXXXXXX.");
+    if (site.gtmId && !/^GTM-[A-Z0-9]{4,}$/.test(site.gtmId)) throw new UserError("The Tag Manager ID looks like GTM-XXXXXXX.");
+    if (site.googleVerification && !/^[A-Za-z0-9_-]{10,}$/.test(site.googleVerification)) throw new UserError("Paste only the verification code from Search Console (the part inside content=\"…\").");
+    if (site.googleBusinessUrl && !/^https:\/\/[^\s]+$/.test(site.googleBusinessUrl)) throw new UserError("The Google Business Profile link must start with https://");
     if (merged.previewBaseDomain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(merged.previewBaseDomain)) throw new UserError("Preview domain must look like previews.youragency.nl");
     await db().update(schema.organizations).set({ settings: merged, updatedAt: new Date() }).where(eq(schema.organizations.id, auth.org.id));
     return null;

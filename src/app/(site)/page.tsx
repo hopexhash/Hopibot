@@ -1,173 +1,170 @@
-import { ArrowRight, Check, Gauge, LayoutTemplate, Mail, MapPin, MessageCircle, PenTool, ShieldCheck, Smartphone, Wrench } from "lucide-react";
-import { DEFAULT_CATALOG, eur } from "@/lib/catalog";
-import { getSiteOrg } from "@/server/site";
-import { ContactForm, HopiMark, Reveal, SiteHeader } from "@/components/site/site-client";
+import { ArrowRight, Check, Gauge, MessageCircle, PenTool, ShieldCheck, Smartphone, Wrench, X } from "lucide-react";
+import Link from "next/link";
+import { ContactSection, CtaBand, Devices, Faq, JsonLd, PriceCards, SiteFooter, Steps, WorkCard } from "@/components/site/parts";
+import { SiteHeader } from "@/components/site/site-client";
+import { faqLd, pageMeta, plain } from "@/lib/site/seo";
+import { WORK, workByKey } from "@/lib/site/work";
+import { getSiteData } from "@/server/site";
 
-// Prices and company details are read from Settings on every request.
-export const dynamic = "force-dynamic";
+export async function generateMetadata() {
+  const { prices } = await getSiteData();
+  return pageMeta({
+    title: "HOPI | Jouw nieuwe website. Eerst zien, dan betalen",
+    description: `Webdesignbureau voor ondernemers in Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Vanaf ${prices.from}.`,
+    path: "/",
+  });
+}
 
-/** Example designs: fictional businesses, rendered by our own website engine. */
-const WORK = [
-  { key: "garage-jansen", name: "Garage Jansen", type: "Autogarage", url: "garagejansen.nl" },
-  { key: "de-gouden-lepel", name: "De Gouden Lepel", type: "Restaurant", url: "degoudenlepel.nl" },
-  { key: "beauty-by-noor", name: "Beauty by Noor", type: "Schoonheidssalon", url: "beautybynoor.nl" },
-  { key: "koffiebar-noord", name: "Koffiebar Noord", type: "Koffie & lunch", url: "koffiebarnoord.nl" },
-  { key: "loodgieter-bakker", name: "Loodgieter Bakker", type: "Installateur", url: "loodgieterbakker.nl" },
-  { key: "bouwbedrijf-de-vries", name: "Bouwbedrijf De Vries", type: "Bouw & renovatie", url: "bouwbedrijfdevries.nl" },
-  { key: "barbershop-the-gents", name: "Barbershop The Gents", type: "Barbershop", url: "thegents.nl" },
-  { key: "pizzeria-da-marco", name: "Pizzeria Da Marco", type: "Pizzeria", url: "damarco.nl" },
-];
-
-const INDUSTRIES = ["Restaurants", "Kappers", "Installateurs", "Bouwbedrijven", "Garages", "Schoonheidssalons", "Hoveniers", "Tandartsen", "Cafés", "Schoonmaakbedrijven", "Makelaars", "Sportscholen"];
+const INDUSTRIES = ["Restaurants", "Kappers", "Loodgieters", "Bouwbedrijven", "Garages", "Schoonheidssalons", "Tandartsen", "Makelaars", "Cafés", "Hoveniers", "Schoonmaakbedrijven", "Sportscholen"];
 
 const SERVICES = [
-  { icon: PenTool, title: "Ontwerp op maat", text: "Een eigen ontwerp dat past bij uw zaak en uw klanten. Geen standaard sjabloon dat er bij iedereen hetzelfde uitziet." },
-  { icon: Smartphone, title: "Gemaakt voor mobiel", text: "Eerst ontworpen voor de telefoon, waar veel klanten u opzoeken. Daarna voor tablet en computer." },
+  { icon: PenTool, title: "Ontwerp op maat", text: "Een eigen ontwerp dat past bij je zaak en je klanten. Geen standaard sjabloon dat er bij iedereen hetzelfde uitziet." },
+  { icon: Smartphone, title: "Gemaakt voor mobiel", text: "Eerst ontworpen voor de telefoon, waar veel klanten je opzoeken. Daarna voor tablet en computer." },
   { icon: MessageCircle, title: "Klanten in contact", text: "Bellen, een offerte aanvragen, reserveren of een afspraak maken: met één tik, op elke pagina." },
-  { icon: Gauge, title: "Snel en vindbaar", text: "Snelle pagina's, nette techniek en een goede basis om gevonden te worden in uw regio." },
-  { icon: ShieldCheck, title: "Hosting & beveiliging", text: "Wij zetten uw website online met SSL, back-ups en updates, zodat u er geen omkijken naar heeft." },
+  { icon: Gauge, title: "Snel en vindbaar", text: "Snelle pagina's, nette techniek en een goede basis om gevonden te worden in je regio." },
+  { icon: ShieldCheck, title: "Hosting & beveiliging", text: "Wij zetten je website online met SSL, back-ups en updates, zodat je er geen omkijken naar hebt." },
   { icon: Wrench, title: "Aanpassingen", text: "Nieuwe openingstijden, een ander menu of een actie? Laat het ons weten, wij passen het aan." },
 ];
 
-const STEPS = [
-  { title: "Kennismaking", text: "U vertelt kort over uw bedrijf via het formulier. Heeft u al een website, dan kijken we daar ook naar." },
-  { title: "Gratis ontwerp", text: "We maken een ontwerp van uw nieuwe website, met uw naam, diensten en stijl. Gratis en vrijblijvend." },
-  { title: "Samen afronden", text: "Bevalt het? Dan kiest u een pakket en maken we teksten, foto's en details samen definitief." },
-  { title: "Online", text: "Uw website gaat live op uw eigen domeinnaam. Wij zorgen voor hosting, beveiliging en onderhoud." },
-];
-
-const FAQ = (vat: number) => [
-  { q: "Is het ontwerp echt gratis?", a: "Ja. U ziet eerst een ontwerp van uw eigen website. Pas als het u bevalt en u een pakket kiest, betaalt u. Bevalt het niet, dan zit u nergens aan vast." },
-  { q: "Hoe snel staat mijn website online?", a: "Dat hangt af van het pakket en van hoe snel teksten en foto's rond zijn. Zodra u akkoord geeft op het ontwerp, spreken we samen een planning af." },
-  { q: "Heb ik al een domeinnaam nodig?", a: "Nee. Heeft u er al een, dan koppelen we die. Zo niet, dan helpen we u een passende domeinnaam te registreren." },
-  { q: "Kan ik later nog dingen laten aanpassen?", a: "Ja. Met een onderhoudsabonnement passen wij kleine dingen voor u aan, zoals openingstijden, een menukaart of nieuwe foto's." },
-  { q: "Voor wie werkt HOPI?", a: "Voor ondernemers in Nederland en België: van restaurants en kappers tot installateurs en bouwbedrijven. Ook als u nog helemaal geen website heeft." },
-  { q: "Zijn de prijzen inclusief btw?", a: `De genoemde prijzen zijn exclusief ${vat}% btw. U krijgt altijd vooraf een duidelijk overzicht van de kosten.` },
+const FAQ = [
+  { q: "Is het ontwerp echt gratis?", a: "Ja. Je ziet eerst een ontwerp van je eigen website. Pas als het bevalt en je een pakket kiest, betaal je. Bevalt het niet, dan zit je nergens aan vast." },
+  { q: "Wat kost een website bij HOPI?", a: "Een one-page website kost {starter}, een complete website {business} en een op maat ontworpen website {premium}. Dat zijn eenmalige bedragen, exclusief {vat} btw. Hosting en onderhoud kosten vanaf {hosting} per maand. Het volledige overzicht staat op de pagina [prijzen](/prijzen)." },
+  { q: "Hoe snel staat mijn website online?", a: "Dat hangt af van het pakket en van hoe snel teksten en foto's rond zijn. Zodra je akkoord geeft op het ontwerp, spreken we samen een planning af." },
+  { q: "Heb ik al een domeinnaam nodig?", a: "Nee. Heb je er al een, dan koppelen we die. Zo niet, dan helpen we je een passende domeinnaam te registreren." },
+  { q: "Kan ik later nog dingen laten aanpassen?", a: "Ja. Met een [onderhoudsabonnement](/website-onderhoud) passen wij kleine dingen voor je aan, zoals openingstijden, een menukaart of nieuwe foto's." },
+  { q: "Ik heb al een website. Kan die vervangen worden?", a: "Ja. We maken een nieuw ontwerp dat je naast je huidige website kunt leggen. Lees meer over een [website redesign](/website-redesign)." },
+  { q: "Voor wie werkt HOPI?", a: "Voor ondernemers in Nederland en België: van restaurants en kappers tot loodgieters en bouwbedrijven, zzp'ers en mkb. Ook als je nog helemaal geen website hebt." },
 ];
 
 export default async function HomePage() {
-  const org = await getSiteOrg();
-  const catalog = org?.catalog ?? DEFAULT_CATALOG;
-  const s = org?.settings;
-  const packages = catalog.packages.filter((p) => p.enabled);
-  const plans = catalog.plans.filter((p) => p.enabled && p.priceCents !== null);
-  const cheapestPlan = plans.length ? Math.min(...plans.map((p) => p.priceCents ?? 0)) : null;
-  const email = s?.replyToEmail || s?.senderEmail || "";
-  const hero = WORK[0];
-  const heroPhone = WORK[1];
+  const data = await getSiteData();
+  const v = data.prices;
+  const hero = workByKey("garage-jansen") ?? WORK[0];
+  const heroPhone = workByKey("de-gouden-lepel") ?? WORK[1];
 
   return (
     <>
       <SiteHeader />
-      <Reveal />
-      <main id="top">
-        {/* Hero */}
+      <main id="inhoud">
+        {/* Hero: what, for whom, what it costs and the next step */}
         <section className="hero">
           <div className="wrap hero-grid">
             <div>
               <span className="eyebrow enter">Webdesign voor ondernemers in NL & BE</span>
               <h1 className="enter">
-                Een website die <em>klanten</em> oplevert.
+                <span>Jouw nieuwe website.</span>{" "}
+                <span>
+                  Eerst zien, <em>dan betalen.</em>
+                </span>
               </h1>
-              <p className="lead enter">HOPI ontwerpt en bouwt moderne websites voor ondernemers. U ziet eerst gratis een ontwerp van uw eigen website. Pas als het u bevalt, gaan we verder.</p>
+              <p className="lead enter">HOPI ontwerpt en bouwt websites voor ondernemers. Je krijgt eerst gratis een ontwerp van je eigen website te zien. Pas als het bevalt, kies je een pakket.</p>
               <div className="hero-actions enter">
-                <a href="#contact" className="btn btn-dark">
-                  Vraag een gratis ontwerp aan <ArrowRight />
+                <a href="#contact" className="btn btn-dark" data-track="cta_click" data-track-label="hero" data-track-location="/">
+                  Vraag een gratis ontwerp aan <ArrowRight aria-hidden="true" />
                 </a>
                 <a href="#werk" className="btn btn-line">
                   Bekijk voorbeelden
                 </a>
               </div>
               <ul className="ticks enter">
-                {["Gratis ontwerp vooraf", "Vaste prijzen", "Gemaakt voor mobiel"].map((t) => (
-                  <li key={t}>
-                    <Check strokeWidth={2.4} /> {t}
-                  </li>
-                ))}
+                <li>
+                  <Check strokeWidth={2.4} aria-hidden="true" /> Gratis ontwerp vooraf
+                </li>
+                <li>
+                  <Check strokeWidth={2.4} aria-hidden="true" /> Vaste prijs vanaf {v.from}
+                </li>
+                <li>
+                  <Check strokeWidth={2.4} aria-hidden="true" /> Hosting en onderhoud geregeld
+                </li>
               </ul>
             </div>
-            <div className="devices enter" aria-label={`Voorbeeldontwerp voor ${hero.name}`}>
-              <div className="browser">
-                <div className="browser-bar">
-                  <i />
-                  <i />
-                  <i />
-                  <span>{hero.url}</span>
-                </div>
-                <img src={`/site/work/${hero.key}-d.jpg`} alt={`Voorbeeldontwerp: website voor ${hero.name}`} width={1440} height={900} fetchPriority="high" />
-              </div>
-              <div className="phone">
-                <img src={`/site/work/${heroPhone.key}-m.jpg`} alt={`Voorbeeldontwerp op een telefoon: ${heroPhone.name}`} width={780} height={1560} />
-              </div>
+            <div className="hero-visual enter">
+              <Devices work={hero} phone={heroPhone} eager />
               <span className="tag">
-                <b /> Voorbeeldontwerp
+                <b /> Demo-ontwerp
               </span>
             </div>
           </div>
         </section>
 
-        {/* Industries */}
-        <div className="ticker" aria-label="Voor ondernemers zoals">
-          <div className="ticker-row" aria-hidden="true">
+        {/* Decorative: the same industries are real links in the footer. */}
+        <div className="ticker" aria-hidden="true">
+          <div className="ticker-row">
             {[...INDUSTRIES, ...INDUSTRIES].map((x, i) => (
               <span key={i}>{x}</span>
             ))}
           </div>
         </div>
 
-        {/* Work */}
-        <section className="section" id="werk">
+        {/* Why HOPI is different */}
+        <section className="section" id="waarom">
           <div className="wrap">
             <div className="section-head" data-reveal>
-              <span className="eyebrow">Voorbeeldontwerpen</span>
+              <span className="eyebrow">Waarom HOPI</span>
+              <h2>
+                Geen gok, maar een <em>ontwerp</em> dat je kunt beoordelen.
+              </h2>
+              <p>Een website laten maken begint meestal met een offerte en een aanbetaling. Wat je krijgt, zie je pas weken later. Wij draaien de volgorde om.</p>
+            </div>
+            <div className="versus" data-reveal>
+              <div className="versus-col">
+                <h3>Zo gaat het vaak</h3>
+                <ul>
+                  <li><X aria-hidden="true" /> Je kiest op basis van een offerte</li>
+                  <li><X aria-hidden="true" /> Je betaalt vooraf een deel</li>
+                  <li><X aria-hidden="true" /> Na weken zie je het eerste ontwerp</li>
+                  <li><X aria-hidden="true" /> Valt het tegen, dan zit je eraan vast</li>
+                </ul>
+              </div>
+              <div className="versus-col yes">
+                <h3>Zo werkt HOPI</h3>
+                <ul>
+                  <li><Check strokeWidth={2.4} aria-hidden="true" /> Je ziet eerst een ontwerp van je eigen website</li>
+                  <li><Check strokeWidth={2.4} aria-hidden="true" /> Het ontwerp is gratis en vrijblijvend</li>
+                  <li><Check strokeWidth={2.4} aria-hidden="true" /> Bevalt het, dan kies je een pakket met een vaste prijs</li>
+                  <li><Check strokeWidth={2.4} aria-hidden="true" /> Bevalt het niet, dan betaal je niets</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Portfolio */}
+        <section className="section tint" id="werk">
+          <div className="wrap">
+            <div className="section-head" data-reveal>
+              <span className="eyebrow">Voorbeelden</span>
               <h2>
                 Elk bedrijf een <em>eigen</em> gezicht.
               </h2>
-              <p>Geen twee websites hetzelfde. Kleuren, letters en opbouw passen bij het vak en bij de klanten van de zaak, op de telefoon en op de computer.</p>
+              <p>Geen twee websites hetzelfde. Kleuren, letters en opbouw passen bij het vak en bij de klanten van de zaak. Klik op een voorbeeld en bekijk de hele website, ook op je telefoon.</p>
             </div>
             <div className="work">
               {WORK.map((w) => (
-                <article key={w.key} className="work-card" data-reveal>
-                  <div className="work-shot">
-                    <div className="browser">
-                      <div className="browser-bar">
-                        <i />
-                        <i />
-                        <i />
-                        <span>{w.url}</span>
-                      </div>
-                      <img src={`/site/work/${w.key}-d.jpg`} alt={`Voorbeeldontwerp: website voor ${w.name}`} width={1440} height={900} loading="lazy" />
-                    </div>
-                    <div className="phone">
-                      <img src={`/site/work/${w.key}-m.jpg`} alt="" width={780} height={1560} loading="lazy" />
-                    </div>
-                  </div>
-                  <div className="work-meta">
-                    <h3>{w.name}</h3>
-                    <p>{w.type}</p>
-                  </div>
-                </article>
+                <WorkCard key={w.key} work={w} />
               ))}
             </div>
             <p className="swipe">Veeg voor meer voorbeelden →</p>
-            <p className="note">Dit zijn voorbeeldontwerpen voor fictieve bedrijven, gemaakt om te laten zien wat mogelijk is. Uw eigen ontwerp maken we met uw naam, diensten en stijl.</p>
+            <p className="note">Dit zijn demo-ontwerpen voor fictieve bedrijven, gemaakt om te laten zien wat we kunnen leveren. Het zijn geen klantprojecten. Jouw eigen ontwerp maken we met je eigen naam, diensten en stijl.</p>
           </div>
         </section>
 
         {/* Services */}
-        <section className="section" id="diensten" style={{ paddingTop: 0 }}>
+        <section className="section" id="diensten">
           <div className="wrap">
             <div className="section-head" data-reveal>
-              <span className="eyebrow">Diensten</span>
+              <span className="eyebrow">Wat je krijgt</span>
               <h2>
                 Alles voor een website die <em>werkt</em>.
               </h2>
-              <p>Van het eerste ontwerp tot hosting en onderhoud. U heeft één aanspreekpunt en hoeft zelf niets technisch te regelen.</p>
+              <p>
+                Van het eerste ontwerp tot hosting en onderhoud. Je hebt één aanspreekpunt en hoeft zelf niets technisch te regelen. <Link href="/website-laten-maken">Meer over een website laten maken</Link>
+              </p>
             </div>
             <div className="services" data-reveal>
               {SERVICES.map(({ icon: Icon, title, text }) => (
                 <div key={title} className="service">
-                  <Icon />
+                  <Icon aria-hidden="true" />
                   <h3>{title}</h3>
                   <p>{text}</p>
                 </div>
@@ -176,27 +173,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Process */}
-        <section className="section dark" id="werkwijze">
-          <div className="wrap">
-            <div className="section-head" data-reveal>
-              <span className="eyebrow">Werkwijze</span>
-              <h2>
-                Eerst zien, <em>dan</em> beslissen.
-              </h2>
-              <p>U koopt geen kat in de zak. U ziet uw nieuwe website voordat u iets betaalt.</p>
-            </div>
-            <ol className="steps">
-              {STEPS.map((st, i) => (
-                <li key={st.title} className="step" data-reveal>
-                  <span className="step-n">0{i + 1}</span>
-                  <h3>{st.title}</h3>
-                  <p>{st.text}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
+        <Steps />
 
         {/* Pricing */}
         <section className="section" id="prijzen">
@@ -206,169 +183,43 @@ export default async function HomePage() {
               <h2>
                 Duidelijke prijzen, <em>geen</em> verrassingen.
               </h2>
-              <p>Een vast bedrag voor uw website. Het ontwerp vooraf is altijd gratis. Alle prijzen zijn exclusief {catalog.vatPct}% btw.</p>
+              <p>
+                Een vast bedrag voor je website, exclusief {v.vat} btw. Het ontwerp vooraf is altijd gratis.
+              </p>
             </div>
-            <div className="prices">
-              {packages.map((p) => (
-                <article key={p.key} className={`price${p.featured ? " featured" : ""}`} data-reveal>
-                  {p.featured && <span className="price-badge">Meest gekozen</span>}
-                  <h3>{p.name}</h3>
-                  <p className="desc">{p.description}</p>
-                  <div className="amount">
-                    {p.priceCents === null ? <b>Op maat</b> : <b>{eur(p.priceCents)}</b>}
-                    <span>{p.priceCents === null ? "prijs op aanvraag" : "eenmalig, excl. btw"}</span>
-                  </div>
-                  <ul className="feat">
-                    {p.features.map((f) => (
-                      <li key={f}>
-                        <Check strokeWidth={2.4} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a href={`/?pakket=${p.key}#contact`} className={`btn ${p.featured ? "btn-green" : "btn-line"}`}>
-                    Kies {p.name} <ArrowRight />
-                  </a>
-                </article>
-              ))}
+            <PriceCards catalog={data.catalog} source="/" />
+            <div className="plans" data-reveal>
+              <span>
+                <b>Hosting & onderhoud</b> vanaf {v.hosting} per maand, excl. btw.
+              </span>
+              <Link href="/prijzen" data-track="cta_click" data-track-label="all-prices">
+                Bekijk alle prijzen en extra&apos;s <ArrowRight aria-hidden="true" />
+              </Link>
             </div>
-            {cheapestPlan !== null && (
-              <div className="plans" data-reveal>
-                <span>
-                  <b>Hosting & onderhoud</b> vanaf {eur(cheapestPlan)} per maand, excl. btw.
-                </span>
-                <span>Extra&apos;s zoals een logo, online reserveren of teksten bespreken we bij het ontwerp.</span>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Promise */}
-        <section className="section" style={{ paddingTop: 0 }}>
-          <div className="wrap promise">
-            {[
-              { t: "Gratis ontwerp vooraf", p: "U ziet uw eigen website voordat u iets betaalt." },
-              { t: "Eén aanspreekpunt", p: "Vragen of wijzigingen? U heeft steeds hetzelfde contact." },
-              { t: "Nederland & België", p: "Websites in het Nederlands, voor ondernemers in uw regio." },
-            ].map((x) => (
-              <div key={x.t} className="promise-item" data-reveal>
-                <h3>{x.t}</h3>
-                <p>{x.p}</p>
-              </div>
-            ))}
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="section" id="vragen" style={{ paddingTop: 0 }}>
+        <section className="section faq-section tint" id="vragen">
           <div className="wrap faq-grid">
             <div className="section-head" data-reveal>
               <span className="eyebrow">Vragen</span>
               <h2>
                 Goed om te <em>weten</em>.
               </h2>
-              <p>Staat uw vraag er niet bij? Stel hem gerust via het formulier.</p>
+              <p>
+                Staat je vraag er niet bij? Stel hem gerust via het formulier, of lees verder in onze <Link href="/blog">artikelen</Link>.
+              </p>
             </div>
-            <div className="faq" data-reveal>
-              {FAQ(catalog.vatPct).map((f, i) => (
-                <details key={f.q} open={i === 0}>
-                  <summary>
-                    {f.q}
-                    <i aria-hidden="true" />
-                  </summary>
-                  <p>{f.a}</p>
-                </details>
-              ))}
-            </div>
+            <Faq items={FAQ} vars={v} />
           </div>
         </section>
 
-        {/* CTA band */}
-        <section style={{ paddingBottom: "clamp(76px, 11vw, 140px)" }}>
-          <div className="wrap">
-            <div className="band" data-reveal>
-              <h2>Benieuwd hoe uw nieuwe website eruit kan zien?</h2>
-              <a href="#contact" className="btn btn-dark">
-                Vraag een gratis ontwerp aan <ArrowRight />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section className="section" id="contact" style={{ paddingTop: 0 }}>
-          <div className="wrap contact">
-            <div className="contact-copy" data-reveal>
-              <span className="eyebrow">Contact</span>
-              <h2 className="h2" style={{ marginTop: 18 }}>
-                Uw gratis <em>ontwerp</em> aanvragen.
-              </h2>
-              <p>Vul het formulier in en vertel kort over uw bedrijf. We nemen contact met u op en maken een ontwerp van uw nieuwe website. Gratis en vrijblijvend.</p>
-              <ul className="contact-list">
-                {email && (
-                  <li>
-                    <Mail />
-                    <a href={`mailto:${email}`}>{email}</a>
-                  </li>
-                )}
-                <li>
-                  <MapPin /> Voor ondernemers in Nederland en België
-                </li>
-                <li>
-                  <LayoutTemplate /> Ontwerp vooraf, zonder verplichtingen
-                </li>
-              </ul>
-            </div>
-            <div data-reveal>
-              <ContactForm packages={packages.map((p) => ({ key: p.key, name: p.name }))} />
-            </div>
-          </div>
-        </section>
+        <CtaBand location="/" />
+        <ContactSection data={data} source="/" />
       </main>
-
-      <footer className="ftr">
-        <div className="wrap">
-          <div className="ftr-grid">
-            <div>
-              <a href="#top" className="brand" aria-label="HOPI, naar boven">
-                <HopiMark />
-                HOPI
-              </a>
-              <p style={{ marginTop: 14, maxWidth: 320, color: "var(--muted)" }}>Moderne websites voor ondernemers in Nederland en België.</p>
-            </div>
-            <div>
-              <h4>Menu</h4>
-              <ul>
-                <li><a href="#werk">Voorbeelden</a></li>
-                <li><a href="#diensten">Diensten</a></li>
-                <li><a href="#werkwijze">Werkwijze</a></li>
-                <li><a href="#prijzen">Prijzen</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4>Contact</h4>
-              <ul>
-                <li><a href="#contact">Gratis ontwerp aanvragen</a></li>
-                {email && <li><a href={`mailto:${email}`}>{email}</a></li>}
-                {s?.agencyAddress && <li>{s.agencyAddress}</li>}
-              </ul>
-            </div>
-            <div>
-              <h4>Gegevens</h4>
-              <ul>
-                <li>{s?.agencyName || "HOPI"}</li>
-                {s?.kvkNumber && <li>KvK {s.kvkNumber}</li>}
-                <li><a href="/privacy">Privacyverklaring</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="big" aria-hidden="true">HOPI</div>
-          <div className="legal">
-            <span>© {new Date().getFullYear()} {s?.agencyName || "HOPI"}</span>
-            <span>Prijzen exclusief btw</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter data={data} />
+      <JsonLd data={faqLd(FAQ.map((f) => ({ q: f.q, a: plain(f.a, v) })))} />
     </>
   );
 }
