@@ -1,15 +1,15 @@
 import { ArrowRight, Check, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { eur, type Catalog } from "@/lib/catalog";
 import { ARTICLES } from "@/lib/site/blog";
-import { ALL_LANDINGS, INDUSTRIES } from "@/lib/site/landing";
+import { ALL_LANDINGS } from "@/lib/site/landing";
 import type { Crumb } from "@/lib/site/seo";
 import { informal } from "@/lib/site/text";
 import type { Work } from "@/lib/site/work";
 import type { SiteData } from "@/server/site";
 import { rich as rich_ } from "./rich";
 import { ConsentLink, ContactForm, WhatsAppIcon } from "./site-client";
+import { Words } from "./split";
 
 /** Structured data. `<` is escaped so copy can never close the script element. */
 export function JsonLd({ data }: { data: unknown }) {
@@ -298,104 +298,63 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
   );
 }
 
+const FOOTER_WORDS = ["Gratis ontwerp", "Eerst zien", "Dan beslissen"];
+
+/** Four-point star between the words of the footer band. */
+function Spark() {
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 0C54 30 70 46 100 50 70 54 54 70 50 100 46 70 30 54 0 50 30 46 46 30 50 0Z" />
+    </svg>
+  );
+}
+
+/**
+ * Footer: a band of very large words that keeps moving, one closing line with the main
+ * action, and a single quiet row. Navigation lives in the menu, contact details in the
+ * request section and company details on the legal pages, so none of that is repeated here.
+ */
 export function SiteFooter({ data }: { data: SiteData }) {
   const tracking = Boolean(data.site.gaId || data.site.gtmId);
-  // Only channels that are really set up under Settings are shown; none are invented.
-  const social = [
-    data.whatsapp ? { href: data.whatsapp, label: "WhatsApp", track: "whatsapp_click" } : null,
-    data.site.googleBusinessUrl ? { href: data.site.googleBusinessUrl, label: "Google-profiel", track: undefined } : null,
-  ].filter((x) => x !== null);
   return (
     <footer className="ft" data-theme="dark">
+      <div className="ft-band" aria-hidden="true" data-p>
+        <div className="ft-band-in">
+          {[0, 1].map((n) => (
+            <p key={n}>
+              {FOOTER_WORDS.map((w, i) => (
+                <span key={w}>
+                  {w}
+                  {i % 2 === 0 ? <Spark /> : <i />}
+                </span>
+              ))}
+            </p>
+          ))}
+        </div>
+      </div>
       <div className="wrap3">
-        <div className="ft-top">
-          <p className="ft-claim">Websites, webshops en webapplicaties voor ondernemers in Nederland en België.</p>
+        <div className="ft-close">
+          <h2 data-in>
+            <Words text="Jouw nieuwe website begint met een gratis ontwerp." />
+          </h2>
+          <p>Vertel ons over jouw bedrijf. Wij laten je vrijblijvend zien wat er mogelijk is.</p>
           <Link href="/#contact" className="btn btn-accent" data-magnetic="0.25" data-track="cta_click" data-track-label="footer">
-            Start een project <ArrowRight aria-hidden="true" />
+            Vraag gratis ontwerp aan <ArrowRight aria-hidden="true" />
           </Link>
         </div>
-        <div className="ft-grid">
-          <nav aria-label="Navigatie">
-            <h2 className="mono">Navigatie</h2>
-            <ul>
-              <li><Link href="/werk">Werk</Link></li>
-              <li><Link href="/#diensten">Diensten</Link></li>
-              <li><Link href="/#werkwijze">Werkwijze</Link></li>
-              <li><Link href="/prijzen">Prijzen</Link></li>
-              <li><Link href="/blog">Blog</Link></li>
-              <li><Link href="/#contact">Contact</Link></li>
-            </ul>
-          </nav>
-          <nav aria-label="Diensten">
-            <h2 className="mono">Diensten</h2>
-            <ul>
-              <li><Link href="/website-laten-maken">Website laten maken</Link></li>
-              <li><Link href="/website-redesign">Website redesign</Link></li>
-              <li><Link href="/website-onderhoud">Website onderhoud</Link></li>
-              <li><Link href="/website-laten-maken/zzp">Voor zzp&apos;ers</Link></li>
-              <li><Link href="/website-laten-maken/mkb">Voor het mkb</Link></li>
-            </ul>
-          </nav>
-          <nav aria-label="Branches">
-            <h2 className="mono">Branches</h2>
-            <ul>
-              {INDUSTRIES.map((l) => (
-                <li key={l.path}>
-                  <Link href={l.path}>{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <div>
-            <h2 className="mono">Contact</h2>
-            <ul>
-              {data.phone && (
-                <li>
-                  <a href={`tel:${data.phone.replace(/[^+\d]/g, "")}`}>{data.phone}</a>
-                </li>
-              )}
-              {data.email && (
-                <li>
-                  <a href={`mailto:${data.email}`}>{data.email}</a>
-                </li>
-              )}
-              {data.address && <li>{data.address}</li>}
-              {data.kvk && <li>KvK {data.kvk}</li>}
-              <li>
-                <Link href="/#contact">Stuur een aanvraag</Link>
-              </li>
-            </ul>
-            {social.length > 0 && (
-              <>
-                <h2 className="mono ft-sub">Volg & app ons</h2>
-                <ul>
-                  {social.map((x) => (
-                    <li key={x.label}>
-                      <a href={x.href} target="_blank" rel="noopener" data-track={x.track} data-track-label="footer">
-                        {x.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </div>
-        <div className="ft-mark" aria-hidden="true" data-in>
-          {[..."HOPI"].map((ch, i) => (
-            <span key={i} style={{ "--i": i } as CSSProperties}>
-              {ch}
-            </span>
-          ))}
-          <i />
+        <div className="ft-row">
+          <Link href="/" className="ft-logo" aria-label="HOPI, naar de homepage">
+            HOPI
+            <i aria-hidden="true" />
+          </Link>
+          <p>Websites voor ondernemers in Nederland en België</p>
         </div>
         <div className="ft-legal mono">
           <span>
-            © {new Date().getFullYear()} {data.name}
+            © {new Date().getFullYear()} {data.name} · prijzen excl. {data.prices.vat} btw
           </span>
-          <span>Alle prijzen exclusief {data.prices.vat} btw</span>
-          <Link href="/algemene-voorwaarden">Algemene voorwaarden</Link>
-          <Link href="/privacy">Privacyverklaring</Link>
+          <Link href="/algemene-voorwaarden">Voorwaarden</Link>
+          <Link href="/privacy">Privacy</Link>
           <Link href="/cookies">Cookies</Link>
           {tracking && <ConsentLink />}
         </div>

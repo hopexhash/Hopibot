@@ -19,8 +19,9 @@ const CSS = `
 .hopi.v3 .band h2{font-size:clamp(32px,6vw,100px);letter-spacing:-.04em;line-height:.96}
 .hopi.v3 h3{letter-spacing:-.02em}
 .hopi.v3 .mn-link{font-size:clamp(38px,min(9vw,calc(var(--vh0,100vh)*.115)),128px);letter-spacing:-.04em}
-.hopi.v3 .ft-mark{font-size:min(27vw,460px);letter-spacing:-.05em}
-.hopi.v3 .ft-claim{letter-spacing:-.03em}
+.hopi.v3 .ft-band span{letter-spacing:-.045em}
+.hopi.v3 .ft-close h2{font-size:clamp(31px,4.8vw,80px);letter-spacing:-.035em;line-height:1.04}
+.hopi.v3 .ft-logo{letter-spacing:-.04em}
 .hopi.v3 .nv-logo{letter-spacing:-.04em}
 .hopi.v3 .wk-row h2{font-size:clamp(27px,4.8vw,84px);font-weight:600;letter-spacing:-.04em;line-height:1}
 .hopi.v3 .wk-row:hover h2{font-weight:700}

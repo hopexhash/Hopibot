@@ -641,94 +641,63 @@ html.lenis body {
     opacity 0.3s ease 0.1s;
 }
 
-/* ── Footer ─────────────────────────────────────────────── */
+/* ── Footer: a moving band of large words, one closing line, one quiet row ── */
 .hopi.v3 .ft {
-  padding: clamp(48px, 7vw, 100px) 0 24px;
+  padding: 0 0 22px;
   border-top: 1px solid rgba(242, 238, 230, 0.14);
   overflow: hidden;
 }
-.hopi.v3 .ft-top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 26px;
-  padding-bottom: clamp(38px, 6vw, 84px);
-}
-.hopi.v3 .ft-claim {
-  margin: 0;
-  max-width: 23ch;
-  font-size: clamp(25px, 3.1vw, 48px);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.04;
-}
-.hopi.v3 .ft-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 38px 22px;
-  padding: clamp(28px, 4vw, 52px) 0;
-  border-top: 1px solid var(--line);
-}
-.hopi.v3 .ft h2 {
-  margin: 0 0 14px;
-  color: var(--soft);
-}
-.hopi.v3 .ft h2.ft-sub {
-  margin-top: 26px;
-}
-.hopi.v3 .ft ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.hopi.v3 .ft-grid li {
-  margin: 0;
-  font-size: 16.5px;
-  overflow-wrap: anywhere;
-}
-.hopi.v3 .ft-grid a {
-  display: inline-block;
-  padding: 6px 0;
-  background: linear-gradient(currentColor, currentColor) no-repeat 0 calc(100% - 4px) / 0 1px;
-  transition:
-    background-size 0.5s var(--ease-out),
-    color 0.3s ease;
-}
-.hopi.v3 .ft-grid a:hover {
-  background-size: 100% 1px;
-  color: var(--accent);
-}
-.hopi.v3 .ft-mark {
-  display: flex;
-  align-items: flex-end;
-  margin: clamp(26px, 5vw, 70px) 0 16px;
-  padding-top: 0.06em;
-  overflow: hidden;
-  font-size: min(30.5vw, 520px);
-  font-weight: 700;
-  letter-spacing: -0.07em;
-  line-height: 0.76;
+.hopi.v3 .ft-band {
+  padding: clamp(26px, 4vw, 56px) 0 clamp(20px, 3vw, 40px);
+  border-bottom: 1px solid var(--line);
   user-select: none;
 }
-.hopi.v3 .ft-mark span {
-  display: inline-block;
+/* Two movements at once: it travels by itself, and scrolling pushes it along a little. */
+.hopi.v3 .ft-band-in {
+  display: flex;
+  width: max-content;
+  transform: translate3d(calc(var(--p, 0.5) * -12vw), 0, 0);
 }
-.fx .hopi.v3 .ft-mark[data-in] span {
-  transform: translateY(108%);
-  transition: transform 1.2s var(--ease-out);
-  transition-delay: calc(var(--i) * 90ms);
+.hopi.v3 .ft-band p {
+  display: flex;
+  margin: 0;
+  animation: ft-run 34s linear infinite;
 }
-.fx .hopi.v3 .ft-mark[data-in].is-in span {
-  transform: none;
+.hopi.v3 .ft-band span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  padding-right: 0.22em;
+  font-size: clamp(84px, 19vw, 300px);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  white-space: nowrap;
 }
-.hopi.v3 .ft-mark i {
-  width: 0.17em;
-  height: 0.17em;
-  margin: 0 0 0.04em auto;
+.hopi.v3 .ft-band svg {
+  flex: none;
+  width: 0.62em;
+  height: 0.62em;
+  fill: var(--accent);
+  animation: ft-turn 14s linear infinite;
+}
+.hopi.v3 .ft-band i {
+  flex: none;
+  width: 0.5em;
+  height: 0.5em;
+  border: 0.035em solid var(--accent);
   border-radius: 50%;
-  background: var(--accent);
   animation: ft-beat 2.6s var(--ease-io) infinite;
+}
+@keyframes ft-run {
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+@keyframes ft-turn {
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes ft-beat {
   0%,
@@ -739,12 +708,71 @@ html.lenis body {
     transform: scale(0.62);
   }
 }
+.hopi.v3 .ft-close {
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+  padding: clamp(44px, 7vw, 110px) 0 clamp(40px, 6vw, 90px);
+}
+.hopi.v3 .ft-close h2 {
+  margin: 0;
+  max-width: 17ch;
+  font-size: clamp(34px, 5.4vw, 92px);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+.hopi.v3 .ft-close p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.45;
+  color: var(--muted);
+}
+.hopi.v3 .ft-close .btn {
+  margin-top: 10px;
+  min-height: 64px;
+  padding: 0 30px;
+}
+.hopi.v3 .ft-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 24px;
+  padding: 22px 0 6px;
+  border-top: 1px solid var(--line);
+}
+.hopi.v3 .ft-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.hopi.v3 .ft-logo i {
+  width: 6px;
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.5s var(--ease-out);
+}
+.hopi.v3 .ft-logo:hover i {
+  transform: scale(1.9);
+}
+.hopi.v3 .ft-row p {
+  margin: 0;
+  font-size: 15.5px;
+  color: var(--muted);
+}
 .hopi.v3 .ft-legal {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 22px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  gap: 0 22px;
   color: var(--soft);
 }
 .hopi.v3 .ft-legal > * {
@@ -766,9 +794,12 @@ html.lenis body {
   text-transform: inherit;
   cursor: pointer;
 }
-@media (min-width: 900px) {
-  .hopi.v3 .ft-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+@media (max-width: 520px) {
+  .hopi.v3 .ft-close .btn {
+    width: 100%;
+  }
+  .hopi.v3 .ft-legal span:first-child {
+    flex: 1 1 100%;
   }
 }
 
@@ -1032,8 +1063,8 @@ html.lenis body {
 
 @media (prefers-reduced-motion: reduce) {
   .hopi.v3 .wi,
-  .hopi.v3 .ft-mark span,
-  .hopi.v3 .mn-t span {
+  .hopi.v3 .mn-t span,
+  .hopi.v3 .ft-band-in {
     transform: none !important;
   }
   .hopi.v3 .cur,
@@ -1084,4 +1115,10 @@ html.lenis body {
 .hopi.v3 .toc,
 .hopi.v3 .table-wrap {
   border-radius: 2px;
+}
+/* Phones: room under the footer so its last links are never under the fixed request bar. */
+@media (max-width: 759px) {
+  .hopi.v3 .ft {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
 }
