@@ -7,7 +7,7 @@ export function NotFoundView() {
   // layouts (website and control room) are separate documents.
   /* eslint-disable @next/next/no-html-link-for-pages */
   return (
-    <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(20px, 4vw, 48px)", background: "#0c0c0d", color: "#f2eee6", fontFamily: "var(--font-geist), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" }}>
+    <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "clamp(20px, 4vw, 48px)", background: "#0c0c0d", color: "#f2eee6", fontFamily: "var(--font-ui, ui-sans-serif), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" }}>
       <a href="/" style={{ color: "#f2eee6", fontSize: 25, fontWeight: 700, letterSpacing: "-0.06em", textDecoration: "none" }}>
         HOPI<span style={{ color: "#ff4d23" }}>.</span>
       </a>

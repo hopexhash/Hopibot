@@ -4,7 +4,9 @@
 .hopi.v3 .hx {
   position: relative;
   display: flex;
-  min-height: 100svh;
+  /* --vh0 is the screen height measured once (see fx.tsx): on phones the browser bar slides
+     away while scrolling, and a height tied to the live viewport would make the page jump. */
+  min-height: var(--vh0, 100svh);
   overflow: hidden;
 }
 /* Stand-in for the sculpture until WebGL draws (and when it cannot). */
@@ -32,7 +34,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: clamp(92px, 13vh, 140px) var(--gutter) clamp(20px, 3.2vh, 38px);
+  padding: clamp(92px, calc(var(--vh0, 100vh) * 0.13), 140px) var(--gutter) clamp(20px, calc(var(--vh0, 100vh) * 0.032), 38px);
 }
 .hopi.v3 .hx-kicker {
   display: flex;
@@ -51,8 +53,8 @@
 }
 .hopi.v3 .hx-st {
   margin: auto 0;
-  padding: 3vh 0;
-  font-size: min(12.6vw, 21.5vh, 250px);
+  padding: calc(var(--vh0, 100vh) * 0.03) 0;
+  font-size: min(12.6vw, calc(var(--vh0, 100vh) * 0.215), 250px);
   font-weight: 600;
   letter-spacing: -0.062em;
   line-height: 0.84;
@@ -606,7 +608,7 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 22px;
-  min-height: min(74svh, 660px);
+  min-height: min(calc(var(--vh0, 100svh) * 0.74), 660px);
   margin-bottom: 16px;
   padding: clamp(20px, 2.8vw, 44px);
   border-radius: 6px;

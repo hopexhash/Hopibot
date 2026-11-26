@@ -183,6 +183,7 @@ export function SiteHeader() {
   useEffect(() => {
     let last = window.scrollY;
     const on = () => {
+      if (document.documentElement.classList.contains("menu-open")) return;
       const y = window.scrollY;
       if (y < 140 || y < last - 4) setHidden(false);
       else if (y > last + 4) setHidden(true);
@@ -200,11 +201,30 @@ export function SiteHeader() {
       button.current?.focus();
     };
     root.classList.add("menu-open");
-    fxState.scroller?.stop();
+    // Hold the page still behind the menu. With smooth scrolling (mouse) that is one call; on
+    // touch screens the page is pinned in place and put back exactly where it was on closing,
+    // which is the only lock phones respect.
+    const scroller = fxState.scroller;
+    const y = window.scrollY;
+    const body = document.body;
+    if (scroller) scroller.stop();
+    else {
+      body.style.position = "fixed";
+      body.style.top = `-${y}px`;
+      body.style.left = "0";
+      body.style.right = "0";
+    }
     window.addEventListener("keydown", onKey);
     return () => {
       root.classList.remove("menu-open");
-      fxState.scroller?.start();
+      if (scroller) scroller.start();
+      else {
+        body.style.position = "";
+        body.style.top = "";
+        body.style.left = "";
+        body.style.right = "";
+        window.scrollTo({ top: y, behavior: "instant" });
+      }
       window.removeEventListener("keydown", onKey);
     };
   }, [open]);

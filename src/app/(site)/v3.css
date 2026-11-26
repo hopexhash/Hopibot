@@ -24,15 +24,17 @@
   --night: #0c0c0d;
   --grey: #8a8780;
   --radius: 4px;
-  --font-text: var(--font-geist);
-  --font-display: var(--font-geist);
+  /* Set per page by a style element: Geist on the homepage, Poppins elsewhere. */
+  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-text: var(--font-ui);
+  --font-display: var(--font-ui);
   --wrap: 1480px;
   --gutter: clamp(18px, 3.2vw, 48px);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-io: cubic-bezier(0.76, 0, 0.24, 1);
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.008em;
 }
 .hopi.v3 [data-theme="dark"],
@@ -357,6 +359,7 @@ html.lenis body {
   gap: 34px;
   padding: 104px var(--gutter) max(26px, env(safe-area-inset-bottom));
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: #0c0c0d;
   color: #f2eee6;
   --line: rgba(242, 238, 230, 0.16);
@@ -386,7 +389,7 @@ html.lenis body {
   display: flex;
   align-items: flex-start;
   gap: clamp(10px, 1.6vw, 22px);
-  font-size: clamp(42px, min(10.4vw, 12.4vh), 150px);
+  font-size: clamp(42px, min(10.4vw, calc(var(--vh0, 100vh) * 0.124)), 150px);
   font-weight: 600;
   letter-spacing: -0.058em;
   line-height: 1;
@@ -1059,4 +1062,26 @@ html.lenis body {
   .hopi.v3:has(.wa-fab) .ft-legal {
     padding-right: 190px;
   }
+}
+
+/* Request sent: dark text on the accent block (the old light text was unreadable). */
+.hopi.v3 .form-done h3 {
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+.hopi.v3 .form-done p {
+  color: #0c0c0d;
+}
+.hopi.v3 .form-done svg {
+  color: #0c0c0d;
+}
+/* Articles on phones: a wide table scrolls inside its own box instead of widening the page. */
+@media (max-width: 999px) {
+  .hopi.v3 .article-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.hopi.v3 .toc,
+.hopi.v3 .table-wrap {
+  border-radius: 2px;
 }

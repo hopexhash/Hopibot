@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { JsonLd } from "@/components/site/parts";
 import { Fx } from "@/components/site/fx";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
@@ -8,9 +8,8 @@ import { getSiteData } from "@/server/site";
 import "./site.css";
 import "./v3.css";
 
-// Geist for everything that is read or shouted (a variable font, so weight can move), Geist
-// Mono for the small technical labels.
-const sans = Geist({ variable: "--font-geist", subsets: ["latin"], display: "swap" });
+// The small technical labels are Geist Mono everywhere. The text typeface is chosen per
+// page (Geist on the homepage, Poppins on all others) and arrives as --font-ui.
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap", preload: false });
 
 // Public pages are prerendered and refreshed in the background, so a visitor never waits
@@ -42,9 +41,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
     // router to jump straight to the top when another page opens instead.
     <html lang="nl" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`hopi v3 ${sans.variable} ${mono.variable}`}>
-        {/* Marks the page as scripted before it paints, so text that animates in is never shown and then hidden. */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('fx')" }} />
+      <body className={`hopi v3 ${mono.variable}`}>
+        {/* Before the first paint: mark the page as scripted (text that animates in is never shown and
+            then hidden) and record the screen height once (phones: see --vh0 in the stylesheets). */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('fx');document.documentElement.style.setProperty('--vh0',innerHeight+'px')" }} />
         {children}
         <Fx />
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />

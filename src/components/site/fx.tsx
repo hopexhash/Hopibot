@@ -79,7 +79,16 @@ export function Fx() {
     let dirty = true;
     let lastY = -1;
 
+    let vw0 = window.innerWidth;
+    const setVh = (force: boolean) => {
+      // On phones the height changes whenever the browser bar slides in or out; following it
+      // would resize the hero mid-scroll. Rotating the phone changes the width, so that counts.
+      if (!force && !fine && window.innerWidth === vw0) return;
+      vw0 = window.innerWidth;
+      root.style.setProperty("--vh0", `${window.innerHeight}px`);
+    };
     const measure = () => {
+      setVh(false);
       const wide = fine && !reduce && window.innerWidth >= 1000;
       document.querySelectorAll<HTMLElement>("[data-hscroll]").forEach((sec) => {
         const track = sec.querySelector<HTMLElement>("[data-hscroll-track]");
@@ -269,7 +278,9 @@ export function Fx() {
         const target = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
         if (url.hash && target) {
           window.history.pushState(null, "", url.hash);
-          scrollToEl(target);
+          // From the open menu: wait until it has released the page before scrolling.
+          if (root.classList.contains("menu-open")) window.setTimeout(() => scrollToEl(target), 160);
+          else scrollToEl(target);
         } else if (scroller) scroller.scrollTo(0, { duration: 1.2 });
         else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
         return;

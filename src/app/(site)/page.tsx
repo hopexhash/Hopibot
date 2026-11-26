@@ -1,6 +1,11 @@
+import { Geist } from "next/font/google";
 import { Home } from "@/components/site/home/home";
 import { pageMeta } from "@/lib/site/seo";
 import { getSiteData } from "@/server/site";
+
+// The homepage keeps Geist (a variable font: its weight can animate). Declared here so only
+// this page loads it; the other pages are set in Poppins (see (pages)/layout.tsx).
+const geist = Geist({ subsets: ["latin"], display: "swap" });
 
 export async function generateMetadata() {
   const { prices } = await getSiteData();
@@ -12,5 +17,10 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  return <Home data={await getSiteData()} />;
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `.hopi.v3{--font-ui:${geist.style.fontFamily}}` }} />
+      <Home data={await getSiteData()} />
+    </>
+  );
 }

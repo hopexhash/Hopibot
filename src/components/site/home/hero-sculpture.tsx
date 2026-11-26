@@ -179,8 +179,11 @@ export function HeroSculpture() {
       k = wide ? 0.62 : 0.5;
       if (!live || !gl) return;
       const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), Math.sqrt(budget / Math.max(1, r.width * r.height)));
-      w = Math.max(2, Math.round(r.width * scale));
-      h = Math.max(2, Math.round(r.height * scale));
+      const nw = Math.max(2, Math.round(r.width * scale));
+      const nh = Math.max(2, Math.round(r.height * scale));
+      if (nw === w && nh === h) return; // resizing a canvas clears it: only when the size really changed
+      w = nw;
+      h = nh;
       canvas.width = w;
       canvas.height = h;
       gl.viewport(0, 0, w, h);
@@ -192,6 +195,7 @@ export function HeroSculpture() {
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) post = null;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       }
+      if (shown) draw(lastT); // never leave the freshly cleared canvas empty for a frame
     };
 
     let visible = true;
@@ -241,9 +245,15 @@ export function HeroSculpture() {
     let frames = 0;
     let prev = 0;
     let shown = false;
+    let lastT = 12;
+    let lastScroll = -1;
+    let restUntil = 0;
     const draw = (t: number) => {
       if (!gl || !live) return;
-      const sy = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)));
+      lastT = t;
+      // With a mouse the sculpture grows and rises as you scroll past; on touch screens it
+      // rests during scrolling (see the frame loop), so it does not follow the scroll either.
+      const sy = fine ? Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight))) : 0;
       gl.useProgram(prog);
       gl.bindFramebuffer(gl.FRAMEBUFFER, post ? target : null);
       gl.uniform2f(U.uRes, w, h);
@@ -273,6 +283,19 @@ export function HeroSculpture() {
         return;
       }
       if (!start) start = now;
+      // Touch screens: while a finger is scrolling, the graphics chip belongs to the scroll.
+      // The sculpture holds its last frame and carries on a moment after the page stops.
+      if (!fine) {
+        const y = window.scrollY;
+        if (y !== lastScroll) {
+          lastScroll = y;
+          restUntil = now + 160;
+        }
+        if (now < restUntil) {
+          prev = 0;
+          return;
+        }
+      }
       const t = (now - start) / 1000 + 8;
       if (!pointer) {
         tx = 0.95 * Math.cos(t * 0.37);
