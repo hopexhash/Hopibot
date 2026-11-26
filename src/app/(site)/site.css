@@ -2143,3 +2143,18 @@ body {
 .hopi .hero h1 > span {
   display: block;
 }
+
+/* Open phone menu: a solid header bar above a full-screen panel */
+.hopi .hdr.open {
+  background: var(--paper);
+  box-shadow: 0 1px 0 var(--line);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.hopi .menu {
+  inset: 76px 0 0;
+  height: calc(100dvh - 76px);
+}
+.hopi .menu a.m-link[aria-current="page"] {
+  color: var(--green);
+}

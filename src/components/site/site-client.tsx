@@ -177,7 +177,8 @@ export function SiteHeader() {
   }, [open]);
   const current = (href: string) => (!href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`)) ? ("page" as const) : undefined);
   return (
-    <header className={`hdr${scrolled || open ? " scrolled" : ""}`}>
+    <>
+    <header className={`hdr${scrolled ? " scrolled" : ""}${open ? " open" : ""}`}>
       <a className="skip" href="#inhoud">
         Naar de inhoud
       </a>
@@ -200,6 +201,9 @@ export function SiteHeader() {
           {open ? <X /> : <Menu />}
         </button>
       </div>
+    </header>
+      {/* A sibling of the header, not a child: the header's blurred background would otherwise
+          become the box this full-screen panel is positioned in, squeezing it to nothing. */}
       {open && (
         <nav id="site-menu" className="menu" aria-label="Menu">
           {LINKS.map((l) => (
@@ -215,7 +219,7 @@ export function SiteHeader() {
           </a>
         </nav>
       )}
-    </header>
+    </>
   );
 }
 
