@@ -39,7 +39,7 @@
 }
 .hopi.v3 [data-theme="dark"],
 .hopi.v3 .dark,
-.hopi.v3 .contact-section {
+.hopi.v3 .form {
   --paper: #0c0c0d;
   --paper-2: #151517;
   --card: #151517;
@@ -804,8 +804,11 @@ html.lenis body {
 }
 
 /* ── Closing sections shared by every page: request form and call-to-action band ── */
+/* The request section is light; the form itself is a dark, square block on it. */
 .hopi.v3 .contact-section {
   padding: clamp(60px, 9vw, 130px) 0 clamp(70px, 10vw, 150px);
+  background: var(--paper);
+  color: var(--ink);
 }
 .hopi.v3 .contact-copy .h2 {
   font-size: clamp(40px, 6.4vw, 104px);
@@ -815,14 +818,13 @@ html.lenis body {
   text-transform: uppercase;
 }
 .hopi.v3 .contact-list svg {
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .hopi.v3 .form {
-  gap: 22px;
-  padding: 0;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 44px);
   border: 0;
   border-radius: 0;
-  background: none;
   box-shadow: none;
 }
 .hopi.v3 .field > span {
@@ -837,21 +839,23 @@ html.lenis body {
   color: var(--soft);
   text-transform: none;
 }
+/* Fields are boxes too: square corners, a hairline, the accent when in use. */
 .hopi.v3 .field input,
 .hopi.v3 .field select,
 .hopi.v3 .field textarea {
-  padding: 12px 0 14px;
-  border: 0;
-  border-bottom: 1px solid var(--line-2);
+  padding: 15px 14px;
+  border: 1px solid var(--line-2);
   border-radius: 0;
-  background: transparent;
+  background: rgba(242, 238, 230, 0.04);
   color: var(--ink);
-  font-size: 19px;
+  font-size: 17px;
   box-shadow: none;
-  transition: border-color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
 }
 .hopi.v3 .field textarea {
-  min-height: 110px;
+  min-height: 120px;
 }
 .hopi.v3 .field input::placeholder,
 .hopi.v3 .field textarea::placeholder {
@@ -862,7 +866,8 @@ html.lenis body {
 .hopi.v3 .field textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 1px 0 var(--accent);
+  background: rgba(242, 238, 230, 0.07);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 .hopi.v3 .field select option {
   background: #151517;
@@ -870,7 +875,7 @@ html.lenis body {
 }
 .hopi.v3 .form .btn {
   --btn-fill: #f2eee6;
-  margin-top: 8px;
+  margin-top: 6px;
   min-height: 64px;
   background-color: var(--accent);
   color: #0c0c0d;
@@ -886,7 +891,7 @@ html.lenis body {
   accent-color: var(--accent);
 }
 .hopi.v3 .form-done {
-  border-radius: 2px;
+  border-radius: 0;
   background: var(--accent);
   color: #0c0c0d;
 }
