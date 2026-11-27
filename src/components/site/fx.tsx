@@ -42,6 +42,14 @@ export function Fx() {
   const peek = useRef<HTMLDivElement>(null);
   const peekImg = useRef<HTMLDivElement>(null);
   const ptLabel = useRef<HTMLSpanElement>(null);
+  /** The word on the curtain. Its size follows the longest word, so one long word ("Schoonheidssalon") still fits the screen. */
+  const setPtLabel = (text: string) => {
+    const el = ptLabel.current;
+    if (!el) return;
+    el.textContent = text;
+    const longest = Math.max(4, ...text.split(/\s+/).map((w) => w.length));
+    el.parentElement?.style.setProperty("--pt-len", String(longest));
+  };
   const state = useRef({ pending: false, busy: false, timer: 0, rescan: () => {}, finish: () => {} });
 
   useEffect(() => {
@@ -278,7 +286,7 @@ export function Fx() {
     const go = (href: string, label: string) => {
       if (s.busy) return;
       s.busy = true;
-      if (ptLabel.current) ptLabel.current.textContent = label;
+      setPtLabel(label);
       root.classList.add("pt-cover");
       router.prefetch(href);
       window.setTimeout(() => {
@@ -296,7 +304,7 @@ export function Fx() {
     const behindCurtain = (label: string, target: HTMLElement | null) => {
       if (s.busy) return;
       s.busy = true;
-      if (ptLabel.current) ptLabel.current.textContent = label;
+      setPtLabel(label);
       root.classList.add("pt-cover");
       window.setTimeout(
         () =>
@@ -342,7 +350,7 @@ export function Fx() {
           } else window.location.assign("/");
         };
         if (reduce) return fresh();
-        if (ptLabel.current) ptLabel.current.textContent = "HOPI";
+        setPtLabel("HOPI");
         root.classList.add("pt-cover");
         window.setTimeout(() => fresh(true), 620);
         return;

@@ -649,12 +649,15 @@ html.lenis body {
   place-items: center;
   padding: 0 var(--gutter);
   color: #f2eee6;
-  font-size: clamp(46px, 12vw, 210px);
+  /* Never wider than the screen: the longest word (--pt-len characters, set by the motion engine)
+     gets at most the width between the margins; an uppercase character is at most about 0.62em wide here. */
+  font-size: min(clamp(46px, 12vw, 210px), calc((100vw - 2 * var(--gutter, 20px)) / (var(--pt-len, 4) * 0.62)));
   font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1;
   text-transform: uppercase;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 .hopi.v3 .pt b span {
   display: block;
