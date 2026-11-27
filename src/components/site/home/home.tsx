@@ -86,7 +86,7 @@ export function Home({ data }: { data: SiteData }) {
               <path id="ix-circle" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" />
             </defs>
             <text>
-              <textPath href="#ix-circle">HOPI · DIGITAL AGENCY · WEBDESIGN · DEVELOPMENT · AI · </textPath>
+              <textPath href="#ix-circle">HOPI · DIGITAL AGENCY · WEBDESIGN · DEVELOPMENT · DESIGN · </textPath>
             </text>
             <circle cx="100" cy="100" r="16" />
           </svg>

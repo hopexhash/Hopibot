@@ -13,7 +13,7 @@ export const HOME = {
   lead: "Je ziet eerst een ontwerp van je eigen website. Pas daarna beslis je.",
   cta: "Start een project",
   cta2: "Bekijk ons werk",
-  disciplines: ["Webdesign", "Development", "E-commerce", "Branding", "AI"],
+  disciplines: ["Webdesign", "Development", "E-commerce", "Branding"],
 
   intro: {
     label: "Introductie",
@@ -38,7 +38,7 @@ export const HOME = {
     label: "Diensten",
     title: "Wat wij maken",
     text: "Eén team voor ontwerp, techniek en alles wat daarna komt.",
-    note: "Websites hebben bij ons een vaste prijs. Webshops, applicaties, branding en AI-oplossingen maken we op offerte.",
+    note: "Websites hebben bij ons een vaste prijs. Webshops, applicaties en branding maken we op offerte.",
   },
 
   why: {
@@ -65,11 +65,10 @@ export const HOME = {
 
 export const SERVICES = [
   { title: "Website laten maken", en: "Website development", text: "Een website op maat, ontworpen voor jouw bedrijf en gebouwd om snel te laden op elk scherm.", tags: ["Ontwerp", "Development", "Mobiel", "SEO-basis"], href: "/website-laten-maken", more: "Meer over een website laten maken" },
-  { title: "Webshops", en: "E-commerce development", text: "Een webshop die verkoopt zonder gedoe: heldere productpagina's, een soepele bestelling en betalen zoals je klanten gewend zijn.", tags: ["Productpagina's", "Afrekenen", "Betalingen"], href: "/#contact", more: "Vraag een offerte aan" },
+  { title: "Webshops", en: "E-commerce development", text: "Een webshop die verkoopt zonder gedoe: heldere productpagina's, een soepele bestelling en betalen zoals je klanten gewend zijn.", tags: ["Productpagina's", "Afrekenen", "Betalingen"], href: "/website-laten-maken/webshop", more: "Vraag een offerte aan" },
   { title: "Website redesign", en: "Website redesign", text: "Je huidige website opnieuw ontworpen. Je legt het nieuwe ontwerp naast het oude en beslist dan pas.", tags: ["Nieuw ontwerp", "Zelfde domein", "Betere techniek"], href: "/website-redesign", more: "Meer over een website redesign" },
   { title: "Webapplicaties", en: "Custom web applications", text: "Portalen, dashboards en tools die precies doen wat jouw bedrijf nodig heeft.", tags: ["Portalen", "Dashboards", "Koppelingen"], href: "/#contact", more: "Bespreek je idee" },
   { title: "Branding & design", en: "Branding & digital design", text: "Logo, kleuren, letters en beeldtaal die online en offline kloppen.", tags: ["Logo", "Huisstijl", "Beeldtaal"], href: "/#contact", more: "Vraag een offerte aan" },
-  { title: "AI-oplossingen", en: "AI solutions", text: "Slimme assistenten en automatisering die werk uit handen nemen, van de eerste aanvraag tot de opvolging.", tags: ["Assistenten", "Automatisering", "Koppelingen"], href: "/#contact", more: "Bespreek je idee" },
 ];
 
 export const PROCESS = [

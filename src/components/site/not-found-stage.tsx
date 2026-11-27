@@ -264,9 +264,9 @@ export function NotFoundStage() {
             <span>(404)</span> Lost, but in good company
           </p>
           <h1>
-            Oops. Even our <em>AI</em> couldn’t find this one.
+            Oops. Even <em>we</em> couldn’t find this one.
           </h1>
-          <p className="nf-text">We searched everywhere, asked our AI, and even checked the internet. No luck. Looks like this page went on vacation.</p>
+          <p className="nf-text">We searched everywhere, checked twice and even looked behind the sofa. No luck. Looks like this page went on vacation.</p>
           <div className="nf-actions">
             <a href="/" className="nf-btn nf-btn-fill" onClick={leave(home)} onMouseMove={magnet} onMouseLeave={release}>
               <span>Take me home</span>

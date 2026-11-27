@@ -12,6 +12,14 @@ that describes one connected organisation, and the measurement to see what works
 
 ## 0. Round of 28 November 2026
 
+> **Owner decision (28 November, later the same day): the public website says nothing about AI.**
+> Visitors are put off by it. Removed: the page `/ai-website-laten-maken` (308 to
+> `/website-laten-maken`), the article `/blog/hoe-werkt-een-ai-website-builder` (308 to
+> `/blog/website-laten-maken-of-zelf-bouwen`), the "AI-oplossingen" service and the "AI"
+> discipline on the homepage, every mention in the About, horeca and pillar pages, and the AI
+> joke on the 404 page. Rows below that mention the AI page or article are kept for history
+> only. Do not add AI wording to public pages, articles or structured data.
+
 ### 0.1 Audit (production build, crawled like a search engine: server HTML, no JavaScript)
 
 | Check | Result before this round | Now |

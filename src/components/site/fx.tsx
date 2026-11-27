@@ -13,6 +13,8 @@ const LABELS: Record<string, string> = {
   "/website-laten-maken": "Websites",
   "/website-redesign": "Redesign",
   "/website-onderhoud": "Onderhoud",
+  "/over-ons": "Over ons",
+  "/contact": "Contact",
 };
 
 /**

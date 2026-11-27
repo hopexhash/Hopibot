@@ -40,7 +40,12 @@ const nextConfig: NextConfig = {
       "tandartspraktijk-centrum": "dental",
       "makelaardij-maas": "real-estate",
     };
-    return [{ source: "/demos", destination: "/werk", permanent: false }, ...Object.entries(moved).flatMap(([from, to]) => [
+    return [
+      { source: "/demos", destination: "/werk", permanent: false },
+      // Pages that were taken off the site: visitors and search engines land on the closest page.
+      { source: "/ai-website-laten-maken", destination: "/website-laten-maken", permanent: true },
+      { source: "/blog/hoe-werkt-een-ai-website-builder", destination: "/blog/website-laten-maken-of-zelf-bouwen", permanent: true },
+      ...Object.entries(moved).flatMap(([from, to]) => [
       { source: `/werk/${from}`, destination: `/werk/${to}`, permanent: true },
       { source: `/site/demo/${from}.html`, destination: `/demos/${to}`, permanent: true },
     ])];

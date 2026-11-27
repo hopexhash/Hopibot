@@ -128,7 +128,7 @@ describe("public website: SEO content", () => {
   });
 
   it("builds the homepage from pages and prices that exist", () => {
-    expect(SERVICES).toHaveLength(6);
+    expect(SERVICES).toHaveLength(5);
     expect(PROCESS).toHaveLength(4);
     for (const s of SERVICES) expect(PATHS.has(s.href) || s.href === "/#contact", s.href).toBe(true);
     // No amounts in the copy: prices come from Settings through placeholders.

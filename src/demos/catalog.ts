@@ -137,6 +137,7 @@ export const ALL_DEMOS: Demo[] = [
     concept: "Mode koop je met je ogen. De winkel opent als een lookbook en gaat pas daarna over in een raster. Productkaarten zijn rustig en groot, de productweergave en het winkelmandje schuiven over de pagina, zodat je nooit de draad kwijtraakt.",
     sections: ["Campagne-opening", "Collecties", "Productraster met filters", "Productweergave met maten", "Winkelmandje", "Lookbook", "Het atelier", "Nieuwsbrief en service"],
     type: "Bodoni Moda + Hanken Grotesk",
+    industry: "webshop",
     tone: "#e6e1d8",
     on: "#17140f",
   },

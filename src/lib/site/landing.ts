@@ -63,7 +63,7 @@ export const PILLAR: Landing = {
       h2: "Laten maken of zelf bouwen?",
       body: [
         "Met een websitebouwer kun je zelf een site in elkaar zetten. Dat is goedkoop als je de tijd hebt en het leuk vindt. De keerzijde: je moet zelf nadenken over opbouw, teksten, vindbaarheid en hoe het er op een telefoon uitziet, en veel zelfgebouwde sites blijven half af.",
-        "Laat je je website maken, dan koop je vooral tijd en ervaring. Het verschil met de meeste bureaus is dat je bij HOPI niet op een offerte hoeft te vertrouwen: je beoordeelt een echt ontwerp. In ons artikel [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen) zetten we beide routes eerlijk naast elkaar. Hoe wij AI gebruiken om snel een eerste ontwerp te maken, lees je bij [AI website laten maken](/ai-website-laten-maken).",
+        "Laat je je website maken, dan koop je vooral tijd en ervaring. Het verschil met de meeste bureaus is dat je bij HOPI niet op een offerte hoeft te vertrouwen: je beoordeelt een echt ontwerp. In ons artikel [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen) zetten we beide routes eerlijk naast elkaar.",
       ],
     },
     {
@@ -149,7 +149,7 @@ export const LANDINGS: Landing[] = [
       {
         h2: "Zo werkt het met HOPI voor je zaak",
         body: [
-          "Je vult het aanvraagformulier in met de naam van je zaak en je plaats. Onze software zoekt de openbare informatie bij elkaar, zoals je openingstijden en je huidige website, en zet een eerste versie van de teksten in een van onze ontwerpen. Iemand van HOPI controleert het ontwerp voordat jij het krijgt. Hoe we AI daarbij inzetten, lees je bij [AI website laten maken](/ai-website-laten-maken).",
+          "Je vult het aanvraagformulier in met de naam van je zaak en je plaats. We bekijken wat er al over je zaak te vinden is, zoals je openingstijden en je huidige website, en maken daarmee een eerste ontwerp met je eigen naam, kaart en stijl. We controleren alles voordat jij het krijgt.",
           "Bevalt het ontwerp, dan kies je een pakket en maken we de kaart, de foto's en de teksten samen definitief. Daarna regelen wij hosting en updates. Verandert je kaart of gaat het terras dicht voor de winter, dan geef je dat door en passen wij het aan met een [onderhoudsabonnement](/website-onderhoud).",
         ],
       },
@@ -648,58 +648,6 @@ export const LANDINGS: Landing[] = [
       { q: "Wat als ik het nieuwe ontwerp niet beter vind?", a: "Dan houd je gewoon je huidige website en betaal je niets. Het ontwerp vooraf is gratis en vrijblijvend." },
     ],
     related: ["/website-laten-maken", "/prijzen", "/website-onderhoud", "/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen"],
-  },
-  {
-    path: "/ai-website-laten-maken",
-    kind: "service",
-    label: "AI website laten maken",
-    service: "AI website laten maken",
-    keywords: { primary: "AI website laten maken", secondary: ["AI website builder", "website automatisch laten maken", "website met AI"] },
-    title: "AI website laten maken, gecontroleerd door mensen | HOPI",
-    description: "HOPI maakt je website met hulp van AI en een mens controleert het resultaat. Je ziet eerst gratis een ontwerp en betaalt pas als het bevalt.",
-    eyebrow: "AI website laten maken",
-    h1: "Een website met AI, *gecontroleerd* door mensen",
-    intro: "Een AI website laten maken kan bij HOPI, maar niet zonder mensen. Onze software onderzoekt je bedrijf en een AI-model schrijft een eerste versie van de teksten in een van onze ontwerpen. Daarna controleert iemand van HOPI het ontwerp, en maken we de teksten en foto's samen met jou definitief. AI voor de snelheid, mensen voor het oordeel.",
-    sections: [
-      {
-        h2: "Hoe we AI gebruiken om je website te maken",
-        items: [
-          { title: "Onderzoek", text: "Onze eigen software verzamelt openbare informatie over je bedrijf: je naam, branche, plaats, openingstijden en je huidige website, als je die hebt." },
-          { title: "Een eerste versie van de teksten", text: "Een AI-model, Claude van Anthropic, schrijft op basis daarvan de eerste teksten. Die komen in een van onze twaalf met de hand ontworpen websiteontwerpen." },
-          { title: "Automatisch getest", text: "De software test elke pagina in een echte browser, op telefoon, tablet en computer: de opmaak, de links, de formulieren en de basis van de snelheid." },
-          { title: "Gecontroleerd door een mens", text: "Iemand van HOPI bekijkt het ontwerp en keurt het goed. Pas daarna krijg jij het te zien." },
-          { title: "Samen afgerond", text: "Bevalt het ontwerp, dan maken we de teksten en foto's samen met jou definitief." },
-        ],
-      },
-      {
-        h2: "Wat AI bij ons niet doet",
-        body: ["Een taalmodel kan overtuigende zinnen schrijven over dingen die niet waar zijn. Op een bedrijfswebsite is dat een risico: één verzonnen review of verkeerde prijs kost je het vertrouwen van een bezoeker. Daarom geldt bij ons een harde regel: we verzinnen geen feiten. Wat ontbreekt, vullen we samen met jou in."],
-        list: ["Geen reviews of klantervaringen die je niet zelf hebt aangeleverd", "Geen prijzen die niet van jou komen", "Geen teamleden die je niet zelf hebt genoemd", "Geen beweringen over je bedrijf die je zelf niet doet, zoals keurmerken of beloftes"],
-      },
-      {
-        h2: "AI website laten maken of zelf een AI website builder gebruiken?",
-        body: [
-          "Met een AI website builder typ je een paar zinnen over je bedrijf en staat er binnen korte tijd een website. Dat is snel en goedkoop, en voor een hobbyproject of een eerste test prima. Wil je een professionele bedrijfswebsite, dan ligt het meeste werk daarna bij jou.",
-          "Je controleert dan zelf of elke zin klopt, of er geen beweringen in staan die niet waar zijn en of elke knop op een telefoon werkt. Je bepaalt zelf de opbouw die een bezoeker laat bellen of boeken, en je bent zelf verantwoordelijk voor domeinnaam, instellingen en bijhouden. Bij HOPI doet AI het snelle werk, test onze software elke pagina, beoordeelt een mens het resultaat en regelen wij de techniek.",
-          "Hoe zo'n builder werkt en waar je op moet letten, lees je in [hoe werkt een AI website builder](/blog/hoe-werkt-een-ai-website-builder). De bredere afweging staat in [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen).",
-        ],
-      },
-      {
-        h2: "Zo werkt het voor jou",
-        body: [
-          "Je vult het aanvraagformulier in. Omdat de eerste versie snel klaarstaat, kunnen we je een ontwerp van je eigen website laten zien voordat je iets betaalt. Bevalt het, dan kies je een pakket: {starter} voor een one-page website, {business} voor een complete website of {premium} voor een site op maat met bijvoorbeeld een reserverings- of boekingssysteem. Bevalt het niet, dan betaal je niets.",
-          "Daarna maken we de teksten en foto's samen definitief, gaat de website live en regelen wij hosting, SSL, back-ups en updates. Alle prijzen zijn exclusief {vat} btw en staan bij [prijzen](/prijzen).",
-        ],
-      },
-    ],
-    faq: [
-      { q: "Schrijft AI de hele website?", a: "Nee. Een AI-model schrijft een eerste versie van de teksten, op basis van openbare informatie over je bedrijf. Het ontwerp komt uit een van onze twaalf met de hand ontworpen websiteontwerpen. Iemand van HOPI controleert het geheel, en de definitieve teksten en foto's maken we samen met jou." },
-      { q: "Welk AI-model gebruiken jullie?", a: "Voor de eerste versie van de teksten gebruiken we Claude, een AI-model van Anthropic. Het onderzoek naar je bedrijf en het testen van de pagina's doet onze eigen software." },
-      { q: "Kan AI dingen over mijn bedrijf verzinnen?", a: "Dat risico bestaat bij elk taalmodel, en daarom zetten we er regels en controle omheen. We plaatsen geen reviews, prijzen, teamleden of beweringen die je niet zelf hebt aangeleverd. Iemand van HOPI controleert het ontwerp voordat je het krijgt, en de definitieve teksten maken we samen met jou." },
-      { q: "Is een website met AI goed voor Google?", a: "Voor Google telt vooral of een pagina nuttig is en klopt. Daarom controleren we de teksten en vullen we ze aan met wat alleen jij weet. Elke website krijgt een nette technische basis: snelle pagina's, duidelijke koppen en gestructureerde gegevens. Garanties over posities in Google geven we niet." },
-      { q: "Is een AI website goedkoper?", a: "AI zit in de manier waarop we elk ontwerp maken; het is geen aparte, goedkopere variant. Je betaalt de vaste pakketprijzen, vanaf {from} exclusief btw, en het ontwerp vooraf is gratis." },
-    ],
-    related: ["/website-laten-maken", "/blog/hoe-werkt-een-ai-website-builder", "/blog/website-laten-maken-of-zelf-bouwen", "/prijzen"],
   },
 ];
 

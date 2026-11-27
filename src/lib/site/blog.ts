@@ -155,7 +155,7 @@ Schat hoeveel uur je kwijt bent aan zelf bouwen, schrijven en bijhouden, en verm
 Het grootste bezwaar tegen laten maken is dat je vooraf niet weet wat je krijgt. Bij HOPI lossen we dat op door de volgorde om te draaien. Je ziet eerst gratis een ontwerp van je eigen website, met je naam en diensten erin. Bevalt het niet, dan stopt het daar. Bevalt het wel, dan kies je een pakket vanaf {starter}, exclusief btw.
 
 > Twijfel je nog? [Vraag een gratis ontwerp aan](#contact) en leg het naast wat je zelf zou bouwen.`,
-    related: ["/website-laten-maken", "/website-laten-maken/zzp", "/blog/hoe-werkt-een-ai-website-builder", "/blog/wat-kost-een-website-laten-maken"],
+    related: ["/website-laten-maken", "/website-laten-maken/zzp", "/blog/meer-klanten-via-je-website", "/blog/wat-kost-een-website-laten-maken"],
   },
   {
     slug: "waar-moet-een-goede-bedrijfswebsite-aan-voldoen",
@@ -274,7 +274,7 @@ Wees op je hoede bij garanties als "nummer één in Google". Niemand kan positie
 Het zou vreemd zijn om deze lijst te publiceren zonder er zelf langs te gaan. Bij HOPI zie je eerst gratis een ontwerp van je eigen website (vraag 1). De pakketten en wat erin zit, staan met vaste bedragen op de pagina [prijzen](/prijzen) (vraag 2 en 5). Posities in Google garanderen we niet (vraag 8). En de voorbeelden op onze website zijn demo-ontwerpen voor fictieve bedrijven; dat staat er ook bij (vraag 7).
 
 > Wil je zelf zien wat je krijgt? [Vraag een gratis ontwerp aan](#contact).`,
-    related: ["/website-laten-maken", "/prijzen", "/blog/maatwerk-website-of-template", "/blog/hoe-werkt-een-ai-website-builder"],
+    related: ["/website-laten-maken", "/prijzen", "/blog/maatwerk-website-of-template", "/blog/meer-klanten-via-je-website"],
   },
   {
     slug: "beter-vindbaar-in-google",
@@ -550,7 +550,7 @@ Twijfel je of je huidige website nog te redden is? Soms is een website met een p
 
 ## Hoe HOPI met mobiel omgaat
 
-Elke website die wij maken, is mobile-first: we beginnen bij de telefoon. Onze software test elke pagina automatisch in een echte browser op telefoon, tablet en desktop, op opmaak, links, formulieren en de basis van de snelheid. Daarna kijkt een mens van HOPI het ontwerp na en keurt het goed voordat jij het ziet. Meer over hoe dat werkt, lees je op [website laten maken](/website-laten-maken).
+Elke website die wij maken, is mobile-first: we beginnen bij de telefoon. We testen elke pagina op telefoon, tablet en desktop: de opmaak, de links, de formulieren en de basis van de snelheid. Pas als alles klopt, krijg jij het ontwerp te zien. Meer over hoe dat werkt, lees je op [website laten maken](/website-laten-maken).
 
 > Benieuwd hoe je bedrijf eruitziet op een telefoon? [Vraag een gratis ontwerp aan](#contact) en bekijk het op je eigen scherm.`,
     related: ["/website-laten-maken", "/website-redesign", "/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen", "/blog/beter-vindbaar-in-google"],
@@ -638,85 +638,6 @@ Het makkelijkst beslis je als je iets concreets voor je hebt. Op [ons werk](/wer
     sources: [
       { label: "web.dev: How the Core Web Vitals metrics thresholds were defined", url: "https://web.dev/articles/defining-core-web-vitals-thresholds" },
       { label: "PageSpeed Insights (Google)", url: "https://pagespeed.web.dev/" },
-    ],
-  },
-  {
-    slug: "hoe-werkt-een-ai-website-builder",
-    category: "aanpak",
-    keyword: "hoe werkt een AI website builder",
-    title: "Hoe werkt een AI website builder?",
-    seoTitle: "Hoe werkt een AI website builder? | HOPI",
-    description: "Hoe werkt een AI website builder, wat doet hij goed en waar gaat het mis? Over vage teksten, verzonnen feiten, toegankelijkheid en de rol van een mens.",
-    excerpt: "Wat er gebeurt als je op genereer klikt, waar AI sterk in is en waar je zelf moet blijven opletten.",
-    published: "2026-11-28",
-    modified: "2026-11-28",
-    readMinutes: 5,
-    body: `Een AI website builder maakt op basis van een korte omschrijving van je bedrijf automatisch een website: hij kiest een opmaak uit een verzameling ontwerpen, laat een taalmodel de teksten schrijven en vult de pagina's met afbeeldingen. Binnen een paar minuten heb je zo een eerste versie. Dat is een prima startpunt, maar zelden een eindresultaat: de teksten zijn vaak algemeen, soms kloppen de feiten niet en toegankelijkheid krijgt weinig aandacht.
-
-## Wat er gebeurt als je op "genereer" klikt
-
-De meeste AI website builders werken in een paar stappen, ook al lijkt het één knop:
-
-- **Je geeft input.** Meestal je bedrijfsnaam, je branche, een paar zinnen over wat je doet en soms je plaats of je bestaande website.
-- **Het systeem kiest een structuur.** Op basis van je branche bepaalt het welke pagina's en blokken er komen: een kop bovenaan, diensten, over ons, contact. Bijna altijd uit een vaste verzameling sjablonen en bouwblokken.
-- **Een taalmodel schrijft de teksten.** Een AI-model krijgt je input en de structuur, en schrijft koppen en alinea's die bij je branche passen.
-- **Er komen beelden bij.** Vaak stockfoto's die bij je branche passen, of afbeeldingen die door AI zijn gemaakt.
-- **Jij past aan en publiceert.** In een editor wijzig je teksten, kleuren en foto's, en zet je de site online.
-
-De slimheid zit dus vooral in het schrijven en in het snel kiezen en vullen van een sjabloon. Het ontwerp zelf komt meestal uit een bibliotheek, net als bij een gewone websitebouwer.
-
-## Waar AI website builders goed in zijn
-
-- **Snelheid.** Van niets naar een complete eerste versie in minuten in plaats van dagen.
-- **Het lege vel.** Veel ondernemers lopen vast op de eerste zin. Een conceptversie geeft iets om op te reageren, en reageren is makkelijker dan beginnen.
-- **Structuur.** Een AI kent de gebruikelijke opbouw van een website in jouw branche en vergeet zelden een contactpagina.
-- **Variaties.** Je laat snel drie versies van een kop maken en kiest de beste.
-
-## Waar het misgaat
-
-### Algemene teksten
-
-Een taalmodel schrijft wat in het algemeen bij jouw soort bedrijf past. Het resultaat leest vlot, maar klinkt als iedereen: "Wij staan voor kwaliteit en service", "Uw tevredenheid is onze prioriteit". Zulke zinnen vertellen een bezoeker niet waarom hij jou zou kiezen. Wat jou anders maakt, weet het model niet, tenzij jij het vertelt.
-
-### Verzonnen feiten
-
-Taalmodellen kunnen overtuigend dingen opschrijven die niet waar zijn. Op een website betekent dat een oprichtingsjaar dat niet klopt, een dienst die je niet levert, een prijs die je nooit hebt genoemd, of zelfs reviews en klantnamen die niet bestaan. Dat laatste is meer dan slordig: nepreviews zijn in Nederland expliciet verboden en de Autoriteit Consument & Markt treedt ertegen op. Ook als een AI de tekst schreef, ben jij verantwoordelijk voor wat er op je website staat.
-
-### Toegankelijkheid
-
-Een website moet ook bruikbaar zijn voor mensen die slecht zien, een schermlezer gebruiken of hun telefoon met één hand bedienen. Gegenereerde sites schieten daar vaak tekort: afbeeldingen zonder beschrijving, te weinig contrast tussen tekst en achtergrond, knoppen die te klein zijn. De richtlijnen van WCAG 2.2 geven houvast, bijvoorbeeld met een minimale maat voor klikbare elementen. Verkoop je online, dan kunnen er sinds 28 juni 2025 ook wettelijke eisen voor digitale toegankelijkheid voor je gelden; op Ondernemersplein lees je of dat voor jouw bedrijf zo is.
-
-### Hetzelfde als de buren
-
-Omdat het ontwerp uit een gedeelde bibliotheek komt en het model voor dezelfde branche hetzelfde soort teksten schrijft, lijken AI-sites binnen een branche sterk op elkaar.
-
-## Vindt Google AI-teksten erg?
-
-Niet als zodanig. Google Search Central schreef in 2023 dat het beloont op kwaliteit van de inhoud, niet op de manier waarop die gemaakt is. Inhoud die vooral bedoeld is om zoekresultaten te manipuleren, blijft wel spam, ook als een AI hem schreef. Voor je website betekent dat: een AI-tekst is prima als hij klopt, specifiek is en je bezoeker helpt. Een gegenereerde tekst die niemand heeft nagelezen, is dat zelden.
-
-## Zo haal je het meeste uit een AI website builder
-
-- **Geef concrete input.** Je plaats, je specialisme, je werkgebied, wat klanten je vaak vragen. Hoe specifieker de input, hoe minder algemeen de tekst.
-- **Lees elke zin na.** Klopt het, zou je het zelf zo zeggen, en begrijpt een klant het?
-- **Schrap alles wat je niet kunt waarmaken.** Jaartallen, aantallen, keurmerken, reviews.
-- **Vervang stockfoto's** door echte foto's van jou, je werk of je zaak.
-- **Test op je telefoon.** Kun je bellen met één tik en het formulier invullen met je duim?
-
-## Hoe HOPI AI gebruikt
-
-Wij gebruiken AI ook, en vertellen graag precies hoe. Vraag je een gratis ontwerp aan, dan zoekt onze eigen software openbare informatie over je bedrijf op: je naam, branche, plaats, openingstijden en je huidige website als je die hebt. Daarna schrijft een AI-model (Claude, van Anthropic) een eerste versie van de teksten in een van onze twaalf websiteontwerpen, die we zelf met de hand hebben ontworpen.
-
-Dan komen de controles. De software test elke pagina automatisch in een echte browser, op telefoon, tablet en desktop: opmaak, links, formulieren en de basis van de snelheid. Vervolgens bekijkt een mens van HOPI het ontwerp en keurt het goed voordat jij het krijgt. We verzinnen geen feiten: geen reviews, prijzen, teamleden of beweringen die je bedrijf zelf niet heeft aangeleverd. De teksten en foto's maken we daarna samen met jou definitief.
-
-Het verschil met een AI website builder is dus niet dat er geen AI in zit, maar dat AI het begin is in plaats van het eindproduct. Meer over deze aanpak lees je op [AI website laten maken](/ai-website-laten-maken). Twijfel je tussen een vast ontwerp en volledig maatwerk, lees dan [maatwerk website of template](/blog/maatwerk-website-of-template).
-
-> Benieuwd wat dit voor je eigen bedrijf oplevert? [Vraag een gratis ontwerp aan](#contact). Je betaalt pas als het je bevalt.`,
-    related: ["/ai-website-laten-maken", "/website-laten-maken", "/blog/maatwerk-website-of-template", "/blog/website-laten-maken-of-zelf-bouwen"],
-    sources: [
-      { label: "Google Search Central Blog: Google Search's guidance about AI-generated content (2023)", url: "https://developers.google.com/search/blog/2023/02/google-search-and-ai-content" },
-      { label: "ACM: Strengere regels voor online verkopers (verbod op nepreviews)", url: "https://www.acm.nl/nl/publicaties/acm-strengere-regels-voor-online-verkopers" },
-      { label: "W3C: Understanding WCAG 2.2, Target Size (Minimum)", url: "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" },
-      { label: "Ondernemersplein: Regels voor digitale toegankelijkheid", url: "https://ondernemersplein.overheid.nl/wetten-en-regels/regels-voor-digitale-toegankelijkheid/" },
     ],
   },
   {

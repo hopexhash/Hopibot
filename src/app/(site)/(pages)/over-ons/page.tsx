@@ -10,7 +10,7 @@ import { getSiteData } from "@/server/site";
 
 const PATH = "/over-ons";
 const CRUMBS = [{ name: "Over ons", path: PATH }];
-const DESCRIPTION = "Wie HOPI is, wat we maken, hoe we werken met AI en mensen, voor wie, en waarom je bij ons eerst je ontwerp ziet en dan pas betaalt.";
+const DESCRIPTION = "Wie HOPI is, wat we maken, hoe we werken, voor wie, en waarom je bij ons eerst gratis je ontwerp ziet en dan pas betaalt.";
 
 export const generateMetadata = () =>
   seoMeta({
@@ -99,15 +99,14 @@ export default async function AboutPage() {
         <section className="section tint">
           <div className="wrap">
             <div className="section-head" data-reveal>
-              <h2>Hoe we werken: software voor de snelheid, mensen voor het oordeel</h2>
+              <h2>Hoe we werken</h2>
               <p>
-                Onze eigen software zoekt op wat er openbaar over je bedrijf bekend is en zet een eerste versie van de teksten in een van onze ontwerpen. Daarbij gebruiken we een AI-model. De software
-                test elke pagina automatisch op telefoon, tablet en computer. Daarna kijkt een mens van HOPI alles na, en pas dan krijg jij het ontwerp te zien. Verzonnen feiten komen er niet in: wat
+                Je vertelt ons kort over je bedrijf. Wij bekijken wat er al over je te vinden is, zoals je huidige website en je openingstijden, en maken een eerste ontwerp in een van onze eigen
+                ontwerpen: met je eigen naam, diensten en stijl. Elke pagina testen we op telefoon, tablet en computer, en we controleren alles voordat jij het ziet. Verzonnen feiten komen er niet in: wat
                 we niet zeker weten, laten we weg of vragen we je.
               </p>
               <p>
-                Zo kunnen we je snel en gratis een ontwerp laten zien, zonder dat de kwaliteit van het oordeel bij een machine ligt. Meer hierover lees je op{" "}
-                <Link href="/ai-website-laten-maken">AI website laten maken</Link>.
+                Zo kun je gratis beoordelen hoe je nieuwe website eruitziet, voordat je ergens aan vastzit. Hoe een traject verder verloopt, lees je bij <Link href="/website-laten-maken">website laten maken</Link>.
               </p>
             </div>
           </div>
