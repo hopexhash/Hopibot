@@ -708,7 +708,7 @@
 .d-veldwerk .w-now {
   position: absolute;
   inset: calc(2.83 * var(--hh)) 0 auto 0;
-  z-index: 4;
+  z-index: 0;
   height: 1px;
   background: var(--lime);
   box-shadow: 0 0 10px var(--lime);
@@ -1050,11 +1050,6 @@
   }
   .d-veldwerk .w-board-foot {
     padding: 8px 14px 8px 24px;
-  }
-}
-@media (min-width: 1200px) {
-  .d-veldwerk .w-job.is-short em {
-    display: inline;
   }
 }
 
@@ -2507,6 +2502,12 @@
 @media (min-width: 1000px) {
   .d-veldwerk .w-pane {
     margin-top: 34px;
+  }
+  .d-veldwerk .w-wk-grid i {
+    height: 64px;
+  }
+  .d-veldwerk .w-wk-todo p {
+    padding-block: 13px;
   }
   .d-veldwerk .w-pane-in {
     grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);

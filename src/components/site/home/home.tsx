@@ -146,7 +146,7 @@ export function Home({ data }: { data: SiteData }) {
                 <li className="wx-item wx-end">
                   <Link href="/werk" className="wx-all" data-cursor="Open" data-pt="Werk">
                     <span className="mono">
-                      {no(allProjects().length)} demo-websites
+                      {no(allProjects().length - 1)} demo-websites
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                     <span className="wx-all-t">{HOME.work.all}</span>

@@ -98,8 +98,8 @@ type Job = { id: string; t: string; p: string; s: number; d: number; r: number; 
 const LABEL: Record<State, string> = { plan: "Gepland", way: "Onderweg", busy: "Bezig", done: "Afgerond" };
 const HOURS = ["08", "09", "10", "11", "12", "13", "14", "15", "16"];
 const TECHS = [
-  { n: "Daan", role: "Bus 1 · cv en sanitair" },
-  { n: "Mila", role: "Bus 2 · warmtepompen" },
+  { n: "Daan", role: "Bus 1 · sanitair" },
+  { n: "Mila", role: "Bus 2 · warmtepomp" },
   { n: "Sem", role: "Bus 3 · elektra" },
   { n: "Yara", role: "Bus 4 · duurzaam" },
 ];
@@ -114,9 +114,9 @@ const JOBS: Job[] = [
   { id: "c1", t: "Jaarlijks onderhoud", p: "Maarssen", s: 0, d: 2, r: 2, tone: "v", st: "done" },
   { id: "c2", t: "Airco service", p: "Vleuten", s: 2.5, d: 1.5, r: 2, tone: "v", st: "busy" },
   { id: "c3", t: "Meterkast uitbreiden", p: "De Meern", s: 5, d: 2, r: 2, tone: "c", st: "plan" },
-  { id: "c4", t: "Inspectie ketel", p: "Woerden", s: 7.5, d: 1, r: 2, tone: "a", st: "plan" },
+  { id: "c4", t: "Ketelkeuring", p: "Woerden", s: 7.5, d: 1, r: 2, tone: "a", st: "plan" },
   { id: "d1", t: "Zonneboiler controle", p: "Houten", s: 1, d: 2.5, r: 3, tone: "a", st: "busy" },
-  { id: "d2", t: "Offertebezoek", p: "Odijk", s: 5.5, d: 1, r: 3, tone: "v", st: "plan" },
+  { id: "d2", t: "Offerte", p: "Odijk", s: 5.5, d: 1, r: 3, tone: "v", st: "plan" },
   { id: "d3", t: "Lekdetectie", p: "Vianen", s: 7, d: 2, r: 3, tone: "p", st: "plan" },
 ];
 const LOG = [
@@ -450,7 +450,7 @@ const PLANS = [
 
 export function Pricing() {
   const [yearly, setYearly] = useState(false);
-  const [seats, setSeats] = useState(8);
+  const [seats, setSeats] = useState(5);
   const set = (n: number) => setSeats(Math.max(1, Math.min(40, n)));
   return (
     <div className="w-pricing">
