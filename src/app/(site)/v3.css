@@ -1427,6 +1427,27 @@ body.hopi.v3 {
   background-color: #0c0c0d;
 }
 
+/* WhatsApp has one place per layout. Wide screens (text and form side by side): a button under
+   the text. Phones (one column): centred under the request button, after "of". */
+.hopi.v3 .contact-wa {
+  display: none;
+}
+@media (min-width: 980px) {
+  .hopi.v3 .contact-wa {
+    display: inline-flex;
+    --btn-fill: #128c4a;
+    background-color: #1faa59;
+    background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
+    color: #fff;
+  }
+  .hopi.v3 .contact-wa:hover {
+    color: #fff;
+  }
+  .hopi.v3 .form .form-or,
+  .hopi.v3 .form a.form-wa {
+    display: none;
+  }
+}
 /* Under the request button: "of", then WhatsApp in its own green. */
 .hopi.v3 .form-or {
   display: flex;

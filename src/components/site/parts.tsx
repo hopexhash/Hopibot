@@ -264,6 +264,12 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
             {b}
           </h2>
           <p>{text}</p>
+          {/* Wide screens: WhatsApp beside the form. Phones get it under the request button instead. */}
+          {data.whatsapp && (
+            <a href={data.whatsapp} target="_blank" rel="noopener" className="btn btn-wa contact-wa" data-track="whatsapp_click" data-track-label="contact" data-track-location={source}>
+              <WhatsAppIcon /> Stuur ons een WhatsApp
+            </a>
+          )}
           <ul className="contact-list">
             {data.phone && (
               <li>
