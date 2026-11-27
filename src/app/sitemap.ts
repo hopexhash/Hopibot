@@ -6,7 +6,7 @@ import { abs } from "@/lib/site/seo";
 import { noindexPaths } from "@/lib/site/seo-meta";
 
 /** Last substantial edit of the static pages; articles carry their own dates. */
-const CONTENT_UPDATED = "2026-11-26";
+const CONTENT_UPDATED = "2026-11-28";
 
 /** Every indexable page of the public website, and nothing else (pages set to noindex in the SEO control center leave it). */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

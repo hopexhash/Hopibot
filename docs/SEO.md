@@ -1,8 +1,169 @@
-# HOPI website: SEO audit and plan
+# HOPI website: SEO audit, architecture and plan
 
-Date: 26 November 2026. Site: https://wearehopi.nl (until 27 November 2026 at https://hopibot.vercel.app, which now redirects).
+Site: https://wearehopi.nl (until 27 November 2026 at https://hopibot.vercel.app, which now
+redirects every page with a 308 to the same page on the domain).
 
-This is an improvement of the existing website, not a redesign: the brand, colours, typography, layout language and all backend functions are unchanged.
+Latest round: 28 November 2026 (sections 0 and 0.1 to 0.9). The older sections below describe
+the foundation from 26 November and are still accurate unless section 0 says otherwise.
+
+Nobody can promise positions in Google, and this document does not. What is in place is a
+technically clean site with one page per search intent, honest Dutch content, structured data
+that describes one connected organisation, and the measurement to see what works.
+
+## 0. Round of 28 November 2026
+
+### 0.1 Audit (production build, crawled like a search engine: server HTML, no JavaScript)
+
+| Check | Result before this round | Now |
+|---|---|---|
+| Pages in the sitemap, all HTTP 200, `index, follow`, one H1, no heading skips | 38 / all pass | 48 / all pass |
+| Duplicate titles or descriptions | none | none |
+| Titles over 60 characters | 3 (home, two project pages) | 0 |
+| Canonical = own URL, absolute, on wearehopi.nl | yes | yes (query strings and trailing slashes canonicalise; `/x/` 308s to `/x`) |
+| 404 for unknown pages, hidden control-room routes | real 404 | real 404 |
+| `hopibot.vercel.app` | separate copy of the site | 308 to the same page on wearehopi.nl (pages, demos, previews); `www` 308s to the apex |
+| Structured data | valid, but loose blocks without connections | one graph per page linked by `@id` (see 0.4) |
+| Internal links to industry pages | 2–3 per page (only the pillar page) | every page via the footer index + contextual links |
+| Hero previews on five landing pages | pointed at demos that no longer exist (all showed the same screenshot) | fixed |
+| Lighthouse mobile (home / pillar / article) | not measured after the redesign | Performance 94 / 96 / 92, SEO 100, Best practices 100, Accessibility 97*, CLS 0 |
+
+\* The 97 is a false positive: the header is drawn with "difference" blending (dark on light
+on screen); the checker computes white on light. LCP in Lighthouse's simulated mobile mode:
+2.6 s home, 2.7 s pillar; the article now serves a 720 px cover to phones.
+
+### 0.2 New pages
+
+| Page | Primary keyword | Why it exists |
+|---|---|---|
+| `/website-laten-maken/horeca` | website laten maken horeca | Cafés, lunchrooms, cafetaria's, bars: different needs from restaurants (takeaway, delivery platforms, changing hours). Restaurant page no longer claims "horeca" (now "restaurant website bouwen"). |
+| `/website-laten-maken/webshop` | webshop laten maken | Webshops are offered on quotation on the homepage; this page explains what sets the price. No package prices or offers on this page. |
+| `/ai-website-laten-maken` | AI website laten maken | Explains exactly how HOPI uses AI (research, first texts by Claude, browser tests, human approval) and what AI does not do. |
+| `/over-ons` | (brand: over HOPI) | Who HOPI is, what it does, how, for whom, what it deliberately does not do. AboutPage. Company details appear once filled in under Settings. |
+| `/contact` | (brand: contact HOPI) | Request form, contact details from Settings, what happens next. ContactPage. |
+| 5 articles (category in brackets) | see 0.3 | Each answers one real question with sources. |
+
+Pages from the brief that were **not** made, on purpose:
+
+- **City pages** (`/website-laten-maken/amsterdam` and others): HOPI works remotely and has no
+  local office, customers or projects in those cities yet. Ten pages with the same text and a
+  different city name are doorway pages and can hurt the whole site. Make one when there is
+  something local to show (section 12).
+- **`/diensten`, `/locaties`, `/cases`, `/portfolio`**: services live on the homepage and the
+  pillar page, the portfolio is `/werk`, and there are no client cases yet (all portfolio items
+  are demos). `/cases/<client>` becomes worthwhile with the first real, approved project.
+- **Blog category pages**: the blog index is grouped by four topics with anchors. Separate
+  category URLs would hold two to four articles each (thin pages); add them past ~6 per topic.
+- **Separate articles for "hoeveel kost een bedrijfswebsite", "zzp gids", "SEO belang",
+  "vindbaarheid"**: they would compete with the existing cost article, the zzp landing page and
+  the "beter vindbaar in Google" article. Merged into those instead.
+
+### 0.3 Keyword map additions
+
+| Page | Primary | Secondary | Intent |
+|---|---|---|---|
+| `/website-laten-maken/horeca` | website laten maken horeca | website voor cafetaria, website voor lunchroom, website café, snackbar website | Commercial, industry |
+| `/website-laten-maken/webshop` | webshop laten maken | webshop laten bouwen, online winkel laten maken, webshop voor kleine ondernemers | Commercial |
+| `/ai-website-laten-maken` | AI website laten maken | AI website builder, website automatisch laten maken, website met AI | Commercial |
+| `/blog/wat-moet-er-op-een-restaurantwebsite-staan` | wat moet er op een restaurantwebsite staan | restaurant website maken, professionele restaurantwebsite | Informational → restaurant page |
+| `/blog/waarom-is-een-mobiele-website-belangrijk` | waarom is een mobiele website belangrijk | mobile-first indexing | Informational |
+| `/blog/maatwerk-website-of-template` | verschil maatwerk website en template | | Informational |
+| `/blog/hoe-werkt-een-ai-website-builder` | hoe werkt een AI website builder | | Informational → AI page |
+| `/blog/meer-klanten-via-je-website` | hoe krijg je meer klanten via je website | | Informational |
+
+Restaurant page: secondary "horeca website" replaced by "restaurant website bouwen".
+Volumes and difficulty are still **unverified**: validate every row in Google Keyword
+Planner (search volume, competition) and, after a few weeks, in Search Console (impressions,
+position) via the SEO control center. Expect the head term "website laten maken" to be
+dominated by KVK, comparison sites and large agencies; the industry pages, the price page and
+the articles are the realistic first entries.
+
+### 0.4 Structured data
+
+- Every page: `WebPage` (or `AboutPage`, `ContactPage`, `CollectionPage`) with `@id`
+  `<url>#webpage`, `isPartOf` the `WebSite`, `breadcrumb` the page's `BreadcrumbList`.
+- `Organization` (`<site>/#organization`): name, logo, slogan, one consistent description
+  (also on the About page), `knowsAbout`, area served NL + BE; e-mail, phone, address, KvK,
+  Google profile and a `ContactPoint` only when filled in under Settings. Changed from
+  `ProfessionalService` (a LocalBusiness type that expects an address HOPI does not publish).
+- `Service` per landing page with `mainEntityOfPage` and `provider`; `Offer`s only for fixed
+  catalogue prices (none on the webshop page).
+- `BlogPosting` with `@id`, `isPartOf` the `Blog`, `articleSection`, `wordCount`, cover image,
+  publisher and author = the organisation (no invented authors).
+- `FAQPage` where FAQs are on the page. No ratings, reviews or awards anywhere.
+
+### 0.5 Blog engine
+
+Articles live in `src/lib/site/blog.ts` (reviewed text in code, like the landing pages). Each
+has: SEO title, description, slug, keyword, topic (`kosten`, `aanpak`, `vindbaarheid`,
+`branches`), published and updated date, reading time, optional cover image with alt text and
+size, sources (shown under the article), related pages, table of contents from its headings,
+canonical, Open Graph and `BlogPosting`. Author line: "de redactie van HOPI", linked to the
+About page. Titles and descriptions can be overridden in the SEO control center.
+
+### 0.6 SEO control center (dashboard → SEO)
+
+- **Overview**: internal site-health score (labelled as an internal diagnostic, not a Google
+  score), errors/warnings, pages in the sitemap, broken internal links; Google Search data;
+  all problems found, most serious first; Bing and Google verification.
+- **Audit** ("Run audit now"): reads `sitemap.xml` and `robots.txt`, fetches every page's server
+  HTML and checks status, noindex, title and description (missing, length, duplicates),
+  canonical, H1, heading order, structured data (parses, has types, required fields), Open
+  Graph, language, images (alt, width/height), thin content, internal links that break or
+  redirect, and pages no other page links to from its content (orphans; menus and footer are
+  not counted). Takes about a second for 48 pages.
+- **Pages**: every public page with type, live title, words, contextual links in, structured
+  data and problems; an editor per page for SEO title, description, canonical and noindex,
+  with a search-result preview. Saving updates the live page and the sitemap within minutes;
+  "Reset" returns to the page's own values. Only the workspace that owns the website can edit.
+- **Google Search Console & Analytics** (Integrations): read-only service account. Shows
+  clicks, impressions, CTR and average position for the last 28 days against the 28 before,
+  top queries, top pages, pages losing clicks, sitemap status, and GA4 organic sessions and key
+  events by landing page. Until a key is connected the section says so and shows no numbers.
+
+### 0.7 What needs your accounts (cannot be done from here)
+
+1. **Google Search Console**: verify `wearehopi.nl` (Domain property via DNS at GoDaddy, or the
+   HTML tag: paste the code under Settings → Website), then submit `https://wearehopi.nl/sitemap.xml`.
+2. **Search data in the dashboard**: Google Cloud → create a service account, enable "Google
+   Search Console API" and "Google Analytics Data API", download its JSON key; add the service
+   account's e-mail as a user in Search Console and as Viewer in GA4; paste the key under
+   Integrations → Google Search Console & Analytics with the property (`sc-domain:wearehopi.nl`)
+   and the GA4 property ID; press Test.
+3. **GA4**: create a property, paste the `G-…` ID under Settings → Website, mark `generate_lead`
+   as a key event.
+4. **Bing Webmaster Tools**: import from Search Console, or paste the verification code under
+   SEO → Search engines.
+5. **Google Business Profile** as a service-area business (category "Webdesigner"), and the
+   profile link under Settings → Website.
+6. **Company details** (KvK, address, e-mail, phone) under Settings: required by Dutch law on a
+   business website, and they complete the organisation in structured data.
+
+### 0.8 Authority and backlinks (no paid links, no networks)
+
+1. Consistent name, URL and description everywhere (use the About page sentence).
+2. Business directories that are real and moderated: KVK-linked listings, Google Business
+   Profile, Bing Places, Apple Business Connect, Trustoo/Werkspot-type marketplaces only if you
+   actually take work through them.
+3. Local partnerships: business associations (ondernemersverenigingen), coworking spaces,
+   accountants and printers who refer clients.
+4. Content others cite: the restaurant checklist and the cost article are linkable; offer them
+   to horeca and entrepreneur platforms as guest contributions (rewritten, not duplicated).
+5. Every delivered client site: with permission, a "Website door HOPI" footer link and a case
+   study on `/werk` with real, approved results.
+6. Reviews: ask every delivered client for a Google review; never write or buy them. Only then
+   add `Review` markup, and only for reviews that exist publicly.
+
+### 0.9 Next, in order of impact
+
+1. Do 0.7 (Search Console, sitemap, GA4, Business Profile, company details).
+2. After 3–4 weeks: in SEO → Overview, find pages with impressions but low CTR and rewrite
+   their titles/descriptions in SEO → Pages; find queries ranking 8–20 and strengthen those pages.
+3. First real clients → case studies with permission (problem, approach, verified result).
+4. Content backlog, one real question each: "Hoe lang duurt het om een website te laten
+   maken?", "Wat is hosting en heb ik het nodig?", "Website voor een kapsalon: waar let je op?",
+   "Google Bedrijfsprofiel instellen", and updating the cost article to 2027 in January.
+5. City page only with a delivered project in that city (section 12).
+6. French pages for Wallonia when French copy can be delivered.
 
 ## 1. Summary
 

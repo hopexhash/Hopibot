@@ -174,7 +174,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <Related paths={["/werk", "/website-laten-maken", "/prijzen", "/blog"]} />
+        <Related paths={["/werk", "/website-laten-maken", "/prijzen", "/contact"]} />
         <ContactSection data={data} source={PATH} />
       </main>
       <SiteFooter data={data} />

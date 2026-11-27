@@ -55,7 +55,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <figure className="article-cover">
               {/* The cover is the largest element on the first screen: loaded first, never lazily. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={a.image.src} alt={a.image.alt} width={a.image.width} height={a.image.height} fetchPriority="high" decoding="async" />
+              <img
+                src={a.image.src}
+                // Portfolio screenshots exist in a 720px version too: phones load that one.
+                srcSet={a.image.src.endsWith("-d-1440.webp") ? `${a.image.src.replace("-d-1440.webp", "-d-720.webp")} 720w, ${a.image.src} 1440w` : undefined}
+                sizes="(min-width: 1000px) 880px, 100vw"
+                alt={a.image.alt}
+                width={a.image.width}
+                height={a.image.height}
+                fetchPriority="high"
+                decoding="async"
+              />
             </figure>
           )}
           <div className="article-grid">

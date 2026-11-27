@@ -16,6 +16,7 @@ const ENV_CONFIG: Partial<Record<IntegrationKey, Record<string, string | undefin
   resend: { webhookSecret: process.env.RESEND_WEBHOOK_SECRET },
   stripe: { webhookSecret: process.env.STRIPE_WEBHOOK_SECRET },
   posthog: { host: process.env.POSTHOG_HOST },
+  google_search: { siteUrl: process.env.GSC_SITE_URL, ga4PropertyId: process.env.GA4_PROPERTY_ID },
 };
 
 /** Organisation credential (encrypted in DB) takes precedence over the environment. */

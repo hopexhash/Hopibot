@@ -10,6 +10,7 @@ import {
   Megaphone,
   Plug,
   Radar,
+  Search,
   Settings,
   ShieldCheck,
   TerminalSquare,
@@ -57,6 +58,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Intelligence",
     items: [
       { href: "/analytics", label: "Analytics", icon: BarChart3, match: ["/revenue", "/costs"], hint: "Results, revenue and AI costs" },
+      { href: "/seo", label: "SEO", icon: Search, hint: "How the HOPI website does in Google" },
       { href: "/automations", label: "Automations", icon: Workflow, hint: "Workflows that run by themselves" },
       { href: "/health", label: "System Health", icon: HeartPulse, hint: "Is everything running?" },
     ],
@@ -99,6 +101,10 @@ export const SUB_NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/websites", label: "Websites" },
     { href: "/previews", label: "Live previews" },
     { href: "/deployments", label: "Deployments" },
+  ],
+  "/seo": [
+    { href: "/seo", label: "Overview" },
+    { href: "/seo/pages", label: "Pages" },
   ],
   "/analytics": [
     { href: "/analytics", label: "Overview" },

@@ -101,6 +101,19 @@ export const INTEGRATIONS = [
     docs: "https://posthog.com/docs/api",
   },
   {
+    key: "google_search",
+    name: "Google Search Console & Analytics",
+    description: "Search performance (clicks, impressions, position, queries, sitemaps) and organic traffic in the SEO control center. Read-only, through a service account.",
+    secretLabel: "Service account key (whole JSON file)",
+    configFields: [
+      { key: "siteUrl", label: "Search Console property (sc-domain:wearehopi.nl or https://wearehopi.nl/)" },
+      { key: "ga4PropertyId", label: "GA4 property ID, numbers only (optional)" },
+    ],
+    envVar: "GOOGLE_SERVICE_ACCOUNT_JSON",
+    usedBy: [],
+    docs: "https://developers.google.com/webmaster-tools/v1/how-tos/authorizing",
+  },
+  {
     key: "supabase",
     name: "Supabase",
     description: "PostgreSQL database, authentication and storage. Configured via environment variables.",
