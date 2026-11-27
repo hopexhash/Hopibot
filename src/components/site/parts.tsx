@@ -373,21 +373,25 @@ export function PullGuy() {
   return (
     <>
       <div className="pull" aria-hidden="true">
-        <svg className="pull-guy" viewBox="0 0 132 110">
-          <path className="pull-arm" d="M100 70q20-6 22-30" />
-          {/* The body runs on far below the drawing: however far the page is pulled, he reaches it. */}
-          <path className="pull-body" d="M60 6c32 0 48 24 48 56v1900H12V62C12 30 28 6 60 6Z" />
-          <g className="pull-eyes">
-            <ellipse cx="44" cy="46" rx="11" ry="13" />
-            <ellipse cx="76" cy="46" rx="11" ry="13" />
-            <g className="pull-look">
-              <circle cx="46" cy="48" r="5.2" />
-              <circle cx="78" cy="48" r="5.2" />
+        <div className="pull-guy">
+          {/* His body is the whole gap: it runs from his shoulders to the page, edge to edge. */}
+          <div className="pull-torso">
+            <span className="mono">Hoi! Hoger kan niet.</span>
+          </div>
+          <svg className="pull-head" viewBox="-32 0 260 116">
+            <path className="pull-arm" d="M22 108Q-2 98-8 60" />
+            <path className="pull-body" d="M0 104q24 0 24-26V72C24 32 50 6 98 6s74 26 74 66v6q0 26 24 26v12H0Z" />
+            <g className="pull-eyes">
+              <ellipse cx="76" cy="54" rx="14" ry="17" />
+              <ellipse cx="120" cy="54" rx="14" ry="17" />
+              <g className="pull-look">
+                <circle cx="79" cy="57" r="6.5" />
+                <circle cx="123" cy="57" r="6.5" />
+              </g>
             </g>
-          </g>
-          <path className="pull-mouth" d="M51 71q9 8 18 0" />
-        </svg>
-        <span className="mono">Hoi! Hoger kan niet.</span>
+            <path className="pull-mouth" d="M86 84q12 10 24 0" />
+          </svg>
+        </div>
       </div>
       <div className="pull pull-b" aria-hidden="true" />
     </>

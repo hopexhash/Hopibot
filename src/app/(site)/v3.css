@@ -1150,14 +1150,29 @@ html.lenis body {
   inset: auto 0 0 0;
   background: #0c0c0d;
 }
+/* The character is as wide as the screen: a head between the logo and the menu button, and a
+   body that fills everything below it. All of it is plain boxes plus one small drawing that
+   stays inside its own frame, so no browser can cut part of him off. */
 .hopi.v3 .pull-guy {
+  --pw: clamp(196px, 54vw, 300px);
   position: absolute;
-  left: calc(var(--gutter) + 78px);
-  top: 12px;
-  width: 80px;
-  height: auto;
-  overflow: visible;
+  inset: 0;
+}
+.hopi.v3 .pull-head {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: var(--pw);
+  height: calc(var(--pw) * 0.44615);
+  margin-left: calc(var(--pw) / -2);
   transform-origin: 50% 100%;
+}
+.hopi.v3 .pull-torso {
+  position: absolute;
+  inset: calc(5.5px + var(--pw) * 0.4) 0 -60px 0;
+  border-radius: 26px 26px 0 0;
+  background: var(--accent);
+  text-align: center;
 }
 .hopi.v3 .pull-body {
   fill: var(--accent);
@@ -1165,10 +1180,10 @@ html.lenis body {
 .hopi.v3 .pull-arm {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 10;
+  stroke-width: 13;
   stroke-linecap: round;
   transform-box: fill-box;
-  transform-origin: 0% 100%;
+  transform-origin: 100% 100%;
 }
 .hopi.v3 .pull-eyes ellipse {
   fill: #f2eee6;
@@ -1177,27 +1192,26 @@ html.lenis body {
   transform-box: fill-box;
   transform-origin: 50% 50%;
 }
-.hopi.v3 .pull-look circle,
-.hopi.v3 .pull-mouth {
+.hopi.v3 .pull-look circle {
   fill: #0c0c0d;
 }
 .hopi.v3 .pull-mouth {
   fill: none;
   stroke: #0c0c0d;
-  stroke-width: 4;
+  stroke-width: 5;
   stroke-linecap: round;
 }
 .hopi.v3 .pull .mono {
-  position: absolute;
-  right: var(--gutter);
-  top: 62px;
-  opacity: 0.7;
+  display: inline-block;
+  margin-top: 26px;
+  color: #0c0c0d;
 }
-/* He only moves while he can be seen. He hops up, then idles: bobbing, glancing, blinking, waving. */
+/* He only moves while he can be seen. He rises, then idles: bobbing, glancing, blinking, waving. */
 .is-pull .hopi.v3 .pull-guy {
-  animation:
-    pull-pop 0.6s var(--ease-out),
-    pull-bob 1.5s ease-in-out 0.6s infinite alternate;
+  animation: pull-pop 0.55s var(--ease-out);
+}
+.is-pull .hopi.v3 .pull-head {
+  animation: pull-bob 1.5s ease-in-out 0.55s infinite alternate;
 }
 .is-pull .hopi.v3 .pull-arm {
   animation: pull-wave 0.42s ease-in-out infinite alternate;
@@ -1210,10 +1224,10 @@ html.lenis body {
 }
 @keyframes pull-pop {
   0% {
-    transform: translateY(70%) scale(0.7, 1.25);
+    transform: translateY(64px);
   }
-  55% {
-    transform: translateY(-8%) scale(1.08, 0.92);
+  60% {
+    transform: translateY(-5px);
   }
   100% {
     transform: none;
@@ -1221,15 +1235,15 @@ html.lenis body {
 }
 @keyframes pull-bob {
   to {
-    transform: translateY(5px) scale(1.03, 0.97);
+    transform: translateY(4px) scale(1.03, 0.97);
   }
 }
 @keyframes pull-wave {
   from {
-    transform: rotate(-16deg);
+    transform: rotate(-12deg);
   }
   to {
-    transform: rotate(20deg);
+    transform: rotate(14deg);
   }
 }
 @keyframes pull-glance {
@@ -1270,4 +1284,34 @@ html.lenis body {
 }
 .hopi.v3 .field > span {
   overflow-wrap: anywhere;
+}
+/* Phones: the form is a compact block with clear light space on every side. */
+@media (max-width: 619px) {
+  .hopi.v3 .form {
+    gap: 14px;
+    margin-inline: clamp(10px, 4vw, 20px);
+    padding: 18px 16px 20px;
+  }
+  .hopi.v3 .form .row {
+    gap: 14px;
+  }
+  .hopi.v3 .field input,
+  .hopi.v3 .field select,
+  .hopi.v3 .field textarea {
+    min-height: 50px;
+    padding: 11px 12px;
+  }
+  .hopi.v3 .field textarea {
+    min-height: 96px;
+  }
+  .hopi.v3 .form .btn {
+    min-height: 58px;
+  }
+}
+@media (min-width: 390px) and (max-width: 619px) {
+  .hopi.v3 .form .row-pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: end;
+  }
 }

@@ -467,7 +467,7 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
   return (
     <form action={action} className="form">
       <input type="hidden" name="source" value={source} />
-      <div className="row">
+      <div className="row row-pair">
         <label className="field">
           <span>Je naam</span>
           <input name="name" required minLength={2} maxLength={80} autoComplete="name" />
@@ -489,7 +489,7 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
           <input name="phone" type="tel" maxLength={30} autoComplete="tel" inputMode="tel" />
         </label>
       </div>
-      <div className="row">
+      <div className="row row-pair">
         <label className="field">
           <span>
             Plaats <small>(optioneel)</small>
