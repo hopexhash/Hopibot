@@ -450,7 +450,7 @@
   gap: 0.14em;
   padding: 0.02em 0;
   font-family: var(--x-display), sans-serif;
-  font-size: clamp(38px, min(12.6vw, 10.4svh), 150px);
+  font-size: clamp(32px, min(10.3vw, 10.4svh), 150px);
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 0.96;
@@ -575,7 +575,7 @@
 }
 .d-antipode .x-h1 {
   align-self: center;
-  font-size: 17.6vw;
+  font-size: 13.3vw;
   line-height: 0.8;
   letter-spacing: -0.055em;
 }
@@ -644,7 +644,7 @@
 }
 .d-antipode .x-h1-c {
   margin-top: 0.05em;
-  font-size: 1.5em;
+  font-size: 1.46em;
   animation: x-from-r 1.1s var(--ease) 0.34s both;
 }
 @keyframes x-from-r {
@@ -716,13 +716,13 @@
     padding-top: 92px;
   }
   .d-antipode .x-h1 {
-    font-size: min(14.4vw, 25svh);
+    font-size: min(13.6vw, 25svh);
   }
   .d-antipode .x-h1-b {
     margin-left: 9vw;
   }
   .d-antipode .x-h1-c {
-    font-size: 1em;
+    font-size: 0.82em;
     text-align: right;
   }
   .d-antipode .x-flip span {
@@ -851,7 +851,7 @@
 .d-antipode .x-say {
   max-width: 11.5em;
   font-family: var(--x-display), sans-serif;
-  font-size: clamp(38px, 8.6vw, 156px);
+  font-size: clamp(33px, 8.6vw, 156px);
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 0.9;
@@ -879,7 +879,7 @@
   color: var(--acid);
 }
 .d-antipode .x-say-in {
-  margin-left: clamp(0px, 13vw, 230px);
+  margin-left: clamp(0px, 7vw, 230px);
 }
 .d-antipode .x-say-r {
   margin-left: auto;
@@ -974,11 +974,11 @@
   display: flex;
   align-items: flex-start;
   margin: 0 0 0 -0.04em;
-  font-size: 33vw;
+  font-size: 21.6vw;
   letter-spacing: -0.075em;
   line-height: 0.76;
   white-space: nowrap;
-  transform: translateX(calc(var(--p, 0) * 6vw));
+  transform: translateX(calc(var(--p, 0) * 2.4vw));
 }
 .d-antipode .x-giant sup {
   margin: 0.5em 0 0 0.4em;
@@ -1027,8 +1027,8 @@
   position: relative;
   display: grid;
   grid-template-columns: 46vw minmax(0, 1fr);
-  grid-template-rows: auto 1fr auto auto;
-  grid-template-areas: "thumb no" "thumb ." "thumb kind" "name name";
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: "thumb no" "thumb kind" "thumb ." "name name";
   gap: 0 16px;
   width: 100%;
   padding: 20px var(--pad) 18px;
@@ -1039,12 +1039,12 @@
 }
 .d-antipode .x-row:nth-child(even) button {
   grid-template-columns: minmax(0, 1fr) 46vw;
-  grid-template-areas: "no thumb" ". thumb" "kind thumb" "name name";
+  grid-template-areas: "no thumb" "kind thumb" ". thumb" "name name";
 }
 .d-antipode .x-row-thumb {
   grid-area: thumb;
   display: block;
-  aspect-ratio: 46 / 27;
+  aspect-ratio: 46 / 30;
   overflow: hidden;
   transition: transform 0.6s var(--back);
 }
@@ -1062,6 +1062,7 @@
 }
 .d-antipode .x-row-kind {
   grid-area: kind;
+  margin-top: 6px;
   font-size: 14.5px;
   font-weight: 500;
   line-height: 1.25;
@@ -1079,10 +1080,9 @@
 }
 .d-antipode .x-row-name {
   grid-area: name;
-  max-width: calc(100% - 54px);
-  margin-top: 14px;
+  margin-top: 16px;
   font-family: var(--x-display), sans-serif;
-  font-size: clamp(42px, 13vw, 84px);
+  font-size: 11.3vw;
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 0.88;
@@ -1091,7 +1091,7 @@
 .d-antipode .x-row-plus {
   position: absolute;
   right: var(--pad);
-  bottom: 18px;
+  top: calc(20px + 30vw - 44px);
   width: 44px;
   height: 44px;
   border: 2px solid currentColor;
@@ -1125,6 +1125,10 @@
 }
 .d-antipode .x-row[data-open] .x-row-thumb {
   transform: rotate(-5deg) scale(1.04);
+}
+.d-antipode .x-row:nth-child(even) .x-row-plus {
+  right: auto;
+  left: var(--pad);
 }
 /* The frames: no two projects get the same one */
 .d-antipode .s-arch {
@@ -1212,18 +1216,14 @@
   display: none;
 }
 @media (min-width: 900px) {
-  .d-antipode .x-work-head {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-  }
-  .d-antipode .x-work-head .x-kick {
-    grid-column: 1 / -1;
-  }
-  .d-antipode .x-giant {
-    font-size: min(30vw, 62svh);
-  }
   .d-antipode .x-work-intro {
-    padding-bottom: 1.2vw;
+    display: grid;
+    grid-template-columns: minmax(0, 34ch) auto;
+    justify-content: space-between;
+    align-items: end;
+    gap: 40px;
+    max-width: none;
+    margin-top: 1.4vw;
   }
   .d-antipode .x-row button,
   .d-antipode .x-row:nth-child(even) button {
@@ -1235,16 +1235,19 @@
     padding-block: clamp(14px, 1.5vw, 24px);
   }
   .d-antipode .x-row-name {
-    max-width: none;
     margin: 0;
-    font-size: clamp(44px, 6.6vw, 118px);
+    font-size: clamp(40px, 5.5vw, 100px);
     white-space: nowrap;
   }
   .d-antipode .x-row-year,
   .d-antipode .x-row:nth-child(even) .x-row-year,
-  .d-antipode .x-row-plus {
+  .d-antipode .x-row-plus,
+  .d-antipode .x-row:nth-child(even) .x-row-plus {
     position: relative;
     inset: auto;
+  }
+  .d-antipode .x-row-kind {
+    margin: 0;
   }
   .d-antipode .x-row-year {
     grid-area: year;
@@ -1367,15 +1370,17 @@
 }
 .d-antipode .x-acc button {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 44px;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  grid-template-areas: "no plus" "name name";
   align-items: center;
   width: 100%;
-  padding: 14px var(--pad) 8px;
+  padding: 14px var(--pad) 14px;
   border: 0;
   background: none;
   text-align: left;
 }
 .d-antipode .x-acc-no {
+  grid-area: no;
   margin-left: -0.05em;
   font-family: var(--x-display), sans-serif;
   font-size: clamp(84px, 24vw, 130px);
@@ -1396,9 +1401,10 @@
 }
 .d-antipode .x-acc-name {
   position: relative;
-  margin-left: -0.3em;
+  grid-area: name;
+  margin-top: -0.42em;
   font-family: var(--x-display), sans-serif;
-  font-size: clamp(28px, 5.6vw, 96px);
+  font-size: 9.6vw;
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 0.9;
@@ -1412,6 +1418,7 @@
 }
 .d-antipode .x-acc-plus {
   position: relative;
+  grid-area: plus;
   width: 44px;
   height: 44px;
   border: 2px solid currentColor;
@@ -1487,18 +1494,21 @@
     grid-column: 1 / -1;
   }
   .d-antipode .x-acc button {
-    grid-template-columns: 27vw minmax(0, 1fr) minmax(0, 17em) 56px;
+    grid-template-columns: 24vw minmax(0, 1fr) minmax(0, 15em) 56px;
+    grid-template-areas: "no name line plus";
     gap: 0 clamp(16px, 2vw, 36px);
     padding-block: 18px 10px;
   }
   .d-antipode .x-acc-no {
-    font-size: min(17vw, 300px);
+    font-size: min(15.4vw, 280px);
   }
   .d-antipode .x-acc-name {
-    margin-left: 0;
+    margin: 0;
+    font-size: min(4.2vw, 76px);
   }
   .d-antipode .x-acc-line {
     display: block;
+    grid-area: line;
     font-size: 16px;
     font-weight: 500;
     line-height: 1.35;
@@ -1514,7 +1524,7 @@
   .d-antipode .x-acc-panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
     gap: 24px clamp(30px, 5vw, 90px);
-    padding: 8px var(--pad) 50px calc(var(--pad) + 27vw + clamp(16px, 2vw, 36px));
+    padding: 8px var(--pad) 50px calc(var(--pad) + 24vw + clamp(16px, 2vw, 36px));
   }
   .d-antipode .x-acc-panel ul {
     grid-row: span 2;
@@ -1565,12 +1575,12 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: 0 0.5em;
-  margin-left: calc(var(--i) * 4vw);
+  gap: 0 10px;
+  margin-left: calc(var(--i) * 2vw);
 }
 .d-antipode .x-step-no {
   font-family: var(--x-display), sans-serif;
-  font-size: clamp(44px, 9.6vw, 170px);
+  font-size: 6.2vw;
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 0.9;
@@ -1578,7 +1588,7 @@
   -webkit-text-stroke: 2px var(--ink);
 }
 .d-antipode .x-steps h3 {
-  font-size: clamp(44px, 9.6vw, 170px);
+  font-size: 9.3vw;
   letter-spacing: -0.055em;
 }
 .d-antipode .x-steps li > div {
@@ -1624,7 +1634,14 @@
     margin: 0;
   }
   .d-antipode .x-steps li {
+    gap: 0 1.6vw;
     margin-left: calc(var(--i) * 11vw);
+  }
+  .d-antipode .x-step-no {
+    font-size: min(4.6vw, 86px);
+  }
+  .d-antipode .x-steps h3 {
+    font-size: min(7vw, 130px);
   }
   .d-antipode .x-how-pic-b {
     position: absolute;
@@ -1658,7 +1675,7 @@
 }
 .d-antipode .x-team-head h2,
 .d-antipode .x-cli-head h2 {
-  font-size: clamp(33px, 7.4vw, 132px);
+  font-size: clamp(28px, 8.2vw, 128px);
 }
 .d-antipode .x-team-grid {
   position: relative;
@@ -1918,7 +1935,7 @@
   margin: clamp(36px, 5vw, 76px) 0 clamp(44px, 6vw, 90px);
   padding-inline: var(--pad);
   font-family: var(--x-display), sans-serif;
-  font-size: 16.6vw;
+  font-size: 13vw;
   font-weight: 800;
   letter-spacing: -0.065em;
   line-height: 0.86;
@@ -2061,9 +2078,9 @@
 }
 @media (min-width: 900px) {
   .d-antipode .x-mail {
-    font-size: 6.7vw;
+    font-size: 6.6vw;
   }
-  .d-antipode .x-mail span {
+  .d-antipode .x-mail span:not(:first-child) {
     display: inline;
   }
   .d-antipode .x-contact-grid {
@@ -2087,7 +2104,7 @@
 .d-antipode .x-foot-mark {
   margin: 0 0 clamp(44px, 6vw, 90px) -0.04em;
   font-family: var(--x-display), sans-serif;
-  font-size: 19vw;
+  font-size: 13.4vw;
   font-weight: 800;
   letter-spacing: -0.07em;
   line-height: 0.8;

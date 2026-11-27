@@ -412,7 +412,7 @@ export default function Antipode() {
               <b>06</b> Opdrachtgevers
             </p>
             <h2 data-rv="mask">
-              <span>Voor wie we het</span>
+              <span>Wie we al</span>
               <span>omdraaiden.</span>
             </h2>
           </header>

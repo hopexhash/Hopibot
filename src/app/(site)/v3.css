@@ -1443,12 +1443,25 @@ body.hopi.v3 {
 .hopi.v3 .contact-wa:hover svg {
   transform: none;
 }
+/* One column (phones and tablets): the whole contact text is centred, not just the button. */
 @media (max-width: 979px) {
+  .hopi.v3 .contact-copy {
+    text-align: center;
+  }
+  .hopi.v3 .contact-copy > p {
+    margin-inline: auto;
+  }
   .hopi.v3 .contact-wa {
     display: flex;
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
+  }
+  .hopi.v3 .contact-list {
+    justify-items: center;
+  }
+  .hopi.v3 .contact-list li {
+    text-align: left;
   }
 }
 
