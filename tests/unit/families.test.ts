@@ -6,7 +6,6 @@ import { FAMILIES } from "@/sites/families";
 import { fontFilesInHtml } from "@/sites/fonts";
 import { renderSite } from "@/sites/render";
 import { sampleSpec } from "../../scripts/render-family";
-// @ts-expect-error plain script without types
 import { build } from "../../scripts/family-css.mjs";
 
 /**
