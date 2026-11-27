@@ -178,6 +178,7 @@ export default function Antipode() {
                 <span className="x-h1-pill">
                   <Pic img={I.marble} alt="Gemarmerde verf in koraalrood, blauw en zwart" eager sizes="(min-width: 900px) 56vw, 54vw" />
                 </span>
+                <Ring id="x-ring-hero" className="x-hero-ring x-ring-d" text="ANDERSOM DENKEN ✺ SINDS 2014 ✺ GENT ✺ " />
               </span>
               <span className="x-h1-c">
                 <span className="x-flip">
@@ -205,8 +206,8 @@ export default function Antipode() {
               <br />
               Midden in de Stille Oceaan
             </p>
+            <Ring id="x-ring-hero-m" className="x-hero-ring x-ring-m" text="ANDERSOM DENKEN ✺ SINDS 2014 ✺ GENT ✺ " />
           </div>
-          <Ring id="x-ring-hero" className="x-hero-ring" text="ANDERSOM DENKEN ✺ SINDS 2014 ✺ GENT ✺ " />
         </section>
 
         {/* Twee banden die elkaar kruisen */}
@@ -357,12 +358,12 @@ export default function Antipode() {
                 <Pic img={I.team} alt="Teamleden werken met laptops aan een lange houten tafel, van bovenaf gezien" sizes="(min-width: 900px) 40vw, 92vw" />
               </span>
               <figcaption>Maandag, 9.40 uur. De lange tafel.</figcaption>
-              <Stamp className="x-team-stamp">
-                Gezocht:
-                <br />
-                motion designer
-              </Stamp>
             </figure>
+            <Stamp className="x-team-stamp">
+              Gezocht:
+              <br />
+              motion designer
+            </Stamp>
             <div className="x-team-copy">
               <ul className="x-names">
                 {TEAM.map(([name, role], i) => (

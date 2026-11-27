@@ -528,16 +528,17 @@
   /* The studio's word, upside down in the corner */
   .d-antipode .x-menu-word {
     position: absolute;
-    right: calc(var(--pad) - 0.04em);
-    top: 96px;
+    right: var(--pad);
+    top: 92px;
     display: block;
     font-family: var(--x-display), sans-serif;
-    font-size: min(9vw, 15svh);
+    font-size: min(5vw, 8.2svh);
     font-weight: 800;
     letter-spacing: -0.05em;
-    line-height: 0.8;
+    line-height: 0.9;
     color: transparent;
     -webkit-text-stroke: 2px var(--ink);
+    writing-mode: vertical-rl;
     transform: rotate(180deg);
   }
 }
@@ -698,12 +699,20 @@
   font-family: var(--x-display), sans-serif;
   font-weight: 800;
 }
+.d-antipode .x-hero-foot,
+.d-antipode .x-h1-b {
+  position: relative;
+}
 .d-antipode .x-hero-ring {
   position: absolute;
-  right: 12px;
-  top: 34%;
+  right: 0;
+  bottom: 0;
   z-index: 2;
+  width: 104px;
   animation: x-pop 1s var(--back) 1s both;
+}
+.d-antipode .x-ring-d {
+  display: none;
 }
 @keyframes x-pop {
   from {
@@ -737,9 +746,16 @@
     justify-self: end;
     text-align: right;
   }
-  .d-antipode .x-hero-ring {
-    right: var(--pad);
-    top: 86px;
+  .d-antipode .x-ring-m {
+    display: none;
+  }
+  .d-antipode .x-ring-d {
+    right: 1.4vw;
+    top: 50%;
+    bottom: auto;
+    display: block;
+    width: clamp(110px, 11vw, 190px);
+    translate: 0 -50%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1410,6 +1426,9 @@
   line-height: 0.9;
   transition: transform 0.6s var(--ease);
 }
+.d-antipode .x-acc > li[data-open] .x-acc-name {
+  margin-top: 0.12em;
+}
 .d-antipode .x-acc button:hover .x-acc-name {
   transform: translateX(0.12em);
 }
@@ -1500,7 +1519,7 @@
     padding-block: 18px 10px;
   }
   .d-antipode .x-acc-no {
-    font-size: min(15.4vw, 280px);
+    font-size: min(13.4vw, 250px);
   }
   .d-antipode .x-acc-name {
     margin: 0;
@@ -1580,7 +1599,7 @@
 }
 .d-antipode .x-step-no {
   font-family: var(--x-display), sans-serif;
-  font-size: 6.2vw;
+  font-size: 9.3vw;
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 0.9;
@@ -1702,7 +1721,7 @@
 .d-antipode .x-team-stamp {
   position: absolute;
   right: -8px;
-  bottom: 30px;
+  top: -34px;
   z-index: 2;
 }
 .d-antipode .x-names {
@@ -1756,7 +1775,7 @@
 }
 .d-antipode .x-team-facts li {
   display: grid;
-  grid-template-columns: 1.1em minmax(0, 1fr);
+  grid-template-columns: clamp(58px, 6.4vw, 104px) minmax(0, 1fr);
   align-items: center;
   gap: 14px;
   padding: 8px 0;
@@ -1787,7 +1806,9 @@
     gap: clamp(50px, 7vw, 120px);
   }
   .d-antipode .x-team-stamp {
-    right: -40px;
+    left: 31%;
+    right: auto;
+    top: -50px;
   }
   .d-antipode .x-team-row {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) auto;
