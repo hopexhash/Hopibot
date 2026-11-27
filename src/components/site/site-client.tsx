@@ -460,6 +460,13 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
     // Reading the address bar is only possible after mounting.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (m && packages.some((p) => p.key === m[1])) setPkg(m[1]);
+    // Chosen on this page: the site engine announces it instead of reloading the page.
+    const onPick = (e: Event) => {
+      const key = (e as CustomEvent<string>).detail;
+      if (packages.some((p) => p.key === key)) setPkg(key);
+    };
+    window.addEventListener("hopi:pakket", onPick);
+    return () => window.removeEventListener("hopi:pakket", onPick);
   }, [packages]);
   const sent = useRef(false);
   useEffect(() => {

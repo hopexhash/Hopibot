@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/app/status";
 import { Card, EmptyState, MockBadge, ScoreRing } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
 import { designName, FAMILY_DESIGNS } from "@/sites/designs";
+import { FAMILIES } from "@/sites/families";
 import { timeAgo } from "@/lib/utils";
 import { requireAuth } from "@/server/auth";
 import { db, schema } from "@/server/db";
@@ -69,7 +70,7 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
       </Card>
       <Section
         title="Template library"
-        description={`${FAMILY_DESIGNS.length} designs: the demo websites of the portfolio. The right one is chosen automatically per business.`}
+        description={`${FAMILY_DESIGNS.filter((d) => FAMILIES[d.key]).length} designs: the demo websites of the portfolio. The right one is chosen automatically per business.`}
         actions={
           <Link href="/websites/templates" className="text-[13px] font-medium text-accent hover:underline">
             Open the library →
@@ -77,7 +78,7 @@ export default async function WebsitesPage({ searchParams }: { searchParams: Pro
         }
       >
         <div className="flex gap-2.5 overflow-x-auto pb-2">
-          {FAMILY_DESIGNS.map((t) => (
+          {FAMILY_DESIGNS.filter((d) => FAMILIES[d.key]).map((t) => (
             <Link key={t.key} href={`/websites/templates#${t.key}`} className="w-40 flex-none overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border-strong">
               <div className="flex h-16 items-end gap-1 p-2" style={{ background: t.palette.bg }}>
                 <span className="h-4 w-4 rounded-full" style={{ background: t.palette.accent }} />

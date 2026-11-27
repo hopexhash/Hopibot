@@ -5,8 +5,12 @@ import { Badge } from "@/components/ui";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { requireAuth } from "@/server/auth";
 import { FAMILY_DESIGNS, type Design } from "@/sites/designs";
+import { FAMILIES } from "@/sites/families";
 
 export const metadata = { title: "Template library" };
+
+/** The designs that are in use as templates (a demo design counts once its family exists). */
+const LIVE = FAMILY_DESIGNS.filter((d) => FAMILIES[d.key]);
 
 function DesignCard({ d }: { d: Design }) {
   const categories = BUSINESS_CATEGORIES.filter((c) => c.family === d.key).map((c) => c.label);
@@ -61,7 +65,7 @@ export default async function TemplateLibraryPage() {
     <>
       <PageHeader
         title="Template library"
-        description={`${FAMILY_DESIGNS.length} designs: the demo websites of the portfolio. Every new website is built in one of them, filled with the business's own verified content. "Demo" opens the demo website of a design; "Sample build" shows what the builder makes of it for an example business without photographs.`}
+        description={`${LIVE.length} designs: the demo websites of the portfolio. Every new website is built in one of them, filled with the business's own verified content. "Demo" opens the demo website of a design; "Sample build" shows what the builder makes of it for an example business without photographs.`}
         actions={
           <Link href="/websites" className="rounded-lg border border-border px-3 py-2 text-[13px] font-medium hover:border-border-strong">
             ← Back to websites
@@ -70,7 +74,7 @@ export default async function TemplateLibraryPage() {
       />
       <Section title="Designs" description="The design is chosen from the kind of business. Earlier designs are no longer used for new websites; a website that was built with one keeps it until it is generated again.">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {FAMILY_DESIGNS.map((d) => (
+          {LIVE.map((d) => (
             <DesignCard key={d.key} d={d} />
           ))}
         </div>

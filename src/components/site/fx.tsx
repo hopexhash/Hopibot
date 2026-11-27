@@ -235,9 +235,9 @@ export function Fx() {
     };
 
     // ── Links: smooth jumps inside a page, a curtain between pages
-    const scrollToEl = (el: HTMLElement) => {
-      if (scroller) scroller.scrollTo(el, { offset: 0, duration: 1.25 });
-      else el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    const scrollToEl = (el: HTMLElement, offset = 0) => {
+      if (scroller) scroller.scrollTo(el, { offset, duration: 1.25 });
+      else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: reduce ? "auto" : "smooth" });
     };
     // The open menu holds the page still (on phones it is pinned in place). A jump to a section
     // must wait until the menu has let go, however long closing takes on this device.
@@ -348,9 +348,21 @@ export function Fx() {
       // "Start a project" goes to the request form of the page you are on, when it has one.
       const here = url.pathname === "/" && url.hash === "#contact" && document.getElementById("contact");
       if (here || url.pathname === window.location.pathname) {
-        if (!here && url.search !== window.location.search) return; // e.g. choosing a package: the router handles it
-        e.preventDefault();
         const target = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
+        // Choosing a package ("Kies Starter" → ?pakket=starter#contact): no page load. The form is
+        // told which package was chosen and the page moves straight to it.
+        const pakket = url.searchParams.get("pakket");
+        if (!here && url.search !== window.location.search) {
+          if (!pakket || !target) return;
+          e.preventDefault();
+          window.history.pushState(null, "", url.search + url.hash);
+          window.dispatchEvent(new CustomEvent("hopi:pakket", { detail: pakket }));
+          // Straight to the form itself (on a phone it sits below the text of the section), clear of the header.
+          const form = target.querySelector<HTMLElement>("form");
+          afterMenu(() => (form ? scrollToEl(form, -104) : scrollToEl(target)));
+          return;
+        }
+        e.preventDefault();
         if (!reduce && a.closest("#site-menu")) {
           if (url.hash && target) window.history.pushState(null, "", url.hash);
           const name = (a.dataset.pt ?? a.textContent ?? "").replace(/\s+/g, " ").trim();
