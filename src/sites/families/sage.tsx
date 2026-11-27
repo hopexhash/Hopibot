@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { CSS } from "./css/beauty-salon";
 import { Btn, css, DemoForm, em, heroFacts, Hours, hoursRows, i, Legal, long, Pic, splitLines, tel, type Ctx, type Family, type Photo, type SectionOf } from "./kit";
 
@@ -29,6 +29,7 @@ const EXTRA = `
 .d-sage .s-hero h1{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 .d-sage .s-hero h1.is-m{font-size:clamp(40px,10.4vw,66px);line-height:1}
 .d-sage .s-hero h1.is-s{font-size:clamp(32px,8.2vw,50px);line-height:1.04;letter-spacing:-.028em}
+.d-sage .s-hero h1.is-flow{text-wrap:balance}
 .d-sage .s-hero-main img{object-position:50% 30%}
 .d-sage .s-hero-facts dd{min-width:0;overflow-wrap:break-word}
 .d-sage .s-hero-facts a{display:inline-block;margin:-10px 0;padding:10px 0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
@@ -58,6 +59,7 @@ const EXTRA = `
 .d-sage .s-rows li[data-rv]{animation:none}
 .d-sage .s-row-min,.d-sage .s-row-price{white-space:nowrap}
 .d-sage .s-row-main+.s-row-price{grid-row:2;margin-top:0}
+.d-sage .s-row-price.is-long{font-size:19px}
 .d-sage .s-row-book{white-space:nowrap}
 .d-sage .s-row-tags{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--sage-d)}
 .d-sage .s-row-cat{padding:18px 0 0}
@@ -234,7 +236,10 @@ function Hero(c: Ctx) {
   const plain = hero.headline.replace(/\*/g, "");
   const word = Math.max(...plain.split(/\s+/).map((w) => w.length));
   const size = plain.length > 44 || word > 15 ? "is-s" : plain.length > 22 || word > 10 ? "is-m" : undefined;
-  const { lines, marked } = splitLines(hero.headline, plain.length > 44 ? 3 : plain.length > 12 ? 2 : 1);
+  // Short headlines stand as separate lines, as in the demo; longer ones flow and keep their accent on the last part.
+  const flow = plain.length > 30;
+  const { lines, marked } = splitLines(hero.headline, flow ? 3 : plain.length > 12 ? 2 : 1);
+  const accent = (line: ReactNode, n: number) => (!marked && lines.length > 1 && n === lines.length - 1 ? <em>{line}</em> : line);
   // The hours fact names the first day the business is open, not a day it is closed.
   const open = c.spec.business.openingHours?.find((l) => !CLOSED.test(l));
   const facts = heroFacts(c).map((f) => (f.label === c.t.hours && open ? { ...f, value: open } : f));
@@ -257,13 +262,23 @@ function Hero(c: Ctx) {
               {hero.eyebrow}
             </p>
           ) : null}
-          <h1 className={size}>
-            {lines.map((line, n) => (
-              <span className="s-rise" key={n} style={i(n + 1)}>
-                {/* Without a marked phrase the last line carries the italic sage of the design. */}
-                {!marked && lines.length > 1 && n === lines.length - 1 ? <em>{line}</em> : line}
+          <h1 className={[size, flow ? "is-flow" : ""].filter(Boolean).join(" ") || undefined}>
+            {flow ? (
+              <span className="s-rise" style={i(1)}>
+                {lines.map((line, n) => (
+                  <Fragment key={n}>
+                    {n > 0 ? " " : null}
+                    {accent(line, n)}
+                  </Fragment>
+                ))}
               </span>
-            ))}
+            ) : (
+              lines.map((line, n) => (
+                <span className="s-rise" key={n} style={i(n + 1)}>
+                  {accent(line, n)}
+                </span>
+              ))
+            )}
           </h1>
           <p className="s-lede s-rise" style={i(4)}>
             {hero.subheadline}
@@ -436,7 +451,7 @@ function Rows({ rows, book, reveal }: { rows: Row[]; book: ReturnType<typeof boo
             {r.tags?.length ? <p className="s-row-tags">{r.tags.join(" · ")}</p> : null}
           </div>
           {r.min ? <span className="s-row-min">{r.min}</span> : null}
-          {r.price ? <span className="s-row-price">{r.price}</span> : null}
+          {r.price ? <span className={`s-row-price${r.price.length > 8 ? " is-long" : ""}`}>{r.price}</span> : null}
           {book ? (
             <a href={book.href} className="btn s-row-book" aria-label={`${book.label}: ${r.title}`} data-pick={book.options.includes(r.title) ? r.title : undefined}>
               {book.label}
