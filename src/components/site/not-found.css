@@ -9,7 +9,7 @@
   --nf-accent: #ff4d23;
   --nf-display: var(--f-display), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --nf-body: var(--f-body), "General Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --nf-mono: var(--f-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --nf-mono: var(--f-zero), var(--f-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --nf-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --nf-io: cubic-bezier(0.76, 0, 0.24, 1);
   --nf-pad: clamp(18px, 3.2vw, 48px);

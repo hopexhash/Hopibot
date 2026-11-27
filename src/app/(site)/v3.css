@@ -29,7 +29,8 @@
      Nothing else in the stylesheets names a typeface. ── */
   --font-display: var(--f-display), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--f-body), "General Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--f-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* --f-zero holds one character: a plain zero that replaces the dotted one of the mono face. */
+  --font-mono: var(--f-zero), var(--f-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   /* Older rules ask for these two names; both mean the text face. */
   --font-ui: var(--font-body);
   --font-text: var(--font-body);
