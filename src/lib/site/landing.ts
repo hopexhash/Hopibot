@@ -107,7 +107,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een eigen ontwerp dat past bij je keuken en je gasten", "Menukaart die je makkelijk laat bijwerken", "Reserveerknop, of een koppeling met je reserveringssysteem", "Openingstijden, adres en routekaart", "Aparte aandacht voor groepen en besloten avonden", "Een basis om gevonden te worden op 'restaurant' plus je plaats"],
       },
     ],
-    work: "de-gouden-lepel",
+    work: "restaurant",
     addons: ["menu", "booking", "photography", "gbp"],
     addonsTitle: "Veel gekozen door restaurants",
     faq: [
@@ -142,7 +142,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een eigen ontwerp in de sfeer van je salon", "Prijslijst per behandeling", "Afspraakknop, of een koppeling met je online agenda", "Ruimte voor foto's van je werk en je team", "WhatsApp-knop voor snelle vragen", "Een basis om gevonden te worden op 'kapper' plus je plaats"],
       },
     ],
-    work: "barbershop-the-gents",
+    work: "beauty-salon",
     addons: ["booking", "whatsapp", "gbp", "photography"],
     addonsTitle: "Veel gekozen door kappers",
     faq: [
@@ -177,7 +177,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een eigen ontwerp in de sfeer van je salon", "Overzicht van behandelingen met prijzen en duur", "Boekknop, of een koppeling met je boekingssysteem", "Een pagina of sectie over jou en je werkwijze", "Ruimte voor acties en cadeaubonnen", "Een basis om gevonden te worden op 'schoonheidssalon' plus je plaats"],
       },
     ],
-    work: "beauty-by-noor",
+    work: "beauty-salon",
     addons: ["booking", "whatsapp", "copywriting", "gbp"],
     addonsTitle: "Veel gekozen door salons",
     faq: [
@@ -212,7 +212,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een zakelijk, eigen ontwerp", "Diensten overzichtelijk op een rij", "Knop voor een werkplaatsafspraak en een directe belknop", "Ruimte voor merken, keurmerken en je team", "Adres, route en openingstijden", "Een basis om gevonden te worden op 'garage' of 'APK' plus je plaats"],
       },
     ],
-    work: "garage-jansen",
+    work: "automotive",
     addons: ["booking", "whatsapp", "gbp", "seo"],
     addonsTitle: "Veel gekozen door garages",
     faq: [
@@ -247,7 +247,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een opvallend, eigen ontwerp", "Diensten en werkgebied in één oogopslag", "Vaste belknop op de telefoon", "Offerteformulier voor grotere klussen", "Ruimte voor erkenningen en foto's van je werk", "Een basis om gevonden te worden op 'loodgieter' plus je plaats"],
       },
     ],
-    work: "loodgieter-bakker",
+    work: "construction",
     addons: ["whatsapp", "seo", "gbp", "pages"],
     addonsTitle: "Veel gekozen door installateurs",
     faq: [
@@ -282,7 +282,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een betrouwbaar, eigen ontwerp", "Projectenoverzicht met foto's", "Diensten per type werk", "Offerteformulier bovenaan en onderaan", "Ruimte voor keurmerken en garanties", "Een basis om gevonden te worden op 'aannemer' of 'bouwbedrijf' plus je regio"],
       },
     ],
-    work: "bouwbedrijf-de-vries",
+    work: "construction",
     addons: ["pages", "photography", "seo", "copywriting"],
     addonsTitle: "Veel gekozen door bouwbedrijven",
     faq: [
@@ -317,7 +317,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een modern, geruststellend ontwerp", "Inschrijf- en afspraakformulier", "Spoedinformatie op een vaste plek", "Teampagina en uitleg per behandeling", "Praktische informatie: bereikbaarheid, parkeren, toegankelijkheid", "Een basis om gevonden te worden op 'tandarts' plus je plaats"],
       },
     ],
-    work: "tandartspraktijk-centrum",
+    work: "dental",
     addons: ["pages", "copywriting", "multilingual", "gbp"],
     addonsTitle: "Veel gekozen door praktijken",
     faq: [
@@ -352,7 +352,7 @@ export const LANDINGS: Landing[] = [
         list: ["Een uitgesproken, eigen ontwerp", "Diensten en werkwijze per doelgroep", "Formulier voor een gratis waardebepaling of kennismaking", "Ruimte voor het team en je kennis van de regio", "Verwijzing naar je actuele aanbod", "Een basis om gevonden te worden op 'makelaar' plus je plaats"],
       },
     ],
-    work: "makelaardij-maas",
+    work: "real-estate",
     addons: ["pages", "copywriting", "seo", "analytics"],
     addonsTitle: "Veel gekozen door makelaars",
     faq: [

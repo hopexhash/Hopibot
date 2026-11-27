@@ -2,13 +2,14 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
+import { DemoPreview } from "@/components/site/demo-preview";
 import { ContactSection, JsonLd, SiteFooter } from "@/components/site/parts";
 import { SiteHeader } from "@/components/site/site-client";
 import { Words } from "@/components/site/split";
 import { INDUSTRIES } from "@/lib/site/landing";
 import { PROJECTS, projectByKey, projectPath } from "@/lib/site/projects";
 import { breadcrumbLd, pageMeta } from "@/lib/site/seo";
-import { demoHref } from "@/lib/site/work";
+import { demoHref, shot } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import "@/components/site/work.css";
 
@@ -18,13 +19,13 @@ export const generateStaticParams = () => PROJECTS.map((p) => ({ slug: p.key }))
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const p = projectByKey((await params).slug);
   if (!p) return {};
-  const base = `Conceptontwerp voor een ${p.industry.toLowerCase()}: ${p.work.note.replace(/\.$/, "").toLowerCase()}.`;
-  const more = " Bekijk het ontwerp en klik door de werkende demo.";
+  const base = `${p.work.name}: demo-website voor ${p.industry.toLowerCase()}. ${p.line}`;
+  const more = " Bekijk het ontwerp op desktop en mobiel en open de live demo.";
   return pageMeta({
-    title: `${p.work.name}: concept website | HOPI`,
-    description: (base + more).length <= 158 ? base + more : `${base} Bekijk de werkende demo.`,
+    title: `${p.work.name}: demo-website ${p.industry.toLowerCase()} | HOPI`,
+    description: (base + more).length <= 158 ? base + more : base.slice(0, 158),
     path: projectPath(p.key),
-    image: `/site/work/${p.key}-d-1440.webp`,
+    image: shot(p.key, "d-1440"),
   });
 }
 
@@ -43,39 +44,41 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="pj-hero" data-theme="dark" style={tone}>
           <div className="wrap3">
             <p className="lbl mono">
-              <Link href="/werk">Werk</Link> / <span>Conceptproject</span>
+              <Link href="/werk">Werk</Link> / <span>Demo-website</span>
             </p>
             <h1 className="disp" data-in>
               <Words text={p.work.name} />
             </h1>
+            <p className="pj-line">{p.line}</p>
+            <div className="pj-actions pj-actions-top">
+              <a href={demoHref(p.key)} target="_blank" rel="noopener" className="btn btn-accent" data-track="portfolio_click" data-track-label={p.key}>
+                Bekijk live demo <ArrowUpRight aria-hidden="true" />
+              </a>
+              <a href="#contact" className="btn btn-line" data-track="cta_click" data-track-label={`get-${p.key}`}>
+                Ik wil deze website <ArrowRight aria-hidden="true" />
+              </a>
+            </div>
             <dl className="pj-meta">
               <div>
                 <dt className="mono">Branche</dt>
-                <dd>{p.industry}</dd>
+                <dd>
+                  {p.industry}, {p.city}
+                </dd>
               </div>
               <div>
-                <dt className="mono">Diensten</dt>
-                <dd>{p.services.join(", ")}</dd>
+                <dt className="mono">Typografie</dt>
+                <dd>{p.type}</dd>
               </div>
               <div>
                 <dt className="mono">Soort project</dt>
-                <dd>Concept voor een fictief bedrijf. Geen klantproject.</dd>
+                <dd>Demo voor een fictief bedrijf. Geen klantproject.</dd>
               </div>
             </dl>
           </div>
-          <div className="pj-cover" data-p>
-            <div>
-              <img
-              src={`/site/work/${p.key}-d-1440.webp`}
-              srcSet={`/site/work/${p.key}-d-720.webp 720w, /site/work/${p.key}-d-1440.webp 1440w`}
-              sizes="100vw"
-              alt={`Conceptontwerp: de website van ${p.work.name} op een groot scherm`}
-              width={1440}
-              height={900}
-              fetchPriority="high"
-              />
-            </div>
-          </div>
+        </section>
+
+        <section className="pj-view" style={tone} aria-label="Voorvertoning">
+          <DemoPreview slug={p.key} name={p.work.name} mode="viewer" eager />
         </section>
 
         <section className="pj-body">
@@ -85,34 +88,38 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </p>
             <p className="pj-sum">{p.summary}</p>
           </div>
-          <div className="wrap3">
-            <ol className="pj-dec">
-              {p.decisions.map((d, i) => (
-                <li key={d.title} data-in>
+          <div className="wrap3 pj-grid pj-idea">
+            <p className="lbl mono">
+              <span>(02)</span> Ontwerpconcept
+            </p>
+            <p>{p.idea}</p>
+          </div>
+          <div className="wrap3 pj-grid">
+            <p className="lbl mono">
+              <span>(03)</span> Wat erin zit
+            </p>
+            <ol className="pj-secs">
+              {p.sections.map((sec, i) => (
+                <li key={sec} data-in>
                   <span className="mono">{String(i + 1).padStart(2, "0")}</span>
-                  <h2>{d.title}</h2>
-                  <p>{d.text}</p>
+                  {sec}
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        <section className="pj-shots" style={tone} data-p>
-          <figure className="pj-long">
-            <img src={`/site/work/${p.key}-tall-960.webp`} alt={`Conceptontwerp: de hele website van ${p.work.name}, van boven naar beneden`} width={960} height={1800} loading="lazy" decoding="async" />
-          </figure>
-          <figure className="pj-phone">
-            <img src={`/site/work/${p.key}-m-780.webp`} alt={`Conceptontwerp: de website van ${p.work.name} op een telefoon`} width={780} height={1688} loading="lazy" decoding="async" />
-          </figure>
-        </section>
-
         <section className="pj-out">
           <div className="wrap3">
-            <p className="pj-note">Dit is een conceptontwerp voor een fictief bedrijf, gemaakt door HOPI om te laten zien wat we leveren. Naam, adres en telefoonnummer in het ontwerp zijn verzonnen. Jouw eigen ontwerp maken we met je eigen naam, diensten en stijl.</p>
+            <p className="pj-note">
+              {p.work.name} is een demo-website voor een fictief bedrijf, ontworpen en gebouwd door HOPI om te laten zien wat we leveren. Namen, prijzen, recensies en contactgegevens in het ontwerp zijn voorbeeldinhoud, en formulieren versturen niets. Jouw website maken we met je eigen naam, diensten, foto&apos;s en stijl.
+            </p>
             <div className="pj-actions">
-              <a href={demoHref(p.key)} target="_blank" rel="noopener nofollow" className="btn btn-dark" data-track="portfolio_click" data-track-label={p.key}>
-                Bekijk de werkende demo <ArrowUpRight aria-hidden="true" />
+              <a href={demoHref(p.key)} target="_blank" rel="noopener" className="btn btn-dark" data-track="portfolio_click" data-track-label={p.key}>
+                Bekijk live demo <ArrowUpRight aria-hidden="true" />
+              </a>
+              <a href="#contact" className="btn btn-accent" data-track="cta_click" data-track-label={`get-${p.key}`}>
+                Ik wil deze website <ArrowRight aria-hidden="true" />
               </a>
               {industry && (
                 <Link href={industry.path} className="btn btn-line">
@@ -128,7 +135,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <span className="disp">{next.work.name}</span>
           <span className="mono">{next.industry}</span>
         </Link>
-        <ContactSection data={data} source={projectPath(p.key)} />
+        <ContactSection data={data} source={projectPath(p.key)} title="Deze website voor *jouw bedrijf*?" text={`Vertel kort over je bedrijf. We maken een ontwerp in de stijl van ${p.work.name}, met je eigen naam, diensten en foto's. Gratis en vrijblijvend: je betaalt pas als het ontwerp bevalt en je een pakket kiest.`} />
       </main>
       <SiteFooter data={data} />
       <JsonLd

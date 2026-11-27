@@ -30,7 +30,7 @@ export const HOME = {
   work: {
     label: "Geselecteerd werk",
     title: ["Geselecteerd", "werk"] as const,
-    note: "Conceptprojecten: ontwerpen die wij maakten voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten.",
+    note: "Demo-websites: complete websites die wij ontwierpen en bouwden voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten.",
     all: "Bekijk al het werk",
   },
 

@@ -1,0 +1,215 @@
+/* Shared by every demo website: a reset, the reveal mechanism and the floating HOPI bar.
+   Everything a visitor would call "the design" lives in the demo's own stylesheet. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+}
+.demo {
+  min-height: 100vh;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.demo *,
+.demo *::before,
+.demo *::after {
+  box-sizing: border-box;
+}
+.demo img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.demo a {
+  color: inherit;
+  text-decoration: none;
+}
+.demo button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.demo h1,
+.demo h2,
+.demo h3,
+.demo h4,
+.demo p,
+.demo ul,
+.demo ol,
+.demo figure,
+.demo blockquote,
+.demo dl,
+.demo dd {
+  margin: 0;
+  padding: 0;
+}
+.demo ul,
+.demo ol {
+  list-style: none;
+}
+.demo :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* Reveal on scroll. Only when scripts run (the class is set before first paint), so the page
+   is complete without them. A demo overrides the movement; this is the quiet default. */
+.demo-js .demo [data-rv] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.demo-js .demo [data-rv].in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-js .demo [data-rv] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+  .demo *,
+  .demo *::before,
+  .demo *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A form that sends nothing says so. */
+.demo .demo-form-note {
+  font-size: 12.5px;
+  line-height: 1.4;
+  opacity: 0.6;
+}
+.demo .demo-form-note[data-sent] {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* ── The HOPI bar ── */
+.demo-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 20px);
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(12, 12, 13, 0.92);
+  color: #f2eee6;
+  font: 500 13px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0;
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.55);
+  transform: translateX(-50%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: demo-bar-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 1.2s both;
+}
+@keyframes demo-bar-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+}
+.demo-bar a,
+.demo-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.demo-bar b {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.demo-bar i {
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #ff4d23;
+}
+.demo-bar em {
+  font-style: normal;
+  opacity: 0.7;
+}
+.demo-bar p {
+  margin: 0;
+  padding: 0 10px 0 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  white-space: nowrap;
+  opacity: 0.78;
+}
+.demo-bar p strong {
+  font-weight: 600;
+  padding-left: 8px;
+}
+.demo-bar .demo-bar-get {
+  background: #ff4d23;
+  color: #0c0c0d;
+  font-weight: 600;
+}
+.demo-bar .demo-bar-back:hover,
+.demo-bar .demo-bar-x:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.demo-bar .demo-bar-x {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0.7;
+}
+.demo-bar.demo-bar-min {
+  left: 14px;
+  height: 40px;
+  padding: 0 14px;
+  gap: 6px;
+  transform: none;
+  animation: none;
+  cursor: pointer;
+}
+.demo-bar.demo-bar-min i {
+  margin-left: -2px;
+}
+@media (max-width: 760px) {
+  .demo-bar p span,
+  .demo-bar em {
+    display: none;
+  }
+  .demo-bar p {
+    padding: 0 8px 0 0;
+  }
+  .demo-bar a,
+  .demo-bar button {
+    padding: 0 12px;
+  }
+}
+@media (max-width: 400px) {
+  .demo-bar p {
+    display: none;
+  }
+}

@@ -23,10 +23,8 @@ const CSS = `
 .hopi.v3 .ft-close h2{font-size:clamp(31px,4.8vw,80px);letter-spacing:-.035em;line-height:1.04}
 .hopi.v3 .ft-logo{letter-spacing:-.04em}
 .hopi.v3 .nv-logo{letter-spacing:-.04em}
-.hopi.v3 .wk-row h2{font-size:clamp(27px,4.8vw,84px);font-weight:600;letter-spacing:-.04em;line-height:1}
-.hopi.v3 .wk-row:hover h2{font-weight:700}
-.hopi.v3 .pj-sum{font-size:clamp(24px,3.2vw,52px);letter-spacing:-.03em;line-height:1.12}
-.hopi.v3 .pj-dec h2{letter-spacing:-.03em}
+.hopi.v3 .pf h2{font-weight:600;letter-spacing:-.04em;line-height:1}
+.hopi.v3 .pf-line,.hopi.v3 .pj-line,.hopi.v3 .pj-secs li{letter-spacing:-.02em}
 .hopi.v3 .pt b{letter-spacing:-.04em}
 .hopi.v3 .price .amount b{letter-spacing:-.04em}
 `;

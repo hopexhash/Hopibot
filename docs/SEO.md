@@ -114,7 +114,7 @@ Deliberately absent: `aggregateRating`, `review`, a street address or opening ho
 
 - `robots.txt`: everything public is allowed; `/api/`, `/p/`, `/d/`, `/u/` are disallowed. The secret sign-in address is not mentioned anywhere.
 - Control-room pages, customer previews and the unsubscribe page carry `noindex`. Hidden addresses return a real 404 status.
-- Live demo sites (`/site/demo/…`) are for visitors only: `noindex, nofollow` in the page and in the `X-Robots-Tag` header, and links to them are `nofollow`.
+- Demo websites (`/demos/…`) are for visitors only: `noindex` in the page and in the `X-Robots-Tag` header. Their project pages (`/werk/<slug>`) are indexed and in the sitemap. See `docs/DEMOS.md`.
 - Canonical URLs are absolute and built from `APP_URL`. **When the domain is connected, set `APP_URL` to it**; canonicals, sitemap and structured data follow automatically. Then add a redirect from the vercel.app address to the domain.
 - Duplicate content: `?pakket=` variants canonicalise to the clean URL.
 
@@ -198,7 +198,7 @@ What to follow monthly (Search Console + GA4): impressions, clicks, CTR and aver
 |---|---|
 | Landing page texts and keyword data | `src/lib/site/landing.ts` |
 | Articles | `src/lib/site/blog.ts` |
-| Portfolio demos | `src/lib/site/work.ts`, rendered by `scripts/render-demos.tsx` into `public/site/demo/` |
+| Portfolio demos | `src/demos/catalog.ts` (twelve demo websites under `src/app/(demos)/demos/`), screenshots by `scripts/shoot-demos.mjs` |
 | Metadata and structured data | `src/lib/site/seo.ts` |
 | Page template | `src/components/site/landing-page.tsx`, shared parts in `parts.tsx` |
 | Prices | Settings → Pricing (never hardcoded; copy uses `{starter}`-style placeholders) |

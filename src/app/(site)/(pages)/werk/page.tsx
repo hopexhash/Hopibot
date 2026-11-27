@@ -1,17 +1,20 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import type { CSSProperties } from "react";
+import { DemoPreview } from "@/components/site/demo-preview";
 import { ContactSection, CtaBand, JsonLd, SiteFooter } from "@/components/site/parts";
 import { SiteHeader } from "@/components/site/site-client";
 import { Words } from "@/components/site/split";
 import { allProjects, projectPath } from "@/lib/site/projects";
 import { breadcrumbLd, pageMeta } from "@/lib/site/seo";
+import { demoHref } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import "@/components/site/work.css";
 
 const PATH = "/werk";
 export const metadata = pageMeta({
-  title: "Werk: conceptontwerpen voor websites | HOPI",
-  description: "Bekijk ons werk: conceptontwerpen voor websites, van restaurant tot tandartspraktijk. Elk met eigen letters en kleuren, en een demo om door te klikken.",
+  title: "Werk: twaalf complete demo-websites | HOPI",
+  description: "Bekijk ons werk: twaalf complete demo-websites, van restaurant tot advocatenkantoor. Elk met een eigen ontwerp, op desktop en mobiel, en live te bekijken.",
   path: PATH,
 });
 
@@ -25,31 +28,64 @@ export default async function WorkPage() {
         <section className="wk-hero">
           <div className="wrap3">
             <p className="lbl mono">
-              <span>(Werk)</span> {projects.length} conceptprojecten
+              <span>(Werk)</span> {projects.length} demo-websites
             </p>
             <h1 className="disp" data-in>
               <Words text="Werk dat blijft hangen" />
             </h1>
             <p className="wk-lead">
-              Elke website krijgt bij ons zijn eigen gezicht. Dit zijn conceptprojecten: ontwerpen die wij maakten voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten. Elk ontwerp is een werkende website waar je doorheen kunt klikken.
+              Twaalf complete websites, elk met een eigen ontwerp, eigen letters en een eigen karakter. Het zijn demo&apos;s: wij ontwierpen en bouwden ze voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten. Elke website werkt echt, dus klik gerust door alle pagina-onderdelen, ook op je telefoon.
             </p>
+            <nav className="pf-index mono" aria-label="Alle demo's">
+              {projects.map((p, i) => (
+                <a key={p.key} href={`#${p.key}`}>
+                  <span>{String(i + 1).padStart(2, "0")}</span> {p.industry}
+                </a>
+              ))}
+            </nav>
           </div>
         </section>
-        <section className="wk-list" aria-label="Projecten">
-          <ol className="wrap3">
-            {projects.map((p, i) => (
-              <li key={p.key} data-in={i > 1 ? "" : undefined}>
-                <Link href={projectPath(p.key)} className="wk-row" data-peek={`/site/work/${p.key}-d-720.webp`} data-pt={p.work.name}>
-                  <span className="mono wk-n">{String(i + 1).padStart(2, "0")}</span>
-                  <h2>{p.work.name}</h2>
-                  <span className="mono wk-ind">{p.industry}</span>
-                  <span className="mono wk-svc">{p.services.join(" / ")}</span>
-                  <img className="wk-thumb" src={`/site/work/${p.key}-d-720.webp`} alt={`Conceptontwerp: website voor ${p.industry.toLowerCase()} ${p.work.name}`} width={720} height={450} loading={i === 0 ? "eager" : "lazy"} fetchPriority={i === 0 ? "high" : undefined} decoding="async" />
-                  <ArrowUpRight aria-hidden="true" />
+
+        <section className="pf-list" aria-label="Demo-websites">
+          {projects.map((p, i) => (
+            <article key={p.key} id={p.key} className="pf" style={{ "--tone": p.tone, "--on": p.on } as CSSProperties}>
+              <div className="pf-media" data-in data-p>
+                <DemoPreview slug={p.key} name={p.work.name} mode="card" eager={i === 0} />
+              </div>
+              <div className="pf-info">
+                <p className="mono pf-n">
+                  <span>{String(i + 1).padStart(2, "0")}</span> / {String(projects.length).padStart(2, "0")} · Demo
+                </p>
+                <h2>{p.work.name}</h2>
+                <p className="mono pf-cat">
+                  {p.industry} · {p.city}
+                </p>
+                <p className="pf-line">{p.line}</p>
+                <p className="pf-sum">{p.summary}</p>
+                <dl className="pf-facts">
+                  <div>
+                    <dt className="mono">Ontwerpconcept</dt>
+                    <dd>{p.idea}</dd>
+                  </div>
+                  <div>
+                    <dt className="mono">Typografie</dt>
+                    <dd>{p.type}</dd>
+                  </div>
+                </dl>
+                <div className="pf-actions">
+                  <a href={demoHref(p.key)} target="_blank" rel="noopener" className="btn btn-dark" data-track="portfolio_click" data-track-label={p.key} data-track-location={PATH}>
+                    Bekijk live demo <ArrowUpRight aria-hidden="true" />
+                  </a>
+                  <Link href={`${projectPath(p.key)}#contact`} className="btn btn-accent" data-track="cta_click" data-track-label={`get-${p.key}`} data-track-location={PATH} data-pt={p.work.name}>
+                    Ik wil deze website <ArrowRight aria-hidden="true" />
+                  </Link>
+                </div>
+                <Link href={projectPath(p.key)} className="pf-more mono" data-pt={p.work.name}>
+                  Over dit ontwerp
                 </Link>
-              </li>
-            ))}
-          </ol>
+              </div>
+            </article>
+          ))}
         </section>
         <CtaBand location={PATH} title="Jouw website als volgende?" />
         <ContactSection data={data} source={PATH} />

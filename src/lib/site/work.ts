@@ -1,32 +1,25 @@
+import { DEMOS } from "@/demos/catalog";
+
 /**
- * Portfolio of the public website. These are DEMO designs for fictional businesses, rendered
- * by our own website engine (scripts/render-demos.tsx) and labelled as demos wherever they
- * are shown. Real customer projects get `demo: false` and their own case study.
+ * Portfolio of the public website. Every entry is a DEMO: a complete website HOPI designed
+ * and built for a business that does not exist (see src/demos/catalog.ts), labelled as a demo
+ * wherever it is shown. Real customer projects get `demo: false` and their own case study.
  */
 export type Work = {
   key: string;
   name: string;
   type: string;
-  /** Slug of the matching /website-laten-maken/<industry> page. */
+  /** Slug of the matching /website-laten-maken/<industry> page ("" when there is none). */
   industry: string;
   /** One line on what makes this design its own. */
   note: string;
   demo: true;
 };
 
-export const WORK: Work[] = [
-  { key: "de-gouden-lepel", name: "De Gouden Lepel", type: "Restaurant", industry: "restaurant", note: "Grote, stevige letters en één felle kleur: een zaak met karakter.", demo: true },
-  { key: "garage-jansen", name: "Garage Jansen", type: "Autogarage", industry: "garage", note: "Rustig en zakelijk, met de afspraakknop altijd in beeld.", demo: true },
-  { key: "barbershop-the-gents", name: "Barbershop The Gents", type: "Barbershop", industry: "kapper", note: "Klassieke schreefletters en warme tinten, als een goed geknipte coupe.", demo: true },
-  { key: "bouwbedrijf-de-vries", name: "Bouwbedrijf De Vries", type: "Bouw & renovatie", industry: "bouwbedrijf", note: "Helder en betrouwbaar, met de offerteaanvraag bovenaan.", demo: true },
-  { key: "beauty-by-noor", name: "Beauty by Noor", type: "Schoonheidssalon", industry: "schoonheidssalon", note: "Donker, verfijnd en rustig: de sfeer van de salon zelf.", demo: true },
-  { key: "loodgieter-bakker", name: "Loodgieter Bakker", type: "Loodgieter", industry: "loodgieter", note: "Opvallend en direct: bij een lekkage moet bellen snel gaan.", demo: true },
-  { key: "tandartspraktijk-centrum", name: "Tandartspraktijk Centrum", type: "Tandarts", industry: "tandarts", note: "Modern en geruststellend, met de afspraak op één tik afstand.", demo: true },
-  { key: "makelaardij-maas", name: "Makelaardij Maas", type: "Makelaar", industry: "makelaar", note: "Uitgesproken letters en een frisse kleur voor een makelaar met een eigen gezicht.", demo: true },
-];
+export const WORK: Work[] = DEMOS.map((d) => ({ key: d.slug, name: d.name, type: d.category, industry: d.industry ?? "", note: d.line, demo: true }));
 
-/** Shown in the homepage portfolio only (hospitality has no landing page of its own yet). */
-export const EXTRA_WORK: Work[] = [{ key: "koffiebar-noord", name: "Koffiebar Noord", type: "Koffiebar", industry: "restaurant", note: "Licht, strak en modern: de kaart en de openingstijden staan voorop.", demo: true }];
-
-export const workByKey = (key: string) => [...WORK, ...EXTRA_WORK].find((w) => w.key === key);
-export const demoHref = (key: string) => `/site/demo/${key}.html`;
+export const workByKey = (key: string) => WORK.find((w) => w.key === key);
+/** The live demo website. */
+export const demoHref = (key: string) => `/demos/${key}`;
+/** Portfolio screenshots made by scripts/shoot-demos.mjs. */
+export const shot = (key: string, name: "d-1440" | "d-720" | "m-780" | "m-390" | "tall-960" | "scroll-720" | "mtall-390") => `/site/work/${key}-${name}.webp`;

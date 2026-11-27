@@ -7,7 +7,9 @@ import { informal } from "@/lib/site/text";
 import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
 import { PROJECTS, projectPath, selectedProjects } from "@/lib/site/projects";
 import { WORK, workByKey } from "@/lib/site/work";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { DEMOS } from "@/demos/catalog";
+import { IMAGES } from "@/demos/images";
 import sitemap from "@/app/sitemap";
 
 const VARS = { starter: eur(29900), business: eur(49900), premium: eur(79900), from: eur(29900), hosting: eur(4900), care: eur(7900), growth: eur(14900), vat: "21%" };
@@ -83,22 +85,44 @@ describe("public website: SEO content", () => {
     // Every demo is labelled as a demo and points at an industry page that exists.
     for (const w of WORK) {
       expect(w.demo).toBe(true);
-      expect(PATHS.has(`/website-laten-maken/${w.industry}`), w.key).toBe(true);
+      if (w.industry) expect(PATHS.has(`/website-laten-maken/${w.industry}`), w.key).toBe(true);
     }
   });
 
   it("shows only concept work whose files exist, and says that it is concept work", () => {
     expect(selectedProjects()).toHaveLength(6);
+    expect(PROJECTS).toHaveLength(12);
     for (const p of PROJECTS) {
       const w = workByKey(p.key);
       expect(w?.demo, p.key).toBe(true);
       expect(p.concept).toBe(true);
-      expect(p.decisions).toHaveLength(3);
-      for (const f of [`demo/${p.key}.html`, `work/${p.key}-d-1440.webp`, `work/${p.key}-d-720.webp`, `work/${p.key}-tall-960.webp`, `work/${p.key}-m-780.webp`]) expect(existsSync(`public/site/${f}`), f).toBe(true);
+      expect(p.idea.length, p.key).toBeGreaterThan(80);
+      expect(p.sections.length, p.key).toBeGreaterThanOrEqual(6);
+      for (const f of ["d-1440", "d-720", "m-780", "m-390", "tall-960", "scroll-720", "mtall-390"]) expect(existsSync(`public/site/work/${p.key}-${f}.webp`), `${p.key}-${f}`).toBe(true);
     }
     expect(new Set(PROJECTS.map((p) => p.key)).size).toBe(PROJECTS.length);
     expect(HOME.work.note).toMatch(/fictieve bedrijven/);
     expect(HOME.work.note).toMatch(/geen klantprojecten/);
+  });
+
+  it("builds every demo website as a real page that says it is a demo and sends nothing", () => {
+    for (const d of DEMOS) {
+      const dir = `src/app/(demos)/demos/${d.slug}`;
+      for (const f of ["page.tsx", "ui.tsx", "style.css"]) expect(existsSync(`${dir}/${f}`), `${d.slug}/${f}`).toBe(true);
+      const page = readFileSync(`${dir}/page.tsx`, "utf8");
+      const source = page + readFileSync(`${dir}/ui.tsx`, "utf8");
+      // It is wrapped in the shell that adds the HOPI bar, and its own footer says what it is.
+      expect(page, d.slug).toContain(`<DemoShell slug="${d.slug}"`);
+      expect(page, d.slug).toContain(`demoMeta("${d.slug}")`);
+      expect(source, d.slug).toMatch(/Demo-ontwerp van HOPI/);
+      expect(source, d.slug).toMatch(/fictie[fv]/);
+      // No form posts, no requests, no third-party embeds: forms go through DemoForm only.
+      expect(source, d.slug).not.toMatch(/<form[\s>]|fetch\(|<iframe|XMLHttpRequest|https?:\/\/(?!www\.w3\.org)/);
+      // Example contact details can never reach a real person.
+      for (const mail of source.match(/[\w.+-]+@[\w-]+\.[\w.]+/g) ?? []) expect(mail, d.slug).toMatch(/\.example$/);
+    }
+    // Every photo the demos refer to exists in both sizes.
+    for (const [slug, images] of Object.entries(IMAGES)) for (const name of Object.keys(images)) for (const size of ["l", "s"]) expect(existsSync(`public/demos/${slug}/${name}-${size}.webp`), `${slug}/${name}-${size}`).toBe(true);
   });
 
   it("builds the homepage from pages and prices that exist", () => {

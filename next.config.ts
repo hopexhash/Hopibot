@@ -26,11 +26,30 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The first portfolio (nine small concept sites) was replaced by twelve complete demo
+  // websites. Old addresses lead to the demo that took their place.
+  async redirects() {
+    const moved: Record<string, string> = {
+      "de-gouden-lepel": "restaurant",
+      "koffiebar-noord": "restaurant",
+      "beauty-by-noor": "beauty-salon",
+      "barbershop-the-gents": "beauty-salon",
+      "garage-jansen": "automotive",
+      "bouwbedrijf-de-vries": "construction",
+      "loodgieter-bakker": "construction",
+      "tandartspraktijk-centrum": "dental",
+      "makelaardij-maas": "real-estate",
+    };
+    return [{ source: "/demos", destination: "/werk", permanent: false }, ...Object.entries(moved).flatMap(([from, to]) => [
+      { source: `/werk/${from}`, destination: `/werk/${to}`, permanent: true },
+      { source: `/site/demo/${from}.html`, destination: `/demos/${to}`, permanent: true },
+    ])];
+  },
   async headers() {
     return [
       { source: "/((?!p/).*)", headers: securityHeaders },
-      // Live demo designs of fictional businesses: viewable, never indexed.
-      { source: "/site/demo/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // Demo websites of fictional businesses: viewable, never indexed.
+      { source: "/demos/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] },
     ];
   },
 };

@@ -122,13 +122,13 @@ export function Home({ data }: { data: SiteData }) {
                           src={`/site/work/${p.key}-d-1440.webp`}
                           srcSet={`/site/work/${p.key}-d-720.webp 720w, /site/work/${p.key}-d-1440.webp 1440w`}
                           sizes="(min-width: 1000px) 56vw, 84vw"
-                          alt={`Conceptontwerp: website voor ${p.industry.toLowerCase()} ${p.work.name}`}
+                          alt={`Demo-website van ${p.work.name}, ${p.industry.toLowerCase()}`}
                           width={1440}
                           height={900}
                           loading="lazy"
                           decoding="async"
                         />
-                        <span className="chip mono">Concept</span>
+                        <span className="chip mono">Demo</span>
                       </div>
                       <div className="wx-meta">
                         <span className="mono wx-n">{no(i)}</span>
@@ -146,7 +146,7 @@ export function Home({ data }: { data: SiteData }) {
                 <li className="wx-item wx-end">
                   <Link href="/werk" className="wx-all" data-cursor="Open" data-pt="Werk">
                     <span className="mono">
-                      {no(allProjects().length - 1)} conceptprojecten
+                      {no(allProjects().length)} demo-websites
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                     <span className="wx-all-t">{HOME.work.all}</span>
