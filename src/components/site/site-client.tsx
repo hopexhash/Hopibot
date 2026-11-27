@@ -254,11 +254,13 @@ export function SiteHeader() {
   }, [open]);
   const current = (href: string) => (!href.includes("#") && (pathname === href || pathname.startsWith(`${href}/`)) ? ("page" as const) : undefined);
   // Another page: the menu stays until the page curtain has closed over it.
-  // ...and closes at once when the link stays on this page: a section of it, or the request
-  // form that most pages have themselves ("/#contact" then means the form here).
+  // ...also when the link stays on this page (a section of it, or the request form most pages
+  // have themselves): the curtain covers that jump too. Only with reduced motion, where there
+  // is no curtain, the menu closes at once.
   const leave = (href: string) => () => {
     const here = href.split("#")[0] === pathname || href.startsWith("#") || (href === "/#contact" && document.getElementById("contact") !== null);
-    window.setTimeout(() => setOpen(false), here ? 0 : 520);
+    const still = here && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => setOpen(false), still ? 0 : 520);
   };
   return (
     <>
@@ -289,7 +291,7 @@ export function SiteHeader() {
           <ol>
             {MENU.map((l, i) => (
               <li key={l.href} style={{ "--i": i } as CSSProperties}>
-                <Link href={l.href} className="mn-link" aria-current={current(l.href)} onClick={leave(l.href)}>
+                <Link href={l.href} className="mn-link" aria-current={current(l.href)} data-pt={l.label} onClick={leave(l.href)}>
                   <span className="mono" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
                   </span>

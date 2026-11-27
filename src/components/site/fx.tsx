@@ -275,6 +275,24 @@ export function Fx() {
         }, 6000);
       }, 600);
     };
+    // From the menu, a section of the page you are on opens the way another page does: the
+    // curtain closes, the page moves behind it, the curtain opens on the section.
+    const behindCurtain = (label: string, target: HTMLElement | null) => {
+      if (s.busy) return;
+      s.busy = true;
+      if (ptLabel.current) ptLabel.current.textContent = label;
+      root.classList.add("pt-cover");
+      window.setTimeout(
+        () =>
+          afterMenu(() => {
+            if (scroller) scroller.scrollTo(target ?? 0, { immediate: true, force: true });
+            else if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
+            else window.scrollTo({ top: 0, behavior: "instant" });
+            requestAnimationFrame(() => requestAnimationFrame(() => s.finish()));
+          }),
+        600,
+      );
+    };
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = e.target instanceof Element ? e.target.closest("a") : null;
@@ -315,7 +333,11 @@ export function Fx() {
         if (!here && url.search !== window.location.search) return; // e.g. choosing a package: the router handles it
         e.preventDefault();
         const target = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
-        if (url.hash && target) {
+        if (!reduce && a.closest("#site-menu")) {
+          if (url.hash && target) window.history.pushState(null, "", url.hash);
+          const name = (a.dataset.pt ?? a.textContent ?? "").replace(/\s+/g, " ").trim();
+          behindCurtain(name.length > 0 && name.length <= 22 ? name : "HOPI", target);
+        } else if (url.hash && target) {
           window.history.pushState(null, "", url.hash);
           afterMenu(() => scrollToEl(target));
         } else if (scroller) scroller.scrollTo(0, { duration: 1.2 });
