@@ -1,0 +1,2353 @@
+/* Hotel Ostara · boutique hotel aan de gracht. Set like a printed hotel brochure: cream and
+   linen paper, espresso ink, one terracotta. Wide classical capitals, centred compositions,
+   photographs as mounted plates, and motion that takes its time. */
+html:has(.d-ostara) {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has(.d-ostara) {
+    scroll-behavior: auto;
+  }
+}
+.d-ostara {
+  --cream: #f1e9dc;
+  --linen: #e7dccb;
+  --ink: #2a2420;
+  --night: #1f1a17;
+  --dim: #6a5d52;
+  --terra: #9a4a30;
+  --terra-l: #d69674;
+  --line: rgba(42, 36, 32, 0.2);
+  --line-l: rgba(241, 233, 220, 0.2);
+  --ease: cubic-bezier(0.22, 0.61, 0.21, 1);
+  --pad: clamp(20px, 5vw, 72px);
+  --sec: clamp(84px, 11vw, 176px);
+  --sheet: var(--linen);
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--t-text), system-ui, sans-serif;
+  font-size: clamp(16px, 1.05vw, 17.5px);
+  line-height: 1.75;
+}
+.d-ostara .t-wrap {
+  width: min(100%, 1520px);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+.d-ostara section[id] {
+  scroll-margin-top: 62px;
+}
+.d-ostara .t-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.d-ostara h1,
+.d-ostara h2,
+.d-ostara h3,
+.d-ostara h4 {
+  font-family: var(--t-display), "Times New Roman", serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+.d-ostara h2 {
+  font-size: clamp(25px, 3.5vw, 54px);
+  text-wrap: balance;
+}
+
+/* Chapter heading: a line, a word, a line */
+.d-ostara .t-head {
+  display: grid;
+  justify-items: center;
+  max-width: 940px;
+  margin-inline: auto;
+  text-align: center;
+}
+.d-ostara .t-eyebrow,
+.d-ostara .t-open-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.d-ostara .t-eyebrow i,
+.d-ostara .t-open-eyebrow i {
+  width: clamp(28px, 4vw, 56px);
+  height: 1px;
+  background: currentColor;
+}
+.demo-js .d-ostara [data-rv="rule"] i {
+  transform: scaleX(0);
+  transition: transform 1.6s var(--ease) 0.3s;
+}
+.demo-js .d-ostara [data-rv="rule"] i:first-child {
+  transform-origin: right;
+}
+.demo-js .d-ostara [data-rv="rule"] i:last-child {
+  transform-origin: left;
+}
+.demo-js .d-ostara [data-rv="rule"].in i {
+  transform: none;
+}
+.d-ostara .t-head h2 {
+  margin-top: clamp(18px, 2vw, 28px);
+}
+.d-ostara .t-lede {
+  max-width: 54ch;
+  margin-top: clamp(16px, 1.8vw, 26px);
+  font-size: clamp(16.5px, 1.25vw, 19.5px);
+  line-height: 1.65;
+  color: var(--dim);
+}
+.d-ostara .t-note {
+  max-width: 68ch;
+  margin: clamp(34px, 4vw, 60px) auto 0;
+  font-size: 13.5px;
+  text-align: center;
+  color: var(--dim);
+}
+
+/* Slower, quieter reveal than the default */
+.demo-js .d-ostara [data-rv] {
+  transform: translateY(18px);
+  transition:
+    opacity 1.3s var(--ease),
+    transform 1.5s var(--ease);
+  transition-delay: calc(var(--i, 0) * 120ms);
+}
+.demo-js .d-ostara [data-rv].in {
+  transform: none;
+}
+
+/* Plates: a photograph with its caption underneath. On reveal a sheet of paper fades off the
+   photo; the photo itself is never hidden, so it loads on time. */
+.d-ostara .t-plate {
+  display: grid;
+}
+.d-ostara .t-plate img {
+  grid-area: 1 / 1;
+  width: 100%;
+  object-fit: cover;
+}
+.d-ostara .t-plate figcaption {
+  grid-area: 2 / 1;
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--dim);
+}
+.demo-js .d-ostara [data-rv="plate"] {
+  opacity: 1;
+}
+.demo-js .d-ostara [data-rv="plate"]::before {
+  content: "";
+  grid-area: 1 / 1;
+  z-index: 1;
+  background: var(--sheet);
+  pointer-events: none;
+  transition: opacity 2s var(--ease);
+  transition-delay: calc(0.1s + var(--i, 0) * 140ms);
+}
+.demo-js .d-ostara [data-rv="plate"].in::before {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-js .d-ostara [data-rv="plate"]::before {
+    display: none;
+  }
+}
+
+/* Buttons */
+.d-ostara .t-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 30px;
+  border: 0;
+  background: var(--terra);
+  color: var(--cream);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.d-ostara .t-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.7s var(--ease);
+}
+.d-ostara .t-btn:hover::before {
+  transform: none;
+}
+.d-ostara .t-btn span {
+  position: relative;
+}
+.d-ostara .t-btn-wide {
+  width: 100%;
+}
+
+/* ── Header ── */
+.d-ostara .t-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px var(--pad);
+  color: var(--cream);
+  transition: color 0.6s var(--ease);
+}
+.d-ostara .t-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-bottom: 1px solid var(--line);
+  background: var(--cream);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+.d-ostara.is-scrolled .t-nav,
+.d-ostara .t-nav.is-open {
+  color: var(--ink);
+}
+.d-ostara.is-scrolled .t-nav::before {
+  opacity: 1;
+}
+.d-ostara .t-nav.is-open::before {
+  opacity: 0;
+}
+.d-ostara .t-logo {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  font-family: var(--t-display), serif;
+  font-size: 16px;
+  letter-spacing: 0.4em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.d-ostara .t-logo svg {
+  width: 32px;
+  height: 24px;
+}
+.d-ostara .t-logo span {
+  padding-left: 0.4em;
+}
+.d-ostara .t-links {
+  display: none;
+  gap: clamp(18px, 2.2vw, 36px);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.d-ostara .t-links a {
+  position: relative;
+  padding: 12px 0;
+  white-space: nowrap;
+}
+.d-ostara .t-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.7s var(--ease);
+}
+.d-ostara .t-links a:hover::after {
+  transform: none;
+  transform-origin: left;
+}
+.d-ostara .t-nav-r {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: clamp(18px, 2.2vw, 36px);
+}
+.d-ostara .t-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid currentColor;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color 0.5s var(--ease),
+    color 0.5s var(--ease),
+    border-color 0.5s var(--ease);
+}
+.d-ostara .t-nav-cta:hover,
+.d-ostara.is-scrolled .t-nav-cta {
+  border-color: var(--terra);
+  background: var(--terra);
+  color: var(--cream);
+}
+.d-ostara.is-scrolled .t-nav-cta:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+.d-ostara .t-cta-long {
+  display: none;
+}
+.d-ostara .t-burger {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 12px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.d-ostara .t-burger i {
+  width: 26px;
+  height: 9px;
+  border-block: 1px solid currentColor;
+  transition:
+    height 0.5s var(--ease),
+    transform 0.5s var(--ease);
+}
+.d-ostara .t-burger[aria-expanded="true"] i {
+  height: 1px;
+  transform: rotate(90deg);
+}
+@media (max-width: 479px) {
+  .d-ostara .t-burger span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+@media (min-width: 1180px) {
+  .d-ostara .t-links {
+    display: flex;
+  }
+  .d-ostara .t-burger {
+    display: none;
+  }
+  .d-ostara .t-cta-long {
+    display: inline;
+  }
+  .d-ostara .t-cta-short {
+    display: none;
+  }
+  .d-ostara .t-nav-cta {
+    padding: 0 22px;
+  }
+}
+
+/* Mobile menu: a cream page that fades in, set like a contents page */
+.d-ostara .t-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 24px;
+  padding: 96px var(--pad) 104px;
+  background: var(--cream);
+  text-align: center;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s var(--ease),
+    visibility 0s 0.6s;
+}
+.d-ostara .t-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.6s var(--ease),
+    visibility 0s;
+}
+.d-ostara .t-menu nav {
+  display: grid;
+  align-content: center;
+  width: min(100%, 420px);
+  margin-inline: auto;
+}
+.d-ostara .t-menu nav a {
+  display: grid;
+  place-items: center;
+  min-height: 58px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--t-display), serif;
+  font-size: clamp(18px, 5.2vw, 23px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.9s var(--ease),
+    color 0.3s;
+}
+.d-ostara .t-menu nav a:last-child {
+  border-bottom: 0;
+  color: var(--terra);
+}
+.d-ostara .t-menu.is-open nav a {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.15s + var(--i) * 70ms), calc(0.15s + var(--i) * 70ms), 0s;
+}
+.d-ostara .t-menu p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+/* ── 1 · Opening ── */
+.d-ostara .t-open {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 84px 0 92px;
+  background: var(--night);
+  color: var(--cream);
+  overflow: hidden;
+}
+.d-ostara .t-open-media {
+  position: absolute;
+  inset: 0;
+}
+.d-ostara .t-open-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 60%;
+  animation: t-zoom 26s ease-out both;
+}
+.d-ostara .t-open-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(31, 26, 23, 0.62) 0%, rgba(31, 26, 23, 0.36) 38%, rgba(31, 26, 23, 0.5) 68%, rgba(31, 26, 23, 0.82) 100%),
+    radial-gradient(ellipse at 50% 42%, rgba(31, 26, 23, 0.34), transparent 62%);
+}
+@keyframes t-zoom {
+  from {
+    transform: scale(1.14);
+  }
+}
+@keyframes t-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes t-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes t-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes t-letter {
+  from {
+    opacity: 0;
+    transform: translateY(0.16em);
+  }
+}
+.d-ostara .t-open-in {
+  position: relative;
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  padding: 20px var(--pad) clamp(28px, 4vw, 48px);
+  text-align: center;
+}
+.d-ostara .t-open-sun {
+  width: clamp(46px, 4.4vw, 64px);
+  height: auto;
+  animation: t-rise 2s var(--ease) 0.1s both;
+}
+.d-ostara .t-open-eyebrow {
+  margin-top: 14px;
+  color: var(--cream);
+  animation: t-fade 1.8s var(--ease) 0.5s both;
+}
+.d-ostara .t-open-eyebrow i {
+  animation: t-draw 1.8s var(--ease) 0.7s both;
+}
+.d-ostara .t-open-eyebrow i:first-child {
+  transform-origin: right;
+}
+.d-ostara .t-open-eyebrow i:last-child {
+  transform-origin: left;
+}
+.d-ostara .t-open h1 {
+  display: grid;
+  justify-items: center;
+  margin: clamp(20px, 2.6vw, 36px) 0 clamp(18px, 2.2vw, 30px);
+  line-height: 1;
+}
+.d-ostara .t-open-pre {
+  padding-left: 0.62em;
+  font-size: clamp(12.5px, 1.25vw, 18px);
+  letter-spacing: 0.62em;
+  animation: t-fade 1.8s var(--ease) 0.3s both;
+}
+.d-ostara .t-open-word {
+  display: flex;
+  margin-top: clamp(8px, 1vw, 16px);
+  padding-left: 0.22em;
+  font-size: clamp(46px, 13.4vw, 190px);
+  letter-spacing: 0.22em;
+}
+.d-ostara .t-open-word span {
+  animation: t-letter 2s var(--ease) both;
+  animation-delay: calc(0.4s + var(--i) * 130ms);
+}
+.d-ostara .t-open-lede {
+  max-width: 42ch;
+  font-size: clamp(16px, 1.3vw, 20px);
+  line-height: 1.6;
+  text-wrap: balance;
+  animation: t-rise 1.8s var(--ease) 1.2s both;
+}
+
+/* The booking strip */
+.d-ostara .t-bar {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: calc(100% - 2 * var(--pad));
+  max-width: 1220px;
+  margin-inline: auto;
+  background: var(--cream);
+  color: var(--ink);
+  animation: t-rise 1.6s var(--ease) 1.5s both;
+}
+.d-ostara .t-bar::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(241, 233, 220, 0.5);
+  pointer-events: none;
+}
+.d-ostara .t-bar-f {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-bar-f:nth-child(2) {
+  border-left: 1px solid var(--line);
+}
+.d-ostara .t-bar-f > span,
+.d-ostara .t-field > span {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.d-ostara .t-bar input,
+.d-ostara .t-field input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  color-scheme: light;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.d-ostara .t-bar input:focus-visible {
+  outline: 0;
+  box-shadow: 0 2px 0 var(--terra);
+}
+.d-ostara .t-bar-g {
+  border-bottom: 0;
+}
+.d-ostara .t-bar-sum {
+  display: grid;
+  align-content: center;
+  padding: 10px 16px;
+  border-left: 1px solid var(--line);
+  line-height: 1.35;
+}
+.d-ostara .t-bar-sum small {
+  font-size: 12px;
+  color: var(--dim);
+}
+.d-ostara .t-bar-sum b {
+  font-family: var(--t-display), serif;
+  font-size: clamp(20px, 1.9vw, 27px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.d-ostara .t-bar-go {
+  grid-column: 1 / -1;
+}
+.d-ostara .t-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+}
+.d-ostara .t-step button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  transition:
+    border-color 0.4s,
+    opacity 0.4s;
+}
+.d-ostara .t-step button:hover:not(:disabled) {
+  border-color: var(--terra);
+  color: var(--terra);
+}
+.d-ostara .t-step button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.d-ostara .t-step output {
+  min-width: 26px;
+  font-family: var(--t-display), serif;
+  font-size: 22px;
+  text-align: center;
+}
+@media (min-width: 980px) {
+  .d-ostara .t-bar {
+    grid-template-columns: 1fr 1fr auto 1.35fr auto;
+  }
+  .d-ostara .t-bar-f {
+    padding: 14px 24px 10px;
+    border-bottom: 0;
+  }
+  .d-ostara .t-bar-f + .t-bar-f {
+    border-left: 1px solid var(--line);
+  }
+  .d-ostara .t-bar-sum {
+    padding: 10px 24px;
+  }
+  .d-ostara .t-bar-go {
+    grid-column: auto;
+    min-height: 100%;
+    padding: 0 38px;
+  }
+}
+
+/* ── 2 · Het huis ── */
+.d-ostara .t-house {
+  padding: var(--sec) 0;
+}
+.d-ostara .t-house-grid {
+  display: grid;
+  gap: 40px;
+  margin-top: clamp(44px, 6vw, 96px);
+}
+.d-ostara .t-house-l,
+.d-ostara .t-house-r {
+  display: grid;
+  gap: 36px;
+  align-content: center;
+}
+.d-ostara .t-house-grid p {
+  max-width: 46ch;
+  margin-inline: auto;
+  text-align: center;
+  color: var(--dim);
+}
+.d-ostara .t-house-lib img,
+.d-ostara .t-house-linen img {
+  aspect-ratio: 3 / 2;
+}
+.d-ostara .t-house-c img {
+  aspect-ratio: 4 / 5;
+}
+.d-ostara .t-facts {
+  display: grid;
+  margin-top: clamp(50px, 7vw, 110px);
+  border-top: 1px solid var(--line);
+}
+.d-ostara .t-facts li {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-facts b {
+  font-family: var(--t-display), serif;
+  font-size: clamp(44px, 5vw, 78px);
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  color: var(--terra);
+}
+.d-ostara .t-facts span {
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+@media (min-width: 760px) {
+  .d-ostara .t-facts {
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--line);
+  }
+  .d-ostara .t-facts li {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 10px;
+    padding: clamp(26px, 3vw, 44px) 20px;
+    border-bottom: 0;
+    text-align: center;
+  }
+  .d-ostara .t-facts li + li {
+    border-left: 1px solid var(--line);
+  }
+  .d-ostara .t-facts span {
+    max-width: 22ch;
+  }
+}
+@media (min-width: 960px) {
+  .d-ostara .t-house-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1fr);
+    gap: clamp(30px, 4.4vw, 76px);
+    align-items: center;
+  }
+  .d-ostara .t-house-l,
+  .d-ostara .t-house-r {
+    gap: clamp(30px, 3.4vw, 54px);
+  }
+  .d-ostara .t-house-lib img,
+  .d-ostara .t-house-linen img {
+    aspect-ratio: 4 / 5;
+  }
+  .d-ostara .t-house-c img {
+    aspect-ratio: 9 / 15;
+  }
+}
+
+/* ── 3 · Kamers en suites ── */
+.d-ostara .t-rooms {
+  padding: var(--sec) 0;
+  background: var(--linen);
+  --sheet: #dccfbb;
+}
+.d-ostara .t-rooms-wrap {
+  margin-top: clamp(40px, 5vw, 80px);
+}
+.d-ostara .t-rooms-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(72vw, 290px);
+  gap: 16px;
+  margin-inline: calc(var(--pad) * -1);
+  padding: 4px var(--pad) 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+}
+.d-ostara .t-rooms-row::-webkit-scrollbar {
+  display: none;
+}
+.d-ostara .t-room {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  scroll-snap-align: start;
+  text-align: center;
+}
+.d-ostara .t-room-img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 8;
+  overflow: hidden;
+  background: #d5c7b2;
+}
+.d-ostara .t-room-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 2.6s var(--ease);
+}
+.d-ostara .t-room:hover .t-room-img img {
+  transform: scale(1.07);
+}
+.d-ostara .t-room-img::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(31, 26, 23, 0.5), transparent 26%);
+}
+.d-ostara .t-room-img::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  border: 1px solid rgba(241, 233, 220, 0.6);
+  transition: transform 1.1s var(--ease);
+}
+.d-ostara .t-room:hover .t-room-img::after {
+  transform: scale(0.955, 0.972);
+}
+.d-ostara .t-room-num {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  font-family: var(--t-display), serif;
+  font-size: 15px;
+  letter-spacing: 0.24em;
+  line-height: 1;
+  color: var(--cream);
+}
+.d-ostara .t-room h3 {
+  margin-top: 20px;
+  font-size: clamp(16px, 1.22vw, 19px);
+  letter-spacing: 0.14em;
+}
+.d-ostara .t-room-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.d-ostara .t-room-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.d-ostara .t-room-open:focus-visible {
+  outline: 0;
+}
+.d-ostara .t-room-open:focus-visible::after {
+  outline: 2px solid var(--terra);
+  outline-offset: 3px;
+}
+.d-ostara .t-room-facts {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--dim);
+}
+.d-ostara .t-room-price {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--dim);
+}
+.d-ostara .t-room-price b {
+  margin-inline: 3px;
+  font-family: var(--t-display), serif;
+  font-size: 19px;
+  font-weight: 400;
+  color: var(--terra);
+}
+.d-ostara .t-room-more {
+  position: relative;
+  margin-top: 12px;
+  padding-bottom: 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.d-ostara .t-room-more::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0.3);
+  transition: transform 0.9s var(--ease);
+}
+.d-ostara .t-room:hover .t-room-more::after {
+  transform: none;
+}
+.d-ostara .t-rooms-ctl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 18px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.d-ostara .t-rooms-ctl button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  transition:
+    background-color 0.4s,
+    color 0.4s;
+}
+.d-ostara .t-rooms-ctl button:hover {
+  background: var(--ink);
+  color: var(--cream);
+}
+@media (min-width: 1100px) {
+  .d-ostara .t-rooms-row {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(12px, 1.5vw, 24px);
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  /* A shallow arc: the middle room stands highest */
+  .d-ostara .t-room:nth-child(1),
+  .d-ostara .t-room:nth-child(5) {
+    margin-top: 64px;
+  }
+  .d-ostara .t-room:nth-child(2),
+  .d-ostara .t-room:nth-child(4) {
+    margin-top: 32px;
+  }
+  .d-ostara .t-rooms-ctl {
+    display: none;
+  }
+}
+
+/* The room, opened */
+.d-ostara .t-dlg {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  visibility: hidden;
+  transition: visibility 0s 0.6s;
+}
+.d-ostara .t-dlg.is-open {
+  visibility: visible;
+  transition-delay: 0s;
+}
+.d-ostara .t-dlg-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 26, 23, 0.74);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+.d-ostara .t-dlg.is-open .t-dlg-scrim {
+  opacity: 1;
+}
+.d-ostara .t-dlg-panel {
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.8s var(--ease);
+}
+.d-ostara .t-dlg.is-open .t-dlg-panel {
+  opacity: 1;
+  transform: none;
+}
+.d-ostara .t-dlg-x,
+.d-ostara .t-lb-x {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--ink);
+  transition:
+    background-color 0.4s,
+    color 0.4s;
+}
+.d-ostara .t-dlg-x {
+  position: sticky;
+  top: 12px;
+  z-index: 3;
+  margin: 12px 12px -58px auto;
+}
+.d-ostara .t-dlg-x:hover {
+  background: var(--ink);
+  color: var(--cream);
+}
+.d-ostara .t-dlg-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--linen);
+  overflow: hidden;
+}
+.d-ostara .t-dlg-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.05);
+  transition:
+    opacity 1.1s var(--ease),
+    transform 2.4s var(--ease);
+}
+.d-ostara .t-dlg-media img.is-on {
+  opacity: 1;
+  transform: none;
+}
+.d-ostara .t-dlg-step {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 44px 10px 8px;
+  background: linear-gradient(0deg, rgba(31, 26, 23, 0.8), transparent);
+  color: var(--cream);
+}
+.d-ostara .t-dlg-step button,
+.d-ostara .t-lb-bar button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  transition: background-color 0.4s;
+}
+.d-ostara .t-dlg-step button:hover,
+.d-ostara .t-lb-bar button:hover {
+  background: rgba(241, 233, 220, 0.16);
+}
+.d-ostara .t-dlg-step p,
+.d-ostara .t-lb-bar p {
+  display: grid;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+.d-ostara .t-dlg-step b,
+.d-ostara .t-lb-bar b {
+  font-family: var(--t-display), serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+.d-ostara .t-dlg-body {
+  padding: 30px var(--pad) 112px;
+}
+.d-ostara .t-dlg-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.d-ostara .t-dlg-body h3 {
+  margin: 10px 0 14px;
+  font-size: clamp(26px, 2.9vw, 40px);
+}
+.d-ostara .t-dlg-line {
+  font-family: var(--t-display), serif;
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.4;
+}
+.d-ostara .t-dlg-text {
+  margin-top: 12px;
+  font-size: 15.5px;
+  color: var(--dim);
+}
+.d-ostara .t-dlg-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+  margin-top: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-dlg-facts div {
+  padding: 11px 0 12px;
+  border-top: 1px solid var(--line);
+}
+.d-ostara .t-dlg-facts dt {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.d-ostara .t-dlg-facts dd {
+  font-size: 15px;
+  line-height: 1.4;
+}
+.d-ostara .t-dlg-body h4 {
+  margin: 24px 0 10px;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+}
+.d-ostara .t-dlg-incl {
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+}
+.d-ostara .t-dlg-incl li {
+  position: relative;
+  padding-left: 22px;
+  line-height: 1.5;
+}
+.d-ostara .t-dlg-incl li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 9px;
+  height: 5px;
+  border: 1px solid var(--terra);
+  border-bottom: 0;
+  border-radius: 9px 9px 0 0;
+}
+.d-ostara .t-dlg-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink);
+}
+.d-ostara .t-dlg-foot p {
+  font-size: 13.5px;
+  color: var(--dim);
+}
+.d-ostara .t-dlg-foot p b {
+  margin-right: 4px;
+  font-family: var(--t-display), serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+.d-ostara .t-dlg-foot p span {
+  display: block;
+}
+@media (min-width: 900px) {
+  .d-ostara .t-dlg-panel {
+    inset: 24px 0 92px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: min(1160px, calc(100% - 64px));
+    max-height: 740px;
+    margin: auto;
+    overflow: hidden;
+  }
+  .d-ostara .t-dlg-x {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    margin: 0;
+  }
+  .d-ostara .t-dlg-media {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+  .d-ostara .t-dlg-body {
+    min-height: 0;
+    padding: clamp(30px, 3.4vw, 52px) clamp(28px, 3.4vw, 52px) 34px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* ── 4 · Restaurant en bar (evening) ── */
+.d-ostara .t-eat,
+.d-ostara .t-book {
+  padding: var(--sec) 0;
+  background: var(--ink);
+  color: var(--cream);
+  --sheet: #3a322c;
+  --line: rgba(241, 233, 220, 0.2);
+}
+.d-ostara .t-eat .t-eyebrow,
+.d-ostara .t-book .t-eyebrow {
+  color: var(--terra-l);
+}
+.d-ostara .t-eat .t-lede,
+.d-ostara .t-book .t-lede {
+  color: rgba(241, 233, 220, 0.76);
+}
+.d-ostara .t-eat-grid {
+  position: relative;
+  display: grid;
+  gap: 64px;
+  margin-top: clamp(44px, 6vw, 96px);
+}
+.d-ostara .t-eat-col {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.d-ostara .t-eat-col figure {
+  width: 100%;
+}
+.d-ostara .t-eat-col img {
+  aspect-ratio: 4 / 5;
+}
+.d-ostara .t-eat-kicker {
+  margin-top: 28px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--terra-l);
+}
+.d-ostara .t-eat-col h3 {
+  margin: 6px 0 14px;
+  padding-left: 0.24em;
+  font-size: clamp(34px, 4.6vw, 68px);
+  letter-spacing: 0.24em;
+  line-height: 1.1;
+}
+.d-ostara .t-eat-col > p:last-child {
+  max-width: 44ch;
+  color: rgba(241, 233, 220, 0.76);
+}
+.d-ostara .t-eat-lists {
+  display: grid;
+  gap: 56px;
+  margin-top: clamp(64px, 8vw, 130px);
+}
+.d-ostara .t-sub {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--cream);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+}
+.d-ostara .t-day li {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-day b,
+.d-ostara .t-card b {
+  font-family: var(--t-display), serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--terra-l);
+}
+.d-ostara .t-day strong,
+.d-ostara .t-card strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.d-ostara .t-day span,
+.d-ostara .t-card span {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(241, 233, 220, 0.66);
+}
+.d-ostara .t-card li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-card li div {
+  max-width: 76%;
+}
+.d-ostara .t-card i {
+  flex: 1;
+  min-width: 16px;
+  border-bottom: 1px dotted rgba(241, 233, 220, 0.4);
+}
+.d-ostara .t-card b {
+  white-space: nowrap;
+}
+.d-ostara .t-eat-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px 14px;
+  margin-top: clamp(64px, 8vw, 130px);
+}
+.d-ostara .t-eat-strip figure:first-child {
+  grid-column: 1 / -1;
+}
+.d-ostara .t-eat-strip img {
+  aspect-ratio: 1;
+}
+.d-ostara .t-eat-strip figure:first-child img {
+  aspect-ratio: 3 / 2;
+}
+.d-ostara .t-eat figcaption {
+  color: rgba(241, 233, 220, 0.66);
+}
+@media (min-width: 900px) {
+  .d-ostara .t-eat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(60px, 9vw, 150px);
+    width: min(100%, 1180px);
+    margin-inline: auto;
+  }
+  .d-ostara .t-eat-grid::before {
+    content: "";
+    position: absolute;
+    top: 8%;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--line);
+  }
+  .d-ostara .t-eat-lists {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(60px, 9vw, 150px);
+    width: min(100%, 1180px);
+    margin-inline: auto;
+  }
+  .d-ostara .t-eat-strip {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(14px, 1.6vw, 26px);
+  }
+  .d-ostara .t-eat-strip figure:first-child {
+    grid-column: auto;
+  }
+  .d-ostara .t-eat-strip img,
+  .d-ostara .t-eat-strip figure:first-child img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ── 5 · Wellness ── */
+.d-ostara .t-well {
+  padding-bottom: var(--sec);
+}
+.d-ostara .t-well-wide,
+.d-ostara .t-hood-wide {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--linen);
+}
+.d-ostara .t-well-wide img,
+.d-ostara .t-hood-wide img {
+  width: 100%;
+  height: 124%;
+  object-fit: cover;
+  transform: translateY(calc(-9.5% + var(--p, 0) * -8%));
+}
+.d-ostara .t-well-card {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: -64px auto 0;
+  padding: 44px clamp(18px, 5vw, 76px) 0;
+  background: var(--cream);
+}
+.d-ostara .t-well-cols {
+  display: grid;
+  margin-top: clamp(44px, 5vw, 80px);
+}
+.d-ostara .t-well-cols li {
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.d-ostara .t-well-cols b {
+  font-family: var(--t-display), serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  color: var(--terra);
+}
+.d-ostara .t-well-cols h3 {
+  margin: 8px 0 12px;
+  font-size: clamp(19px, 1.7vw, 24px);
+  letter-spacing: 0.16em;
+}
+.d-ostara .t-well-cols p {
+  max-width: 40ch;
+  margin-inline: auto;
+  color: var(--dim);
+}
+.d-ostara .t-well-cols small {
+  display: block;
+  margin-top: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+.d-ostara .t-well-pair {
+  display: grid;
+  gap: 30px;
+  margin-top: clamp(30px, 4vw, 70px);
+}
+.d-ostara .t-well-pair img {
+  aspect-ratio: 3 / 2;
+}
+@media (min-width: 860px) {
+  .d-ostara .t-well-wide,
+  .d-ostara .t-hood-wide {
+    aspect-ratio: 21 / 9;
+    max-height: 82vh;
+    width: 100%;
+  }
+  .d-ostara .t-well-card {
+    margin-top: -130px;
+    padding-top: 64px;
+  }
+  .d-ostara .t-well-cols {
+    grid-template-columns: repeat(3, 1fr);
+    border-block: 1px solid var(--line);
+  }
+  .d-ostara .t-well-cols li {
+    padding: clamp(34px, 4vw, 60px) clamp(18px, 2.6vw, 44px);
+    border-top: 0;
+  }
+  .d-ostara .t-well-cols li + li {
+    border-left: 1px solid var(--line);
+  }
+  .d-ostara .t-well-pair {
+    grid-template-columns: 1.5fr 1fr;
+    gap: clamp(14px, 1.6vw, 26px);
+  }
+  .d-ostara .t-well-pair figure:last-child img {
+    aspect-ratio: 1;
+  }
+}
+
+/* ── 6 · Galerij ── */
+.d-ostara .t-gallery {
+  padding: var(--sec) 0;
+  background: var(--linen);
+  --sheet: #dccfbb;
+}
+.d-ostara .t-gal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 21vw;
+  gap: 8px;
+  margin-top: clamp(40px, 5vw, 80px);
+}
+.d-ostara .t-gal li {
+  display: grid;
+  min-height: 0;
+}
+.d-ostara .t-gal button {
+  position: relative;
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: #d5c7b2;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.d-ostara .t-gal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 2.4s var(--ease);
+}
+.d-ostara .t-gal button:hover img,
+.d-ostara .t-gal button:focus-visible img {
+  transform: scale(1.06);
+}
+.d-ostara .t-gal button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(31, 26, 23, 0.66), transparent 46%);
+  opacity: 0;
+  transition: opacity 0.7s var(--ease);
+}
+.d-ostara .t-gal button span {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  z-index: 1;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  line-height: 1.5;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--cream);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.9s var(--ease);
+}
+.d-ostara .t-gal button:hover::after,
+.d-ostara .t-gal button:focus-visible::after,
+.d-ostara .t-gal button:hover span,
+.d-ostara .t-gal button:focus-visible span {
+  opacity: 1;
+  transform: none;
+}
+.d-ostara .t-gal button:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: 3px;
+}
+.d-ostara .t-gal .g1 {
+  grid-area: 1 / 1 / 4 / 3;
+}
+.d-ostara .t-gal .g2 {
+  grid-area: 4 / 1 / 8 / 2;
+}
+.d-ostara .t-gal .g3 {
+  grid-area: 4 / 2 / 6 / 3;
+}
+.d-ostara .t-gal .g4 {
+  grid-area: 6 / 2 / 8 / 3;
+}
+.d-ostara .t-gal .g5 {
+  grid-area: 8 / 2 / 11 / 3;
+}
+.d-ostara .t-gal .g6 {
+  grid-area: 8 / 1 / 11 / 2;
+}
+.d-ostara .t-gal .g7 {
+  grid-area: 11 / 1 / 14 / 3;
+}
+.d-ostara .t-gal .g8 {
+  grid-area: 14 / 1 / 17 / 3;
+}
+@media (min-width: 900px) {
+  .d-ostara .t-gal {
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: clamp(56px, 6.3vw, 100px);
+    gap: clamp(10px, 1.1vw, 16px);
+  }
+  .d-ostara .t-gal .g1 {
+    grid-area: 1 / 1 / 5 / 7;
+  }
+  .d-ostara .t-gal .g2 {
+    grid-area: 1 / 7 / 7 / 10;
+  }
+  .d-ostara .t-gal .g3 {
+    grid-area: 1 / 10 / 4 / 13;
+  }
+  .d-ostara .t-gal .g4 {
+    grid-area: 4 / 10 / 7 / 13;
+  }
+  .d-ostara .t-gal .g5 {
+    grid-area: 5 / 1 / 10 / 4;
+  }
+  .d-ostara .t-gal .g6 {
+    grid-area: 5 / 4 / 7 / 7;
+  }
+  .d-ostara .t-gal .g7 {
+    grid-area: 7 / 4 / 10 / 9;
+  }
+  .d-ostara .t-gal .g8 {
+    grid-area: 7 / 9 / 10 / 13;
+  }
+}
+.d-ostara .t-quote {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  margin-top: clamp(70px, 9vw, 150px);
+  text-align: center;
+}
+.d-ostara .t-quote svg {
+  width: 48px;
+  height: auto;
+  color: var(--terra);
+}
+.d-ostara .t-quote p {
+  max-width: 25em;
+  font-family: var(--t-display), serif;
+  font-size: clamp(22px, 2.7vw, 40px);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+.d-ostara .t-quote footer {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Lightbox */
+.d-ostara .t-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: 72px 14px 80px;
+  color: var(--cream);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s var(--ease),
+    visibility 0s 0.5s;
+}
+.d-ostara .t-lb.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s var(--ease),
+    visibility 0s;
+}
+.d-ostara .t-lb-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 22, 19, 0.97);
+}
+.d-ostara .t-lb-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  border-color: var(--line-l);
+  background: none;
+  color: var(--cream);
+}
+.d-ostara .t-lb-x:hover {
+  background: var(--cream);
+  color: var(--ink);
+}
+.d-ostara .t-lb-fig {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  animation: t-fade 0.8s var(--ease) both;
+}
+.d-ostara .t-lb-fig img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100svh - 230px);
+  object-fit: contain;
+}
+.d-ostara .t-lb-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 12px;
+}
+.d-ostara .t-lb-bar p {
+  flex: 0 1 340px;
+}
+@media (min-width: 900px) {
+  .d-ostara .t-lb {
+    padding: 40px 90px 84px;
+  }
+  .d-ostara .t-lb-fig img {
+    max-height: calc(100svh - 200px);
+  }
+}
+
+/* ── 7 · De buurt ── */
+.d-ostara .t-hood {
+  padding-top: var(--sec);
+}
+.d-ostara .t-comp {
+  display: grid;
+  gap: 36px;
+  align-items: center;
+  margin-top: clamp(40px, 5vw, 80px);
+}
+.d-ostara .t-comp-map {
+  width: min(100%, 580px);
+  margin-inline: auto;
+  padding: 26px 4px 4px;
+}
+.demo-js .d-ostara [data-rv="map"] {
+  transform: none;
+}
+.d-ostara .t-comp-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.d-ostara .t-comp-rings circle {
+  stroke: rgba(42, 36, 32, 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.d-ostara .t-comp-rings circle:last-child {
+  stroke-dasharray: 2 5;
+}
+.demo-js .d-ostara [data-rv="map"] .t-comp-rings circle {
+  opacity: 0;
+  transform: scale(0.62);
+  transition:
+    opacity 1.6s var(--ease),
+    transform 2.2s var(--ease);
+}
+.demo-js .d-ostara [data-rv="map"] .t-comp-rings circle:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.demo-js .d-ostara [data-rv="map"] .t-comp-rings circle:nth-child(3) {
+  transition-delay: 0.3s;
+}
+.demo-js .d-ostara [data-rv="map"] .t-comp-rings circle:nth-child(4) {
+  transition-delay: 0.45s;
+}
+.demo-js .d-ostara [data-rv="map"].in .t-comp-rings circle {
+  opacity: 1;
+  transform: none;
+}
+.d-ostara .t-comp-cross {
+  stroke: rgba(42, 36, 32, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 1 6;
+  vector-effect: non-scaling-stroke;
+}
+.d-ostara .t-comp-min text {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--dim);
+}
+.d-ostara .t-comp-n {
+  font-family: var(--t-display), serif;
+  font-size: 15px;
+  fill: var(--terra);
+}
+.d-ostara .t-comp-ray {
+  stroke: var(--terra);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  animation: t-fade 0.8s var(--ease) both;
+}
+.d-ostara .t-comp-dot {
+  cursor: pointer;
+}
+.d-ostara .t-comp-hit {
+  fill: transparent;
+}
+.d-ostara .t-comp-pt,
+.d-ostara .t-comp-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.7s var(--ease),
+    opacity 0.7s var(--ease);
+}
+.d-ostara .t-comp-pt {
+  fill: var(--ink);
+}
+.d-ostara .t-comp-halo {
+  fill: none;
+  stroke: var(--terra);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transform: scale(0.4);
+}
+.d-ostara .t-comp-dot.is-on .t-comp-pt {
+  fill: var(--terra);
+  transform: scale(1.3);
+}
+.d-ostara .t-comp-dot.is-on .t-comp-halo {
+  opacity: 1;
+  transform: none;
+}
+.d-ostara .t-comp-home circle {
+  fill: var(--cream);
+  stroke: var(--ink);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.d-ostara .t-comp-home path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+}
+.d-ostara .t-comp-list {
+  border-top: 1px solid var(--ink);
+}
+.d-ostara .t-comp-list button {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 15px 0 13px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  transition: color 0.4s var(--ease);
+}
+.d-ostara .t-comp-list span {
+  font-family: var(--t-display), serif;
+  font-size: clamp(14.5px, 1.2vw, 17px);
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.d-ostara .t-comp-list i {
+  flex: 1;
+  min-width: 12px;
+  border-bottom: 1px dotted rgba(42, 36, 32, 0.4);
+}
+.d-ostara .t-comp-list em {
+  font-size: 13.5px;
+  font-style: normal;
+  white-space: nowrap;
+  color: var(--dim);
+}
+.d-ostara .t-comp-list button[aria-pressed="true"],
+.d-ostara .t-comp-list button[aria-pressed="true"] em {
+  color: var(--terra);
+}
+.d-ostara .t-comp-text {
+  min-height: 6.4em;
+  margin-top: 22px;
+  color: var(--dim);
+  animation: t-fade 0.9s var(--ease) both;
+}
+.d-ostara .t-comp-text b {
+  font-weight: 600;
+  color: var(--ink);
+}
+.d-ostara .t-hood-wide {
+  margin-top: clamp(60px, 8vw, 130px);
+}
+.d-ostara .t-hood-wide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(31, 26, 23, 0.72), transparent 42%);
+}
+.d-ostara .t-hood-wide figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 30px;
+  padding: 18px var(--pad);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+@media (min-width: 900px) {
+  .d-ostara .t-comp {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+    gap: clamp(40px, 7vw, 130px);
+    width: min(100%, 1240px);
+    margin-inline: auto;
+  }
+  .d-ostara .t-comp-text {
+    min-height: 5.4em;
+  }
+}
+
+/* ── 8 · Boeken (evening) ── */
+.d-ostara .t-book-sheet {
+  position: relative;
+  width: min(100%, 1240px);
+  margin: clamp(44px, 5vw, 80px) auto 0;
+  padding: clamp(22px, 4vw, 60px);
+  background: var(--cream);
+  color: var(--ink);
+  --line: rgba(42, 36, 32, 0.2);
+}
+.d-ostara .t-book-sheet::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(241, 233, 220, 0.32);
+  pointer-events: none;
+}
+.d-ostara .t-form {
+  display: grid;
+  gap: 34px;
+}
+.d-ostara .t-form fieldset {
+  min-width: 0;
+  margin: 0 0 38px;
+  padding: 0;
+  border: 0;
+}
+.d-ostara .t-form fieldset:last-child {
+  margin-bottom: 0;
+}
+.d-ostara .t-form legend {
+  display: block;
+  width: 100%;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--t-display), serif;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.d-ostara .t-form legend b {
+  display: inline-block;
+  min-width: 34px;
+  font-weight: 400;
+  color: var(--terra);
+}
+.d-ostara .t-opt {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 0 14px;
+  min-height: 62px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.d-ostara .t-opt input {
+  grid-row: 1 / span 2;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: inherit;
+  transition:
+    background-color 0.4s,
+    box-shadow 0.4s;
+}
+.d-ostara .t-opt input:checked {
+  border-color: var(--terra);
+  background: var(--terra);
+  box-shadow: inset 0 0 0 4px var(--cream);
+}
+.d-ostara .t-opt-name {
+  grid-column: 2;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.d-ostara .t-opt-meta {
+  grid-column: 2;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--dim);
+}
+.d-ostara .t-opt-price {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  font-family: var(--t-display), serif;
+  font-size: 19px;
+}
+.d-ostara .t-opt[data-off] {
+  cursor: not-allowed;
+}
+.d-ostara .t-opt[data-off] > * {
+  opacity: 0.42;
+}
+.d-ostara .t-when,
+.d-ostara .t-who {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 18px;
+  padding-top: 20px;
+}
+.d-ostara .t-field {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+}
+.d-ostara .t-field input {
+  min-height: 48px;
+  border-bottom: 1px solid rgba(42, 36, 32, 0.45);
+}
+.d-ostara .t-field input:focus-visible {
+  outline: 0;
+  border-color: var(--terra);
+  box-shadow: 0 1px 0 var(--terra);
+}
+.d-ostara .t-when > div,
+.d-ostara .t-field-wide {
+  grid-column: 1 / -1;
+}
+.d-ostara .t-tog {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 68px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.d-ostara .t-tog input {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 48px;
+  height: 28px;
+  margin: -14px 0 0;
+  opacity: 0;
+  cursor: inherit;
+}
+.d-ostara .t-tog i {
+  position: relative;
+  flex: none;
+  width: 48px;
+  height: 28px;
+  border: 1px solid var(--ink);
+  border-radius: 14px;
+  transition:
+    background-color 0.5s var(--ease),
+    border-color 0.5s var(--ease);
+}
+.d-ostara .t-tog i::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition:
+    transform 0.6s var(--ease),
+    background-color 0.5s var(--ease);
+}
+.d-ostara .t-tog input:checked + i {
+  border-color: var(--terra);
+  background: var(--terra);
+}
+.d-ostara .t-tog input:checked + i::after {
+  background: var(--cream);
+  transform: translateX(20px);
+}
+.d-ostara .t-tog input:focus-visible + i {
+  outline: 2px solid var(--terra);
+  outline-offset: 3px;
+}
+.d-ostara .t-tog b {
+  display: block;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.d-ostara .t-tog small {
+  display: block;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+/* The bill */
+.d-ostara .t-bill {
+  display: grid;
+  justify-items: center;
+  padding: 30px clamp(18px, 2.4vw, 34px) 26px;
+  background: var(--linen);
+}
+.d-ostara .t-bill > svg {
+  width: 40px;
+  height: auto;
+  color: var(--terra);
+}
+.d-ostara .t-bill h3 {
+  margin: 8px 0 18px;
+  padding-left: 0.22em;
+  font-size: 18px;
+  letter-spacing: 0.22em;
+}
+.d-ostara .t-bill dl,
+.d-ostara .t-bill-lines,
+.d-ostara .t-bill-total {
+  width: 100%;
+}
+.d-ostara .t-bill dl {
+  border-top: 1px solid var(--ink);
+}
+.d-ostara .t-bill dl div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.d-ostara .t-bill dt {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.d-ostara .t-bill dd {
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: right;
+}
+.d-ostara .t-bill-lines {
+  display: grid;
+  gap: 8px;
+  padding: 18px 0;
+  font-size: 14.5px;
+}
+.d-ostara .t-bill-lines li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.4;
+}
+.d-ostara .t-bill-lines i {
+  flex: 1;
+  min-width: 10px;
+  border-bottom: 1px dotted rgba(42, 36, 32, 0.45);
+}
+.d-ostara .t-bill-lines b {
+  font-family: var(--t-display), serif;
+  font-size: 17px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.d-ostara .t-bill-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.d-ostara .t-bill-total b {
+  font-family: var(--t-display), serif;
+  font-size: clamp(32px, 3vw, 42px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.d-ostara .t-bill-note {
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--dim);
+}
+.d-ostara .t-form .demo-form-note {
+  color: var(--ink);
+}
+@media (min-width: 640px) {
+  .d-ostara .t-when {
+    grid-template-columns: 1fr 1fr auto;
+  }
+  .d-ostara .t-when > div {
+    grid-column: auto;
+  }
+}
+@media (min-width: 980px) {
+  .d-ostara .t-form {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr);
+    gap: 24px clamp(36px, 5vw, 80px);
+    align-items: start;
+  }
+  .d-ostara .t-form-fields {
+    grid-area: 1 / 1;
+  }
+  .d-ostara .t-bill {
+    grid-area: 1 / 2 / 3 / 3;
+    position: sticky;
+    top: 86px;
+  }
+  .d-ostara .t-form .demo-form-note {
+    grid-area: 2 / 1;
+  }
+}
+
+/* ── Footer: the back cover ── */
+.d-ostara .t-foot {
+  padding: clamp(64px, 8vw, 120px) 0 116px;
+  background: var(--linen);
+}
+.d-ostara .t-foot-mark {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.d-ostara .t-foot-mark svg {
+  width: clamp(48px, 5vw, 72px);
+  height: auto;
+  color: var(--terra);
+}
+.d-ostara .t-foot-mark p {
+  margin-top: 10px;
+  padding-left: 0.3em;
+  font-family: var(--t-display), serif;
+  font-size: clamp(40px, 9.4vw, 132px);
+  letter-spacing: 0.3em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.d-ostara .t-foot-mark span {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.d-ostara .t-foot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px 20px;
+  margin-top: clamp(50px, 6vw, 90px);
+  padding-top: clamp(36px, 4vw, 60px);
+  border-top: 1px solid var(--ink);
+  font-size: 15px;
+}
+.d-ostara .t-foot-grid h3 {
+  margin-bottom: 10px;
+  font-family: var(--t-text), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--terra);
+}
+.d-ostara .t-foot-grid a,
+.d-ostara .t-foot-grid p {
+  display: block;
+  padding: 10px 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.d-ostara .t-foot-grid p {
+  padding: 4px 0;
+  color: var(--dim);
+}
+.d-ostara .t-foot-grid a {
+  transition: color 0.3s;
+}
+.d-ostara .t-foot-grid a:hover {
+  color: var(--terra);
+}
+.d-ostara .t-foot-grid .t-foot-book {
+  display: inline-block;
+  margin-top: 8px;
+  border-bottom: 1px solid currentColor;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--terra);
+}
+.d-ostara .t-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 30px;
+  margin-top: clamp(40px, 5vw, 70px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--dim);
+}
+@media (min-width: 900px) {
+  .d-ostara .t-foot-grid {
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .d-ostara .t-foot-grid a {
+    padding: 5px 0;
+  }
+}
