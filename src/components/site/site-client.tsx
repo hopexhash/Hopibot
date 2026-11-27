@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowUp, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useActionState, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
@@ -165,6 +165,23 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
         </div>
       )}
     </div>
+  );
+}
+
+/** Square button in the footer that brings the visitor back to the top, with the site's own smooth scroll. */
+export function BackToTop() {
+  const up = () => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (fxState.scroller) fxState.scroller.scrollTo(0, { duration: reduce ? 0 : 1.4 });
+    else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    // Keyboard users continue from the top of the page, not from the footer.
+    document.querySelector<HTMLElement>("a[href='#inhoud'], .nv-logo")?.focus({ preventScroll: true });
+  };
+  return (
+    <button type="button" className="ft-top" onClick={up} aria-label="Terug naar boven">
+      <ArrowUp aria-hidden="true" />
+      <ArrowUp aria-hidden="true" />
+    </button>
   );
 }
 

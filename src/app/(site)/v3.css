@@ -874,6 +874,59 @@ html.lenis body {
 .hopi.v3 .ft-logo:hover i {
   transform: scale(1.9);
 }
+/* Back to top: a square in the accent colour; the arrow leaves upwards and a new one comes in. */
+.hopi.v3 .ft-top {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  margin-left: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--accent);
+  color: #0c0c0d;
+  cursor: pointer;
+  transition: transform 0.4s var(--ease-out);
+}
+.hopi.v3 .ft-top svg {
+  grid-area: 1 / 1;
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
+  transition: transform 0.45s var(--ease-out);
+}
+.hopi.v3 .ft-top svg + svg {
+  transform: translateY(56px);
+}
+.hopi.v3 .ft-top:hover svg:first-child {
+  transform: translateY(-56px);
+}
+.hopi.v3 .ft-top:hover svg + svg {
+  transform: none;
+}
+.hopi.v3 .ft-top:active {
+  transform: scale(0.94);
+}
+.hopi.v3 .ft-top:focus-visible {
+  outline: 2px solid var(--paper, #f2eee6);
+  outline-offset: 3px;
+}
+@media (max-width: 699px) {
+  /* Logo and button share the first line; the tagline goes underneath. */
+  .hopi.v3 .ft-row p {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hopi.v3 .ft-top svg {
+    transition: none;
+  }
+}
 .hopi.v3 .ft-row p {
   margin: 0;
   font-size: 15.5px;

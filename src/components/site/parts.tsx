@@ -8,7 +8,7 @@ import { informal } from "@/lib/site/text";
 import type { Work } from "@/lib/site/work";
 import type { SiteData } from "@/server/site";
 import { rich as rich_ } from "./rich";
-import { ConsentLink, ContactForm, WhatsAppIcon } from "./site-client";
+import { BackToTop, ConsentLink, ContactForm, WhatsAppIcon } from "./site-client";
 import { Words } from "./split";
 
 /** Structured data. `<` is escaped so copy can never close the script element. */
@@ -393,6 +393,7 @@ export function SiteFooter({ data }: { data: SiteData }) {
             <i aria-hidden="true" />
           </Link>
           <p>Websites voor ondernemers in Nederland en België</p>
+          <BackToTop />
         </div>
         <div className="ft-legal mono">
           <span>
