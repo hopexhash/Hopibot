@@ -20,6 +20,10 @@ export type Landing = {
   h1: string;
   intro: string;
   sections: { h2: string; body?: string[]; items?: { title: string; text: string }[]; list?: string[] }[];
+  /** "quote": no fixed price (webshops). The page then asks for a quotation instead of showing packages. */
+  pricing?: "fixed" | "quote";
+  /** Link text when other pages link here; defaults to "Website voor <label>" for industry pages. */
+  linkLabel?: string;
   /** Portfolio demo shown on the page (key from work.ts). */
   work?: string;
   /** Catalogue add-ons that fit this page. */
@@ -59,7 +63,7 @@ export const PILLAR: Landing = {
       h2: "Laten maken of zelf bouwen?",
       body: [
         "Met een websitebouwer kun je zelf een site in elkaar zetten. Dat is goedkoop als je de tijd hebt en het leuk vindt. De keerzijde: je moet zelf nadenken over opbouw, teksten, vindbaarheid en hoe het er op een telefoon uitziet, en veel zelfgebouwde sites blijven half af.",
-        "Laat je je website maken, dan koop je vooral tijd en ervaring. Het verschil met de meeste bureaus is dat je bij HOPI niet op een offerte hoeft te vertrouwen: je beoordeelt een echt ontwerp. In ons artikel [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen) zetten we beide routes eerlijk naast elkaar.",
+        "Laat je je website maken, dan koop je vooral tijd en ervaring. Het verschil met de meeste bureaus is dat je bij HOPI niet op een offerte hoeft te vertrouwen: je beoordeelt een echt ontwerp. In ons artikel [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen) zetten we beide routes eerlijk naast elkaar. Hoe wij AI gebruiken om snel een eerste ontwerp te maken, lees je bij [AI website laten maken](/ai-website-laten-maken).",
       ],
     },
     {
@@ -76,7 +80,7 @@ export const PILLAR: Landing = {
     { q: "Moet ik zelf teksten en foto's aanleveren?", a: "Je vertelt wat je doet; wij zetten een eerste versie van de teksten in het ontwerp. Eigen foto's maken een website persoonlijker. Heb je die niet, dan denken we mee over een oplossing. Professionele teksten en fotografie zijn als extra beschikbaar." },
     { q: "Heb ik al een domeinnaam nodig?", a: "Nee. Heb je er al een, dan koppelen we die. Zo niet, dan helpen we je een passende domeinnaam te registreren." },
     { q: "Kan ik mijn website later laten aanpassen?", a: "Ja. Met een onderhoudsabonnement passen wij kleine dingen voor je aan, zoals openingstijden, prijzen of nieuwe foto's." },
-    { q: "Voor welke bedrijven maakt HOPI websites?", a: "Voor ondernemers in Nederland en België: van restaurants, kappers en schoonheidssalons tot garages, loodgieters, bouwbedrijven, tandartsen en makelaars. Zowel zzp'ers als mkb-bedrijven." },
+    { q: "Voor welke bedrijven maakt HOPI websites?", a: "Voor ondernemers in Nederland en België: van restaurants, cafés, lunchrooms, kappers en schoonheidssalons tot garages, loodgieters, bouwbedrijven, tandartsen en makelaars. Zowel zzp'ers als mkb-bedrijven. Een [webshop](/website-laten-maken/webshop) maken we op offerte." },
   ],
   related: ["/prijzen", "/website-redesign", "/website-onderhoud", "/blog/wat-kost-een-website-laten-maken"],
 };
@@ -85,7 +89,7 @@ export const LANDINGS: Landing[] = [
   industry("restaurant", {
     label: "Restaurant",
     service: "Website laten maken voor restaurants",
-    keywords: { primary: "website laten maken restaurant", secondary: ["restaurant website laten maken", "horeca website", "website voor restaurant"] },
+    keywords: { primary: "website laten maken restaurant", secondary: ["restaurant website laten maken", "restaurant website bouwen", "website voor restaurant"] },
     title: "Website laten maken voor je restaurant | HOPI",
     description: "Een restaurantwebsite met menukaart, reserveren en openingstijden, gemaakt voor de telefoon. Eerst gratis een ontwerp zien, vaste prijs vanaf {from}.",
     eyebrow: "Website voor restaurants",
@@ -103,7 +107,7 @@ export const LANDINGS: Landing[] = [
       },
       {
         h2: "Wat we voor een restaurant bouwen",
-        body: ["Elk restaurant krijgt een eigen gezicht: een bistro vraagt om iets anders dan een pizzeria of een sterrenzaak. In het ontwerp dat je vooraf ziet, staan je eigen naam, je kaart en je stijl al op hun plek."],
+        body: ["Elk restaurant krijgt een eigen gezicht: een bistro vraagt om iets anders dan een pizzeria of een sterrenzaak. In het ontwerp dat je vooraf ziet, staan je eigen naam, je kaart en je stijl al op hun plek. Wat er allemaal op een goede restaurantwebsite hoort, lees je in [deze checklist](/blog/wat-moet-er-op-een-restaurantwebsite-staan)."],
         list: ["Een eigen ontwerp dat past bij je keuken en je gasten", "Menukaart die je makkelijk laat bijwerken", "Reserveerknop, of een koppeling met je reserveringssysteem", "Openingstijden, adres en routekaart", "Aparte aandacht voor groepen en besloten avonden", "Een basis om gevonden te worden op 'restaurant' plus je plaats"],
       },
     ],
@@ -115,7 +119,59 @@ export const LANDINGS: Landing[] = [
       { q: "Kunnen gasten online reserveren?", a: "Ja. Gebruik je al een reserveringssysteem, dan koppelen we dat aan je website. Heb je er geen, dan kan een reserveringsformulier of een duidelijke belknop voldoende zijn. We bespreken wat bij jouw zaak past." },
       { q: "Ik heb al een Instagram- of Facebookpagina. Is een website dan nog nodig?", a: "Sociale media zijn goed voor sfeer en trouwe gasten. Een eigen website is de plek die je zelf beheert en die mensen vinden als ze in Google naar een restaurant in jouw plaats zoeken. Daar staan je kaart, tijden en reserveerknop altijd actueel op een rij." },
     ],
-    related: ["/website-laten-maken", "/prijzen", "/blog/beter-vindbaar-in-google", "/website-laten-maken/kapper"],
+    related: ["/website-laten-maken", "/prijzen", "/blog/wat-moet-er-op-een-restaurantwebsite-staan", "/website-laten-maken/horeca"],
+  }),
+  industry("horeca", {
+    label: "Horeca",
+    service: "Website laten maken voor horeca",
+    keywords: { primary: "website laten maken horeca", secondary: ["website voor cafetaria", "website voor lunchroom", "website café", "snackbar website"] },
+    title: "Website laten maken voor horeca en cafés | HOPI",
+    description: "Een website voor je café, lunchroom of snackbar met kaart, actuele openingstijden en afhalen. Eerst gratis een ontwerp zien, vanaf {from}.",
+    eyebrow: "Website voor horeca",
+    h1: "Een website voor je *café*, lunchroom of snackbar",
+    intro: "Bij een café, lunchroom of snackbar wil een gast in een paar seconden weten of je open bent, wat er op de kaart staat en of hij kan afhalen. Een website laten maken voor horeca draait dus om snelheid en actuele informatie, niet om lange verhalen. Wij maken een website die dat op de telefoon meteen laat zien, en je ziet eerst gratis een ontwerp voordat je iets betaalt.",
+    sections: [
+      {
+        h2: "Wat een café of lunchroom anders nodig heeft dan een restaurant",
+        items: [
+          { title: "Afhalen en bezorgen", text: "Een bestel- of belknop die altijd in beeld is. Sta je op een bezorgplatform, dan geeft je eigen website vaste klanten een directe route naar jou. Zo ben je minder afhankelijk van één platform." },
+          { title: "Openingstijden die kloppen", text: "Zomer- en wintertijden, dicht op maandag, langer open bij mooi weer: wisselende tijden staan bovenaan en zijn snel aangepast." },
+          { title: "De lunchkaart en de daghap", text: "De kaart als gewone webpagina, met een vaste plek voor de daghap of het dagmenu." },
+          { title: "Het terras", text: "Foto's van het terras, de bar of de toonbank laten zien waar gasten terechtkomen." },
+          { title: "Events en groepen", text: "Een quizavond, live muziek of een groepslunch: een agenda voor activiteiten en een formulier voor groepsreserveringen." },
+        ],
+      },
+      {
+        h2: "Website laten maken voor horeca: wat we bouwen",
+        body: ["Een eetcafé met een volle kaart vraagt om iets anders dan een koffiezaak met vijf soorten bonen of een snackbar waar alles om de bestelknop draait. In het ontwerp dat je vooraf ziet, staan je eigen naam, je kaart en je openingstijden al op hun plek."],
+        list: ["Een eigen ontwerp dat past bij je zaak en je gasten", "De kaart als webpagina, met ruimte voor de daghap of het dagmenu", "Een bel- of bestelknop, of een link naar het bestelsysteem dat je al gebruikt", "Openingstijden met uitzonderingen, zoals feestdagen of het terrasseizoen", "Een agenda voor events en een aanvraagformulier voor groepen", "Een basis om gevonden te worden op 'café', 'lunchroom' of 'snackbar' plus je plaats"],
+      },
+      {
+        h2: "Zo werkt het met HOPI voor je zaak",
+        body: [
+          "Je vult het aanvraagformulier in met de naam van je zaak en je plaats. Onze software zoekt de openbare informatie bij elkaar, zoals je openingstijden en je huidige website, en zet een eerste versie van de teksten in een van onze ontwerpen. Iemand van HOPI controleert het ontwerp voordat jij het krijgt. Hoe we AI daarbij inzetten, lees je bij [AI website laten maken](/ai-website-laten-maken).",
+          "Bevalt het ontwerp, dan kies je een pakket en maken we de kaart, de foto's en de teksten samen definitief. Daarna regelen wij hosting en updates. Verandert je kaart of gaat het terras dicht voor de winter, dan geef je dat door en passen wij het aan met een [onderhoudsabonnement](/website-onderhoud).",
+        ],
+      },
+      {
+        h2: "Welk pakket past bij een café of snackbar?",
+        body: [
+          "Voor een snackbar of koffiezaak met één kaart en vaste tijden is Starter ({starter}) vaak genoeg: een one-page website met de kaart, je openingstijden, een routekaart en een belknop. Een eetcafé of lunchroom met events, een groepsmenu en meerdere pagina's past beter bij Business ({business}).",
+          "Wil je dat gasten online een tafel of groep reserveren via je reserveringssysteem, dan zit die koppeling in Premium ({premium}) of neem je hem als extra. Alle prijzen zijn exclusief {vat} btw.",
+        ],
+      },
+    ],
+    work: "restaurant",
+    addons: ["menu", "booking", "gbp", "photography"],
+    addonsTitle: "Veel gekozen door horecazaken",
+    faq: [
+      { q: "Ik sta al op een bezorgplatform. Heb ik dan nog een eigen website nodig?", a: "Een platform helpt om gevonden te worden, maar het is niet van jou: de regels, de presentatie en het contact met de klant liggen daar. Op je eigen website bepaal je zelf wat gasten zien, en wijs je vaste klanten de weg om direct bij jou te bestellen of te bellen." },
+      { q: "Kan ik via mijn website bestellingen voor afhalen ontvangen?", a: "Gebruik je al een systeem voor online bestellen, dan zetten we een duidelijke bestelknop op je website die daarnaar verwijst. Wil je dat gasten volledig op je eigen website bestellen en afrekenen, vertel dat bij je aanvraag. Dan hoor je eerlijk wat mogelijk is." },
+      { q: "Mijn openingstijden wisselen per seizoen. Hoe houd ik dat actueel?", a: "Je geeft de nieuwe tijden door en wij passen ze aan. Met het abonnement Website Care zijn maandelijkse inhoudswijzigingen inbegrepen, zoals openingstijden, de kaart of een nieuw event. Houd ook je Google Bedrijfsprofiel bij, want ook daar zoeken gasten je tijden op. Het instellen daarvan is als extra beschikbaar." },
+      { q: "Kan de daghap of het dagmenu op de website?", a: "Ja. We maken op de kaartpagina een vaste plek voor de daghap of het dagmenu. Wisselt die per week of per seizoen, dan passen we hem aan binnen een onderhoudsabonnement; de digitale menukaart is daarnaast als extra beschikbaar. Wisselt hij elke dag, vertel dat bij je aanvraag, dan zoeken we samen een praktische oplossing." },
+      { q: "Kunnen gasten een groep of besloten feest aanvragen?", a: "Ja. We zetten een aanvraagformulier op de website waarin gasten de datum, het aantal personen en hun wensen invullen. De aanvraag komt bij jou in de mailbox binnen. Gebruik je een reserveringssysteem, dan kunnen we dat koppelen." },
+    ],
+    related: ["/website-laten-maken/restaurant", "/website-laten-maken", "/prijzen", "/blog/beter-vindbaar-in-google"],
   }),
   industry("kapper", {
     label: "Kapper & barbershop",
@@ -362,6 +418,69 @@ export const LANDINGS: Landing[] = [
     ],
     related: ["/website-laten-maken", "/website-laten-maken/mkb", "/website-redesign", "/prijzen"],
   }),
+  industry("webshop", {
+    pricing: "quote",
+    linkLabel: "Webshop laten maken",
+    label: "Webshop",
+    service: "Webshop laten maken",
+    keywords: { primary: "webshop laten maken", secondary: ["webshop laten bouwen", "online winkel laten maken", "webshop voor kleine ondernemers"] },
+    title: "Webshop laten maken, met een eerlijke offerte | HOPI",
+    description: "Een webshop laten maken voor je eigen online winkel. Op offerte, want de prijs hangt af van je producten, betalen, verzenden en koppelingen.",
+    eyebrow: "Webshop laten maken",
+    h1: "Je eigen *webshop* laten maken",
+    intro: "Een webshop laten maken doe je bij HOPI op offerte, niet voor een vaste prijs. Wat een webshop kost, hangt vooral af van het aantal producten, hoe klanten betalen, hoe je verzendt en of de winkel moet samenwerken met je voorraad of boekhouding. Vertel wat je wilt verkopen, dan krijg je een duidelijke offerte en weet je vooraf waar je aan toe bent.",
+    sections: [
+      {
+        h2: "Wat bepaalt de prijs van een webshop?",
+        body: ["Een webshop is meer werk dan een gewone website, omdat er na de klik op 'bestellen' nog veel moet gebeuren. Daarom rekenen we geen vast bedrag, maar maken we een offerte op basis van wat jouw winkel echt nodig heeft."],
+        items: [
+          { title: "Producten en varianten", text: "Tien producten zet je anders neer dan vijfhonderd artikelen in drie maten en vier kleuren. Meer producten betekent meer werk aan categorieën, filters en het invoeren zelf." },
+          { title: "Betalen", text: "Welke betaalmethoden je klanten willen en via welke betaalprovider dat loopt. De kosten van die provider spreek je rechtstreeks met die partij af." },
+          { title: "Verzenden", text: "Vaste verzendkosten of per gewicht, afhalen in de winkel, ook naar België: elke regel moet in de winkel kloppen." },
+          { title: "Koppelingen", text: "Moet de webshop je voorraad bijwerken of bestellingen doorzetten naar je boekhouding? Dat scheelt je dagelijks werk, maar maakt het bouwen bewerkelijker." },
+          { title: "Teksten en foto's", text: "Goede productfoto's en -teksten maken het verschil. Lever je die zelf aan, of moeten ze gemaakt worden?" },
+        ],
+      },
+      {
+        h2: "Webshop laten maken: wat je mag verwachten",
+        body: [
+          "Een webshop is niet klaar op de dag dat hij live gaat. Producten wisselen, prijzen veranderen en bestellingen moeten verwerkt worden. Reken erop dat je zelf tijd kwijt bent aan je assortiment, je klantenservice en het versturen van pakketten. Wij bouwen de winkel en zorgen dat hij technisch blijft draaien.",
+          "Een eigen webshop brengt ook niet vanzelf kopers. Duidelijke productpagina's en een nette technische basis helpen om gevonden te worden, maar je werkt zelf ook aan de bekendheid van je winkel, bijvoorbeeld met sociale media of een nieuwsbrief. Garanties over posities in Google geven we niet.",
+          "Hoe een webshop eruit kan zien, zie je in ons demo-ontwerp [Lune Atelier](/werk/fashion): een winkel voor een fictief modemerk, met collecties, productfilters, maten en een werkend winkelmandje. Het is een demo, geen klantproject.",
+        ],
+      },
+      {
+        h2: "Zo gaat het in zijn werk",
+        body: ["Hoe concreter je aanvraag, hoe preciezer de offerte. Je hoeft nog niet alles te weten: wat nog open ligt, zoeken we samen uit."],
+        list: [
+          "Je vertelt via het aanvraagformulier wat je verkoopt, hoeveel producten je ongeveer hebt en hoe je wilt laten betalen en verzenden",
+          "We bespreken wat de winkel moet kunnen en met welke systemen hij moet samenwerken",
+          "Je krijgt een offerte waarin staat wat we bouwen, wat het kost en wat er niet bij zit",
+          "Ga je akkoord, dan bouwen we de webshop en maken we teksten en foto's samen met jou definitief",
+          "Na de lancering regelen wij hosting, SSL, back-ups en updates",
+        ],
+      },
+      {
+        h2: "Webshop of een website met een paar producten?",
+        body: [
+          "Niet iedereen die iets wil verkopen, heeft een volledige webshop nodig. Verkoop je een handvol producten of vooral diensten, dan kan een gewone website met een duidelijke bestel- of contactknop genoeg zijn. Die maken we wel voor een vaste prijs, vanaf {from} exclusief btw. De vaste pakketten verderop op deze pagina gelden voor zulke websites, niet voor een webshop.",
+          "Wil je echt online afrekenen met een winkelmandje, dan is een webshop de logische keuze. Twijfel je, vertel het bij je aanvraag; dan zeggen we eerlijk wat bij jou past. Ben je zelfstandige, kijk dan ook bij [website laten maken als zzp'er](/website-laten-maken/zzp).",
+        ],
+      },
+    ],
+    work: "fashion",
+    addons: ["photography", "copywriting", "multilingual", "analytics"],
+    addonsTitle: "Handig voor een webshop",
+    faq: [
+      { q: "Wat kost een webshop laten maken?", a: "Dat hangt af van je winkel, daarom werken we met een offerte. De grootste factoren zijn het aantal producten en varianten, de betaalmethoden, je verzendregels en koppelingen met voorraad of boekhouding. In de offerte staat wat er wel en niet bij zit, zodat je achteraf niet verrast wordt. Wil je eerst weten hoe prijzen voor websites in elkaar zitten, lees dan [wat kost een website laten maken](/blog/wat-kost-een-website-laten-maken)." },
+      { q: "Welke kosten heb ik naast het bouwen van de webshop?", a: "Hosting en onderhoud per maand, en de kosten van je betaalprovider, die vaak per transactie rekent. Verzendkosten spreek je af met je vervoerder. Wat hosting en onderhoud voor jouw webshop kosten, staat in de offerte." },
+      { q: "Kan de webshop gekoppeld worden aan mijn voorraad of boekhouding?", a: "Dat hangt af van de systemen die je gebruikt. Noem ze in je aanvraag, dan hoor je eerlijk wat mogelijk is en wat het kost. Een koppeling maakt het dagelijkse werk lichter, maar telt mee in de prijs." },
+      { q: "Is een webshop geschikt voor een kleine ondernemer?", a: "Ja, als je regelmatig producten online wilt verkopen en tijd hebt om bestellingen te verwerken. Begin dan klein, met je belangrijkste producten, en breid later uit. Verkoop je maar een paar producten, dan is een gewone website met een bestelknop soms verstandiger en goedkoper." },
+      { q: "Hoe lang duurt het om een webshop te laten maken?", a: "Dat hangt af van de omvang van de winkel en van hoe snel productgegevens, foto's en teksten compleet zijn. Zodra je akkoord geeft op de offerte, spreken we samen een planning af." },
+      { q: "Is Lune Atelier een echte klant?", a: "Nee. Lune Atelier is een demo-ontwerp van HOPI voor een fictief modemerk. Het laat zien hoe een webshop eruit kan zien en werkt, met collecties, filters en een winkelmandje. Het is geen klantproject." },
+    ],
+    related: ["/website-laten-maken", "/website-laten-maken/zzp", "/website-onderhoud", "/blog/wat-kost-een-website-laten-maken"],
+  }),
   {
     path: "/website-laten-maken/zzp",
     kind: "audience",
@@ -529,6 +648,58 @@ export const LANDINGS: Landing[] = [
       { q: "Wat als ik het nieuwe ontwerp niet beter vind?", a: "Dan houd je gewoon je huidige website en betaal je niets. Het ontwerp vooraf is gratis en vrijblijvend." },
     ],
     related: ["/website-laten-maken", "/prijzen", "/website-onderhoud", "/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen"],
+  },
+  {
+    path: "/ai-website-laten-maken",
+    kind: "service",
+    label: "AI website laten maken",
+    service: "AI website laten maken",
+    keywords: { primary: "AI website laten maken", secondary: ["AI website builder", "website automatisch laten maken", "website met AI"] },
+    title: "AI website laten maken, gecontroleerd door mensen | HOPI",
+    description: "HOPI maakt je website met hulp van AI en een mens controleert het resultaat. Je ziet eerst gratis een ontwerp en betaalt pas als het bevalt.",
+    eyebrow: "AI website laten maken",
+    h1: "Een website met AI, *gecontroleerd* door mensen",
+    intro: "Een AI website laten maken kan bij HOPI, maar niet zonder mensen. Onze software onderzoekt je bedrijf en een AI-model schrijft een eerste versie van de teksten in een van onze ontwerpen. Daarna controleert iemand van HOPI het ontwerp, en maken we de teksten en foto's samen met jou definitief. AI voor de snelheid, mensen voor het oordeel.",
+    sections: [
+      {
+        h2: "Hoe we AI gebruiken om je website te maken",
+        items: [
+          { title: "Onderzoek", text: "Onze eigen software verzamelt openbare informatie over je bedrijf: je naam, branche, plaats, openingstijden en je huidige website, als je die hebt." },
+          { title: "Een eerste versie van de teksten", text: "Een AI-model, Claude van Anthropic, schrijft op basis daarvan de eerste teksten. Die komen in een van onze twaalf met de hand ontworpen websiteontwerpen." },
+          { title: "Automatisch getest", text: "De software test elke pagina in een echte browser, op telefoon, tablet en computer: de opmaak, de links, de formulieren en de basis van de snelheid." },
+          { title: "Gecontroleerd door een mens", text: "Iemand van HOPI bekijkt het ontwerp en keurt het goed. Pas daarna krijg jij het te zien." },
+          { title: "Samen afgerond", text: "Bevalt het ontwerp, dan maken we de teksten en foto's samen met jou definitief." },
+        ],
+      },
+      {
+        h2: "Wat AI bij ons niet doet",
+        body: ["Een taalmodel kan overtuigende zinnen schrijven over dingen die niet waar zijn. Op een bedrijfswebsite is dat een risico: één verzonnen review of verkeerde prijs kost je het vertrouwen van een bezoeker. Daarom geldt bij ons een harde regel: we verzinnen geen feiten. Wat ontbreekt, vullen we samen met jou in."],
+        list: ["Geen reviews of klantervaringen die je niet zelf hebt aangeleverd", "Geen prijzen die niet van jou komen", "Geen teamleden die je niet zelf hebt genoemd", "Geen beweringen over je bedrijf die je zelf niet doet, zoals keurmerken of beloftes"],
+      },
+      {
+        h2: "AI website laten maken of zelf een AI website builder gebruiken?",
+        body: [
+          "Met een AI website builder typ je een paar zinnen over je bedrijf en staat er binnen korte tijd een website. Dat is snel en goedkoop, en voor een hobbyproject of een eerste test prima. Wil je een professionele bedrijfswebsite, dan ligt het meeste werk daarna bij jou.",
+          "Je controleert dan zelf of elke zin klopt, of er geen beweringen in staan die niet waar zijn en of elke knop op een telefoon werkt. Je bepaalt zelf de opbouw die een bezoeker laat bellen of boeken, en je bent zelf verantwoordelijk voor domeinnaam, instellingen en bijhouden. Bij HOPI doet AI het snelle werk, test onze software elke pagina, beoordeelt een mens het resultaat en regelen wij de techniek.",
+          "Hoe zo'n builder werkt en waar je op moet letten, lees je in [hoe werkt een AI website builder](/blog/hoe-werkt-een-ai-website-builder). De bredere afweging staat in [website laten maken of zelf bouwen](/blog/website-laten-maken-of-zelf-bouwen).",
+        ],
+      },
+      {
+        h2: "Zo werkt het voor jou",
+        body: [
+          "Je vult het aanvraagformulier in. Omdat de eerste versie snel klaarstaat, kunnen we je een ontwerp van je eigen website laten zien voordat je iets betaalt. Bevalt het, dan kies je een pakket: {starter} voor een one-page website, {business} voor een complete website of {premium} voor een site op maat met bijvoorbeeld een reserverings- of boekingssysteem. Bevalt het niet, dan betaal je niets.",
+          "Daarna maken we de teksten en foto's samen definitief, gaat de website live en regelen wij hosting, SSL, back-ups en updates. Alle prijzen zijn exclusief {vat} btw en staan bij [prijzen](/prijzen).",
+        ],
+      },
+    ],
+    faq: [
+      { q: "Schrijft AI de hele website?", a: "Nee. Een AI-model schrijft een eerste versie van de teksten, op basis van openbare informatie over je bedrijf. Het ontwerp komt uit een van onze twaalf met de hand ontworpen websiteontwerpen. Iemand van HOPI controleert het geheel, en de definitieve teksten en foto's maken we samen met jou." },
+      { q: "Welk AI-model gebruiken jullie?", a: "Voor de eerste versie van de teksten gebruiken we Claude, een AI-model van Anthropic. Het onderzoek naar je bedrijf en het testen van de pagina's doet onze eigen software." },
+      { q: "Kan AI dingen over mijn bedrijf verzinnen?", a: "Dat risico bestaat bij elk taalmodel, en daarom zetten we er regels en controle omheen. We plaatsen geen reviews, prijzen, teamleden of beweringen die je niet zelf hebt aangeleverd. Iemand van HOPI controleert het ontwerp voordat je het krijgt, en de definitieve teksten maken we samen met jou." },
+      { q: "Is een website met AI goed voor Google?", a: "Voor Google telt vooral of een pagina nuttig is en klopt. Daarom controleren we de teksten en vullen we ze aan met wat alleen jij weet. Elke website krijgt een nette technische basis: snelle pagina's, duidelijke koppen en gestructureerde gegevens. Garanties over posities in Google geven we niet." },
+      { q: "Is een AI website goedkoper?", a: "AI zit in de manier waarop we elk ontwerp maken; het is geen aparte, goedkopere variant. Je betaalt de vaste pakketprijzen, vanaf {from} exclusief btw, en het ontwerp vooraf is gratis." },
+    ],
+    related: ["/website-laten-maken", "/blog/hoe-werkt-een-ai-website-builder", "/blog/website-laten-maken-of-zelf-bouwen", "/prijzen"],
   },
 ];
 

@@ -13,7 +13,7 @@ import { IMAGES } from "@/demos/images";
 import sitemap from "@/app/sitemap";
 
 const VARS = { starter: eur(29900), business: eur(49900), premium: eur(79900), from: eur(29900), hosting: eur(4900), care: eur(7900), growth: eur(14900), vat: "21%" };
-const STATIC = ["/", "/werk", "/prijzen", "/blog", "/privacy", "/cookies", "/algemene-voorwaarden"];
+const STATIC = ["/", "/werk", "/prijzen", "/blog", "/privacy", "/cookies", "/algemene-voorwaarden", "/over-ons", "/contact"];
 const PATHS = new Set([...STATIC, ...ALL_LANDINGS.map((l) => l.path), ...ARTICLES.map((a) => `/blog/${a.slug}`), ...PROJECTS.map((p) => projectPath(p.key))]);
 const linksIn = (text: string) => [...text.matchAll(/\]\((\/[^)#]*)/g)].map((m) => m[1]);
 
@@ -140,8 +140,8 @@ describe("public website: SEO content", () => {
     expect(HOME.h1).toMatch(/[Ww]ebdesign bureau/);
   });
 
-  it("lists exactly the indexable pages in the sitemap", () => {
-    const urls = sitemap().map((e) => new URL(e.url).pathname || "/");
+  it("lists exactly the indexable pages in the sitemap", async () => {
+    const urls = (await sitemap()).map((e) => new URL(e.url).pathname || "/");
     expect(new Set(urls).size).toBe(urls.length);
     expect(new Set(urls)).toEqual(PATHS);
     expect(urls.some((u) => /^\/(command|login|api|p|d|u)(\/|$)/.test(u))).toBe(false);
@@ -151,18 +151,23 @@ describe("public website: SEO content", () => {
 describe("public website: structured data", () => {
   it("publishes only company facts that are filled in, and never ratings or reviews", () => {
     const bare = organizationLd({ name: "HOPI", email: "", phone: "", address: "", kvk: "", googleBusinessUrl: "", fromCents: 29900 });
-    expect(bare["@type"]).toBe("ProfessionalService");
-    for (const k of ["email", "telephone", "address", "identifier", "sameAs", "aggregateRating", "review"]) expect(bare).not.toHaveProperty(k);
-    expect(bare.priceRange).toBe("Vanaf €299");
+    // No public business address: an Organization, not a LocalBusiness.
+    expect(bare["@type"]).toBe("Organization");
+    for (const k of ["email", "telephone", "address", "identifier", "sameAs", "contactPoint", "aggregateRating", "review", "priceRange"]) expect(bare).not.toHaveProperty(k);
     const full = organizationLd({ name: "HOPI", email: "a@b.nl", phone: "+31 6 1", address: "Straat 1", kvk: "123", googleBusinessUrl: "https://g.page/x", fromCents: null });
-    expect(full).toMatchObject({ email: "a@b.nl", telephone: "+31 6 1", address: "Straat 1", sameAs: ["https://g.page/x"] });
-    expect(full).not.toHaveProperty("priceRange");
+    expect(full).toMatchObject({ email: "a@b.nl", telephone: "+31 6 1", address: "Straat 1", sameAs: ["https://g.page/x"], contactPoint: { email: "a@b.nl" } });
   });
 
   it("builds breadcrumbs, services, FAQs and articles in the expected shape", () => {
-    const crumbs = breadcrumbLd([{ name: "Website laten maken", path: "/website-laten-maken" }]);
-    expect(crumbs.itemListElement.map((i) => i.position)).toEqual([1, 2]);
-    expect(crumbs.itemListElement[0].name).toBe("Home");
+    const graph = breadcrumbLd([{ name: "Website laten maken", path: "/website-laten-maken" }])["@graph"];
+    const page = graph[0] as { "@type": string; "@id": string; isPartOf: { "@id": string }; breadcrumb: { "@id": string } };
+    const trail = graph[1] as { "@id": string; itemListElement: { position: number; name: string }[] };
+    expect(page["@type"]).toBe("WebPage");
+    expect(page["@id"]).toMatch(/\/website-laten-maken#webpage$/);
+    expect(page.isPartOf["@id"]).toMatch(/#website$/);
+    expect(page.breadcrumb["@id"]).toBe(trail["@id"]);
+    expect(trail.itemListElement.map((i) => i.position)).toEqual([1, 2]);
+    expect(trail.itemListElement[0].name).toBe("Home");
     const svc = serviceLd({ name: "X", description: "Y", path: "/prijzen", serviceType: "website laten maken", offers: [{ name: "Starter", priceCents: 29900 }] });
     expect(svc.offers?.[0]).toMatchObject({ "@type": "Offer", price: "299.00", priceCurrency: "EUR" });
     expect(serviceLd({ name: "X", description: "Y", path: "/x", serviceType: "z" })).not.toHaveProperty("offers");

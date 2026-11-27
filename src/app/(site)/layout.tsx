@@ -24,7 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: { type: "website", locale: "nl_NL", siteName: "HOPI", images: [{ url: OG_IMAGE, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image" },
     formatDetection: { telephone: false },
-    ...(data.site.googleVerification ? { verification: { google: data.site.googleVerification } } : {}),
+    verification: {
+      ...(data.site.googleVerification ? { google: data.site.googleVerification } : {}),
+      ...(data.seo.bingVerification ? { other: { "msvalidate.01": data.seo.bingVerification } } : {}),
+    },
   };
 }
 

@@ -38,6 +38,7 @@ export type SiteData = {
   address: string;
   kvk: string;
   site: OrgSettings["site"];
+  seo: OrgSettings["seo"];
   /** Link that opens a WhatsApp chat with a first line already typed; null when no number is set. */
   whatsapp: string | null;
   /** Formatted prices used inside running text, so copy never hardcodes an amount. */
@@ -77,6 +78,7 @@ export const getSiteData = cache(async (): Promise<SiteData> => {
     address: s.agencyAddress,
     kvk: s.kvkNumber,
     site: s.site,
+    seo: s.seo,
     whatsapp: whatsappLink(s.site.whatsapp),
     prices: { starter: pkg("starter"), business: pkg("business"), premium: pkg("premium"), from: fromCents !== null ? eur(fromCents) : "op aanvraag", hosting: plan("hosting"), care: plan("care"), growth: plan("growth"), vat: `${catalog.vatPct}%` },
     fromCents,

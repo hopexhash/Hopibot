@@ -1,10 +1,10 @@
 import Link from "next/link";
+import { seoMeta } from "@/lib/site/seo-meta";
 import { LegalPage } from "@/components/site/legal-page";
 import { ConsentLink } from "@/components/site/site-client";
-import { pageMeta } from "@/lib/site/seo";
-
 const PATH = "/cookies";
-export const metadata = pageMeta({ title: "Cookies | HOPI", description: "Welke cookies en vergelijkbare technieken de website van HOPI gebruikt, waarvoor, en hoe je je keuze aanpast.", path: PATH });
+export const generateMetadata = () =>
+  seoMeta({ title: "Cookies | HOPI", description: "Welke cookies en vergelijkbare technieken de website van HOPI gebruikt, waarvoor, en hoe je je keuze aanpast.", path: PATH });
 
 export default function CookiesPage() {
   return (

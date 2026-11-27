@@ -1,3 +1,4 @@
+import { seoMeta } from "@/lib/site/seo-meta";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
@@ -6,14 +7,15 @@ import { ContactSection, CtaBand, JsonLd, SiteFooter } from "@/components/site/p
 import { SiteHeader } from "@/components/site/site-client";
 import { Words } from "@/components/site/split";
 import { allProjects, projectPath } from "@/lib/site/projects";
-import { breadcrumbLd, pageMeta } from "@/lib/site/seo";
+import { breadcrumbLd } from "@/lib/site/seo";
 import { demoHref } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import "@/components/site/work.css";
 
 const PATH = "/werk";
 const COUNT = ["nul", "een", "twee", "drie", "vier", "vijf", "zes", "zeven", "acht", "negen", "tien", "elf", "twaalf"][allProjects().length] ?? String(allProjects().length);
-export const metadata = pageMeta({
+export const generateMetadata = () =>
+  seoMeta({
   title: `Werk: ${COUNT} complete demo-websites | HOPI`,
   description: `Bekijk ons werk: ${COUNT} complete demo-websites, van restaurant tot advocatenkantoor. Elk met een eigen ontwerp, op desktop en mobiel, en live te bekijken.`,
   path: PATH,

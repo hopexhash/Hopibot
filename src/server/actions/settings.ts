@@ -19,6 +19,7 @@ export async function updateSettingsAction(patch: Record<string, unknown>) {
     if (site.gtmId && !/^GTM-[A-Z0-9]{4,}$/.test(site.gtmId)) throw new UserError("The Tag Manager ID looks like GTM-XXXXXXX.");
     if (site.googleVerification && !/^[A-Za-z0-9_-]{10,}$/.test(site.googleVerification)) throw new UserError("Paste only the verification code from Search Console (the part inside content=\"…\").");
     if (site.googleBusinessUrl && !/^https:\/\/[^\s]+$/.test(site.googleBusinessUrl)) throw new UserError("The Google Business Profile link must start with https://");
+    if (merged.seo.bingVerification && !/^[A-Za-z0-9]{16,64}$/.test(merged.seo.bingVerification)) throw new UserError("Paste only the Bing verification code (the part inside content=\"…\" of the msvalidate.01 tag).");
     if (merged.previewBaseDomain && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(merged.previewBaseDomain)) throw new UserError("Preview domain must look like previews.youragency.nl");
     await db().update(schema.organizations).set({ settings: merged, updatedAt: new Date() }).where(eq(schema.organizations.id, auth.org.id));
     return null;

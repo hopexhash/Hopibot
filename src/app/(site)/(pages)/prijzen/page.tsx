@@ -1,9 +1,10 @@
+import { seoMeta } from "@/lib/site/seo-meta";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { Breadcrumbs, HeroAmbient, ContactSection, Faq, JsonLd, PriceCards, Related, SiteFooter, Steps } from "@/components/site/parts";
 import { SiteHeader } from "@/components/site/site-client";
 import { eur } from "@/lib/catalog";
-import { breadcrumbLd, faqLd, pageMeta, plain, serviceLd } from "@/lib/site/seo";
+import { breadcrumbLd, faqLd, plain, serviceLd } from "@/lib/site/seo";
 import { informal } from "@/lib/site/text";
 import { getSiteData } from "@/server/site";
 
@@ -12,7 +13,7 @@ const CRUMBS = [{ name: "Prijzen", path: PATH }];
 
 export async function generateMetadata() {
   const { prices } = await getSiteData();
-  return pageMeta({
+  return seoMeta({
     title: `Website laten maken: prijzen vanaf ${prices.from} | HOPI`,
     description: `Wat kost een website bij HOPI? Vaste prijzen: ${prices.starter}, ${prices.business} of ${prices.premium} eenmalig, hosting vanaf ${prices.hosting} per maand. Het ontwerp vooraf is gratis.`,
     path: PATH,

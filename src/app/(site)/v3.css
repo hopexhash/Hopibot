@@ -797,6 +797,53 @@ html.lenis body {
   min-height: 64px;
   padding: 0 30px;
 }
+/* The quiet index of the site: three short columns of links above the bottom row. */
+.hopi.v3 .ft-nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px 40px;
+  padding: 34px 0 30px;
+  border-top: 1px solid var(--line);
+}
+.hopi.v3 .ft-nav h2 {
+  margin: 0 0 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.hopi.v3 .ft-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hopi.v3 .ft-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  font-size: 15px;
+  color: var(--muted);
+  transition: color 0.3s var(--ease-out);
+}
+.hopi.v3 .ft-nav a:hover {
+  color: var(--accent);
+}
+@media (min-width: 900px) {
+  .hopi.v3 .ft-nav {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 0.7fr);
+  }
+  .hopi.v3 .ft-nav ul:not(.ft-nav-wide) {
+    flex-direction: column;
+  }
+  .hopi.v3 .ft-nav .ft-nav-wide {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .hopi.v3 .ft-row {
   display: flex;
   flex-wrap: wrap;

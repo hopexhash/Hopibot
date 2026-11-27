@@ -1983,14 +1983,16 @@ body {
   background: var(--card);
   border: 1px solid var(--line);
 }
-.hopi .post h2 {
+.hopi .post h2,
+.hopi .post h3 {
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   font-weight: 400;
   font-size: clamp(28px, 3vw, 36px);
   line-height: 1.08;
   letter-spacing: -0.015em;
 }
-.hopi .post h2 a:hover {
+.hopi .post h2 a:hover,
+.hopi .post h3 a:hover {
   color: var(--green);
 }
 .hopi .post > p {
@@ -2015,6 +2017,75 @@ body {
   .hopi .posts {
     grid-template-columns: 1fr 1fr;
   }
+}
+/* Topics of the blog, and what an article page adds: its topic, cover and sources. */
+.hopi .cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hopi .cats a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 15px;
+  transition: border-color 0.3s, color 0.3s;
+}
+.hopi .cats a:hover {
+  border-color: currentColor;
+}
+.hopi .blog-cat {
+  scroll-margin-top: 80px;
+}
+.hopi .article-cover {
+  margin: 0 0 clamp(30px, 4vw, 52px);
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  aspect-ratio: 16 / 10;
+}
+.hopi .article-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.hopi .sources {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+}
+.hopi .sources ul {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+}
+.hopi .sources a {
+  overflow-wrap: anywhere;
+}
+.hopi .article-head .eyebrow a:hover {
+  text-decoration: underline;
+}
+.hopi .facts {
+  display: grid;
+  gap: 10px 24px;
+  margin-top: 32px;
+}
+.hopi .facts div {
+  display: flex;
+  gap: 16px;
+}
+.hopi .facts dt {
+  min-width: 120px;
+  color: var(--soft);
+}
+.hopi .facts dd {
+  margin: 0;
 }
 .hopi .article {
   padding-top: clamp(18px, 3vw, 36px);

@@ -1,3 +1,4 @@
+import { seoMeta } from "@/lib/site/seo-meta";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,7 +9,7 @@ import { SiteHeader } from "@/components/site/site-client";
 import { Words } from "@/components/site/split";
 import { INDUSTRIES } from "@/lib/site/landing";
 import { PROJECTS, projectByKey, projectPath } from "@/lib/site/projects";
-import { breadcrumbLd, pageMeta } from "@/lib/site/seo";
+import { breadcrumbLd } from "@/lib/site/seo";
 import { demoHref, shot } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import "@/components/site/work.css";
@@ -21,8 +22,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!p) return {};
   const base = `${p.work.name}: demo-website voor ${p.industry.toLowerCase()}. ${p.line}`;
   const more = " Bekijk het ontwerp op desktop en mobiel en open de live demo.";
-  return pageMeta({
-    title: `${p.work.name}: demo-website ${p.industry.toLowerCase()} | HOPI`,
+  return seoMeta({
+    // Within 60 characters, so Google shows the whole title: the long form when it fits.
+    title: [`${p.work.name}: demo-website ${p.industry.toLowerCase()} | HOPI`, `${p.work.name}: demo-website | HOPI`].find((t) => t.length <= 60) ?? `${p.work.name} | HOPI`,
     description: (base + more).length <= 158 ? base + more : base.slice(0, 158),
     path: projectPath(p.key),
     image: shot(p.key, "d-1440"),

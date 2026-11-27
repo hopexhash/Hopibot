@@ -27,7 +27,7 @@ const EXTRA = `
 .d-obsidian h3{overflow-wrap:break-word}
 .d-obsidian .o-btn{padding-block:10px;max-width:100%}
 .d-obsidian .o-logo{flex:0 1 auto;min-width:0}
-.d-obsidian .o-logo .o-init{flex:none;place-items:center;width:32px;height:32px;border:1px solid rgba(169,220,255,.5);background:rgba(169,220,255,.1);clip-path:${CHAMFER(8)};font-size:14px;letter-spacing:0;color:var(--ice)}
+.d-obsidian .o-logo .o-init,.d-obsidian .o-crew .o-init{display:grid;flex:none;place-items:center;width:32px;height:32px;border:1px solid rgba(169,220,255,.5);background:rgba(169,220,255,.1);clip-path:${CHAMFER(8)};font-size:14px;letter-spacing:0;color:var(--ice)}
 .d-obsidian .o-logo .o-logo-t{grid-template-columns:minmax(0,1fr);min-width:0}
 .d-obsidian .o-logo-t b,.d-obsidian .o-logo-t small{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .d-obsidian .o-logo-t b{font-weight:500}
@@ -46,7 +46,7 @@ const EXTRA = `
 .d-obsidian .o-hero h1.is-s{--fs:clamp(24px,6.8vw,38px);line-height:1.06}
 .d-obsidian .o-hero h1 em{font-style:normal;background:linear-gradient(180deg,#fff 6%,var(--ice) 52%,#6b9cbf 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .d-obsidian .o-hero.no-pic .o-hero-stage{background:radial-gradient(80% 60% at 78% 50%,rgba(169,220,255,.12),transparent 64%),linear-gradient(180deg,#050608,#0a0c10)}
-.d-obsidian .o-hero-plate{position:relative;order:2;z-index:0;margin:30px calc(var(--pad) * -1) 14px;padding:.06em 0;overflow:hidden;font-family:var(--o-display),sans-serif;font-size:min(40vw,calc(124vw / var(--n,6)));font-weight:500;line-height:.86;letter-spacing:-.03em;white-space:nowrap;text-align:center;text-transform:uppercase;background:linear-gradient(180deg,rgba(169,220,255,.02) 4%,rgba(190,228,255,.34) 50%,rgba(169,220,255,.02) 96%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none;pointer-events:none;animation:o-fade 1.6s var(--ease) .3s both}
+.d-obsidian .o-hero-plate{position:relative;order:2;z-index:0;margin:30px calc(var(--pad) * -1) 14px;padding:.06em 0;overflow:hidden;font-family:var(--o-display),sans-serif;font-size:min(36vw,calc(112vw / var(--n,6)));font-weight:500;line-height:.86;letter-spacing:-.03em;white-space:nowrap;text-align:center;text-transform:uppercase;background:linear-gradient(180deg,rgba(169,220,255,.02) 4%,rgba(190,228,255,.34) 50%,rgba(169,220,255,.02) 96%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none;pointer-events:none;animation:o-fade 1.6s var(--ease) .3s both}
 .d-obsidian .o-hero-plate::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--ice) 28%,#fff 50%,var(--ice) 72%,transparent);box-shadow:0 0 26px 3px rgba(169,220,255,.45)}
 .d-obsidian .o-strip a{display:inline-block;margin:-12px 0;padding:12px 0;text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:4px}
 .d-obsidian .o-strip[data-n="1"]{grid-template-columns:minmax(0,1fr)}
@@ -67,7 +67,9 @@ const EXTRA = `
 .d-obsidian .o-sheet .o-rows li:last-child{padding-bottom:0}
 .d-obsidian .o-pkg header{padding-bottom:22px}
 .d-obsidian .o-pkg-meta{padding-bottom:0}
-.d-obsidian .o-pkg h3.is-long{font-size:clamp(19px,1.7vw,26px);line-height:1.15}
+.d-obsidian .o-pkg header{container-type:inline-size}
+.d-obsidian .o-pkg h3{--fs:clamp(25px,2.5vw,38px);max-width:100%;font-size:min(var(--fs),calc(100cqi / var(--w,8) / .84));overflow-wrap:break-word}
+.d-obsidian .o-pkg h3.is-long{--fs:clamp(19px,1.7vw,26px);line-height:1.15}
 .d-obsidian .o-price{flex-wrap:wrap;overflow:visible}
 .d-obsidian .o-price b{animation:none;overflow-wrap:anywhere}
 .d-obsidian .o-price.is-m b{font-size:clamp(27px,2.6vw,38px);letter-spacing:-.03em;line-height:1.1}
@@ -75,7 +77,7 @@ const EXTRA = `
 .d-obsidian .o-pkg-list{flex:1}
 .d-obsidian .o-pkg:not(.is-hot) .o-pkg-list small{color:var(--mute)}
 .d-obsidian .o-pk-grid[data-k="1"] .o-pkg{flex-basis:100%}
-@media (min-width:960px){.d-obsidian .o-pk-grid{grid-template-columns:repeat(var(--k,3),minmax(0,1fr));grid-template-rows:auto repeat(var(--m,1),auto) auto}.d-obsidian .o-pkg-list{grid-row:2 / span var(--m,1);display:grid;grid-template-rows:subgrid;align-content:start}.d-obsidian .o-pkg .o-btn{grid-row:-2;align-self:end}.d-obsidian .o-pk-grid[data-k="1"]{grid-template-columns:minmax(0,640px)}.d-obsidian .o-pk-grid[data-k="2"]{grid-template-columns:repeat(2,minmax(0,560px))}.d-obsidian .o-pk-grid[data-k="4"] h3{font-size:clamp(20px,1.9vw,28px)}}
+@media (min-width:960px){.d-obsidian .o-pk-grid{grid-template-columns:repeat(var(--k,3),minmax(0,1fr));grid-template-rows:auto repeat(var(--m,1),auto) auto}.d-obsidian .o-pkg-list{grid-row:2 / span var(--m,1);display:grid;grid-template-rows:subgrid;align-content:start}.d-obsidian .o-pkg .o-btn{grid-row:-2;align-self:end}.d-obsidian .o-pk-grid[data-k="1"]{grid-template-columns:minmax(0,640px)}.d-obsidian .o-pk-grid[data-k="2"]{grid-template-columns:repeat(2,minmax(0,560px))}.d-obsidian .o-pk-grid[data-k="4"] h3{--fs:clamp(20px,1.9vw,28px)}.d-obsidian .o-pk-grid[data-k="4"] h3.is-long{--fs:clamp(18px,1.5vw,23px)}}
 @media (min-width:960px) and (max-width:1279px){.d-obsidian .o-pk-grid[data-k="4"]{display:flex;overflow-x:auto}.d-obsidian .o-pk-grid[data-k="4"] .o-pkg{display:flex;flex:0 0 340px}.d-obsidian .o-pk-grid[data-k="4"] .o-pkg-list{display:block}}
 .d-obsidian .o-proc.is-solo{grid-template-columns:minmax(0,1fr)}
 @media (min-width:960px){.d-obsidian .o-proc.is-solo .o-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(40px,6vw,110px)}}
@@ -103,6 +105,21 @@ const EXTRA = `
 .d-obsidian .o-spec dt{flex:0 1 auto}
 .d-obsidian .o-spec dd{margin:0}
 .d-obsidian address a{overflow-wrap:anywhere}
+.d-obsidian .o-info.is-solo{grid-template-columns:minmax(0,1fr);max-width:880px}
+.d-obsidian .o-reach-card .o-spec dd{min-width:0;overflow-wrap:anywhere}
+.d-obsidian .o-reach-card .o-spec dt{white-space:nowrap}
+@media (max-width:619px){.d-obsidian .o-reach-card .o-spec div{display:grid;gap:4px}.d-obsidian .o-reach-card .o-spec dd{text-align:left}}
+.d-obsidian .o-reach-card .o-spec a{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:4px}
+.d-obsidian .o-reach-card .o-more{margin-top:26px}
+.d-obsidian .o-crew{display:grid;gap:20px}
+.d-obsidian .o-crew-m{display:grid;align-content:start;gap:12px}
+.d-obsidian .o-crew-pic{aspect-ratio:4 / 5;margin-bottom:10px}
+.d-obsidian .o-crew-n{display:flex;justify-content:space-between;align-items:center;min-height:32px;font-size:10.5px;font-weight:500;letter-spacing:.2em;color:var(--ice)}
+.d-obsidian .o-crew h3{font-family:var(--o-display),sans-serif;font-size:clamp(18px,1.6vw,24px);font-weight:400;letter-spacing:-.02em;line-height:1.2}
+.d-obsidian .o-crew-role{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.d-obsidian .o-crew-m p:last-child:not(.o-crew-role){font-size:15px;color:var(--dim)}
+@media (min-width:760px){.d-obsidian .o-crew{grid-template-columns:repeat(2,minmax(0,1fr))}.d-obsidian .o-crew[data-n="1"]{grid-template-columns:minmax(0,520px)}}
+@media (min-width:1100px){.d-obsidian .o-crew{grid-template-columns:repeat(3,minmax(0,1fr))}.d-obsidian .o-crew[data-n="2"],.d-obsidian .o-crew[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}.d-obsidian .o-crew[data-n="1"]{grid-template-columns:minmax(0,520px)}}
 .d-obsidian .o-tbc{padding-left:16px;border-left:1px solid var(--ice);color:var(--dim)}
 .d-obsidian .z-form{gap:26px}
 .d-obsidian .z-field label{font-size:11px;font-weight:500;letter-spacing:.18em;color:var(--dim)}
@@ -396,6 +413,43 @@ function Reach({ c }: { c: Ctx }) {
   );
 }
 
+/** Contact details alone, as a specification sheet on a lit card; the main button when nothing is on record. */
+function ReachCard({ c }: { c: Ctx }) {
+  const b = c.spec.business;
+  const rows: [string, ReactNode][] = [];
+  if (b.address || b.city) rows.push([c.t.address, b.address ?? b.city]);
+  if (b.phone) rows.push([c.t.phone, <a key="p" href={tel(b.phone)}>{b.phone}</a>]);
+  if (b.email) rows.push([c.t.email, <a key="e" href={`mailto:${b.email}`}>{b.email}</a>]);
+  const cta = c.spec.hero.primaryCta;
+  if (!rows.length)
+    return (
+      <p data-rv>
+        <Btn c={c} href={cta.href}>
+          {cta.label}
+        </Btn>
+      </p>
+    );
+  return (
+    <div className="o-book-card o-reach-card" data-rv>
+      <p className="o-sheet-title">{c.name}</p>
+      <dl className="o-spec">
+        {rows.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {b.mapsUrl ? (
+        <a href={b.mapsUrl} target="_blank" rel="noopener noreferrer" className="o-more">
+          {c.t.route}
+          <Arrow />
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 /** The appointment block of the demo: the form on a lit card, hours and address beside it. */
 function Book({ c, id, kicker, title, intro, kind, options, hours, tbc }: { c: Ctx; id: string; kicker: string; title: string; intro?: string; kind: FormKind | null; options?: string[]; hours: boolean; tbc?: boolean }) {
   const b = c.spec.business;
@@ -417,15 +471,18 @@ function Book({ c, id, kicker, title, intro, kind, options, hours, tbc }: { c: C
               </aside>
             ) : null}
           </div>
-        ) : (
+        ) : sheet || tbc ? (
           <div className="o-info">
-            {sheet ??
-              (tbc ? (
-                <p className="o-tbc" data-rv>
-                  {c.t.hoursTbc}
-                </p>
-              ) : null)}
+            {sheet ?? (
+              <p className="o-tbc" data-rv>
+                {c.t.hoursTbc}
+              </p>
+            )}
             <Reach c={c} />
+          </div>
+        ) : (
+          <div className="o-info is-solo">
+            <ReachCard c={c} />
           </div>
         )}
       </div>
@@ -583,7 +640,9 @@ export const obsidian: Family = {
                   <article key={n} className={`o-pkg${it.featured ? " is-hot" : ""}`}>
                     <header>
                       <p className="o-pkg-flag">{it.featured ? c.t.popular : `N° ${n + 1}`}</p>
-                      <h3 className={it.name.length > 14 ? "is-long" : undefined}>{it.name}</h3>
+                      <h3 className={it.name.length > 14 ? "is-long" : undefined} style={css({ "--w": Math.max(8, ...it.name.split(/\s+/).map((w) => w.length)) })}>
+                        {it.name}
+                      </h3>
                       {it.description ? <p className="o-pkg-line">{it.description}</p> : null}
                       <p className={`o-price${len > 12 ? " is-s" : len > 6 ? " is-m" : ""}`}>
                         {euro ? <span>€</span> : null}
@@ -790,8 +849,36 @@ export const obsidian: Family = {
         </section>
       );
     },
+    team: (s, c) => (
+      <section className="o-sec" id={s.id}>
+        <div className="o-wrap">
+          <Head kicker={c.t.kick.team} title={s.title} intro={s.intro} />
+          <ul className="o-crew" data-n={s.members.length}>
+            {s.members.map((m, n) => {
+              const p = c.photo(m.image);
+              return (
+                <li key={n} className="o-sheet o-crew-m" data-rv style={i(n % 3)}>
+                  {p ? (
+                    <figure className="o-studio-pic o-crew-pic">
+                      <Pic p={p} sizes="(min-width: 1100px) 30vw, (min-width: 760px) 45vw, 100vw" />
+                    </figure>
+                  ) : null}
+                  <p className="o-crew-n" aria-hidden="true">
+                    <span>{nn(n)}</span>
+                    {p ? null : <span className="o-init">{m.name.charAt(0)}</span>}
+                  </p>
+                  <h3>{m.name}</h3>
+                  {m.role ? <p className="o-crew-role">{m.role}</p> : null}
+                  {m.bio ? <p>{m.bio}</p> : null}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+    ),
     booking: (s, c) => <Book c={c} id={s.id} kicker={c.t.kick.booking} title={s.title} intro={s.body} kind={s.kind} options={s.options} hours />,
-    contact: (s, c) => <Book c={c} id={s.id} kicker={c.t.kick.contact} title={s.title} intro={s.body} kind={s.showForm ? "message" : null} hours={!c.spec.sections.some((x) => x.type === "hours" || (s.showForm && x.type === "booking"))} />,
+    contact: (s, c) => <Book c={c} id={s.id} kicker={c.t.kick.contact} title={s.title} intro={s.body} kind={s.showForm ? "message" : null} hours={!c.spec.sections.some((x) => x.type === "hours" || x.type === "booking")} />,
     hours: (s, c) => <Book c={c} id={s.id} kicker={c.t.kick.hours} title={s.title} intro={s.note} kind={null} hours tbc />,
     faq: (s, c) => (
       <section className="o-sec" id={s.id}>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
 import { allProjects, projectPath, selectedProjects } from "@/lib/site/projects";
-import { faqLd, plain, serviceLd } from "@/lib/site/seo";
+import { faqLd, homePageLd, plain, serviceLd } from "@/lib/site/seo";
 import type { SiteData } from "@/server/site";
 import { ContactSection, Faq, JsonLd, SiteFooter } from "../parts";
 import { rich } from "../rich";
@@ -295,6 +295,7 @@ export function Home({ data }: { data: SiteData }) {
         <ContactSection data={data} source="/" title="Start een *project*" text="Vertel kort over je bedrijf en wat je nodig hebt. We nemen contact met je op en maken een ontwerp. Gratis en vrijblijvend: je betaalt pas als het ontwerp bevalt en je een pakket kiest." />
       </main>
       <SiteFooter data={data} />
+      <JsonLd data={homePageLd(`Webdesign bureau voor Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Websites vanaf ${data.prices.from}.`)} />
       <JsonLd data={faqLd(HOME_FAQ.map((f) => ({ q: f.q, a: plain(f.a, data.prices) })))} />
       {SERVICES.map((s) => (
         <JsonLd key={s.title} data={serviceLd({ name: s.title, description: s.text, path: s.href.startsWith("/#") ? "/" : s.href, serviceType: s.title })} />

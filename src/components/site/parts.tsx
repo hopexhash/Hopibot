@@ -200,6 +200,9 @@ export function Faq({ items, vars, openFirst = true }: { items: { q: string; a: 
 const STATIC_LABELS: Record<string, { label: string; text: string }> = {
   "/prijzen": { label: "Prijzen", text: "Alle pakketten, abonnementen en extra's met vaste bedragen." },
   "/blog": { label: "Blog", text: "Praktische artikelen over websites en vindbaarheid." },
+  "/werk": { label: "Werk", text: "Twaalf complete demo-websites, elk met een eigen ontwerp." },
+  "/over-ons": { label: "Over HOPI", text: "Wie we zijn, hoe we werken en voor wie." },
+  "/contact": { label: "Contact", text: "Vraag een gratis ontwerp aan of stel je vraag." },
 };
 
 /** Internal links to pages on a related subject. */
@@ -207,7 +210,7 @@ export function Related({ paths, title = "Ook interessant" }: { paths: string[];
   const items = paths
     .map((p) => {
       const l = ALL_LANDINGS.find((x) => x.path === p);
-      if (l) return { path: p, label: l.kind === "industry" ? `Website voor ${l.label.toLowerCase()}` : l.label, text: l.intro.split(". ")[0] + "." };
+      if (l) return { path: p, label: l.linkLabel ?? (l.kind === "industry" ? `Website voor ${l.label.toLowerCase()}` : l.label), text: l.intro.split(". ")[0] + "." };
       const a = ARTICLES.find((x) => `/blog/${x.slug}` === p);
       if (a) return { path: p, label: a.title, text: a.excerpt };
       const s = STATIC_LABELS[p];
@@ -315,6 +318,46 @@ function Spark() {
  * action, and a single quiet row. Navigation lives in the menu, contact details in the
  * request section and company details on the legal pages, so none of that is repeated here.
  */
+/**
+ * A quiet index of the website at the foot of every page: services, every industry page and
+ * the company pages. It is how each landing page is linked from the whole site (search engines
+ * follow it; visitors who scroll to the end find their own trade).
+ */
+function FooterNav() {
+  const services = ALL_LANDINGS.filter((l) => l.kind === "pillar" || l.kind === "service");
+  const industries = ALL_LANDINGS.filter((l) => l.kind === "industry" || l.kind === "audience");
+  const list = (items: { href: string; label: string }[], wide = false) => (
+    <ul className={wide ? "ft-nav-wide" : undefined}>
+      {items.map((i) => (
+        <li key={i.href}>
+          <Link href={i.href}>{i.label}</Link>
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <nav className="ft-nav" aria-label="Alle pagina's">
+      <div>
+        <h2 className="mono">Diensten</h2>
+        {list([...services.map((l) => ({ href: l.path, label: l.label })), { href: "/prijzen", label: "Prijzen" }])}
+      </div>
+      <div>
+        <h2 className="mono">Website voor</h2>
+        {list(industries.map((l) => ({ href: l.path, label: l.label })), true)}
+      </div>
+      <div>
+        <h2 className="mono">HOPI</h2>
+        {list([
+          { href: "/werk", label: "Werk" },
+          { href: "/blog", label: "Blog" },
+          { href: "/over-ons", label: "Over ons" },
+          { href: "/contact", label: "Contact" },
+        ])}
+      </div>
+    </nav>
+  );
+}
+
 export function SiteFooter({ data }: { data: SiteData }) {
   const tracking = Boolean(data.site.gaId || data.site.gtmId);
   return (
@@ -343,6 +386,7 @@ export function SiteFooter({ data }: { data: SiteData }) {
             Vraag gratis ontwerp aan <ArrowRight aria-hidden="true" />
           </Link>
         </div>
+        <FooterNav />
         <div className="ft-row">
           <Link href="/" className="ft-logo" aria-label="HOPI, naar de homepage" data-home="">
             HOPI

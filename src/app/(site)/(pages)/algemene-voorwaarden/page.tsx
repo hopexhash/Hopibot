@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { seoMeta } from "@/lib/site/seo-meta";
 import { ContactLine, identity, LegalPage } from "@/components/site/legal-page";
-import { pageMeta } from "@/lib/site/seo";
-
 const PATH = "/algemene-voorwaarden";
-export const metadata = pageMeta({ title: "Algemene voorwaarden | HOPI", description: "De algemene voorwaarden van HOPI: het gratis ontwerp, opdracht en prijzen, betaling, oplevering, hosting en onderhoud, eigendom en aansprakelijkheid.", path: PATH });
+export const generateMetadata = () =>
+  seoMeta({ title: "Algemene voorwaarden | HOPI", description: "De algemene voorwaarden van HOPI: het gratis ontwerp, opdracht en prijzen, betaling, oplevering, hosting en onderhoud, eigendom en aansprakelijkheid.", path: PATH });
 
 export default function TermsPage() {
   return (

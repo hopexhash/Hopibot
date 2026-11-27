@@ -1,8 +1,9 @@
+import { seoMeta } from "@/lib/site/seo-meta";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { INDUSTRIES, type Landing } from "@/lib/site/landing";
-import { breadcrumbLd, faqLd, pageMeta, plain, serviceLd, type Crumb } from "@/lib/site/seo";
+import { breadcrumbLd, faqLd, plain, serviceLd, type Crumb } from "@/lib/site/seo";
 import { demoHref, WORK, workByKey } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import { CareVisual } from "./care-visual";
@@ -12,16 +13,17 @@ import { SiteHeader } from "./site-client";
 
 /** Preview shown in the hero of pages that are not about one industry. */
 const VISUAL: Record<string, [browser: string, phone: string]> = {
-  "/website-laten-maken": ["bouwbedrijf-de-vries", "beauty-by-noor"],
-  "/website-laten-maken/zzp": ["barbershop-the-gents", "loodgieter-bakker"],
-  "/website-laten-maken/mkb": ["tandartspraktijk-centrum", "bouwbedrijf-de-vries"],
-  "/website-onderhoud": ["garage-jansen", "tandartspraktijk-centrum"],
-  "/website-redesign": ["makelaardij-maas", "garage-jansen"],
+  "/website-laten-maken": ["construction", "beauty-salon"],
+  "/website-laten-maken/zzp": ["creative-agency", "fitness"],
+  "/website-laten-maken/mkb": ["dental", "construction"],
+  "/website-onderhoud": ["automotive", "dental"],
+  "/website-redesign": ["real-estate", "automotive"],
+  "/ai-website-laten-maken": ["saas", "restaurant"],
 };
 
 export async function landingMetadata(landing: Landing): Promise<Metadata> {
   const { prices } = await getSiteData();
-  return pageMeta({ title: plain(landing.title, prices), description: plain(landing.description, prices), path: landing.path });
+  return seoMeta({ title: plain(landing.title, prices), description: plain(landing.description, prices), path: landing.path });
 }
 
 function crumbsFor(l: Landing): Crumb[] {
@@ -79,8 +81,9 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
   const v = data.prices;
   const work = l.work ? workByKey(l.work) : undefined;
   const [vb, vp] = VISUAL[l.path] ?? [];
-  const heroWork = work ?? workByKey(vb ?? "garage-jansen") ?? WORK[0];
-  const heroPhone = work ?? workByKey(vp ?? "de-gouden-lepel");
+  const heroWork = work ?? workByKey(vb ?? "automotive") ?? WORK[0];
+  const heroPhone = work ?? workByKey(vp ?? "restaurant");
+  const quote = l.pricing === "quote";
   const crumbs = crumbsFor(l);
   const [first, ...rest] = l.sections;
   const offers = data.catalog.packages.filter((p) => p.enabled && p.priceCents !== null).map((p) => ({ name: `Website ${p.name}`, priceCents: p.priceCents as number }));
@@ -103,7 +106,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
                 <p className="lead enter">{rich(l.intro, v)}</p>
                 <div className="hero-actions enter">
                   <a href="#contact" className="btn btn-dark" data-track="cta_click" data-track-label="hero" data-track-location={l.path}>
-                    Vraag een gratis ontwerp aan <ArrowRight aria-hidden="true" />
+                    {quote ? "Vraag een offerte aan" : "Vraag een gratis ontwerp aan"} <ArrowRight aria-hidden="true" />
                   </a>
                   <Link href="/prijzen" className="btn btn-line">
                     Bekijk prijzen
@@ -119,7 +122,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
                     </li>
                   ) : (
                     <li>
-                      <Check strokeWidth={2.4} aria-hidden="true" /> Vaste prijs vanaf {v.from}
+                      <Check strokeWidth={2.4} aria-hidden="true" /> {quote ? "Prijs op offerte, vooraf bekend" : `Vaste prijs vanaf ${v.from}`}
                     </li>
                   )}
                   <li>
@@ -155,6 +158,9 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
                 <a href={demoHref(work.key)} target="_blank" rel="noopener nofollow" className="btn btn-dark" data-track="portfolio_click" data-track-label={work.key} data-track-location={l.path}>
                   Bekijk de live demo <ArrowUpRight aria-hidden="true" />
                 </a>
+                <p>
+                  <Link href={`/werk/${work.key}`}>Lees hoe het ontwerp van {work.name} is opgebouwd</Link>
+                </p>
               </div>
               {l.addons && <AddonList catalog={data.catalog} keys={l.addons} title={l.addonsTitle ?? "Veel gekozen extra's"} />}
             </div>
@@ -204,7 +210,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
 
         <Steps />
 
-        {l.path !== "/website-onderhoud" && (
+        {l.path !== "/website-onderhoud" && !quote && (
           <section className="section" id="prijzen">
             <div className="wrap">
               <div className="section-head" data-reveal>
@@ -237,7 +243,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
       </main>
       <SiteFooter data={data} />
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <JsonLd data={serviceLd({ name: l.service, serviceType: l.keywords.primary, description: plain(l.description, v), path: l.path, offers: l.path === "/website-onderhoud" ? planOffers : offers })} />
+      <JsonLd data={serviceLd({ name: l.service, serviceType: l.keywords.primary, description: plain(l.description, v), path: l.path, offers: quote ? undefined : l.path === "/website-onderhoud" ? planOffers : offers })} />
       <JsonLd data={faqLd(l.faq.map((f) => ({ q: f.q, a: plain(f.a, v) })))} />
     </>
   );

@@ -32,6 +32,27 @@ export const orgSettingsSchema = z.object({
       googleBusinessUrl: z.string().max(300).default(""),
     })
     .default({ phone: "", whatsapp: "", gaId: "", gtmId: "", googleVerification: "", googleBusinessUrl: "" }),
+  /** SEO control center: search-engine verification and per-page overrides of the public website. */
+  seo: z
+    .object({
+      /** Bing Webmaster Tools verification code (content of the msvalidate.01 meta tag). */
+      bingVerification: z.string().max(100).default(""),
+      /** Overrides per public path ("/prijzen"). Empty fields keep the page's own value. */
+      pages: z
+        .record(
+          z.string().max(200),
+          z.object({
+            title: z.string().max(120).default(""),
+            description: z.string().max(320).default(""),
+            canonical: z.string().max(300).default(""),
+            noindex: z.boolean().default(false),
+          }),
+        )
+        .default({}),
+    })
+    .default({ bingVerification: "", pages: {} }),
+  /** Result of the last SEO audit (written by the audit, shown in the SEO control center). */
+  seoAudit: z.unknown().optional(),
   dailySpendLimitUsd: z.number().min(0).max(100000).default(25),
   monthlySpendLimitUsd: z.number().min(0).max(1000000).default(300),
   /** Warn (notification + banner) when spend reaches this share of a limit. */

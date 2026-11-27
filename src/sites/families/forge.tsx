@@ -61,7 +61,7 @@ const EXTRA = `
 .d-forge .f-hero-slab span:nth-child(3n+2){color:rgba(255,255,255,.06);-webkit-text-stroke:0}
 .d-forge .f-hero-slab::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,11,0) 12%,rgba(11,11,11,.82) 56%,var(--bg) 90%)}
 .d-forge .f-hero-edge{display:none}
-@media (min-width:900px){.d-forge .f-hero h1{font-size:min(16.2vw,calc(60svh/var(--ln,3)),calc((100vw - var(--pad)*2)/var(--lw,5)))}.d-forge .f-hero .f-l:nth-child(n){display:block;margin-right:-.05em}.d-forge .f-hero-facts{grid-template-columns:repeat(3,auto);gap:clamp(40px,6vw,110px);padding-top:16px}.d-forge .f-hero-facts div{display:block;min-height:0;padding:0;border:0}.d-forge .f-hero-facts dd{max-width:32ch;margin-top:6px;font-size:16px;text-align:left}.d-forge .f-hero-facts dd a{margin-block:-12px}.d-forge .f-hero-slab{left:auto;width:60vw;clip-path:polygon(26% 0,100% 0,100% 100%,0 100%);animation:f-open .8s var(--cut) .05s both}.d-forge .f-hero-slab p{top:90px;font-size:clamp(120px,13vw,250px)}.d-forge .f-hero-slab::after{background:linear-gradient(180deg,rgba(11,11,11,0) 30%,rgba(11,11,11,.7) 100%)}.d-forge .f-hero-edge{position:absolute;inset:0 0 0 auto;z-index:-1;display:block;width:60vw;background:var(--acid);clip-path:polygon(26% 0,27.4% 0,1.4% 100%,0 100%);animation:f-open .8s var(--cut) .05s both}}
+@media (min-width:900px){.d-forge .f-hero h1{font-size:min(16.2vw,calc(60svh/var(--ln,3)),calc((100vw - var(--pad)*2)/var(--lw,5)))}.d-forge .f-hero .f-l:nth-child(n){display:block}.d-forge .f-hero-facts{grid-template-columns:repeat(3,auto);gap:clamp(40px,6vw,110px);padding-top:16px}.d-forge .f-hero-facts div{display:block;min-height:0;padding:0;border:0}.d-forge .f-hero-facts dd{max-width:32ch;margin-top:6px;font-size:16px;text-align:left}.d-forge .f-hero-facts dd a{margin-block:-12px}.d-forge .f-hero-slab{left:auto;width:60vw;clip-path:polygon(26% 0,100% 0,100% 100%,0 100%);animation:f-open .8s var(--cut) .05s both}.d-forge .f-hero-slab p{top:90px;font-size:clamp(120px,13vw,250px)}.d-forge .f-hero-slab::after{background:linear-gradient(180deg,rgba(11,11,11,0) 30%,rgba(11,11,11,.7) 100%)}.d-forge .f-hero-edge{position:absolute;inset:0 0 0 auto;z-index:-1;display:block;width:60vw;background:var(--acid);clip-path:polygon(26% 0,27.4% 0,1.4% 100%,0 100%);-webkit-mask-image:linear-gradient(180deg,transparent 64px,#000 150px,#000 calc(100% - 230px),transparent calc(100% - 150px));mask-image:linear-gradient(180deg,transparent 64px,#000 150px,#000 calc(100% - 230px),transparent calc(100% - 150px));animation:f-open .8s var(--cut) .05s both}}
 @media (prefers-reduced-motion:reduce){.d-forge .f-band p{animation:none}}
 .d-forge .f-prog-list>li{container-type:inline-size}
 .d-forge .f-prog-list h3{--h3s:clamp(50px,15.4vw,76px);font-size:min(calc(var(--h3s)*var(--k,1)),calc((100cqw - var(--pad)*2)/var(--lw,5)));line-height:.94;overflow-wrap:break-word}
@@ -119,6 +119,11 @@ const EXTRA = `
 .d-forge .f-trial .f-big{max-width:38ch}
 .d-forge .f-trial-side{display:grid;gap:26px;align-content:start;min-width:0}
 .d-forge .f-side-pic{aspect-ratio:16/9;background:var(--bg-3)}
+.d-forge .z-split{grid-template-columns:minmax(0,1fr)}
+.d-forge .z-split>*{min-width:0}
+@media (min-width:900px){.d-forge .z-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.d-forge .z-reach{max-width:100%}
+.d-forge .z-reach a{max-width:100%;overflow-wrap:anywhere}
 .d-forge .f-hours{border-top:1px solid var(--line)}
 .d-forge .f-hours div{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15.5px}
 .d-forge .f-hours dt{color:var(--dim)}
@@ -173,7 +178,9 @@ const EXTRA = `
 .d-forge .f-foot-grid>div{min-width:0}
 .d-forge .f-foot-grid a{overflow-wrap:anywhere}
 .d-forge .f-foot-grid dd{margin:0;text-align:right}
-.d-forge .f-foot-mark{font-size:min(40.5vw,640px,calc(var(--col)/var(--lw,3)))}
+.d-forge .f-foot-mark{height:calc(.9em*(var(--ln,1) - 1) + .64em);font-size:min(40.5vw,640px,calc(var(--col)/var(--lw,3)))}
+.d-forge .f-foot-mark b{display:block;font-weight:400}
+.d-forge .f-coaches{padding-bottom:clamp(60px,7vw,120px)}
 @media (max-width:899px){.d-forge .f-foot-grid .is-wide{grid-column:1/-1}}
 `
   .replace(/\n/g, "")
@@ -411,6 +418,9 @@ function Footer(c: Ctx) {
   const b = c.spec.business;
   const cta = c.spec.hero.primaryCta;
   // The acid closing block belongs to the design; when the page has its own call to action, that one is it.
+  // The closing wordmark: a long name is stacked on two or three lines so it stays large.
+  const nameW = wd(c.name);
+  const mark = heroRows(c.name, nameW > 15 ? 3 : nameW > 7 ? 2 : 1).rows.map((r) => r.map((x) => x.w).join(" "));
   const closing = !c.spec.sections.some((s) => s.type === "cta") && b.tagline ? fit(b.tagline) : null;
   return (
     <footer className="f-foot">
@@ -484,8 +494,12 @@ function Footer(c: Ctx) {
             </div>
           ) : null}
         </div>
-        <p className="f-foot-mark" aria-hidden="true" data-px style={css({ "--lw": (wd(c.name) + 0.1).toFixed(2) })}>
-          <span>{c.name}</span>
+        <p className="f-foot-mark" aria-hidden="true" data-px style={css({ "--lw": (Math.max(...mark.map(wd)) + 0.1).toFixed(2), "--ln": mark.length })}>
+          <span>
+            {mark.map((row) => (
+              <b key={row}>{row}</b>
+            ))}
+          </span>
         </p>
         <Legal c={c} className="f-legal" />
       </div>

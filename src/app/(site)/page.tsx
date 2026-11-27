@@ -1,11 +1,11 @@
 import { Home } from "@/components/site/home/home";
-import { pageMeta } from "@/lib/site/seo";
+import { seoMeta } from "@/lib/site/seo-meta";
 import { getSiteData } from "@/server/site";
 
 export async function generateMetadata() {
   const { prices } = await getSiteData();
-  return pageMeta({
-    title: "HOPI | Webdesign bureau: website laten maken die blijft hangen",
+  return seoMeta({
+    title: "Webdesign bureau: eerst zien, dan betalen | HOPI",
     description: `Webdesign bureau voor Nederland en België. Website, webshop of webapplicatie laten maken: je ziet eerst gratis een ontwerp. Websites vanaf ${prices.from}.`,
     path: "/",
   });

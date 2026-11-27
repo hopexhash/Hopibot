@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { seoMeta } from "@/lib/site/seo-meta";
 import { ContactLine, identity, LegalPage } from "@/components/site/legal-page";
-import { pageMeta } from "@/lib/site/seo";
-
 const PATH = "/privacy";
-export const metadata = pageMeta({ title: "Privacyverklaring | HOPI", description: "Welke persoonsgegevens HOPI verwerkt als je het contactformulier invult, waarvoor we ze gebruiken, hoe lang we ze bewaren en welke rechten je hebt.", path: PATH });
+export const generateMetadata = () =>
+  seoMeta({ title: "Privacyverklaring | HOPI", description: "Welke persoonsgegevens HOPI verwerkt als je het contactformulier invult, waarvoor we ze gebruiken, hoe lang we ze bewaren en welke rechten je hebt.", path: PATH });
 
 export default function PrivacyPage() {
   return (
