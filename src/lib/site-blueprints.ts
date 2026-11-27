@@ -2,6 +2,7 @@ import type { ICONS, SiteSection, SiteSpec } from "@/lib/site-spec";
 import { languageFor } from "@/lib/markets";
 import { hashString } from "@/sites/art";
 import { getDesign, variationCount } from "@/sites/designs";
+import { selectIndustry } from "./design-select";
 
 /**
  * Default content per design. Blueprints are fact-safe: they describe what this kind of
@@ -554,7 +555,9 @@ export type BlueprintBusiness = {
 /** Deterministic, fact-safe SiteSpec for a design: used in mock mode and as the base Claude personalises. */
 export function buildBlueprintSpec(b: BlueprintBusiness, designKey: string, variation?: number): SiteSpec {
   const design = getDesign(designKey);
-  const bp = BLUEPRINTS[design.key] ?? BLUEPRINTS["local-service"];
+  // A demo design (template family) is a look, not an industry: its content comes from the business's own industry.
+  const industry = design.demo ? selectIndustry({ category: b.category, name: b.name }).design : design;
+  const bp = BLUEPRINTS[industry.key] ?? BLUEPRINTS["local-service"];
   const city = b.city ?? "";
   const telHref = b.phone ? `tel:${b.phone.replace(/[^\d+]/g, "")}` : null;
   const bookingId = bp.booking ? { reservation: "reserveren", appointment: "afspraak", quote: "offerte", order: "bestellen" }[bp.booking.kind] : "contact";
@@ -604,9 +607,9 @@ export function buildBlueprintSpec(b: BlueprintBusiness, designKey: string, vari
       description: `${b.name}${city ? ` in ${city}` : ""}. ${bp.sub}`.slice(0, 160),
       // Blueprint copy is Dutch; the language flag follows the location so the AI writes French sites in Wallonia and Brussels.
       lang: languageFor({ country: b.country ?? "Netherlands", city: b.city, postalCode: b.postalCode, address: b.address }),
-      keywords: [city, design.industry].filter(Boolean),
+      keywords: [city, industry.industry].filter(Boolean),
     },
-    theme: { template: design.legacy, design: design.key, variation: variation ?? hashString(b.name) % variationCount(design), primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius },
+    theme: { template: design.legacy, design: design.key, variation: design.demo ? 0 : (variation ?? hashString(b.name) % variationCount(design)), primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius },
     business: { name: b.name, tagline: bp.eyebrow, phone: b.phone, email: null, address: b.address, city: b.city, mapsUrl: b.googleMapsUrl, openingHours: b.openingHours },
     images: [],
     hero: {

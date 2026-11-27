@@ -1,7 +1,7 @@
 import "../guard";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { selectDesign } from "@/lib/design-select";
+import { selectDesign, selectIndustry } from "@/lib/design-select";
 import { industryProfile } from "@/lib/industry-intel";
 import { stageEvent, stageLabel } from "@/lib/website-stages";
 import { DIRECTIONS, finalizeIdentity, fingerprintOf, seedOf } from "@/sites/identity";
@@ -157,8 +157,13 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   await db().update(schema.websiteProjects).set({ status: "generating", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
   // Design selection: an operator's/previous choice on the project wins, else category + research signals.
   const researchText = research ? JSON.stringify(research.profile).slice(0, 4000) : "";
-  const chosen = DESIGN_KEYS.includes(project.templateKey) ? { design: getDesign(project.templateKey), reason: "kept from the project" } : selectDesign({ category: b.category, name: b.name, text: researchText });
+  // A new site is always built in one of the demo designs; later versions of a site keep the design they have.
+  const current = DESIGN_KEYS.includes(project.templateKey) ? getDesign(project.templateKey) : null;
+  const chosen = current && (type !== "generate_website" || current.demo) ? { design: current, reason: "kept from the project" } : selectDesign({ category: b.category, name: b.name, text: researchText });
   const design = chosen.design;
+  // A demo design has one fixed look: no identity is planned for it. The industry still decides content and photographs.
+  const fixedLook = Boolean(design.demo);
+  const industry = selectIndustry({ category: b.category, name: b.name, text: researchText }).design;
   if (project.templateKey !== design.key) await db().update(schema.websiteProjects).set({ templateKey: design.key }).where(eq(schema.websiteProjects.id, project.id));
 
   let spec: SiteSpec;
@@ -174,24 +179,32 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   if (type === "generate_website") {
     const profile = industryProfile(b.category);
     await stage(2, `${b.name} is a ${profile.label}. Visitors want to ${profile.goal}.`, "completed");
-    const recent = await recentFingerprints(ctx.organizationId);
-    await stage(3, recent.length ? `comparing with the ${recent.length} most recent sites so this one looks different` : "first site with a brand identity");
+    let plannedByAi = false;
+    const recent = fixedLook ? [] : await recentFingerprints(ctx.organizationId);
+    if (fixedLook) await stage(3, `${design.name} design (${chosen.reason}). ${design.description}`.slice(0, 400), "completed");
+    else await stage(3, recent.length ? `comparing with the ${recent.length} most recent sites so this one looks different` : "first site with a brand identity");
     if (isMock || !research) {
       if (!research) await ctx.log("warn", "No research found — building from verified listing data only.");
-      brief = fallbackBrief(b, design.key, recent, Boolean(photoProvider));
+      brief = fallbackBrief(b, industry.key, recent, Boolean(photoProvider));
     } else {
       await ctx.heartbeat();
-      const planned = await planCreative(ctx.usage, { business: b, baseDesign: design.key, research, recent, photos: Boolean(photoProvider), model: ctx.config.model });
+      const planned = await planCreative(ctx.usage, { business: b, baseDesign: industry.key, research, recent, photos: Boolean(photoProvider), model: ctx.config.model, look: fixedLook ? { name: design.name, description: design.description } : undefined });
       brief = planned.brief;
       if (planned.source === "fallback") await ctx.log("warn", `Creative direction could not be generated (${planned.note}); using the built-in direction for this industry.`);
+      else plannedByAi = true;
     }
-    // Decide against the very latest state: another site may have been planned in the meantime.
-    const latest = await recentFingerprints(ctx.organizationId);
-    brief.identity = finalizeIdentity(brief.identity, seedOf(b.name), latest, { photos: Boolean(photoProvider), category: design.key });
-    const id = brief.identity;
-    await ctx.log("debug", "identity decided", { kind: "website.stage", stage: 4, status: "info", fingerprint: fingerprintOf(id, design.key) });
-    await stage(3, `${id.personality || "identity defined"} — ${id.fonts.display} with ${id.fonts.body}, accent ${id.colors.accent} on ${id.colors.background}`, "completed");
-    await stage(4, `${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction}, "${id.layout.hero}" opening. ${brief.rationale}`.slice(0, 400), "completed");
+    let id = brief.identity;
+    if (fixedLook) {
+      // Only a plan that was really made for this business is reported; the built-in one says nothing about it.
+      if (plannedByAi && brief.rationale) await stage(4, brief.rationale.slice(0, 400), "completed");
+    } else {
+      // Decide against the very latest state: another site may have been planned in the meantime.
+      const latest = await recentFingerprints(ctx.organizationId);
+      id = brief.identity = finalizeIdentity(brief.identity, seedOf(b.name), latest, { photos: Boolean(photoProvider), category: design.key });
+      await ctx.log("debug", "identity decided", { kind: "website.stage", stage: 4, status: "info", fingerprint: fingerprintOf(id, design.key) });
+      await stage(3, `${id.personality || "identity defined"} — ${id.fonts.display} with ${id.fonts.body}, accent ${id.colors.accent} on ${id.colors.background}`, "completed");
+      await stage(4, `${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction}, "${id.layout.hero}" opening. ${brief.rationale}`.slice(0, 400), "completed");
+    }
     await stage(5, brief.architecture.map((s) => s.type).join(" → "), "completed");
 
     if (isMock || !research) {
@@ -202,7 +215,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
       spec = { ...base, sections: kept.length >= 2 ? kept : base.sections };
       changeSummary = isMock ? "Initial version (MOCK — copy from templates, identity from the built-in direction engine)." : "Initial version from listing data.";
     } else {
-      await stage(7, `writing ${brief.architecture.length} sections for the "${id.layout.hero}" composition`);
+      await stage(7, fixedLook ? `writing ${brief.architecture.length} sections for the ${design.name} design` : `writing ${brief.architecture.length} sections for the "${id.layout.hero}" composition`);
       const res = await claudeStructured({
         ctx: ctx.usage,
         operation: "generate_website",
@@ -213,10 +226,20 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         system: `You are the senior designer and copywriter of a premium web design agency, building one website from a creative brief.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}`,
         prompt: [
           "Creative brief (decided by the creative director; follow it):",
-          JSON.stringify({ positioning: brief.positioning, audience: brief.audience, experience: brief.experience, direction: id.direction, personality: id.personality, heroComposition: id.layout.hero, sections: brief.architecture }, null, 2),
-          `Theme to use: design "${design.key}", template "${design.legacy}", primary ${id.colors.primary}, accent ${id.colors.accent}, mode ${design.mode}, font "${id.fonts.display}", radius ${id.radius}.`,
+          JSON.stringify(
+            fixedLook
+              ? { positioning: brief.positioning, audience: brief.audience, experience: brief.experience, design: `${design.name}: ${design.description}`, sections: brief.architecture }
+              : { positioning: brief.positioning, audience: brief.audience, experience: brief.experience, direction: id.direction, personality: id.personality, heroComposition: id.layout.hero, sections: brief.architecture },
+            null,
+            2,
+          ),
+          fixedLook
+            ? `Theme to use: design "${design.key}", template "${design.legacy}", primary ${design.palette.primary}, accent ${design.palette.accent}, mode ${design.mode}, font "${design.fonts.display}", radius ${design.radius}.`
+            : `Theme to use: design "${design.key}", template "${design.legacy}", primary ${id.colors.primary}, accent ${id.colors.accent}, mode ${design.mode}, font "${id.fonts.display}", radius ${id.radius}.`,
           `Industry context (${profile.label}): the usual booking kind is "${profile.booking}". ${photoProvider ? "Real photographs will be placed in the image slots." : "No photographs are available: do not create gallery or showcase sections."}`,
-          `Hero composition "${id.layout.hero}": ${["wordmark", "stack", "minimal", "poster"].includes(id.layout.hero) ? "the headline is set very large, keep it to 3–6 words" : "keep the headline under 8 words"}.`,
+          fixedLook
+            ? "The opening sets the headline very large: keep it to 3–7 words and mark the one phrase that carries the feeling with *asterisks*. Section titles are set large too: keep them under 6 words."
+            : `Hero composition "${id.layout.hero}": ${["wordmark", "stack", "minimal", "poster"].includes(id.layout.hero) ? "the headline is set very large, keep it to 3–6 words" : "keep the headline under 8 words"}.`,
           "Verified business record:",
           JSON.stringify({ name: b.name, category: b.category, city: b.city, address: b.address, phone: b.phone, openingHours: b.openingHours }, null, 2),
           "Research profile (verified facts are marked; treat assumptions as unconfirmed):",
@@ -226,10 +249,10 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         ].join("\n"),
       });
       spec = res.data;
-      changeSummary = `Initial version generated by ${res.model} in the ${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction} direction.`;
+      changeSummary = fixedLook ? `Initial version generated by ${res.model} in the ${design.name} design.` : `Initial version generated by ${res.model} in the ${DIRECTIONS.find((d) => d.key === id.direction)?.label ?? id.direction} direction.`;
       await stage(7, `${spec.sections.length} sections written`, "completed");
     }
-    spec.theme.identity = id;
+    if (!fixedLook) spec.theme.identity = id;
   } else if (type === "refine_design") {
     // Visual refinement: the reviewer looked at real screenshots; apply its concrete findings once.
     const cur = await currentSpec(project.id);
@@ -248,7 +271,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: "medium",
         maxTokens: 32000,
-        system: `You are the senior designer of a premium web design agency. A reviewer looked at screenshots of the rendered site and listed its weakest points. Fix exactly those points by editing the spec: copy, section order or choice, and theme.identity (layout variants, fonts, colours, density). Keep everything that works. Never add unverified claims.\n${SPEC_GUIDE}\nLayout variants available — hero: cinema, split, centered, editorial, poster, frame, minimal, panel, card, wordmark, collage, stack, offset; services: cards, pricelist, rows, tiles, index, bento; gallery: mosaic, strip, grid, polaroid, scroller, bento; about: split, overlap, centered, statement; head: left, center, ornament, number, tape; cta: band, full, card.`,
+        system: `You are the senior designer of a premium web design agency. A reviewer looked at screenshots of the rendered site and listed its weakest points. Fix exactly those points by editing the spec: copy, section order or choice${fixedLook ? ". The visual design is a fixed, hand-designed template: do not change the theme" : ", and theme.identity (layout variants, fonts, colours, density)"}. Keep everything that works. Never add unverified claims.\n${SPEC_GUIDE}\nLayout variants available — hero: cinema, split, centered, editorial, poster, frame, minimal, panel, card, wordmark, collage, stack, offset; services: cards, pricelist, rows, tiles, index, bento; gallery: mosaic, strip, grid, polaroid, scroller, bento; about: split, overlap, centered, statement; head: left, center, ornament, number, tape; cta: band, full, card.`,
         prompt: `Current SiteSpec:\n${JSON.stringify(cur.spec)}\n\nFindings from the visual review of the rendered site:\n${JSON.stringify(weaknesses, null, 2)}\n\nReturn the improved spec and a one-sentence change summary.`,
       });
       spec = res.data.spec;
@@ -314,12 +337,14 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   }
 
   // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
-  spec.theme = { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
+  spec.theme = fixedLook
+    ? { template: design.legacy, design: design.key, variation: 0, primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius }
+    : { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
   // Real photography: with Pexels or Unsplash connected, image slots get licensed photos chosen for this business.
   if (photoProvider && type === "generate_website") {
     await stage(6, `searching ${photoProvider === "pexels" ? "Pexels" : "Unsplash"} for ${brief ? Object.values(brief.imagery).filter(Boolean).slice(0, 2).join(", ") : "matching photographs"}`);
     try {
-      const r = await attachStockPhotos(ctx.organizationId, spec, design.art, project.slug, photoProvider, brief?.imagery);
+      const r = await attachStockPhotos(ctx.organizationId, spec, industry.art, project.slug, photoProvider, brief?.imagery);
       spec = r.spec;
       await stage(6, `${r.added} licensed photograph(s) placed`, "completed");
     } catch (err) {

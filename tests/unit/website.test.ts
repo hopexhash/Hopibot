@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { siteSpecSchema } from "@/lib/site-spec";
 import { renderSite } from "@/sites/render";
-import { selectDesign } from "@/lib/design-select";
+import { selectDesign, selectIndustry } from "@/lib/design-select";
 import { buildBlueprintSpec } from "@/lib/site-blueprints";
 import { designForSpec, DESIGNS, variationCount } from "@/sites/designs";
 import { fontFilesInHtml } from "@/sites/fonts";
@@ -90,7 +90,8 @@ describe("template library", () => {
   });
 
   it("offers several layouts per industry and renders each one", () => {
-    const industry = DESIGNS.filter((d) => d.group !== "general");
+    // The demo designs have one fixed look each; layout variations belong to the classic library.
+    const industry = DESIGNS.filter((d) => d.group !== "general" && !d.demo);
     for (const d of industry) {
       expect(variationCount(d), d.key).toBeGreaterThanOrEqual(3);
       const heroes = new Set<string>();
@@ -109,15 +110,34 @@ describe("template library", () => {
     for (const d of DESIGNS) expect(contentIntegrityIssues(buildBlueprintSpec(sample, d.key), ""), d.key).toHaveLength(0);
   });
 
-  it("selects a design from the category and refines it with name signals", () => {
-    expect(selectDesign({ category: "restaurant", name: "Sushi Hana" }).design.key).toBe("sushi");
-    expect(selectDesign({ category: "restaurant", name: "Pizzeria Da Marco" }).design.key).toBe("pizzeria");
-    expect(selectDesign({ category: "restaurant", name: "De Gouden Lepel" }).design.key).toBe("luxury-restaurant");
-    expect(selectDesign({ category: "hair_salon", name: "The Gents Barbershop" }).design.key).toBe("barbershop");
-    expect(selectDesign({ category: "car_repair", name: "Garage Jansen" }).design.key).toBe("garage");
+  it("selects the industry from the category and refines it with name signals", () => {
+    expect(selectIndustry({ category: "restaurant", name: "Sushi Hana" }).design.key).toBe("sushi");
+    expect(selectIndustry({ category: "restaurant", name: "Pizzeria Da Marco" }).design.key).toBe("pizzeria");
+    expect(selectIndustry({ category: "restaurant", name: "De Gouden Lepel" }).design.key).toBe("luxury-restaurant");
+    expect(selectIndustry({ category: "hair_salon", name: "The Gents Barbershop" }).design.key).toBe("barbershop");
+    expect(selectIndustry({ category: "car_repair", name: "Garage Jansen" }).design.key).toBe("garage");
     // A name signal never moves a business to another sector.
-    expect(selectDesign({ category: "car_repair", name: "Pizza Auto Service" }).design.key).toBe("garage");
-    expect(selectDesign({ category: "local_service", name: "Hoveniersbedrijf Groen" }).design.key).toBe("landscaping");
+    expect(selectIndustry({ category: "car_repair", name: "Pizza Auto Service" }).design.key).toBe("garage");
+    expect(selectIndustry({ category: "local_service", name: "Hoveniersbedrijf Groen" }).design.key).toBe("landscaping");
+  });
+
+  it("builds every new site in a demo design that fits the business", () => {
+    const look = (category: string, name: string) => selectDesign({ category, name }).design;
+    expect(look("restaurant", "De Gouden Lepel").key).toBe("vesper");
+    expect(look("restaurant", "Sushi Hana").key).toBe("vesper");
+    expect(look("restaurant", "Lunchroom De Zon").key).toBe("ostara");
+    expect(look("hair_salon", "Salon Elise").key).toBe("sage");
+    expect(look("hair_salon", "The Gents Barbershop").key).toBe("vesper");
+    expect(look("car_repair", "Pizza Auto Service").key).toBe("obsidian");
+    expect(look("local_service", "Hoveniersbedrijf Groen").key).toBe("meridiaan");
+    expect(look("plumber", "Loodgieter Bakker").key).toBe("kade");
+    expect(look("unknown_category", "Iets Anders").key).toBe("kade");
+    // Every category has a look, and every look is a demo design.
+    for (const c of BUSINESS_CATEGORIES) expect(look(c.key, "Voorbeeld").demo, c.key).toBeTruthy();
+    // The content of a site still follows the business's own industry, whatever the look.
+    const bakery = buildBlueprintSpec({ ...sample, category: "bakery", name: "Bakkerij Van Dijk" }, look("bakery", "Bakkerij Van Dijk").key);
+    expect(bakery.theme.design).toBe("ostara");
+    expect(JSON.stringify(bakery.sections)).toMatch(/brood|gebak|bakker/i);
   });
 
   it("drops testimonials that are not verbatim in verified research", () => {

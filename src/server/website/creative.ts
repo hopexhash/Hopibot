@@ -94,7 +94,61 @@ export function fallbackBrief(b: { name: string; category: string }, baseDesign:
   };
 }
 
-const SKINS = DESIGNS.map((d) => `${d.key} (${d.description.slice(0, 70)})`).join("; ");
+const strategySchema = creativeBriefSchema.omit({ identity: true });
+
+/**
+ * The brief for a site built in a demo design: its look is decided, so only the strategy,
+ * the sections and the photographs are planned. The identity the schema asks for is filled
+ * with the deterministic one and is not used for rendering.
+ */
+async function planForLook(
+  usage: UsageContext,
+  input: { business: { name: string; category: string; city: string | null }; baseDesign: string; research: { profile: unknown; brief: unknown } | null; photos: boolean; model?: string | null; look: { name: string; description: string } },
+  profile: IndustryProfile,
+): Promise<{ brief: CreativeBrief; costUsd: number; source: "ai" | "fallback"; note?: string }> {
+  const fallback = fallbackBrief(input.business, input.baseDesign, [], input.photos);
+  try {
+    const res = await claudeStructured({
+      ctx: usage,
+      operation: "creative_direction",
+      schema: strategySchema,
+      model: input.model,
+      effort: "medium",
+      maxTokens: 4000,
+      system: `You are the creative director of a premium web design agency. For ONE business you decide the brand strategy and the structure of its website. The visual design is already chosen and fixed: "${input.look.name}" (${input.look.description}). Do not describe colours, type or layout; plan what the page says and shows.
+
+Principles
+- Plan for this business, not for its industry. Read the research: positioning, price level, audience and character decide the emphasis.
+- Every section must earn its place. Do not add a gallery, FAQ, booking form or card grid by habit. Fewer, stronger sections beat a long generic page. The order follows what this visitor needs first.
+- Never plan content that needs facts the research does not contain (team members, prices, reviews, awards, certifications, statistics).
+${input.photos ? "- Real photographs are available: plan a gallery or a showcase where pictures tell the story." : "- NO photographs are available for this site: no gallery and no showcase."}
+
+Architecture
+- 4 to 9 sections after the hero, each with a one-line purpose. Types: ${SECTION_TYPES.join(", ")}.
+- "statement" is one large sentence of the brand's point of view (use at most once). "showcase" is a full-width photograph with a caption (only with photographs). "menu" only for food. "contact" is always last.
+
+Imagery: four English stock-photo search phrases of 2–5 words that fit this business's actual offer and the mood of the chosen design. Describe subject, light and mood only: never a city, country, landmark or building name, and nothing with signs or lettering.
+
+rationale: one or two sentences on why this structure suits this business.`,
+      prompt: [
+        `Business: ${input.business.name}${input.business.city ? `, ${input.business.city}` : ""}`,
+        `Industry: ${profile.label}. Typical audience: ${profile.audience}. What visitors want: ${profile.goal}.`,
+        `Sections that usually matter: ${profile.essentials.join(", ")}. Only with real material: ${profile.optional.join(", ")}.`,
+        `Photography that fits: ${profile.imagery}.`,
+        "Research on this business (facts are marked verified; treat the rest as unconfirmed):",
+        untrusted("business research", JSON.stringify(input.research ?? {}), 9000),
+      ].join("\n\n"),
+    });
+    const brief: CreativeBrief = { ...res.data, identity: fallback.identity };
+    brief.architecture = brief.architecture.filter((s) => input.photos || (s.type !== "gallery" && s.type !== "showcase"));
+    if (!brief.architecture.some((s) => s.type === "contact")) brief.architecture.push({ type: "contact", purpose: "Get in touch" });
+    return { brief, costUsd: res.costUsd, source: "ai" };
+  } catch (err) {
+    return { brief: fallback, costUsd: 0, source: "fallback", note: (err as Error).message.slice(0, 160) };
+  }
+}
+
+const SKINS = DESIGNS.filter((d) => !d.demo).map((d) => `${d.key} (${d.description.slice(0, 70)})`).join("; ");
 
 /**
  * Asks Claude, acting as creative director, for the brief. The result is validated, its
@@ -103,10 +157,20 @@ const SKINS = DESIGNS.map((d) => `${d.key} (${d.description.slice(0, 70)})`).joi
  */
 export async function planCreative(
   usage: UsageContext,
-  input: { business: { name: string; category: string; city: string | null }; baseDesign: string; research: { profile: unknown; brief: unknown } | null; recent: Fingerprint[]; photos: boolean; model?: string | null },
+  input: {
+    business: { name: string; category: string; city: string | null };
+    baseDesign: string;
+    research: { profile: unknown; brief: unknown } | null;
+    recent: Fingerprint[];
+    photos: boolean;
+    model?: string | null;
+    /** A fixed, hand-designed template: only strategy, structure and imagery are planned. */
+    look?: { name: string; description: string };
+  },
 ): Promise<{ brief: CreativeBrief; costUsd: number; source: "ai" | "fallback"; note?: string }> {
   const profile = industryProfile(input.business.category);
   const seed = seedOf(input.business.name);
+  if (input.look) return planForLook(usage, { ...input, look: input.look }, profile);
   const recentLines = input.recent.slice(0, 6).map((r, i) => `${i + 1}. ${r.direction}, hero "${r.hero}", display font ${r.display}, ${r.dark ? "dark" : "light"}${r.category ? ` (${r.category})` : ""}`);
   try {
     const res = await claudeStructured({

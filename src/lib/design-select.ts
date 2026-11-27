@@ -3,9 +3,13 @@ import { DESIGNS, getDesign, type Design } from "@/sites/designs";
 
 /**
  * Design selection engine (rule-based, free, deterministic).
- * 1. Signals in the business name / research text pick a specialised design.
- * 2. Otherwise the business category's default design is used.
- * The website builder may refine palette and copy, but the layout identity comes from here.
+ *
+ * A site has an INDUSTRY (what kind of business this is: it decides the default content,
+ * the structure and the photographs to look for) and a LOOK (one of the demo designs of the
+ * portfolio, rendered by a template family).
+ * 1. Signals in the business name / research text pick a specialised industry.
+ * 2. Otherwise the business category's default industry is used.
+ * 3. The look follows from the industry, or from the category when no signal refined it.
  */
 
 const SIGNALS: { design: string; re: RegExp; why: string }[] = [
@@ -31,7 +35,26 @@ const FOOD = new Set(DESIGNS.filter((d) => d.group === "food").map((d) => d.key)
 
 export type DesignChoice = { design: Design; reason: string };
 
+/** The demo design each industry is rendered in when a name signal (not the category) decided the industry. */
+const LOOK_OF_INDUSTRY: Record<string, string> = {
+  "luxury-restaurant": "vesper", "modern-italian": "vesper", "turkish-restaurant": "vesper", sushi: "vesper", burger: "vesper", pizzeria: "vesper",
+  "street-food": "vesper", "fine-dining": "vesper", "asian-fusion": "vesper", "food-truck": "vesper", barbershop: "vesper",
+  "coffee-shop": "ostara", bakery: "ostara", "hair-salon": "sage", "beauty-salon": "sage", "car-detailing": "obsidian", garage: "obsidian",
+  construction: "kade", "local-service": "kade", cleaning: "helder", clinic: "helder", landscaping: "meridiaan", estate: "meridiaan",
+};
+
+/** The look of a business: the demo design its website is built in. */
 export function selectDesign(b: { category: string; name: string; text?: string | null }): DesignChoice {
+  const cat = BUSINESS_CATEGORIES.find((c) => c.key === b.category);
+  const industry = selectIndustry(b);
+  const refined = industry.design.key !== (cat?.design ?? "local-service");
+  const key = (refined && LOOK_OF_INDUSTRY[industry.design.key]) || cat?.family || "kade";
+  const design = getDesign(key);
+  return { design, reason: `${design.name} design: ${refined ? industry.reason : `the look for ${cat?.label.toLowerCase() ?? "local businesses"}`}` };
+}
+
+/** The industry of a business: an entry of the classic library, used for its blueprint and photo direction. */
+export function selectIndustry(b: { category: string; name: string; text?: string | null }): DesignChoice {
   const cat = BUSINESS_CATEGORIES.find((c) => c.key === b.category);
   const fallback = getDesign(cat?.design ?? "local-service");
   const haystack = `${b.name} ${b.text ?? ""}`.slice(0, 4000);
