@@ -463,7 +463,7 @@ export function Reveal() {
 
 // ───────────────────────── Contact form ─────────────────────────
 
-export function ContactForm({ packages, source }: { packages: { key: string; name: string }[]; source: string }) {
+export function ContactForm({ packages, source, whatsapp }: { packages: { key: string; name: string }[]; source: string; whatsapp?: string | null }) {
   const [state, action, pending] = useActionState<InquiryState, FormData>(submitInquiryAction, null);
   const [pkg, setPkg] = useState("");
   // "Kies Business" buttons link to ?pakket=business#contact.
@@ -575,6 +575,16 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
       <button type="submit" className="btn btn-dark" disabled={pending}>
         {pending ? "Bezig met versturen…" : "Vraag mijn gratis ontwerp aan"} {!pending && <ArrowRight />}
       </button>
+      {whatsapp && (
+        <>
+          <p className="form-or mono" aria-hidden="true">
+            <span>of</span>
+          </p>
+          <a href={whatsapp} target="_blank" rel="noopener" className="btn btn-wa form-wa" data-track="whatsapp_click" data-track-label="form" data-track-location={source}>
+            <WhatsAppIcon /> Stuur een WhatsApp
+          </a>
+        </>
+      )}
       <p className="form-note">Gratis en vrijblijvend. Je betaalt pas als het ontwerp bevalt.</p>
     </form>
   );

@@ -87,7 +87,7 @@
   margin: 14px 0 10px;
   font-size: clamp(38px, 5vw, 84px);
   font-weight: 600;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.032em;
   line-height: 0.96;
   text-wrap: balance;
   overflow-wrap: break-word;
@@ -100,7 +100,7 @@
   margin: 22px 0 10px;
   font-size: clamp(20px, 1.9vw, 28px);
   font-weight: 500;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   text-wrap: balance;
 }
@@ -352,7 +352,7 @@
   max-width: 24ch;
   font-size: clamp(22px, 2.6vw, 40px);
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.022em;
   line-height: 1.12;
 }
 .hopi.v3 .pj-actions-top {
@@ -375,7 +375,7 @@
   max-width: 26ch;
   font-size: clamp(27px, 3.7vw, 62px);
   font-weight: 500;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.026em;
   line-height: 1.06;
 }
 .hopi.v3 .pj-grid + .pj-grid {
@@ -403,7 +403,7 @@
   border-bottom: 1px solid var(--line-2);
   font-size: clamp(19px, 1.9vw, 30px);
   font-weight: 500;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 .hopi.v3 .pj-secs .mono {

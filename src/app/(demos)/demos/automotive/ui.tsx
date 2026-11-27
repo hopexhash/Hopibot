@@ -364,7 +364,7 @@ export function Appointment() {
         <SizeSwitch name="o-size-form" size={size} />
         <label className="o-field">
           <span>Merk, model en kleur</span>
-          <input type="text" name="voertuig" placeholder="Bijvoorbeeld: zwarte stationwagen, 2021" required />
+          <input type="text" name="voertuig" placeholder="Zwarte stationwagen, 2021" required />
         </label>
       </fieldset>
       <fieldset>
@@ -405,7 +405,7 @@ export function Appointment() {
         </div>
       </fieldset>
       <button type="submit" className="o-btn o-btn-fill o-submit">
-        <span>Plan {p.name} in</span>
+        <span>Plan {p.name} in</span>{" "}
         <span>€ {price}</span>
       </button>
     </DemoForm>

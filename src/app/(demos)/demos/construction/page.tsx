@@ -215,11 +215,11 @@ export default function KadeBouw() {
             <dl className="k-wrap k-figs-in">
               {FIGURES.map((f, i) => (
                 <div key={f.label} className="k-in" style={{ ["--i" as string]: 5 + i }}>
+                  <dt>{f.label}</dt>
                   <dd>
                     <Count to={f.to} decimals={f.decimals} />
                     {f.suffix ? <i>{f.suffix}</i> : null}
                   </dd>
-                  <dt>{f.label}</dt>
                 </div>
               ))}
             </dl>
@@ -399,9 +399,9 @@ export default function KadeBouw() {
             <div className="k-voices-grid">
               {VOICES.map((v, i) => (
                 <figure key={v.who} className={i === 0 ? "k-voice k-voice-big" : "k-voice"} data-rv style={{ ["--i" as string]: i }}>
-                  <p className="k-voice-score" aria-label={`Cijfer bij oplevering: ${v.score}`}>
-                    <b aria-hidden="true">{v.score}</b>
-                    <small aria-hidden="true">cijfer bij oplevering</small>
+                  <p className="k-voice-score">
+                    <b>{v.score}</b>
+                    <small>cijfer bij oplevering</small>
                   </p>
                   <blockquote>
                     <p>“{v.quote}”</p>
@@ -421,7 +421,6 @@ export default function KadeBouw() {
 
         {/* 7 · Offerte aanvragen */}
         <section className="k-quote k-grid" id="offerte">
-          <div className="k-hazard" aria-hidden="true" />
           <div className="k-wrap k-quote-grid">
             <div className="k-quote-copy">
               <Tag n="06">Offerte aanvragen</Tag>
@@ -461,6 +460,7 @@ export default function KadeBouw() {
               </ul>
             </div>
             <div className="k-quote-card" data-rv>
+              <div className="k-hazard" aria-hidden="true" />
               <Quote />
             </div>
           </div>

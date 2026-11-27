@@ -290,27 +290,28 @@ export function Coaches() {
         const on = open === c.key;
         return (
           <li key={c.key} className={`f-coach${on ? " is-open" : ""}`} style={{ ["--i" as string]: i }}>
-            <button type="button" aria-expanded={on} aria-controls={`f-coach-${c.key}`} onClick={() => setOpen(on ? null : c.key)}>
-              <span className="f-coach-pic">
-                <Pic img={I[c.img]} alt={c.alt} sizes="(min-width: 900px) 24vw, 76vw" />
-              </span>
-              <span className="f-coach-n" aria-hidden="true">
-                0{i + 1}
-              </span>
-              <span className="f-coach-name">
+            <span className="f-coach-pic">
+              <Pic img={I[c.img]} alt={c.alt} sizes="(min-width: 900px) 24vw, 76vw" />
+            </span>
+            <span className="f-coach-n" aria-hidden="true">
+              0{i + 1}
+            </span>
+            <div className="f-coach-foot">
+              <h3 className="f-coach-name">
                 <b>{c.name}</b>
                 <small>{c.role}</small>
-              </span>
+              </h3>
+              <div className="f-coach-more" id={`f-coach-${c.key}`}>
+                <p className="f-coach-spec">{c.spec}</p>
+                <p className="f-coach-line">{c.line}</p>
+                <p className="f-coach-since">{c.since}</p>
+              </div>
+            </div>
+            <button type="button" aria-expanded={on} aria-controls={`f-coach-${c.key}`} aria-label={`${c.name}, ${c.role.toLowerCase()}: ${on ? "verberg" : "toon"} specialiteit`} onClick={() => setOpen(on ? null : c.key)}>
               <span className="f-coach-plus" aria-hidden="true">
                 <Plus size={22} strokeWidth={2.6} />
               </span>
-              <span className="f-sr">{on ? "Verberg" : "Toon"} specialiteit</span>
             </button>
-            <div className="f-coach-more" id={`f-coach-${c.key}`}>
-              <p className="f-coach-spec">{c.spec}</p>
-              <p className="f-coach-line">{c.line}</p>
-              <p className="f-coach-since">{c.since}</p>
-            </div>
           </li>
         );
       })}
@@ -357,7 +358,7 @@ export function Plans() {
           Per maand
         </button>
         <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>
-          Per jaar <em>tot 2 maanden gratis</em>
+          Per jaar <em>bespaar tot € 204</em>
         </button>
       </div>
       <ul className="f-plans">

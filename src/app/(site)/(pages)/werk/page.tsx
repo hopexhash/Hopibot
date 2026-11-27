@@ -12,9 +12,10 @@ import { getSiteData } from "@/server/site";
 import "@/components/site/work.css";
 
 const PATH = "/werk";
+const COUNT = ["nul", "een", "twee", "drie", "vier", "vijf", "zes", "zeven", "acht", "negen", "tien", "elf", "twaalf"][allProjects().length] ?? String(allProjects().length);
 export const metadata = pageMeta({
-  title: "Werk: twaalf complete demo-websites | HOPI",
-  description: "Bekijk ons werk: twaalf complete demo-websites, van restaurant tot advocatenkantoor. Elk met een eigen ontwerp, op desktop en mobiel, en live te bekijken.",
+  title: `Werk: ${COUNT} complete demo-websites | HOPI`,
+  description: `Bekijk ons werk: ${COUNT} complete demo-websites, van restaurant tot advocatenkantoor. Elk met een eigen ontwerp, op desktop en mobiel, en live te bekijken.`,
   path: PATH,
 });
 
@@ -34,7 +35,7 @@ export default async function WorkPage() {
               <Words text="Werk dat blijft hangen" />
             </h1>
             <p className="wk-lead">
-              Twaalf complete websites, elk met een eigen ontwerp, eigen letters en een eigen karakter. Het zijn demo&apos;s: wij ontwierpen en bouwden ze voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten. Elke website werkt echt, dus klik gerust door alle pagina-onderdelen, ook op je telefoon.
+              {COUNT.charAt(0).toUpperCase() + COUNT.slice(1)} complete websites, elk met een eigen ontwerp, eigen letters en een eigen karakter. Het zijn demo&apos;s: wij ontwierpen en bouwden ze voor fictieve bedrijven, om te laten zien wat we leveren. Het zijn geen klantprojecten. Elke website werkt echt, dus klik gerust door alle pagina-onderdelen, ook op je telefoon.
             </p>
             <nav className="pf-index mono" aria-label="Alle demo's">
               {projects.map((p, i) => (

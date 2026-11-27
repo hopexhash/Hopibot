@@ -29,7 +29,8 @@ export type Demo = {
   industry?: string;
 };
 
-export const DEMOS: Demo[] = [
+/** Every demo, finished or not. Pages and tests use DEMOS (below) unless they say otherwise. */
+export const ALL_DEMOS: Demo[] = [
   {
     slug: "restaurant",
     name: "Vesper",
@@ -194,7 +195,15 @@ export const DEMOS: Demo[] = [
   },
 ];
 
-export const demoBySlug = (slug: string) => DEMOS.find((d) => d.slug === slug);
+/**
+ * The demos that are finished and checked. Only these are shown in the portfolio, the sitemap
+ * and the tests; a demo that is still being built stays out of sight until it is added here.
+ */
+const LIVE = new Set<DemoSlug>(["restaurant", "beauty-salon", "construction", "real-estate", "fitness", "automotive", "law-firm"]);
+
+export const DEMOS: Demo[] = ALL_DEMOS.filter((d) => LIVE.has(d.slug));
+
+export const demoBySlug = (slug: string) => ALL_DEMOS.find((d) => d.slug === slug);
 export const demoPath = (slug: string) => `/demos/${slug}`;
 
 /** Metadata of a demo page. Demos are for showing, not for search engines. */

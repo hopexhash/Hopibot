@@ -104,7 +104,7 @@ export default function AtelierSage() {
               </div>
               <div>
                 <dt>Waar</dt>
-                <dd>Wittevrouwen, tien minuten lopen van de Dom</dd>
+                <dd>Wittevrouwen, aan de rand van de binnenstad</dd>
               </div>
             </dl>
           </div>
@@ -229,13 +229,18 @@ export default function AtelierSage() {
                   Waar je begint en eindigt, met thee
                 </figcaption>
               </figure>
-              <ul className="s-room-notes">
-                {ROOM_NOTES.map((n, i) => (
-                  <li key={n} data-rv style={{ ["--i" as string]: i }}>
-                    {n}
-                  </li>
-                ))}
-              </ul>
+              <div className="s-room-notes">
+                <h3 data-rv>
+                  Wat je niet ziet, <em>maar wel merkt.</em>
+                </h3>
+                <ul>
+                  {ROOM_NOTES.map((n, i) => (
+                    <li key={n} data-rv style={{ ["--i" as string]: i }}>
+                      {n}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </section>

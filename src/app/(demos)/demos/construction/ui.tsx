@@ -398,6 +398,7 @@ function Chips({ legend, options, value, onPick }: { legend: string; options: st
 /** Quote request in three short steps. Nothing is sent: DemoForm says so. */
 export function Quote() {
   const [step, setStep] = useState(0);
+  const [reached, setReached] = useState(0);
   const [kind, setKind] = useState<string>("");
   const [size, setSize] = useState(SIZES[1]);
   const [when, setWhen] = useState(WHENS[1]);
@@ -420,6 +421,7 @@ export function Quote() {
 
   const go = (n: number) => {
     setStep(n);
+    setReached((r) => Math.max(r, n));
     head.current?.focus({ preventScroll: true });
   };
   const summary = chosen ? `${chosen.label} · ${size.toLowerCase()} · ${when.toLowerCase()}` : "";
@@ -436,7 +438,7 @@ export function Quote() {
         <ol className="k-prog" aria-label="Voortgang van de aanvraag">
           {STEP_NAMES.map((s, i) => (
             <li key={s} aria-current={i === step ? "step" : undefined} data-done={i < step || undefined}>
-              <button type="button" disabled={i > step && !(i === 1 && kind) && !(i === 2 && kind && step >= 1)} onClick={() => go(i)}>
+              <button type="button" disabled={i > reached} onClick={() => go(i)}>
                 <b>{i < step ? <Check aria-hidden="true" /> : i + 1}</b>
                 <span>{s}</span>
               </button>

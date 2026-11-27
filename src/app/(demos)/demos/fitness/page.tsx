@@ -20,7 +20,7 @@ const PROGRAMS = [
   {
     name: "Strength",
     text: "Squat, deadlift, bankdrukken en overhead press. Je werkt in blokken van acht weken met een schema dat elke week iets zwaarder wordt.",
-    meta: ["60 min", "Alle niveaus", "14 lessen per week"],
+    meta: ["60 min", "Alle niveaus", "13 lessen per week"],
     img: I.squat,
     alt: "Sporter met een halterstang op de schouders in het squatrek",
     href: "#rooster",
@@ -65,7 +65,7 @@ const PROGRAMS = [
 ];
 
 const NUMBERS = [
-  { n: "900", unit: "m²", text: "trainingsvloer in een oude fabriekshal" },
+  { n: "900", unit: "m²", text: "trainingsvloer met daglicht van drie kanten" },
   { n: "14", unit: "", text: "squatrekken, dus nooit wachten op een stang" },
   { n: "30", unit: "m", text: "sprintbaan voor sleeën en loopwerk" },
   { n: "12", unit: "", text: "sporters per les, meer worden het er niet" },
@@ -213,7 +213,7 @@ export default function Forge() {
                 </h2>
               </div>
               <p className="f-head-text" data-rv>
-                Zevenendertig lessen per week, nooit meer dan twaalf sporters. Als lid boek je tot twee weken vooruit. Nog geen lid? Elke les met plek is ook een proefles.
+                Zesendertig lessen per week, nooit meer dan twaalf sporters. Als lid boek je tot twee weken vooruit. Nog geen lid? Elke les met plek is ook een proefles.
               </p>
             </header>
             <Schedule />
@@ -300,10 +300,10 @@ export default function Forge() {
           <div className="f-wrap f-club-grid">
             <div className="f-club-copy">
               <p className="f-big" data-rv>
-                FORGE zit in een oude fabriekshal in Strijp. Negenhonderd vierkante meter rubber, staal en krijt, ingericht om te tillen, te duwen en te rennen.
+                FORGE zit op de bovenste verdieping van een oud fabrieksgebouw in Strijp. Negenhonderd vierkante meter rubber, staal en krijt, met daglicht van drie kanten.
               </p>
               <p data-rv>
-                Je vindt hier geen rijen loopbanden en geen schermen aan de muur. Wel genoeg stangen voor een volle les, een baan om een slee over te duwen en een bar waar de koffie klaarstaat als je klaar bent.
+                Je vindt hier geen spiegelwand en geen schermen boven de apparaten. Wel genoeg stangen voor een volle les, een baan om een slee over te duwen en een bar waar de koffie klaarstaat als je klaar bent.
               </p>
               <ul className="f-club-list" data-rv>
                 <li>Halterstangen en schijven bij elk rek</li>
@@ -405,43 +405,47 @@ export default function Forge() {
               <p className="f-big" data-rv>
                 Vul in wat je wilt bereiken en wanneer je kunt. Een coach belt je binnen een werkdag en zet je in een les die bij je past.
               </p>
-              <ol className="f-steps">
-                <li data-rv style={{ ["--i" as string]: 0 }}>
-                  <b>1</b>
-                  <span>Kies je doel en je dag. Dat kost een minuut.</span>
-                </li>
-                <li data-rv style={{ ["--i" as string]: 1 }}>
-                  <b>2</b>
-                  <span>Een coach belt je en plant je in. Geen verkooppraatje.</span>
-                </li>
-                <li data-rv style={{ ["--i" as string]: 2 }}>
-                  <b>3</b>
-                  <span>Je traint zestig minuten mee. Neem een handdoek mee, de rest ligt klaar.</span>
-                </li>
-              </ol>
-              <figure className="f-trial-pic" data-rv="cut">
-                <Pic img={I["coach-1"]} alt="Een coach zit op een bank in de trainingszaal en kijkt opzij" sizes="(min-width: 900px) 36vw, 92vw" />
-                <figcaption>Liever eerst bellen? 040 000 00 00, op werkdagen tot 21.00 uur.</figcaption>
-              </figure>
             </div>
+            <ol className="f-steps">
+              <li data-rv style={{ ["--i" as string]: 0 }}>
+                <b>1</b>
+                <span>Kies je doel en je dag. Dat kost een minuut.</span>
+              </li>
+              <li data-rv style={{ ["--i" as string]: 1 }}>
+                <b>2</b>
+                <span>Een coach belt je en plant je in. Geen verkooppraatje.</span>
+              </li>
+              <li data-rv style={{ ["--i" as string]: 2 }}>
+                <b>3</b>
+                <span>Je traint zestig minuten mee. Neem een handdoek mee, de rest ligt klaar.</span>
+              </li>
+            </ol>
             <div className="f-trial-card" data-rv>
               <Trial />
             </div>
+            <figure className="f-trial-pic" data-rv="cut">
+              <Pic img={I["coach-1"]} alt="Een coach zit op een bank in de trainingszaal en kijkt opzij" sizes="(min-width: 900px) 36vw, 92vw" />
+              <figcaption>Liever eerst bellen? 040 000 00 00, op werkdagen tot 21.00 uur.</figcaption>
+            </figure>
           </div>
         </section>
       </main>
 
       <footer className="f-foot">
-        <p className="f-foot-mark" aria-hidden="true" data-px>
-          Forge
-        </p>
-        <div className="f-wrap">
-          <div className="f-foot-top">
+        <div className="f-foot-cta">
+          <div className="f-wrap">
             <p className="f-foot-line">Sterker weg dan je kwam. Elke keer.</p>
-            <a href="#proefles" className="f-btn f-btn-big">
-              Boek een gratis proefles <ArrowRight aria-hidden="true" size={20} strokeWidth={2.6} />
-            </a>
+            <div className="f-foot-acts">
+              <a href="#proefles" className="f-btn f-btn-dark f-btn-big">
+                Boek een gratis proefles <ArrowRight aria-hidden="true" size={20} strokeWidth={2.6} />
+              </a>
+              <a href="#rooster" className="f-link">
+                Of kijk eerst in het rooster
+              </a>
+            </div>
           </div>
+        </div>
+        <div className="f-wrap">
           <div className="f-foot-grid">
             <div>
               <h3>Trainen</h3>
@@ -485,6 +489,9 @@ export default function Forge() {
               </dl>
             </div>
           </div>
+          <p className="f-foot-mark" aria-hidden="true" data-px>
+            <span>Forge</span>
+          </p>
           <p className="f-legal">
             <span>© FORGE Performance Club, Eindhoven</span>
             <span>Demo-ontwerp van HOPI · FORGE Performance Club is een fictief bedrijf</span>

@@ -1,6 +1,7 @@
 /*
- * HOPI identity v3: charcoal, warm off-white and one electric accent. Geist for type,
- * Geist Mono for small labels. This file holds the tokens, the shared chrome (navigation,
+ * HOPI identity v3: charcoal, warm off-white and one electric accent. Space Grotesk for
+ * headings, General Sans for text, IBM Plex Mono for small labels (the type tokens are at the
+ * top of the first rule). This file holds the tokens, the shared chrome (navigation,
  * menu, footer, cursor, page curtain, buttons, forms) and the look of the inner pages.
  * The homepage sections are in components/site/home/home.css.
  */
@@ -24,18 +25,73 @@
   --night: #0c0c0d;
   --grey: #8a8780;
   --radius: 4px;
-  /* Set per page by a style element: Geist on the homepage, Poppins elsewhere. */
-  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-text: var(--font-ui);
-  --font-display: var(--font-ui);
+  /* ── Type. Three families, declared once here; the files are loaded in the site layout.
+     Nothing else in the stylesheets names a typeface. ── */
+  --font-display: var(--f-display), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--f-body), "General Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--f-mono), "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Older rules ask for these two names; both mean the text face. */
+  --font-ui: var(--font-body);
+  --font-text: var(--font-body);
+  /* Tracking follows size: the larger the type, the tighter it is set. */
+  --tr-giant: -0.04em;
+  --tr-head: -0.03em;
+  --tr-sub: -0.02em;
+  --tr-text: -0.003em;
+  /* Text sizes and measure. */
+  --fs-text: clamp(16.5px, 1.05vw, 18px);
+  --fs-lead: clamp(18px, 1.45vw, 22px);
+  --lh-text: 1.62;
+  --measure: 62ch;
   --wrap: 1480px;
   --gutter: clamp(18px, 3.2vw, 48px);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-io: cubic-bezier(0.76, 0, 0.24, 1);
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: -0.008em;
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: var(--tr-text);
+  font-synthesis: none;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+}
+/* Text: comfortable on a phone first. Lines are not left with one stray word, the measure is
+   capped, and the paragraphs that introduce a page or a section are a step heavier. */
+.hopi.v3 p,
+.hopi.v3 li,
+.hopi.v3 dd {
+  text-wrap: pretty;
+}
+.hopi.v3 :is(.hero, .page-hero, .section-head, .contact-copy, .article-head) > p,
+.hopi.v3 :is(.wk-lead, .hx-lede, .pj-note, .lead, .intro) {
+  font-weight: 450;
+  line-height: 1.58;
+}
+.hopi.v3 :is(strong, b, th) {
+  font-weight: 600;
+}
+/* Column heads of tables are labels, like every other small capital on the site. */
+.hopi.v3 th {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.hopi.v3 :is(input, select, textarea, button) {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+/* Headings and everything set large use the display face. */
+.hopi.v3 :is(h1, h2, h3, h4, .disp, .h2, .hx-st, .cx-st, .ix-st, .mn-link, .nv-logo, .ft-logo, .ft-band span, .pt b, .px-num, .wx-all-t, .pj-sum, .amount, .faq summary, .qx summary) {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  text-wrap: balance;
+}
+/* Sentence-case headings carry less weight than the screen-filling capitals. */
+.hopi.v3 :is(h3, h4) {
+  letter-spacing: var(--tr-sub);
 }
 .hopi.v3 [data-theme="dark"],
 .hopi.v3 .dark,
@@ -80,10 +136,10 @@ html.lenis body {
   padding: 0 var(--gutter);
 }
 .hopi.v3 .mono {
-  font-family: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   line-height: 1.4;
 }
@@ -101,7 +157,7 @@ html.lenis body {
   margin: 0;
   font-size: clamp(44px, 8.6vw, 156px);
   font-weight: 600;
-  letter-spacing: -0.058em;
+  letter-spacing: -0.036em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -154,7 +210,7 @@ html.lenis body {
   gap: 14px;
   border: 1px solid transparent;
   border-radius: 2px;
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -255,7 +311,7 @@ html.lenis body {
   align-items: center;
   font-size: 25px;
   font-weight: 700;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   line-height: 1;
 }
 .hopi.v3 .nv-logo i {
@@ -391,7 +447,7 @@ html.lenis body {
   gap: clamp(10px, 1.6vw, 22px);
   font-size: clamp(42px, min(10.4vw, calc(var(--vh0, 100vh) * 0.124)), 150px);
   font-weight: 600;
-  letter-spacing: -0.058em;
+  letter-spacing: -0.036em;
   line-height: 1;
   text-transform: uppercase;
   transition:
@@ -535,7 +591,7 @@ html.lenis body {
   top: 0;
   transform: translate(-50%, -50%) scale(0.5);
   opacity: 0;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -594,7 +650,7 @@ html.lenis body {
   color: #f2eee6;
   font-size: clamp(46px, 12vw, 210px);
   font-weight: 600;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   line-height: 1;
   text-transform: uppercase;
   text-align: center;
@@ -603,6 +659,11 @@ html.lenis body {
   display: block;
   clip-path: inset(0 0 100% 0);
   transform: translateY(40%);
+}
+/* Arriving through the wordmark: the page waits behind the closed curtain, and its opening
+   animations only start when the curtain lifts. */
+.pt-boot .hopi.v3 .pg * {
+  animation-play-state: paused !important;
 }
 .pt-cover .hopi.v3 .pt {
   visibility: visible;
@@ -671,7 +732,7 @@ html.lenis body {
   padding-right: 0.22em;
   font-size: clamp(84px, 19vw, 300px);
   font-weight: 600;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   line-height: 0.9;
   white-space: nowrap;
 }
@@ -720,7 +781,7 @@ html.lenis body {
   max-width: 17ch;
   font-size: clamp(34px, 5.4vw, 92px);
   font-weight: 600;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.028em;
   line-height: 1;
 }
 .hopi.v3 .ft-close p {
@@ -751,7 +812,7 @@ html.lenis body {
   min-height: 44px;
   font-size: 22px;
   font-weight: 700;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.032em;
   line-height: 1;
 }
 .hopi.v3 .ft-logo i {
@@ -814,7 +875,7 @@ html.lenis body {
 .hopi.v3 .contact-copy .h2 {
   font-size: clamp(40px, 6.4vw, 104px);
   font-weight: 600;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.035em;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -829,7 +890,7 @@ html.lenis body {
   box-shadow: none;
 }
 .hopi.v3 .field > span {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -921,7 +982,7 @@ html.lenis body {
   max-width: 16ch;
   font-size: clamp(36px, 7vw, 120px);
   font-weight: 600;
-  letter-spacing: -0.058em;
+  letter-spacing: -0.036em;
   line-height: 0.92;
   text-transform: uppercase;
 }
@@ -937,7 +998,7 @@ html.lenis body {
   display: none;
 }
 .hopi.v3 .eyebrow {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -962,7 +1023,7 @@ html.lenis body {
 .hopi.v3 .article-head h1 {
   font-size: clamp(38px, 6vw, 100px);
   font-weight: 600;
-  letter-spacing: -0.052em;
+  letter-spacing: -0.034em;
   line-height: 0.95;
   hyphens: manual;
   overflow-wrap: break-word;
@@ -988,11 +1049,11 @@ html.lenis body {
 .hopi.v3 .h2 {
   font-size: clamp(34px, 5.2vw, 84px);
   font-weight: 600;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.032em;
   line-height: 0.96;
 }
 .hopi.v3 h3 {
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 .hopi.v3 .section.tint {
   background: var(--paper-2);
@@ -1021,14 +1082,14 @@ html.lenis body {
   border-radius: 0;
   background: var(--accent);
   color: #0c0c0d;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 .hopi.v3 .price .amount b {
   font-weight: 600;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.035em;
 }
 .hopi.v3 .price .feat svg {
   color: var(--accent-ink);
@@ -1044,13 +1105,13 @@ html.lenis body {
 .hopi.v3 .tag,
 .hopi.v3 .demo-tag {
   border-radius: 0;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 .hopi.v3 .crumbs {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1103,7 +1164,7 @@ html.lenis body {
 /* Request sent: dark text on the accent block (the old light text was unreadable). */
 .hopi.v3 .form-done h3 {
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.026em;
 }
 .hopi.v3 .form-done p {
   color: #0c0c0d;
@@ -1364,5 +1425,39 @@ html.lenis body {
    light paper belongs to the page sheet (.pg), not to the body. */
 body.hopi.v3 {
   background-color: #0c0c0d;
+}
+
+/* Under the request button: "of", then WhatsApp in its own green. */
+.hopi.v3 .form-or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 2px 0;
+  color: var(--muted);
+}
+.hopi.v3 .form-or::before,
+.hopi.v3 .form-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-2);
+}
+.hopi.v3 .form .form-wa {
+  --btn-fill: #128c4a;
+  margin-top: 0;
+  min-height: 58px;
+  background-color: #1faa59;
+  background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
+  color: #fff;
+}
+.hopi.v3 .form .form-wa:hover {
+  color: #fff;
+}
+.hopi.v3 .form .form-wa svg {
+  width: 20px;
+  height: 20px;
+}
+.hopi.v3 .form .form-wa:hover svg {
+  transform: none;
 }
 

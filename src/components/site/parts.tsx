@@ -264,11 +264,6 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
             {b}
           </h2>
           <p>{text}</p>
-          {data.whatsapp && (
-            <a href={data.whatsapp} target="_blank" rel="noopener" className="btn btn-wa" data-track="whatsapp_click" data-track-label="contact" data-track-location={source}>
-              <WhatsAppIcon /> Stuur ons een WhatsApp
-            </a>
-          )}
           <ul className="contact-list">
             {data.phone && (
               <li>
@@ -291,7 +286,7 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
           </ul>
         </div>
         <div data-reveal>
-          <ContactForm packages={packages} source={source} />
+          <ContactForm packages={packages} source={source} whatsapp={data.whatsapp} />
         </div>
       </div>
     </section>

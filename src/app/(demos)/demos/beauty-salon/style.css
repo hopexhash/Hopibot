@@ -133,7 +133,7 @@ html:has(.d-sage) {
 .d-sage .s-ring::before {
   content: "";
   position: absolute;
-  inset: 14px -14px -14px 14px;
+  inset: 14px -14px 0 14px;
   border: 1px solid var(--sage);
   border-bottom: 0;
   border-radius: 999px 999px 0 0;
@@ -413,9 +413,9 @@ html:has(.d-sage) {
 .d-sage .s-hero {
   display: grid;
   align-content: space-between;
-  gap: clamp(36px, 5vh, 60px);
+  gap: clamp(36px, 5vh, 56px);
   min-height: 100svh;
-  padding-top: clamp(104px, 15vh, 150px);
+  padding-top: clamp(100px, 12.5vh, 140px);
 }
 .d-sage .s-hero-grid {
   display: grid;
@@ -450,12 +450,11 @@ html:has(.d-sage) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px 30px;
+  gap: 12px 22px;
   margin-top: 30px;
 }
 .d-sage .s-hero-art {
   position: relative;
-  padding-bottom: 12px;
 }
 .d-sage .s-hero-main {
   width: 72%;
@@ -467,7 +466,7 @@ html:has(.d-sage) {
   aspect-ratio: 3 / 4;
 }
 .d-sage .s-hero-main img {
-  object-position: 56% 30%;
+  object-position: 78% 30%;
   animation: s-settle 3.6s var(--ease) 0.3s both;
 }
 @keyframes s-arrive {
@@ -484,7 +483,7 @@ html:has(.d-sage) {
 .d-sage .s-hero-small {
   position: absolute;
   left: 0;
-  bottom: 84px;
+  top: 34%;
   width: 36%;
   aspect-ratio: 3 / 4;
   border: 7px solid var(--bg);
@@ -492,10 +491,7 @@ html:has(.d-sage) {
   animation: s-arrive 2.2s var(--ease) 0.75s both;
 }
 .d-sage .s-hero-cap {
-  position: absolute;
-  left: 0;
-  bottom: 12px;
-  width: 44%;
+  margin-top: 26px;
   font-family: var(--s-serif), Georgia, serif;
   font-size: 17px;
   font-style: italic;
@@ -548,23 +544,20 @@ html:has(.d-sage) {
   }
   .d-sage .s-hero-art {
     justify-self: end;
-    width: min(100%, 60svh, 500px);
-    padding-bottom: 0;
+    width: min(100%, 52svh, 500px);
   }
   .d-sage .s-hero-main {
     width: 100%;
     margin-right: 0;
   }
   .d-sage .s-hero-small {
-    left: -32%;
-    bottom: 70px;
-    width: 42%;
+    left: -22%;
+    top: 40%;
+    width: 40%;
     border-width: 9px;
   }
   .d-sage .s-hero-cap {
-    left: -32%;
-    bottom: 0;
-    width: 30%;
+    margin-top: 20px;
   }
   .d-sage .s-hero-facts {
     grid-template-columns: repeat(3, 1fr);
@@ -576,6 +569,21 @@ html:has(.d-sage) {
     gap: 6px;
     padding: 20px 0 26px;
     border-bottom: 0;
+  }
+}
+@media (min-width: 1240px) {
+  .d-sage .s-hero-small {
+    left: -44%;
+    top: auto;
+    bottom: 76px;
+    width: 42%;
+  }
+  .d-sage .s-hero-cap {
+    position: absolute;
+    left: -44%;
+    bottom: 2px;
+    margin: 0;
+    white-space: nowrap;
   }
 }
 
@@ -889,7 +897,8 @@ html:has(.d-sage) {
 @media (min-width: 700px) {
   .d-sage .s-tabs {
     display: flex;
-    gap: clamp(22px, 3vw, 46px);
+    gap: clamp(16px, 2.4vw, 46px);
+    white-space: nowrap;
     border-top: 0;
     border-bottom: 1px solid var(--line);
   }
@@ -898,7 +907,7 @@ html:has(.d-sage) {
   .d-sage .s-tabs button:nth-child(even) {
     padding: 0 0 18px;
     border: 0;
-    font-size: clamp(22px, 2.1vw, 32px);
+    font-size: clamp(21px, 2.1vw, 32px);
   }
   .d-sage .s-tabs small {
     align-self: flex-start;
@@ -922,7 +931,8 @@ html:has(.d-sage) {
     font-size: clamp(24px, 2vw, 30px);
   }
   .d-sage .s-row-book {
-    align-self: center;
+    align-self: start;
+    margin-top: -4px;
   }
 }
 @media (min-width: 960px) {
@@ -972,7 +982,7 @@ html:has(.d-sage) {
   clip-path: inset(0 calc(100% - var(--x)) 0 0);
 }
 .d-sage .s-ba-before img {
-  filter: saturate(0.42) contrast(0.86) brightness(0.9) sepia(0.14);
+  filter: saturate(0.55) contrast(0.88) brightness(0.93) sepia(0.12);
 }
 .d-sage .s-ba-tag {
   position: absolute;
@@ -1173,6 +1183,12 @@ html:has(.d-sage) {
 }
 .d-sage .s-room-notes {
   grid-column: 1 / -1;
+}
+.d-sage .s-room-notes h3 {
+  margin-bottom: 26px;
+  font-size: clamp(27px, 2.6vw, 42px);
+}
+.d-sage .s-room-notes ul {
   border-bottom: 1px solid var(--line);
 }
 .d-sage .s-room-notes li {
@@ -1252,12 +1268,12 @@ html:has(.d-sage) {
   opacity: 0.5;
 }
 .d-sage .s-about-cap {
-  margin-top: 30px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--sage-d);
+  margin-top: 20px;
+  font-family: var(--s-serif), Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 300;
+  color: #4d463d;
 }
 .d-sage .s-about h2 {
   margin: 24px 0 30px;
@@ -1424,6 +1440,10 @@ html:has(.d-sage) {
 }
 .d-sage .s-book h2 {
   margin: 24px 0 28px;
+  font-size: clamp(36px, 4vw, 64px);
+}
+.d-sage .s-book h2 em {
+  display: block;
 }
 .d-sage .s-book-copy > p:not(.s-label) {
   max-width: 42ch;

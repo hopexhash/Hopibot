@@ -35,11 +35,7 @@ function Margin({ n, label, children }: { n: number; label: string; children?: R
         <b>§ {n}</b>
         <span>{label}</span>
       </p>
-      {children ? (
-        <p className="a-note" data-rv>
-          {children}
-        </p>
-      ) : null}
+      {children ? <p className="a-note">{children}</p> : null}
     </div>
   );
 }
@@ -266,7 +262,7 @@ export default function VanAerden() {
               <article className="a-lead">
                 <figure className="a-lead-fig" data-rv="img">
                   <div className="a-duo">
-                    <Pic img={I.books} alt="Oude ingebonden boeken op een houten boekenplank" sizes="(min-width: 1000px) 28vw, 100vw" />
+                    <Pic img={I.signing} alt="Een hand ondertekent een document met een vulpen" sizes="(min-width: 1000px) 28vw, 100vw" />
                   </div>
                 </figure>
                 <div className="a-lead-copy">
@@ -335,7 +331,7 @@ export default function VanAerden() {
                     <span>U spreekt drie kwartier met de partner van het rechtsgebied.</span>
                   </li>
                 </ol>
-                <figure className="a-intro-fig" data-rv="img">
+                <figure className="a-intro-fig">
                   <div className="a-duo">
                     <Pic img={I.office} alt="Gang met glazen spreekkamers in het kantoor" sizes="(min-width: 1000px) 30vw, 100vw" />
                   </div>

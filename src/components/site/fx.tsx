@@ -259,6 +259,20 @@ export function Fx() {
         s.busy = false;
       }, 820);
     };
+    // A page that was opened through the wordmark arrives with the curtain already closed
+    // (set before first paint). Open it once the page is there: the second half of the same
+    // animation, so the wordmark gets the whole transition like every other link.
+    if (root.classList.contains("pt-boot")) {
+      s.busy = true;
+      const open = () =>
+        window.setTimeout(() => {
+          if (!root.classList.contains("pt-boot")) return; // already opened
+          root.classList.remove("pt-boot");
+          s.finish();
+        }, 200);
+      if (document.readyState === "complete") open();
+      else window.addEventListener("load", open, { once: true });
+    }
     const go = (href: string, label: string) => {
       if (s.busy) return;
       s.busy = true;
@@ -311,7 +325,11 @@ export function Fx() {
         e.preventDefault();
         if (s.busy) return;
         s.busy = true;
-        const fresh = () => {
+        const fresh = (curtain = false) => {
+          try {
+            // The new page starts behind the closed curtain and opens it (see BOOT in the layout).
+            if (curtain) window.sessionStorage.setItem("hopi-pt", "1");
+          } catch {}
           try {
             window.history.scrollRestoration = "manual"; // a reload would otherwise return to the old position
           } catch {}
@@ -324,7 +342,7 @@ export function Fx() {
         if (reduce) return fresh();
         if (ptLabel.current) ptLabel.current.textContent = "HOPI";
         root.classList.add("pt-cover");
-        window.setTimeout(fresh, 620);
+        window.setTimeout(() => fresh(true), 620);
         return;
       }
       // "Start a project" goes to the request form of the page you are on, when it has one.
@@ -391,7 +409,9 @@ export function Fx() {
       document.documentElement.removeEventListener("pointerleave", onLeaveWindow);
       scroller?.destroy();
       fxState.scroller = null;
-      root.classList.remove("fx-fine", "cur-on", "pt-cover", "pt-reveal", "is-pull");
+      // A curtain that is waiting to open on a fresh page stays closed until it has been opened.
+      root.classList.remove("fx-fine", "cur-on", "pt-reveal", "is-pull");
+      if (!root.classList.contains("pt-boot")) root.classList.remove("pt-cover");
     };
   }, [router]);
 

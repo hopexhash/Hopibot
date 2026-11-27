@@ -1,6 +1,0 @@
-While this file exists, Vercel skips building pushes to this repository (see "ignoreCommand" in
-vercel.json), so unfinished work can be pushed without changing the live website.
-Delete this file in the commit that should go live.
-
-Held now: the twelve demo websites and the new portfolio are being built. The portfolio already
-lists all twelve, so it must not go live until every demo and its screenshots are finished.

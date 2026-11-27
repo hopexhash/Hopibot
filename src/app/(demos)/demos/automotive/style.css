@@ -499,8 +499,8 @@
   position: relative;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  min-height: 100svh;
-  padding: 108px var(--pad) 30px;
+  min-height: max(100svh, 640px);
+  padding: 100px var(--pad) 30px;
   overflow: hidden;
 }
 .d-obsidian .o-hero-head {
@@ -511,8 +511,10 @@
 .d-obsidian .o-hero-media {
   position: relative;
   order: 2;
+  z-index: 0;
+  isolation: isolate;
   margin: 10px calc(var(--pad) * -1) 0;
-  aspect-ratio: 16 / 9.4;
+  aspect-ratio: 16 / 8.8;
   overflow: hidden;
 }
 .d-obsidian .o-hero-media img {
@@ -545,12 +547,11 @@
   animation: o-sweep 9s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite;
 }
 .d-obsidian .o-hero-media::before {
-  background: linear-gradient(90deg, transparent, rgba(150, 205, 255, 0.5) 42%, rgba(255, 255, 255, 0.75) 50%, rgba(150, 205, 255, 0.5) 58%, transparent);
-  mix-blend-mode: color-dodge;
+  background: linear-gradient(90deg, transparent, rgba(200, 232, 255, 0.7) 40%, #fff 50%, rgba(200, 232, 255, 0.7) 60%, transparent);
+  mix-blend-mode: overlay;
 }
 .d-obsidian .o-hero-stage::before {
-  z-index: 0;
-  background: linear-gradient(90deg, transparent, rgba(169, 220, 255, 0.055) 50%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(169, 220, 255, 0.06) 36%, rgba(214, 238, 255, 0.15) 50%, rgba(169, 220, 255, 0.06) 64%, transparent);
 }
 @keyframes o-sweep {
   0% {
@@ -662,11 +663,12 @@
 @media (min-width: 900px) {
   .d-obsidian .o-hero-stage {
     grid-template-rows: auto 1fr;
-    padding: clamp(104px, 13vh, 150px) var(--pad) clamp(30px, 5vh, 56px);
+    min-height: max(100svh, 700px);
+    padding: clamp(100px, 12vh, 140px) var(--pad) 88px;
   }
   .d-obsidian .o-hero-media {
     position: absolute;
-    inset: 0;
+    inset: -5% 0 5% 0;
     order: 0;
     margin: 0;
     aspect-ratio: auto;
@@ -683,7 +685,7 @@
   }
   .d-obsidian .o-hero h1 {
     margin-top: 22px;
-    font-size: clamp(56px, 7.1vw, 136px);
+    font-size: clamp(56px, min(8.3vw, 15vh), 156px);
     white-space: nowrap;
   }
   .d-obsidian .o-hero h1 span {
@@ -785,7 +787,7 @@
 .d-obsidian .o-svc-name {
   grid-area: name;
   font-family: var(--o-display), sans-serif;
-  font-size: clamp(17px, 1.9vw, 29px);
+  font-size: clamp(17px, 1.6vw, 25px);
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
@@ -877,7 +879,7 @@
 @media (min-width: 960px) {
   .d-obsidian .o-svc {
     display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     grid-template-rows: repeat(5, auto) 1fr;
     column-gap: clamp(40px, 6vw, 110px);
   }
@@ -932,7 +934,7 @@
   clip-path: inset(0 calc(100% - var(--pos)) 0 0);
 }
 .d-obsidian .o-ba-before img {
-  filter: saturate(0.3) contrast(0.66) brightness(1.2);
+  filter: saturate(0.3) contrast(0.62) brightness(1.25);
 }
 /* Dust, a grey veil and the circular marks a car wash leaves behind */
 .d-obsidian .o-ba-before::after {
@@ -940,7 +942,7 @@
   position: absolute;
   inset: 0;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
     repeating-radial-gradient(circle at 38% 58%, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 6px),
     repeating-radial-gradient(circle at 66% 52%, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 8px),
     rgba(150, 156, 163, 0.2);
@@ -1799,7 +1801,7 @@
   align-content: center;
   gap: 4px;
   min-height: 76px;
-  padding: 12px 12px;
+  padding: 12px clamp(8px, 2.6vw, 14px);
   border: 1px solid var(--line-2);
   background: #0c0f14;
   transition:
@@ -1807,9 +1809,8 @@
     background-color 0.3s var(--ease);
 }
 .d-obsidian .o-picks b {
-  font-size: 14.5px;
+  font-size: clamp(13.5px, 3.6vw, 15px);
   font-weight: 600;
-  overflow-wrap: anywhere;
 }
 .d-obsidian .o-picks small {
   font-size: 13px;
@@ -1975,7 +1976,7 @@
 .d-obsidian .o-foot-mark {
   margin: 0 0 clamp(30px, 4vw, 60px) -0.05em;
   font-family: var(--o-display), sans-serif;
-  font-size: clamp(50px, 14.4vw, 248px);
+  font-size: clamp(50px, 17.2vw, 268px);
   font-weight: 500;
   line-height: 0.9;
   letter-spacing: -0.04em;
@@ -2021,7 +2022,9 @@
   color: var(--ice);
 }
 .d-obsidian .o-foot-grid div:not(.o-foot-brand) p {
-  padding: 5px 0;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
 }
 .d-obsidian .o-legal {
   display: flex;

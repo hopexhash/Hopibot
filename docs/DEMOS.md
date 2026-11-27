@@ -34,6 +34,12 @@ through it.
 Every demo has its own type, colours, layout and motion. The kit only supplies behaviour; all
 styling of a demo sits in its own stylesheet, scoped under its own root class.
 
+## Finished and unfinished demos
+
+`catalog.ts` lists every demo, but only the slugs in its `LIVE` set are shown in the portfolio,
+the sitemap and the tests. A demo that is still being built stays out of sight until its slug
+is added there (after its screenshots are taken).
+
 ## Changing or adding a demo
 
 1. Edit the demo's three files. For a new one, add an entry to `catalog.ts`, its photos to

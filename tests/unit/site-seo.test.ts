@@ -8,7 +8,7 @@ import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
 import { PROJECTS, projectPath, selectedProjects } from "@/lib/site/projects";
 import { WORK, workByKey } from "@/lib/site/work";
 import { existsSync, readFileSync } from "node:fs";
-import { DEMOS } from "@/demos/catalog";
+import { ALL_DEMOS, DEMOS } from "@/demos/catalog";
 import { IMAGES } from "@/demos/images";
 import sitemap from "@/app/sitemap";
 
@@ -77,7 +77,8 @@ describe("public website: SEO content", () => {
 
   it("uses catalogue add-ons and portfolio demos that exist", () => {
     const addonKeys = new Set(DEFAULT_CATALOG.addons.map((a) => a.key));
-    const workKeys = new Set(WORK.map((w) => w.key));
+    // A landing page may name a demo that is still being built; it then shows no example yet.
+    const workKeys = new Set(ALL_DEMOS.map((d) => d.slug as string));
     for (const l of ALL_LANDINGS) {
       for (const k of l.addons ?? []) expect(addonKeys.has(k), `${l.path}: add-on ${k}`).toBe(true);
       if (l.work) expect(workKeys.has(l.work), `${l.path}: demo ${l.work}`).toBe(true);
@@ -91,7 +92,8 @@ describe("public website: SEO content", () => {
 
   it("shows only concept work whose files exist, and says that it is concept work", () => {
     expect(selectedProjects()).toHaveLength(6);
-    expect(PROJECTS).toHaveLength(12);
+    expect(PROJECTS).toHaveLength(DEMOS.length);
+    expect(DEMOS.length).toBeGreaterThanOrEqual(7);
     for (const p of PROJECTS) {
       const w = workByKey(p.key);
       expect(w?.demo, p.key).toBe(true);

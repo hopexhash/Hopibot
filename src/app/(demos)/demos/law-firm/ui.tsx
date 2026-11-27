@@ -91,6 +91,7 @@ const PEOPLE: {
   langs: string[];
   mail: string;
   alt: string;
+  dark?: boolean;
 }[] = [
   {
     id: "aerden",
@@ -167,6 +168,7 @@ const PEOPLE: {
     langs: ["Nederlands", "Engels", "Frans"],
     mail: "d.vermolen@vanaerden.example",
     alt: "Portret van Daan Vermolen in donker pak met de armen over elkaar",
+    dark: true,
   },
   {
     id: "lindeman",
@@ -271,7 +273,7 @@ export function Areas() {
         const on = open === i;
         const p = PEOPLE.find((x) => x.id === a.partner)!;
         return (
-          <article key={a.id} className={`a-art${on ? " is-open" : ""}`} data-rv style={{ ["--i" as string]: i }}>
+          <article key={a.id} className="a-art" data-open={on || undefined} data-rv style={{ ["--i" as string]: i }}>
             <h3>
               <button
                 type="button"
@@ -312,7 +314,7 @@ export function Areas() {
               <div className="a-art-who" style={{ ["--i" as string]: 2 }}>
                 <h4 className="a-cap">Verantwoordelijk partner</h4>
                 <div className="a-art-partner">
-                  <span className="a-duo">
+                  <span className={`a-duo${p.dark ? " a-duo-lift" : ""}`}>
                     <Pic img={I[p.img]} alt="" sizes="72px" style={{ objectPosition: p.pos }} />
                   </span>
                   <p>
@@ -405,7 +407,7 @@ export function Attorneys() {
               <span className="a-person-n" aria-hidden="true">
                 0{i + 1}
               </span>
-              <span className="a-duo a-person-img">
+              <span className={`a-duo a-person-img${x.dark ? " a-duo-lift" : ""}`}>
                 <Pic img={I[x.img]} alt={x.alt} sizes="(min-width: 1000px) 19vw, (min-width: 640px) 30vw, 120px" style={{ objectPosition: x.pos }} />
               </span>
               <span className="a-person-txt">
@@ -440,7 +442,7 @@ export function Attorneys() {
           </div>
           <div className="a-dlg-in" key={p.id}>
             <div className="a-dlg-top">
-              <div className="a-duo a-dlg-img">
+              <div className={`a-duo a-dlg-img${p.dark ? " a-duo-lift" : ""}`}>
                 <Pic img={I[p.img]} alt={p.alt} sizes="(min-width: 700px) 240px, 60vw" style={{ objectPosition: p.pos }} />
               </div>
               <div>
@@ -578,7 +580,7 @@ export function Cases() {
   const [f, setF] = useState<AreaId | "alle">("alle");
   const [all, setAll] = useState(false);
   const found = CASES.map((c, i) => ({ ...c, n: i + 1 })).filter((c) => f === "alle" || c.area === f);
-  const list = f === "alle" && !all ? found.slice(0, 6) : found;
+  const list = f === "alle" && !all ? found.slice(0, 4) : found;
   return (
     <div className="a-cases" data-rv>
       <div className="a-filter" role="group" aria-label="Filter op rechtsgebied">
@@ -677,7 +679,7 @@ export function Pubs() {
       {PUBS.map((p, i) => {
         const on = open === i;
         return (
-          <li key={p.title} className={on ? "is-open" : undefined} data-rv style={{ ["--i" as string]: i }}>
+          <li key={p.title} data-rv style={{ ["--i" as string]: i }}>
             <button type="button" aria-expanded={on} aria-controls={`a-pub-${i}`} onClick={() => setOpen(on ? -1 : i)}>
               <span className="a-pub-date">{p.date}</span>
               <span className="a-pub-main">

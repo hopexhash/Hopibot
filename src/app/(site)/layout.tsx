@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { JsonLd, PullGuy } from "@/components/site/parts";
 import { Fx } from "@/components/site/fx";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
@@ -8,9 +9,14 @@ import { getSiteData } from "@/server/site";
 import "./site.css";
 import "./v3.css";
 
-// The small technical labels are Geist Mono everywhere. The text typeface is chosen per
-// page (Geist on the homepage, Poppins on all others) and arrives as --font-ui.
-const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap", preload: false });
+// The three typefaces of the public website, loaded once for every page and handed to the
+// stylesheets as variables (see the type tokens at the top of v3.css):
+//   Space Grotesk  headings and everything set large
+//   General Sans   text (a variable font, so in-between weights such as 450 exist)
+//   IBM Plex Mono  small uppercase labels and numbers
+const display = Space_Grotesk({ variable: "--f-display", subsets: ["latin"], weight: ["500", "600", "700"], display: "swap" });
+const body = localFont({ src: "../../fonts/GeneralSans-Variable.woff2", variable: "--f-body", weight: "200 700", style: "normal", display: "swap" });
+const mono = IBM_Plex_Mono({ variable: "--f-mono", subsets: ["latin"], weight: ["400", "500"], display: "swap", preload: false });
 
 // Public pages are prerendered and refreshed in the background, so a visitor never waits
 // for the database. Prices and company details follow Settings within a few minutes
@@ -32,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const BOOT = `(function(){var d=document.documentElement;d.classList.add('fx');d.style.setProperty('--vh0',innerHeight+'px');try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&(location.hash||location.pathname==='/')){history.scrollRestoration='manual';if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);var top=function(){scrollTo({top:0,left:0,behavior:'instant'})};top();addEventListener('load',function(){top();setTimeout(function(){history.scrollRestoration='auto'},600)})}}catch(e){}})()`;
+const BOOT = `(function(){var d=document.documentElement;d.classList.add('fx');d.style.setProperty('--vh0',innerHeight+'px');try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&(location.hash||location.pathname==='/')){history.scrollRestoration='manual';if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);var top=function(){scrollTo({top:0,left:0,behavior:'instant'})};top();addEventListener('load',function(){top();setTimeout(function(){history.scrollRestoration='auto'},600)})}}catch(e){}try{if(sessionStorage.getItem('hopi-pt')){sessionStorage.removeItem('hopi-pt');d.classList.add('pt-cover','pt-boot');setTimeout(function(){d.classList.remove('pt-boot');if(d.classList.contains('pt-cover')&&!d.classList.contains('pt-reveal'))d.classList.remove('pt-cover')},6000)}}catch(e){}})()`;
 
 export const viewport: Viewport = { themeColor: "#0c0c0d", colorScheme: "light", width: "device-width", initialScale: 1 };
 
@@ -43,7 +49,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
     // router to jump straight to the top when another page opens instead.
     <html lang="nl" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`hopi v3 ${mono.variable}`}>
+      <body className={`hopi v3 ${display.variable} ${body.variable} ${mono.variable}`}>
         {/* Before the first paint:
             - mark the page as scripted (text that animates in is never shown and then hidden) and
               record the screen height once (phones: see --vh0 in the stylesheets);
