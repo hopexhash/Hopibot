@@ -31,6 +31,8 @@ export async function proxy(request: NextRequest) {
     const to = new URL(request.nextUrl.pathname + request.nextUrl.search, main);
     if (to.host !== host) return NextResponse.redirect(to, 308);
   }
+  // Demo websites and client previews need nothing else from this function.
+  if (/^\/(demos|p|d)\//.test(request.nextUrl.pathname)) return NextResponse.next();
   const control = (process.env.CONTROL_PATH ?? "").replace(/^\/+|\/+$/g, "");
   const path = request.nextUrl.pathname.replace(/\/+$/, "") || "/";
   if (control) {
@@ -59,5 +61,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|site-assets|site/|demos/|favicon.ico|robots.txt|sitemap.xml|p/|d/|api/demo|api/webhooks|api/unsubscribe|api/health).*)"],
+  matcher: ["/((?!_next/static|_next/image|site-assets|site/|favicon.ico|robots.txt|sitemap.xml|api/demo|api/webhooks|api/unsubscribe|api/health).*)"],
 };
