@@ -1,4 +1,7 @@
 import type { Family } from "./kit";
+import { kade } from "./kade";
+import { meridiaan } from "./meridiaan";
+import { sage } from "./sage";
 import { vesper } from "./vesper";
 
 /**
@@ -8,6 +11,9 @@ import { vesper } from "./vesper";
  */
 export const FAMILIES: Record<string, Family> = {
   vesper,
+  sage,
+  kade,
+  meridiaan,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

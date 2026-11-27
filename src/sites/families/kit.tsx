@@ -142,6 +142,7 @@ export function createCtx(spec: SiteSpec, opts: RenderOptions, fam: Family): Ctx
   for (const s of spec.sections) {
     if (s.type === "about" || s.type === "showcase") named.add(s.image);
     if (s.type === "gallery") s.images.forEach((r) => named.add(r));
+    if (s.type === "services") s.items.forEach((_, n) => named.add(`art:svc${n}`));
     if (s.type === "team") s.members.forEach((m) => named.add(m.image));
     if (s.type === "beforeafter") s.pairs.forEach((p) => (named.add(p.before), named.add(p.after)));
   }
@@ -214,7 +215,9 @@ export function heroFacts(c: Ctx): { label: string; value: ReactNode }[] {
   const b = c.spec.business;
   const out: { label: string; value: ReactNode }[] = [];
   if (b.address || b.city) out.push({ label: c.t.address, value: b.address ?? b.city });
-  if (b.openingHours?.length) out.push({ label: c.t.hours, value: b.openingHours[0] });
+  // The first day the business is open: "Maandag: Gesloten" says nothing on a first screen.
+  const open = b.openingHours?.find((l) => !/gesloten|closed|ferm[ée]|geschlossen/i.test(l)) ?? b.openingHours?.[0];
+  if (open) out.push({ label: c.t.hours, value: open });
   if (b.phone) out.push({ label: c.t.phone, value: <a href={tel(b.phone)}>{b.phone}</a> });
   return out;
 }

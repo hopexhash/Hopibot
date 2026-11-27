@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-/** Canonical origin of the public website (set APP_URL to the real domain once it exists). */
-export const SITE_URL = (process.env.APP_URL ?? "https://hopibot.vercel.app").replace(/\/+$/, "");
+/** Canonical origin of the public website (APP_URL). */
+export const SITE_URL = (process.env.APP_URL ?? "https://wearehopi.nl").replace(/\/+$/, "");
 export const abs = (path: string) => `${SITE_URL}${path === "/" ? "" : path}` || SITE_URL;
 export const OG_IMAGE = "/site/og.jpg";
 

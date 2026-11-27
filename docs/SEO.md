@@ -1,6 +1,6 @@
 # HOPI website: SEO audit and plan
 
-Date: 26 November 2026. Site: https://hopibot.vercel.app (temporary address until a domain is connected).
+Date: 26 November 2026. Site: https://wearehopi.nl (until 27 November 2026 at https://hopibot.vercel.app, which now redirects).
 
 This is an improvement of the existing website, not a redesign: the brand, colours, typography, layout language and all backend functions are unchanged.
 

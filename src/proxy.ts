@@ -18,7 +18,19 @@ const PRIVATE = new Set(["command", "activity", "agents", "analytics", "approval
  * 3. With Supabase Auth, refreshes the session cookie on navigation (Server Components
  *    cannot write cookies). With the local provider this is a pass-through.
  */
+/** Earlier addresses of the website. Pages asked for there move to the main address (APP_URL). */
+const OLD_HOSTS = new Set(["hopibot.vercel.app"]);
+
 export async function proxy(request: NextRequest) {
+  // The website moved to its own domain. A visitor (or search engine) who still uses the old
+  // address is sent to the same page on the new one. Only page requests: webhooks and other
+  // API calls keep working where they were set up.
+  const host = (request.headers.get("host") ?? "").toLowerCase();
+  const main = process.env.APP_URL;
+  if (main && OLD_HOSTS.has(host) && (request.method === "GET" || request.method === "HEAD") && !request.nextUrl.pathname.startsWith("/api/")) {
+    const to = new URL(request.nextUrl.pathname + request.nextUrl.search, main);
+    if (to.host !== host) return NextResponse.redirect(to, 308);
+  }
   const control = (process.env.CONTROL_PATH ?? "").replace(/^\/+|\/+$/g, "");
   const path = request.nextUrl.pathname.replace(/\/+$/, "") || "/";
   if (control) {
