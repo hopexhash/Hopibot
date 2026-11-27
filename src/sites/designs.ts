@@ -58,6 +58,12 @@ export type Design = {
   /** Decorative detailing set used for CSS (a design key, or "plain"). Defaults to the design's own. */
   skin?: string;
   density?: "airy" | "balanced" | "compact";
+  /**
+   * Slug of the demo website (/demos/<slug>) this design is taken from. Such a design is a
+   * template family (src/sites/families): it is rendered with the demo's own markup and
+   * stylesheet, and its look is fixed (no per-business identity, no layout variants).
+   */
+  demo?: string;
 };
 
 const d = (x: Design) => x;
@@ -354,6 +360,122 @@ export const DESIGNS: Design[] = [
   }),
 ];
 
+/**
+ * The demo websites of the portfolio as templates. Colours and type here mirror the demo's
+ * stylesheet (they are used for e-mails and previews); the page itself is rendered by the
+ * family of the same key in src/sites/families.
+ */
+type FamilyInput = Pick<Design, "key" | "name" | "demo" | "industry" | "group" | "description" | "legacy" | "mode" | "radius" | "art" | "features" | "upsells"> & {
+  type: [display: FontFamily, body: FontFamily, weight: number];
+  colors: [bg: string, alt: string, surface: string, ink: string, text: string, muted: string, primary: string, accent: string, footer: string, footerInk: string];
+};
+const family = ({ type, colors, ...x }: FamilyInput): Design => ({
+  ...x,
+  fonts: { display: type[0], body: type[1], weight: type[2], tracking: "-0.02em", scale: 1, lineHeight: 1.04 },
+  palette: { bg: colors[0], alt: colors[1], surface: colors[2], ink: colors[3], text: colors[4], muted: colors[5], primary: colors[6], accent: colors[7], footer: colors[8], footerInk: colors[9] },
+  v: { nav: "bar", hero: "cinema", head: "left", services: "rows", menu: "list", gallery: "mosaic", about: "split", cta: "band", footer: "columns", button: "solid" },
+});
+
+export const FAMILY_DESIGNS: Design[] = [
+  family({
+    key: "vesper", name: "Vesper", demo: "restaurant", industry: "Restaurants, bars & cafés", group: "food", legacy: "restaurant", mode: "dark", radius: "sharp", art: "finedining",
+    description: "Dark, warm and editorial: a tall serif with italic brass accents, film-sized photography and a menu card with tabs.",
+    type: ["Cormorant Garamond", "Jost", 400],
+    colors: ["#0f0c0a", "#17120e", "#17120e", "#efe6d6", "#d9cfbe", "#b3a793", "#3a1512", "#c9a46c", "#0f0c0a", "#b3a793"],
+    features: ["Full-screen opening", "Menu card with tabs", "Story of the kitchen", "Editorial gallery", "Reservation request", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "copywriting"],
+  }),
+  family({
+    key: "sage", name: "Atelier Sage", demo: "beauty-salon", industry: "Beauty, hair & skin", group: "services", legacy: "beauty", mode: "light", radius: "round", art: "beauty",
+    description: "Light and calm: sand tones, a soft serif, lots of air and a clear treatment menu with prices.",
+    type: ["Fraunces Soft", "Figtree", 400],
+    colors: ["#f5f0e8", "#e9e1d6", "#fbf8f2", "#2b2620", "#453d34", "#655b50", "#55624b", "#55624b", "#2b2620", "#cfc6b8"],
+    features: ["Calm opening", "Treatment menu with prices", "Philosophy of the salon", "The space in pictures", "Appointment request", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "whatsapp"],
+  }),
+  family({
+    key: "kade", name: "Kade Bouw", demo: "construction", industry: "Construction & trades", group: "services", legacy: "construction", mode: "light", radius: "sharp", art: "construction",
+    description: "Concrete grey, black and safety yellow with wide technical type: built for builders and trades.",
+    type: ["Archivo Wide", "Archivo Narrow", 700],
+    colors: ["#e7e5e0", "#f4f3ef", "#ffffff", "#111111", "#333333", "#55534d", "#111111", "#f0b90b", "#111111", "#c9c6bf"],
+    features: ["Bold opening", "Services with scope", "Projects in pictures", "How a job runs", "Quote request", "Service area & contact"],
+    upsells: ["seo", "gbp", "photography", "whatsapp", "copywriting"],
+  }),
+  family({
+    key: "meridiaan", name: "Meridiaan", demo: "real-estate", industry: "Real estate, interiors & gardens", group: "services", legacy: "realestate", mode: "light", radius: "sharp", art: "estate",
+    description: "Deep green and parchment with a classic serif and brass details: quiet, established, precise.",
+    type: ["Playfair Display", "Manrope", 400],
+    colors: ["#ece7dc", "#f7f4ed", "#f7f4ed", "#1d2a24", "#3a463f", "#58625a", "#1d2a24", "#7c5e25", "#141d19", "#b3bbb0"],
+    features: ["Editorial opening", "Services overview", "Portfolio in pictures", "How we work", "Valuation or intake request", "Office hours & route"],
+    upsells: ["seo", "photography", "copywriting", "gbp", "email"],
+  }),
+  family({
+    key: "forge", name: "FORGE", demo: "fitness", industry: "Gyms, trainers & studios", group: "services", legacy: "corporate", mode: "dark", radius: "sharp", art: "corporate",
+    description: "Black with acid green and huge condensed capitals: energy first, everything else after.",
+    type: ["Anton", "Inter Tight", 400],
+    colors: ["#0b0b0b", "#141414", "#1e1e1e", "#f4f4f0", "#d0d0ca", "#a6a6a0", "#141414", "#d7ff3e", "#0b0b0b", "#a6a6a0"],
+    features: ["Loud opening", "Programmes & memberships", "Coaches", "The gym in pictures", "Trial request", "Opening hours & route"],
+    upsells: ["booking", "seo", "photography", "analytics", "gbp"],
+  }),
+  family({
+    key: "obsidian", name: "Obsidian", demo: "automotive", industry: "Cars: detailing, garages & dealers", group: "services", legacy: "automotive", mode: "dark", radius: "sharp", art: "detailing",
+    description: "Near-black with ice blue, wide futuristic type and chamfered panels: technical and precise.",
+    type: ["Unbounded", "Inter", 400],
+    colors: ["#0a0c10", "#11151c", "#151a22", "#e8edf2", "#c3ccd6", "#9ba6b2", "#11151c", "#a9dcff", "#0a0c10", "#9ba6b2"],
+    features: ["Cinematic opening", "Packages & services", "Process step by step", "Work in pictures", "Appointment request", "Workshop hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "whatsapp"],
+  }),
+  family({
+    key: "aerden", name: "Van Aerden", demo: "law-firm", industry: "Law, finance & advice", group: "general", legacy: "corporate", mode: "light", radius: "sharp", art: "corporate",
+    description: "Parchment and navy with an oxblood accent and a newspaper serif: authority without stiffness.",
+    type: ["Newsreader", "IBM Plex Sans", 400],
+    colors: ["#ece6da", "#f6f2e9", "#f6f2e9", "#13233a", "#2f3d52", "#4a566a", "#13233a", "#7c2228", "#0d1a2c", "#c9c2b4"],
+    features: ["Typographic opening", "Practice areas", "People of the firm", "How an engagement runs", "Intake request", "Office hours & route"],
+    upsells: ["seo", "copywriting", "email", "analytics", "gbp"],
+  }),
+  family({
+    key: "lune", name: "Lune Atelier", demo: "fashion", industry: "Shops & boutiques", group: "general", legacy: "service", mode: "light", radius: "sharp", art: "service",
+    description: "Bone white, ink and one deep red with a high-contrast fashion serif: a lookbook that sells.",
+    type: ["Bodoni Moda", "Hanken Grotesk", 400],
+    colors: ["#e6e1d8", "#f4f1ea", "#f4f1ea", "#17140f", "#38332b", "#5f594f", "#17140f", "#7a2e22", "#17140f", "#cfc8bb"],
+    features: ["Lookbook opening", "Collection or range", "The story of the shop", "Gallery", "Visit or order request", "Opening hours & route"],
+    upsells: ["photography", "seo", "gbp", "email", "copywriting"],
+  }),
+  family({
+    key: "helder", name: "Helder", demo: "dental", industry: "Dental, health & care", group: "general", legacy: "dental", mode: "light", radius: "round", art: "dental",
+    description: "White and mint with deep teal and a warm coral accent, large rounded shapes: friendly and clear.",
+    type: ["Plus Jakarta Sans", "Plus Jakarta Sans", 700],
+    colors: ["#ffffff", "#dff1ee", "#f3faf8", "#0f3b3a", "#2c4f4c", "#47625f", "#0f3b3a", "#ff8a70", "#0f3b3a", "#a9cdc8"],
+    features: ["Friendly opening", "Treatments overview", "The team", "First visit explained", "Appointment request", "Opening hours & route"],
+    upsells: ["booking", "seo", "gbp", "copywriting", "email"],
+  }),
+  family({
+    key: "veldwerk", name: "Veldwerk", demo: "saas", industry: "Software & IT", group: "general", legacy: "corporate", mode: "dark", radius: "soft", art: "corporate",
+    description: "Midnight violet with luminous gradients and crisp panels: product-led and modern.",
+    type: ["Space Grotesk", "Inter", 500],
+    colors: ["#0b0a14", "#121022", "#16132b", "#e9e6ff", "#cbc7ea", "#aaa5cf", "#5d5bf5", "#9b7bff", "#0b0a14", "#aaa5cf"],
+    features: ["Product-led opening", "Services & capabilities", "How it works", "Packages", "Demo or intake request", "Frequently asked questions"],
+    upsells: ["seo", "analytics", "copywriting", "email", "booking"],
+  }),
+  family({
+    key: "ostara", name: "Hotel Ostara", demo: "hotel", industry: "Hotels, cafés & bakeries", group: "food", legacy: "service", mode: "light", radius: "sharp", art: "service",
+    description: "Cream, linen and terracotta with a graceful Roman capital: slow, warm and hospitable.",
+    type: ["Marcellus", "Mulish", 400],
+    colors: ["#f1e9dc", "#e7dccb", "#f7f1e6", "#2a2420", "#4a4038", "#6a5d52", "#1f1a17", "#9a4a30", "#1f1a17", "#cdbfae"],
+    features: ["Atmospheric opening", "Rooms, menu or range", "The story of the house", "Gallery", "Booking request", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "copywriting"],
+  }),
+  family({
+    key: "antipode", name: "Studio Antipode", demo: "creative-agency", industry: "Creative, marketing & events", group: "general", legacy: "corporate", mode: "dark", radius: "sharp", art: "corporate",
+    description: "Ink black with signal red, acid and cobalt, heavy expressive type: a studio with an opinion.",
+    type: ["Syne", "Instrument Sans", 800],
+    colors: ["#101010", "#1a1a1a", "#f4f1ea", "#f4f1ea", "#d6d2c8", "#a7a39a", "#2a35f0", "#ff5a36", "#101010", "#a7a39a"],
+    features: ["Expressive opening", "Services", "Selected work", "How we work", "Project request", "Contact"],
+    upsells: ["seo", "copywriting", "photography", "analytics", "email"],
+  }),
+];
+DESIGNS.push(...FAMILY_DESIGNS);
+
 export const DESIGN_KEYS = DESIGNS.map((x) => x.key);
 const BY_KEY = new Map(DESIGNS.map((x) => [x.key, x]));
 
@@ -375,6 +497,8 @@ export function getDesign(key: string | undefined | null, legacy?: TemplateKey):
 
 export function designForSpec(theme: { design?: string; template: TemplateKey; variation?: number; identity?: Identity }): Design {
   const base = getDesign(theme.design, theme.template);
+  // A template family has one fixed look.
+  if (base.demo) return base;
   if (theme.identity) return applyIdentity(base, theme.identity);
   const alt = theme.variation ? base.alts?.[(theme.variation - 1) % (base.alts.length || 1)] : undefined;
   return alt ? { ...base, v: { ...base.v, ...alt } } : base;

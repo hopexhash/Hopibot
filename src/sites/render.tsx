@@ -4,6 +4,10 @@ import { SiteDocument, type RenderOptions } from "./site";
 import { designFonts, designForSpec } from "./designs";
 import { fontFaces } from "./fonts";
 import { siteCss } from "./styles";
+import { familyOf } from "./families";
+import { BASE_CSS, BASE_JS } from "./families/base";
+import { KIT_CSS } from "./families/css/kit";
+import { FamilyDocument } from "./families/kit";
 
 const SITE_JS = `(function(){var d=document.documentElement;d.classList.add('js');
 var els=[].slice.call(document.querySelectorAll('.reveal'));
@@ -27,9 +31,17 @@ export type RenderedFile = { path: string; content: string; contentType: string 
  */
 export function renderSite(spec: SiteSpec, opts: RenderOptions & { assetBase: string }): RenderedFile[] {
   const valid = siteSpecSchema.parse(spec);
-  const design = designForSpec(valid.theme);
-  const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.skin ?? design.key);
-  const markup = renderToStaticMarkup(<SiteDocument spec={valid} opts={opts} css={css} script={SITE_JS} />);
+  // A demo design (template family) brings its own document; the others share the classic one.
+  const fam = familyOf(valid.theme.design);
+  let markup: string;
+  if (fam) {
+    const css = fontFaces(opts.assetBase, fam.fonts) + KIT_CSS + fam.css + BASE_CSS + fam.extra;
+    markup = renderToStaticMarkup(<FamilyDocument spec={valid} opts={opts} fam={fam} css={css} script={BASE_JS + (fam.js ?? "")} />);
+  } else {
+    const design = designForSpec(valid.theme);
+    const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.skin ?? design.key);
+    markup = renderToStaticMarkup(<SiteDocument spec={valid} opts={opts} css={css} script={SITE_JS} />);
+  }
   const html = `<!DOCTYPE html>${markup}`;
   return [
     { path: "index.html", content: html, contentType: "text/html; charset=utf-8" },

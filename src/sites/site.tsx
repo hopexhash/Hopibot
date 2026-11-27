@@ -65,7 +65,7 @@ const T = {
     demoA: "Demonstratie",
     mood: "Sfeerbeelden. De definitieve website gebruikt uw eigen foto's.",
     demoB: (agency: string, biz: string) => ` — een ontwerpconcept gemaakt door ${agency}. Dit is niet de officiële website van ${biz}.`,
-    menu: "Menu", skip: "Naar inhoud", phone: "Telefoon", email: "E-mail", address: "Adres", hours: "Openingstijden",
+    menu: "Menu", close: "Sluit", skip: "Naar inhoud", phone: "Telefoon", email: "E-mail", address: "Adres", hours: "Openingstijden",
     hoursTbc: "Openingstijden worden nog bevestigd.", name: "Naam", message: "Bericht", send: "Verstuur bericht",
     formNote: "Dit is een demonstratie: het formulier verstuurt geen gegevens.", formDone: "Bedankt! Dit is een demonstratie — er is niets verzonden.",
     route: "Routebeschrijving", contact: "Contact", explore: "Ontdek", rights: "Ontwerpconcept", call: "Bel ons", today: "Vandaag",
@@ -79,7 +79,7 @@ const T = {
     demoA: "Démonstration",
     mood: "Images d'ambiance. Le site définitif utilise vos propres photos.",
     demoB: (agency: string, biz: string) => ` — un concept de design créé par ${agency}. Ceci n'est pas le site officiel de ${biz}.`,
-    menu: "Menu", skip: "Aller au contenu", phone: "Téléphone", email: "E-mail", address: "Adresse", hours: "Heures d'ouverture",
+    menu: "Menu", close: "Fermer", skip: "Aller au contenu", phone: "Téléphone", email: "E-mail", address: "Adresse", hours: "Heures d'ouverture",
     hoursTbc: "Les heures d'ouverture restent à confirmer.", name: "Nom", message: "Message", send: "Envoyer le message",
     formNote: "Ceci est une démonstration : le formulaire n'envoie aucune donnée.", formDone: "Merci ! Ceci est une démonstration — rien n'a été envoyé.",
     route: "Itinéraire", contact: "Contact", explore: "Découvrir", rights: "Concept de design", call: "Appeler", today: "Aujourd'hui",
@@ -93,7 +93,7 @@ const T = {
     demoA: "Demonstration",
     mood: "Mood images. The final website uses your own photographs.",
     demoB: (agency: string, biz: string) => ` — a design concept created by ${agency}. This is not the official website of ${biz}.`,
-    menu: "Menu", skip: "Skip to content", phone: "Phone", email: "Email", address: "Address", hours: "Opening hours",
+    menu: "Menu", close: "Close", skip: "Skip to content", phone: "Phone", email: "Email", address: "Address", hours: "Opening hours",
     hoursTbc: "Opening hours to be confirmed.", name: "Name", message: "Message", send: "Send message",
     formNote: "This is a demonstration: the form does not send any data.", formDone: "Thank you! This is a demonstration — nothing was sent.",
     route: "Get directions", contact: "Contact", explore: "Explore", rights: "Design concept", call: "Call us", today: "Today",
@@ -104,8 +104,8 @@ const T = {
     kick: { about: "About", services: "Services", menu: "Menu", features: "Why us", process: "How we work", gallery: "Gallery", hours: "Visit us", faq: "Questions", contact: "Contact", packages: "Packages", team: "Team", booking: "Book", beforeafter: "Before & after", order: "Order", testimonials: "Reviews", cta: "", statement: "", showcase: "Atmosphere" },
   },
 };
-type Strings = typeof T.en;
-const strings = (lang: string): Strings => (T as Record<string, Strings>)[lang] ?? T.en;
+export type Strings = typeof T.en;
+export const strings = (lang: string): Strings => (T as Record<string, Strings>)[lang] ?? T.en;
 
 /**
  * `typo`: the site has a brand identity but no real photograph. Such a site is composed with
@@ -126,7 +126,7 @@ export function resolveImage(spec: SiteSpec, ref: string, opts: RenderOptions, v
   return { src: artDataUri(svg), alt: img?.alt || `Illustration for ${spec.business.name}` };
 }
 
-const Icon = ({ name }: { name: (typeof ICONS)[number] }) => {
+export const Icon = ({ name }: { name: (typeof ICONS)[number] }) => {
   const C = ICON_MAP[name] ?? Sparkles;
   return <C aria-hidden="true" strokeWidth={1.7} />;
 };
@@ -146,7 +146,7 @@ function Head({ kicker, title, intro }: { kicker?: string; title: string; intro?
   );
 }
 
-function hoursRows(lines: string[]) {
+export function hoursRows(lines: string[]) {
   return lines.map((l) => {
     const i = l.indexOf(":");
     return i > 0 ? [l.slice(0, i), l.slice(i + 1).trim()] : [l, ""];
@@ -154,12 +154,12 @@ function hoursRows(lines: string[]) {
 }
 
 /** Headlines may mark one phrase with *asterisks*: it is set in the accent colour (and italic in serif designs). */
-function em(text: string): ReactNode {
+export function em(text: string): ReactNode {
   const parts = text.split(/\*([^*]+)\*/);
   return parts.length === 1 ? text : parts.map((part, i) => (i % 2 ? <em key={i}>{part}</em> : part));
 }
 
-const tel = (p: string) => `tel:${p.replace(/[^\d+]/g, "")}`;
+export const tel = (p: string) => `tel:${p.replace(/[^\d+]/g, "")}`;
 
 /** Demo form. `uid` keeps ids unique when the same form appears twice on a page. */
 function BookingForm({ c, kind, options, uid, compact }: { c: Ctx; kind: "reservation" | "appointment" | "quote" | "order" | "message"; options: string[]; uid: string; compact?: boolean }) {

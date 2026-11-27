@@ -11,6 +11,10 @@ type FontDef = {
   italic?: boolean;
   /** Family ships a latin subset only. */
   latinOnly?: boolean;
+  /** Which variable file to use when the family has more axes than weight ("opsz", "wdth", "full"). */
+  axis?: "opsz" | "wdth" | "full";
+  /** Width range of a family with a width axis. */
+  stretch?: string;
   fallback: string;
 };
 
@@ -49,6 +53,19 @@ export const FONTS = {
   Anton: { slug: "anton", weights: [400], fallback: DISPLAY },
   Caveat: { slug: "caveat", weights: "variable", fallback: HAND },
   "Permanent Marker": { slug: "permanent-marker", weights: [400], latinOnly: true, fallback: HAND },
+  // Families of the demo designs (src/sites/families). Some carry an extra axis the design uses.
+  "Cormorant Garamond": { slug: "cormorant-garamond", weights: "variable", italic: true, fallback: SERIF },
+  "Fraunces Soft": { slug: "fraunces", weights: "variable", italic: true, axis: "full", fallback: SERIF },
+  Newsreader: { slug: "newsreader", weights: "variable", italic: true, axis: "opsz", fallback: SERIF },
+  "Bodoni Moda": { slug: "bodoni-moda", weights: "variable", italic: true, axis: "opsz", fallback: SERIF },
+  Figtree: { slug: "figtree", weights: "variable", fallback: SANS },
+  "Archivo Wide": { slug: "archivo", weights: "variable", axis: "wdth", stretch: "62% 125%", fallback: SANS },
+  "Archivo Narrow": { slug: "archivo-narrow", weights: "variable", fallback: DISPLAY },
+  "Inter Tight": { slug: "inter-tight", weights: "variable", fallback: SANS },
+  "Hanken Grotesk": { slug: "hanken-grotesk", weights: "variable", fallback: SANS },
+  Mulish: { slug: "mulish", weights: "variable", fallback: SANS },
+  "Instrument Sans": { slug: "instrument-sans", weights: "variable", axis: "wdth", stretch: "75% 100%", fallback: SANS },
+  "IBM Plex Sans": { slug: "ibm-plex-sans", weights: "variable", fallback: SANS },
 } satisfies Record<string, FontDef>;
 
 export type FontFamily = keyof typeof FONTS;
@@ -63,13 +80,16 @@ export function fontStack(family: FontFamily) {
   return `"${family}", ${FONTS[family].fallback}`;
 }
 
-function filesOf(family: FontFamily): { file: string; weight: string; style: string; subset: keyof typeof RANGES }[] {
+type FontFile = { file: string; weight: string; style: string; subset: keyof typeof RANGES; stretch?: string };
+
+function filesOf(family: FontFamily): FontFile[] {
   const f: FontDef = FONTS[family];
-  const out: { file: string; weight: string; style: string; subset: keyof typeof RANGES }[] = [];
+  const out: FontFile[] = [];
+  const axis = f.axis ?? "wght";
   for (const subset of f.latinOnly ? (["latin"] as const) : (["latin", "latin-ext"] as const)) {
     if (f.weights === "variable") {
-      out.push({ file: `${f.slug}-${subset}-wght-normal.woff2`, weight: "100 900", style: "normal", subset });
-      if (f.italic) out.push({ file: `${f.slug}-${subset}-wght-italic.woff2`, weight: "100 900", style: "italic", subset });
+      out.push({ file: `${f.slug}-${subset}-${axis}-normal.woff2`, weight: "100 900", style: "normal", subset, stretch: f.stretch });
+      if (f.italic) out.push({ file: `${f.slug}-${subset}-${axis}-italic.woff2`, weight: "100 900", style: "italic", subset, stretch: f.stretch });
     } else {
       for (const w of f.weights) out.push({ file: `${f.slug}-${subset}-${w}-normal.woff2`, weight: String(w), style: "normal", subset });
       if (f.italic) for (const w of f.weights) out.push({ file: `${f.slug}-${subset}-${w}-italic.woff2`, weight: String(w), style: "italic", subset });
@@ -84,7 +104,7 @@ export function fontFaces(assetBase: string, families: FontFamily[]) {
     .flatMap((family) =>
       filesOf(family).map(
         (x) =>
-          `@font-face{font-family:"${family}";font-style:${x.style};font-weight:${x.weight};font-display:swap;src:url("${assetBase}fonts/${x.file}") format("woff2");unicode-range:${RANGES[x.subset]}}`,
+          `@font-face{font-family:"${family}";font-style:${x.style};font-weight:${x.weight};${x.stretch ? `font-stretch:${x.stretch};` : ""}font-display:swap;src:url("${assetBase}fonts/${x.file}") format("woff2");unicode-range:${RANGES[x.subset]}}`,
       ),
     )
     .join("");

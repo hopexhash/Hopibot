@@ -137,7 +137,7 @@ export async function runQc(input: {
       });
 
       // Structural/layout checks.
-      const layout = await page.evaluate(() => {
+      const layout = await page.evaluate((deviceWidth) => {
         const doc = document.documentElement;
         const imgs = Array.from(document.images);
         const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
@@ -148,7 +148,8 @@ export async function runQc(input: {
           return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
         };
         return {
-          overflow: doc.scrollWidth - window.innerWidth,
+          // A phone widens its viewport to fit content that is too wide: measure against the device.
+          overflow: Math.max(doc.scrollWidth, window.innerWidth) - deviceWidth,
           imagesBroken: imgs.filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.src.slice(0, 80)),
           imagesNoAlt: imgs.filter((i) => !i.getAttribute("alt")?.trim()).length,
           imageCount: imgs.length,
@@ -156,16 +157,13 @@ export async function runQc(input: {
           smallTargets: btns.filter((b) => visible(b) && b.getBoundingClientRect().height < 40).map((b) => (b.textContent ?? "").trim().slice(0, 30)),
           unnamedButtons: btns.filter((b) => visible(b) && !(b.textContent?.trim() || b.getAttribute("aria-label"))).length,
           demoBanner: Boolean(document.querySelector(".demo-bar")) && visible(document.querySelector(".demo-bar")!),
-          navVisible: (() => {
-            const n = document.querySelector(".nav");
-            return n ? visible(n) : false;
-          })(),
+          navVisible: Array.from(document.querySelectorAll(".nav, [data-nav]")).some(visible),
           menuBtnVisible: (() => {
             const m = document.querySelector(".menu-btn");
             return m ? visible(m) : false;
           })(),
         };
-      });
+      }, vp.width);
       if (layout.overflow > 2) add({ code: "horizontal_overflow", severity: vp.name === "mobile" ? "critical" : "major", message: `Page is ${layout.overflow}px wider than the ${vp.name} viewport`, viewport: vp.name });
       for (const src of layout.imagesBroken) add({ code: "image_broken", severity: "major", message: "Image failed to load", viewport: vp.name, detail: src });
       if (layout.imagesNoAlt) add({ code: "image_alt", severity: "major", message: `${layout.imagesNoAlt} image(s) without alt text` });
@@ -183,18 +181,22 @@ export async function runQc(input: {
       } else if (layout.menuBtnVisible) {
         await page.click(".menu-btn");
         await page.waitForTimeout(150);
-        const opened = await page.evaluate(() => {
-          const n = document.querySelector(".nav");
-          return n ? getComputedStyle(n).display !== "none" : false;
-        });
+        const navOpen = () =>
+          page.evaluate(() =>
+            Array.from(document.querySelectorAll(".nav, [data-nav]")).some((n) => {
+              const st = getComputedStyle(n);
+              return st.display !== "none" && st.visibility !== "hidden" && n.getBoundingClientRect().height > 0;
+            }),
+          );
+        const opened = await navOpen();
         check(`${vp.name}: mobile menu opens`, opened);
         if (!opened) add({ code: "mobile_nav", severity: "major", message: "Mobile menu does not open", viewport: vp.name });
         else {
-          const link = page.locator(".nav a[href^='#']").first();
+          const link = page.locator(".nav a[href^='#']:visible, [data-nav] a[href^='#']:visible").first();
           if (await link.count()) {
             await link.click();
             await page.waitForTimeout(200);
-            const closed = await page.evaluate(() => getComputedStyle(document.querySelector(".nav")!).display === "none");
+            const closed = !(await navOpen());
             check(`${vp.name}: menu closes after navigating`, closed);
             if (!closed) add({ code: "mobile_nav_close", severity: "minor", message: "Mobile menu stays open after choosing a link", viewport: vp.name });
           }
@@ -241,7 +243,7 @@ export async function runQc(input: {
       check(`${vp.name}: no console or page errors`, consoleErrors.length + pageErrors.length === 0);
 
       await page.evaluate(() => {
-        document.querySelectorAll(".reveal").forEach((e) => e.classList.add("in"));
+        document.querySelectorAll(".reveal, [data-rv]").forEach((e) => e.classList.add("in"));
         // The form test above submitted the form; show the page as a visitor first sees it.
         document.querySelectorAll(".form-status.show").forEach((e) => e.classList.remove("show"));
       });
@@ -252,7 +254,7 @@ export async function runQc(input: {
       if (vp.name !== "tablet") {
         // Captured as consecutive parts: one very tall image would be scaled down until the text is unreadable.
         // Sticky and fixed bars would be repeated in the middle of every part and read as layout bugs.
-        await page.addStyleTag({ content: ".hdr,.util,.mbar,.demo-banner{position:static!important}.mbar{display:none!important}" });
+        await page.addStyleTag({ content: ".hdr,.util,.mbar,.demo-banner,.demo-bar{position:static!important;transform:none!important;margin-inline:auto}.mbar{display:none!important}" });
         const h = await page.evaluate(() => document.documentElement.scrollHeight);
         const part = vp.name === "desktop" ? 1500 : 1400;
         for (let k = 0; k < 3 && k * part < h; k++) {
