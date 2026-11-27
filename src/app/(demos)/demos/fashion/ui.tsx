@@ -1045,7 +1045,7 @@ export function Newsletter() {
     <DemoForm className="l-news-form" done="Zo zou het werken: je staat op de lijst en krijgt de eerste brief. Dit is een demo-ontwerp van HOPI, er is niets verzonden.">
       <label htmlFor="l-mail">Je e-mailadres</label>
       <div>
-        <input id="l-mail" type="email" name="email" autoComplete="email" placeholder="naam@voorbeeld.be" required />
+        <input id="l-mail" type="email" name="email" autoComplete="email" placeholder="naam@voorbeeld.example" required />
         <button type="submit">
           Schrijf me in
           <ArrowRight size={17} strokeWidth={1.25} aria-hidden="true" />

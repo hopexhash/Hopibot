@@ -229,7 +229,7 @@ export default function Helder() {
                     <b>adem uit</b>
                   </span>
                 </div>
-                <p className="h-breath-cap" data-rv>
+                <p className="h-breath-cap">
                   Even ademhalen. Vier tellen in, vier tellen uit.
                 </p>
                 <figure className="h-calm-quote" data-rv>

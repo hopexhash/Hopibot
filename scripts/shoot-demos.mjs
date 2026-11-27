@@ -31,8 +31,10 @@ async function settle(page) {
     scrollTo(0, 0);
     await Promise.all([...document.images].map((i) => (i.complete ? null : new Promise((r) => ((i.onload = r), (i.onerror = r))))));
     await document.fonts.ready;
+    // Loaded is not yet painted: wait until every photo has been decoded.
+    await Promise.all([...document.images].map((i) => i.decode().catch(() => null)));
   });
-  await page.waitForTimeout(600);
+  await page.waitForTimeout(1200);
 }
 const webp = (buf, width, file, quality = 74) => sharp(buf).resize({ width }).webp({ quality, effort: 6 }).toFile(`${OUT}/${file}`);
 

@@ -798,7 +798,8 @@
 }
 .hopi.v3 .cx-st {
   margin: 0;
-  font-size: min(11.2vw, 232px);
+  /* Sized so the longest line (the last one) always fits the page width. */
+  font-size: min(10.4vw, 196px);
   font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 0.86;
@@ -814,9 +815,11 @@
 .hopi.v3 .cx-st .l:nth-of-type(2) {
   --drift: -7vw;
 }
+/* The last line stands against the right edge and only ever drifts inwards from there, so
+   its final letters can never leave the screen. */
 .hopi.v3 .cx-st .l:nth-of-type(3) {
-  --drift: 9vw;
   text-align: right;
+  transform: translateX(calc((var(--p, 1) - 1) * 6vw));
 }
 .hopi.v3 .cx-st .l-accent {
   color: var(--accent);

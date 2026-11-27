@@ -832,7 +832,7 @@
 }
 .d-veldwerk .w-job[data-st="done"] {
   --tone: var(--lime);
-  background: rgba(201, 255, 74, 0.07);
+  background: color-mix(in srgb, var(--lime) 8%, #14112a);
   border-color: rgba(201, 255, 74, 0.32);
 }
 .d-veldwerk .w-job[data-st="done"] b {
@@ -947,6 +947,17 @@
 @media (max-width: 639px) {
   .d-veldwerk .w-techs [data-k="3"] {
     display: none;
+  }
+}
+@media (max-width: 399px) {
+  .d-veldwerk .w-job {
+    padding: 5px 4px 5px 9px;
+  }
+  .d-veldwerk .w-job b {
+    font-size: 10.5px;
+  }
+  .d-veldwerk .w-job span {
+    font-size: 10px;
   }
 }
 @media (min-width: 900px) {
@@ -2459,6 +2470,14 @@
 }
 .d-veldwerk .w-phones .w-ph-screen {
   min-height: 420px;
+}
+@media (max-width: 420px) {
+  .d-veldwerk .w-phones .w-ph {
+    width: 190px;
+  }
+  .d-veldwerk .w-phones .w-ph-b {
+    margin-left: -56px;
+  }
 }
 @media (min-width: 640px) {
   .d-veldwerk .w-tabs {

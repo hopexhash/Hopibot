@@ -199,7 +199,7 @@ export const ALL_DEMOS: Demo[] = [
  * The demos that are finished and checked. Only these are shown in the portfolio, the sitemap
  * and the tests; a demo that is still being built stays out of sight until it is added here.
  */
-const LIVE = new Set<DemoSlug>(["restaurant", "beauty-salon", "construction", "real-estate", "fitness", "automotive", "law-firm"]);
+const LIVE = new Set<DemoSlug>(["restaurant", "beauty-salon", "construction", "real-estate", "fitness", "automotive", "law-firm", "fashion", "dental", "saas", "hotel"]);
 
 export const DEMOS: Demo[] = ALL_DEMOS.filter((d) => LIVE.has(d.slug));
 

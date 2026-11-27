@@ -96,7 +96,7 @@ export function Nav() {
           {TEL}
         </a>
         <a href="#afspraak" className="h-nav-cta" onClick={m.close}>
-          Afspraak<span> maken</span>
+          Afspraak <span>maken</span>
         </a>
         <button type="button" className="h-burger" aria-expanded={m.open} aria-controls="h-menu" aria-label={m.open ? "Sluit het menu" : "Open het menu"} onClick={m.toggle}>
           <i aria-hidden="true" />
@@ -313,7 +313,7 @@ const STEPS: { short: string; title: string; time: string; text: string; points:
     alt: "De lichte ontvangstbalie van de praktijk",
   },
   {
-    short: "Kennismaken",
+    short: "Gesprek",
     title: "Eerst praten, dan kijken",
     time: "15 minuten",
     text: "Je tandarts stelt zich voor en vraagt wat jij belangrijk vindt. Pas daarna gaat de stoel naar achteren. We kijken alles na en vertellen hardop wat we zien.",
@@ -477,7 +477,7 @@ export function Fees() {
           type="search"
           name="q"
           value={q}
-          placeholder="Bijvoorbeeld: vulling, kroon of bleken"
+          placeholder="Bijv. vulling of kroon"
           autoComplete="off"
           onChange={(e) => {
             setQ(e.target.value);
