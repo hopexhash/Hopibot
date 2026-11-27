@@ -625,6 +625,24 @@
   color: #f2eee6;
   box-shadow: inset 0 0 0 1px rgba(242, 238, 230, 0.16);
 }
+/* The counter of a card: set in the heading face, bold, with plain zeros. */
+.hopi.v3 .yx-n {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.25vw, 19px);
+  font-weight: 500;
+  font-feature-settings: "zero" 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+.hopi.v3 .yx-n b {
+  font-weight: 700;
+}
+.hopi.v3 .yx-n i {
+  font-style: normal;
+  opacity: 0.55;
+}
 .hopi.v3 .yx-card h3 {
   align-self: center;
   margin: 0;

@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Pagina niet gevonden | HOPI", robots
 export default function GlobalNotFound() {
   return (
     <html lang="nl">
-      <body style={{ margin: 0 }}>
+      <body style={{ margin: 0, background: "#0c0c0d" }}>
         <NotFoundView />
       </body>
     </html>

@@ -208,8 +208,9 @@ export function Home({ data }: { data: SiteData }) {
               .filter((it) => !it.text.includes("{from}") || data.fromCents !== null)
               .map((it, i, all) => (
                 <li key={it.title.join(" ")} className={`yx-card yx-${i % 4}`} style={{ "--i": i } as CSSProperties}>
-                  <span className="mono">
-                    {no(i)} / {no(all.length - 1)}
+                  <span className="yx-n">
+                    <b>{no(i)}</b>
+                    <i> / {no(all.length - 1)}</i>
                   </span>
                   <h3>
                     {it.title[0]}

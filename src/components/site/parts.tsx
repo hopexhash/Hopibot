@@ -264,7 +264,7 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
             {b}
           </h2>
           <p>{text}</p>
-          {/* Wide screens: WhatsApp beside the form. Phones get it under the request button instead. */}
+          {/* The one place WhatsApp is offered: with the contact text (centred on phones). */}
           {data.whatsapp && (
             <a href={data.whatsapp} target="_blank" rel="noopener" className="btn btn-wa contact-wa" data-track="whatsapp_click" data-track-label="contact" data-track-location={source}>
               <WhatsAppIcon /> Stuur ons een WhatsApp
@@ -292,7 +292,7 @@ export function ContactSection({ data, source, title = "Vraag je gratis *ontwerp
           </ul>
         </div>
         <div data-reveal>
-          <ContactForm packages={packages} source={source} whatsapp={data.whatsapp} />
+          <ContactForm packages={packages} source={source} />
         </div>
       </div>
     </section>

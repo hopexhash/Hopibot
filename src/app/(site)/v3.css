@@ -1427,58 +1427,28 @@ body.hopi.v3 {
   background-color: #0c0c0d;
 }
 
-/* WhatsApp has one place per layout. Wide screens (text and form side by side): a button under
-   the text. Phones (one column): centred under the request button, after "of". */
+/* WhatsApp is offered in one place: a green button with the contact text. On phones it stands
+   in the middle of the column. */
 .hopi.v3 .contact-wa {
-  display: none;
-}
-@media (min-width: 980px) {
-  .hopi.v3 .contact-wa {
-    display: inline-flex;
-    --btn-fill: #128c4a;
-    background-color: #1faa59;
-    background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
-    color: #fff;
-  }
-  .hopi.v3 .contact-wa:hover {
-    color: #fff;
-  }
-  .hopi.v3 .form .form-or,
-  .hopi.v3 .form a.form-wa {
-    display: none;
-  }
-}
-/* Under the request button: "of", then WhatsApp in its own green. */
-.hopi.v3 .form-or {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 2px 0;
-  color: var(--muted);
-}
-.hopi.v3 .form-or::before,
-.hopi.v3 .form-or::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line-2);
-}
-.hopi.v3 .form .form-wa {
   --btn-fill: #128c4a;
-  margin-top: 0;
-  min-height: 58px;
+  display: inline-flex;
+  margin-top: 22px;
   background-color: #1faa59;
   background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
   color: #fff;
 }
-.hopi.v3 .form .form-wa:hover {
+.hopi.v3 .contact-wa:hover {
   color: #fff;
 }
-.hopi.v3 .form .form-wa svg {
-  width: 20px;
-  height: 20px;
-}
-.hopi.v3 .form .form-wa:hover svg {
+.hopi.v3 .contact-wa:hover svg {
   transform: none;
+}
+@media (max-width: 979px) {
+  .hopi.v3 .contact-wa {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
 }
 
