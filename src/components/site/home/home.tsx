@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
@@ -284,7 +284,9 @@ export function Home({ data }: { data: SiteData }) {
               <p>{HOME.closing.text}</p>
               <a href="#contact" className="cx-btn" data-magnetic="0.35" data-track="cta_click" data-track-label="closing" data-track-location="/">
                 <span>{HOME.cta}</span>
-                <ArrowRight aria-hidden="true" />
+                <i aria-hidden="true">
+                  <ArrowDown />
+                </i>
               </a>
             </div>
           </div>
