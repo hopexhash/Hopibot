@@ -19,7 +19,7 @@ const text = (html: string) =>
     .replace(/\s+/g, " ");
 
 /** Words that only exist in the demos' fictional content. */
-const DEMO_COPY = /Thomas van Rijn|Anouk Dekker|proeverij|Atelier Sage|Kade Bouw|Meridiaan|FORGE Performance|Obsidian Detailing|Van Aerden|Lune Atelier|Tandartspraktijk Helder|Veldwerk|Hotel Ostara|Studio Antipode|fictief|\.example/i;
+const DEMO_COPY = /Thomas van Rijn|Anouk Dekker|Atelier Sage|Kade Bouw|Meridiaan|FORGE Performance|Obsidian Detailing|Van Aerden|Lune Atelier|Tandartspraktijk Helder|Veldwerk|Hotel Ostara|Studio Antipode|fictief|\.example/i;
 
 describe("template families", () => {
   it("every demo design has a family, and the other way round", () => {

@@ -774,7 +774,17 @@ export function Legal({ c, className = "z-legal" }: { c: Ctx; className?: string
   );
 }
 
-export function FamilyDocument({ spec, opts, fam, css: styles, script }: { spec: SiteSpec; opts: RenderOptions; fam: Family; css: string; script: string }) {
+export function FamilyDocument({ spec: input, opts, fam, css: styles, script }: { spec: SiteSpec; opts: RenderOptions; fam: Family; css: string; script: string }) {
+  // Two sections with the same id would break in-page links and the menu: later ones get a suffix.
+  const seen = new Map<string, number>();
+  const spec: SiteSpec = {
+    ...input,
+    sections: input.sections.map((s) => {
+      const n = (seen.get(s.id) ?? 0) + 1;
+      seen.set(s.id, n);
+      return n === 1 ? s : { ...s, id: `${s.id}-${n}` };
+    }),
+  };
   const c = createCtx(spec, opts, fam);
   const b = spec.business;
   const jsonLd = {
