@@ -1,6 +1,0 @@
-While this file exists, Vercel skips building pushes to this repository (see "ignoreCommand" in
-vercel.json), so unfinished work can be pushed without changing the live website.
-Delete this file in the commit that should go live.
-
-Held now: the creative agency demo (src/app/(demos)/demos/creative-agency) is still being
-built. It is not in LIVE (src/demos/catalog.ts), so nothing links to it.
