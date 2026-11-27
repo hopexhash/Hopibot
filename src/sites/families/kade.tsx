@@ -10,13 +10,13 @@ import { Btn, css, DemoForm, em, heroFacts, hoursRows, i, Icon, Legal, long, off
 
 const EXTRA = `
 .d-kade{--k-sans:"Archivo Wide";--k-narrow:"Archivo Narrow";--fp:clamp(16px,2.4vw,34px);--z-bg2:var(--paper);--z-ink:var(--k);--z-dim:var(--mut);--z-line:var(--line);--z-accent:var(--k);--z-on-accent:var(--y);--z-display:var(--k-narrow),"Arial Narrow",sans-serif;--z-display-weight:700;--z-radius:0;--z-field-radius:0;--z-ico-radius:0;--z-sec:var(--sec);--z-h3:clamp(20px,1.9vw,28px);--z-statement:clamp(25px,3.9vw,64px)}
-.d-kade h2,.d-kade .k-method h2,.d-kade .k-quote h2{--base:clamp(27px,max(6vw,min(7.6vw,33px)),100px);--fit:88vw;font-size:min(var(--base),max(20px,calc(var(--fit) / (var(--wl,8) * .9))));overflow-wrap:break-word}
+.d-kade h2,.d-kade .k-method h2,.d-kade .k-quote h2{--base:clamp(27px,max(6vw,min(7.6vw,33px)),100px);--fit:88vw;font-size:min(var(--base),max(17px,calc(var(--fit) / (var(--wl,8) * .9))));overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 .d-kade h2.is-long{--base:clamp(23px,max(4vw,min(6.4vw,28px)),64px);line-height:.98}
 .d-kade .k-method h2,.d-kade .k-quote h2,.d-kade .z-copy h2{--base:clamp(27px,max(4.4vw,min(7.6vw,33px)),72px)}
 .d-kade .k-method h2.is-long,.d-kade .k-quote h2.is-long,.d-kade .z-copy h2.is-long{--base:clamp(23px,max(3.2vw,min(6.4vw,28px)),52px)}
-@media (min-width:900px){.d-kade .z-copy h2{--fit:min(40vw,640px)}}
+@media (min-width:900px){.d-kade .z-copy .k-head h2,.d-kade .z-copy .k-head.is-solo h2{--fit:min(40vw,640px)}}
 @media (min-width:960px){.d-kade .k-head h2{--fit:min(56vw,880px)}.d-kade .k-head.is-solo h2{--fit:min(88vw,1400px)}.d-kade .k-method h2{--fit:min(37vw,580px)}.d-kade .k-quote h2{--fit:min(33vw,510px)}}
-.d-kade h3{overflow-wrap:break-word}
+.d-kade h3{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 .d-kade h1 em,.d-kade h2 em{padding:0 .08em;background:var(--y);font-style:normal;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .d-kade .k-method h2 em,.d-kade .k-call h2 em,.d-kade .z-showcase.has-pic h2 em{padding:0;background:none;color:var(--y)}
 .d-kade .k-voices h2 em,.d-kade .z-statement h2 em{background:var(--k);color:var(--y)}
@@ -44,8 +44,8 @@ const EXTRA = `
 .d-kade .k-menu-foot a.k-btn:hover{color:var(--y)}
 @media (min-width:620px){.d-kade .k-nav-cta{display:inline-flex}}
 @media (min-width:480px){.d-kade .k-logo.is-long b{font-size:17px}}
-@media (min-width:1040px) and (max-width:1239px){.d-kade .k-logo.is-long b{font-size:15px}.d-kade .k-nav-cta span{max-width:16ch}.d-kade .k-links{gap:16px;font-size:14px;letter-spacing:.05em}.d-kade .k-links small{display:none}}
-.d-kade .k-hero h1{max-width:100%;font-size:min(clamp(40px,12.8vw,84px),max(24px,calc(86vw / (var(--l,8) * .92))));overflow-wrap:anywhere}
+@media (min-width:1040px) and (max-width:1239px){.d-kade .k-logo.is-long b{font-size:15px}.d-kade .k-nav-cta span{max-width:20ch}.d-kade .k-links{gap:16px;font-size:14px;letter-spacing:.05em}.d-kade .k-links small{display:none}}
+.d-kade .k-hero h1{max-width:100%;font-size:min(clamp(40px,12.8vw,84px),max(20px,calc(86vw / (var(--l,8) * .92))));overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
 .d-kade .k-ln{max-width:100%}
 .d-kade .k-hero-copy{max-width:100%}
 .d-kade .k-hero-fig{align-content:start}
@@ -70,21 +70,25 @@ const EXTRA = `
 .d-kade .k-svc-main ul li{color:var(--k)}
 .d-kade .k-svc-price b{overflow-wrap:anywhere}
 .d-kade .k-svc-price b.is-long{font-size:clamp(20px,1.8vw,26px);line-height:1.1}
-.d-kade .k-svc.no-pic>li{grid-template-areas:"n main main" "price price go"}
+.d-kade .k-svc>li{grid-template-areas:"photo photo photo" "n main go" ". price price";row-gap:14px}
+.d-kade .k-svc.no-pic>li{grid-template-areas:"n main go" ". price price"}
 .d-kade .k-svc.no-price>li{grid-template-areas:"photo photo photo" "n main go"}
 .d-kade .k-svc.no-pic.no-price>li{grid-template-areas:"n main go"}
-.d-kade .k-svc.no-price .k-svc-go{align-self:start;width:48px;height:48px}
+.d-kade .k-svc-go{align-self:start;width:48px;height:48px}
+.d-kade .k-svc-price:empty{display:none}
 @media (max-width:619px){.d-kade .k-svc.no-pic>li:first-child{padding-top:8px}}
-@media (min-width:620px) and (max-width:959px){.d-kade .k-svc.no-pic>li{grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"n main price go"}.d-kade .k-svc.no-price>li{grid-template-columns:auto minmax(0,1fr) 30% auto;grid-template-areas:"n main photo go"}.d-kade .k-svc.no-pic.no-price>li{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"n main go"}}
-@media (min-width:960px){.d-kade .k-svc.no-pic>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) clamp(150px,13vw,200px) 56px;grid-template-areas:"n main price go"}.d-kade .k-svc.no-price>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) clamp(200px,21vw,330px) 56px;grid-template-areas:"n main photo go"}.d-kade .k-svc.no-pic.no-price>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) 56px;grid-template-areas:"n main go"}.d-kade .k-svc.no-price .k-svc-go{align-self:center;width:56px;height:56px}}
+@media (min-width:620px) and (max-width:959px){.d-kade .k-svc>li{grid-template-areas:"n main photo" "price price go";row-gap:18px}.d-kade .k-svc-go{align-self:center;width:56px;height:56px}.d-kade .k-svc.no-pic>li{grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"n main price go"}.d-kade .k-svc.no-price>li{grid-template-columns:auto minmax(0,1fr) 30% auto;grid-template-areas:"n main photo go"}.d-kade .k-svc.no-pic.no-price>li{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"n main go"}}
+@media (min-width:960px){.d-kade .k-svc>li{grid-template-areas:"n main photo price go";row-gap:0}.d-kade .k-svc-go{align-self:center;width:56px;height:56px}.d-kade .k-svc.no-pic>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) clamp(150px,13vw,200px) 56px;grid-template-areas:"n main price go"}.d-kade .k-svc.no-price>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) clamp(200px,21vw,330px) 56px;grid-template-areas:"n main photo go"}.d-kade .k-svc.no-pic.no-price>li{grid-template-columns:clamp(70px,7vw,112px) minmax(0,1fr) 56px;grid-template-areas:"n main go"}}
 .d-kade .k-count b{animation:none}
+.d-kade .k-count.k-head-side{color:var(--k)}
+@media (min-width:960px){.d-kade .k-count.k-head-side{justify-self:end}}
 .d-kade .k-card-photo{margin:0}
 .d-kade .k-cards[data-n="1"] .k-card{flex-basis:100%}
 .d-kade .k-method .k-btn-y,.d-kade .k-call .k-btn-y{border-color:var(--y)}
 .d-kade .k-method-side>p.k-method-intro{max-width:48ch;color:rgba(255,255,255,.76)}
 .d-kade .k-values li{grid-template-columns:auto minmax(0,1fr);gap:14px}
 .d-kade .k-values i{padding:3px 6px 2px;background:var(--k);color:var(--y);font-family:var(--k-narrow),"Arial Narrow",sans-serif;font-size:13px;font-style:normal;font-weight:700;letter-spacing:.08em}
-.d-kade .k-about-note span{overflow-wrap:break-word}
+.d-kade .k-about-note span{font-size:clamp(15px,1.2vw,19px);font-weight:700;overflow-wrap:break-word}
 .d-kade .k-about-media.is-one{padding-bottom:clamp(36px,5vw,72px)}
 .d-kade .k-about-media.is-one .k-about-note{width:min(74%,360px);box-shadow:0 0 0 8px var(--paper)}
 .d-kade .k-about-media.is-bare{padding-bottom:0}
@@ -230,8 +234,12 @@ function Head(p: HeadProps, c: Ctx) {
   );
 }
 
-/** Words set as balanced lines; phrases marked with *asterisks* stay marked. */
-function setLines(text: string, parts: number) {
+/**
+ * Words set as lines; phrases marked with *asterisks* stay marked. With `cap` a line is filled up
+ * to that many characters (no word is left alone because of a long neighbour), otherwise the text
+ * is divided into `parts` balanced lines.
+ */
+function setLines(text: string, parts: number, cap = 0) {
   const words: { w: string; em: boolean }[] = [];
   text.split(/\*([^*]+)\*/).forEach((chunk, n) =>
     chunk
@@ -244,7 +252,9 @@ function setLines(text: string, parts: number) {
   let at = 0;
   for (const x of words) {
     const row = rows[rows.length - 1];
-    if (row.length && rows.length < parts && at + x.w.length / 2 > (total / parts) * rows.length) rows.push([x]);
+    const len = row.reduce((a, y) => a + y.w.length + 1, 0);
+    const next = cap ? len + x.w.length > cap : rows.length < parts && at + x.w.length / 2 > (total / parts) * rows.length;
+    if (row.length && next) rows.push([x]);
     else row.push(x);
     at += x.w.length + 1;
   }
@@ -349,7 +359,8 @@ function Hero(c: Ctx) {
   const plain = hero.headline.replace(/\*/g, "");
   const N = plain.length;
   // Short lines: this typeface is very wide, and the same lines have to fit a phone.
-  const set = setLines(hero.headline, N <= 8 ? 1 : Math.min(8, Math.ceil(N / 10)));
+  const word = Math.max(...plain.split(/\s+/).map((w) => w.length));
+  const set = setLines(hero.headline, 1, Math.max(word, N <= 30 ? 11 : N <= 60 ? 14 : 18));
   const facts = heroFacts(c);
   const words = offerWords(c, 4);
   const offer = sections.find((s) => s.type === "services" || s.type === "menu" || s.type === "packages");

@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment, isValidElement, type ReactNode } from "react";
 import { CSS } from "./css/beauty-salon";
 import { Btn, css, DemoForm, em, heroFacts, Hours, hoursRows, i, Legal, long, Pic, splitLines, tel, type Ctx, type Family, type Photo, type SectionOf } from "./kit";
 
@@ -38,7 +38,8 @@ const EXTRA = `
 .d-sage .s-mono span{font-family:var(--s-serif),Georgia,serif;font-variation-settings:"SOFT" 100;font-size:64cqw;font-style:italic;font-weight:200;line-height:1;color:var(--sage-d);transform:translateY(7%)}
 @media (max-width:959px){.d-sage .s-hero-facts div{grid-template-columns:140px minmax(0,1fr)}.d-sage .s-hero-art.is-mono .s-hero-main{width:50%}.d-sage .s-hero-facts{margin-bottom:64px}}
 @media (min-width:960px){.d-sage .s-hero h1.is-m{font-size:clamp(58px,6.1vw,104px)}.d-sage .s-hero h1.is-s{font-size:clamp(44px,4.5vw,76px)}.d-sage .s-hero-facts[data-n="2"]{grid-template-columns:repeat(2,1fr)}.d-sage .s-hero-facts[data-n="1"]{grid-template-columns:1fr}}
-@media (min-width:1240px){.d-sage .s-hero-cap{max-width:42%;white-space:normal}}
+@media (min-width:960px){.d-sage .s-hero-art.is-tight .s-hero-main{width:84%;margin-left:auto}.d-sage .s-hero-art.is-tight.is-mono .s-hero-main{width:100%}.d-sage .s-hero-art.is-tight .s-hero-small{left:0;top:42%;bottom:auto;width:36%}}
+@media (min-width:1240px){.d-sage .s-hero-cap{max-width:42%;white-space:normal}.d-sage .s-hero-art.is-tight .s-hero-cap{position:static;max-width:none;margin-top:20px}}
 .d-sage .s-phil h2.is-long{max-width:20ch}
 .d-sage .s-phil-copy>.s-text{max-width:56ch;margin-top:22px;color:var(--dim)}
 .d-sage .s-phil-grid.is-solo{gap:0}
@@ -152,6 +153,8 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"
 const CLOSED = /geslot|ferm[ée]|closed|geschloss/i;
 const ext = (href: string) => (/^https?:/.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {});
 
+const textOf = (n: ReactNode): string => (typeof n === "string" ? n : Array.isArray(n) ? n.map(textOf).join("") : isValidElement<{ children?: ReactNode }>(n) ? textOf(n.props.children) : "");
+
 /** The name with its last word in the italic sage of the design. */
 function Mark({ name }: { name: string }) {
   const k = name.lastIndexOf(" ");
@@ -239,6 +242,8 @@ function Hero(c: Ctx) {
   // Short headlines stand as separate lines, as in the demo; longer ones flow and keep their accent on the last part.
   const flow = plain.length > 30;
   const { lines, marked } = splitLines(hero.headline, flow ? 3 : plain.length > 12 ? 2 : 1);
+  // The small photo and the caption hang beside the arch, under the headline, only when its last line is short enough to leave them room.
+  const hang = !flow && !size && textOf(lines[lines.length - 1]).length <= 11;
   const accent = (line: ReactNode, n: number) => (!marked && lines.length > 1 && n === lines.length - 1 ? <em>{line}</em> : line);
   // The hours fact names the first day the business is open, not a day it is closed.
   const open = c.spec.business.openingHours?.find((l) => !CLOSED.test(l));
@@ -295,7 +300,7 @@ function Hero(c: Ctx) {
           </div>
         </div>
         {p ? (
-          <div className="s-hero-art">
+          <div className={`s-hero-art${hang ? "" : " is-tight"}`}>
             <div className="s-ring s-hero-main">
               <figure className="s-arch">
                 <Pic p={p} eager sizes="(min-width: 960px) 30vw, 70vw" />
@@ -309,7 +314,7 @@ function Hero(c: Ctx) {
             {cap}
           </div>
         ) : (
-          <div className="s-hero-art is-mono">
+          <div className={`s-hero-art is-mono${hang ? "" : " is-tight"}`}>
             <div className="s-ring s-hero-main">
               <div className="s-arch s-mono" aria-hidden="true">
                 <span>{c.name.charAt(0)}</span>

@@ -39,17 +39,18 @@ const EXTRA = `
 .d-meridiaan .m-hero h1{font-size:min(clamp(44px,14.2vw,72px),calc((100vw - 2 * var(--pad)) / (var(--w,8) * .6)))}
 .d-meridiaan .m-hero h1.is-m{font-size:min(clamp(36px,10.4vw,58px),calc((100vw - 2 * var(--pad)) / (var(--w,8) * .6)));line-height:1.02}
 .d-meridiaan .m-hero h1.is-s{font-size:min(clamp(31px,8.4vw,46px),calc((100vw - 2 * var(--pad)) / (var(--w,8) * .6)));line-height:1.06}
-.d-meridiaan .m-hero-search a{color:inherit}
 .d-meridiaan .m-bar .m-search-field b{font-size:16.5px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
 .d-meridiaan .m-bar .m-search-field b a{display:inline-flex;align-items:center;min-height:44px;margin:-10px 0}
-.d-meridiaan .m-bar .m-search-go{color:var(--ivory);text-align:center}
-.d-meridiaan .m-bar .m-search-go:hover{color:var(--deep)}
+.d-meridiaan .m-search.m-bar{grid-template-columns:minmax(0,1fr)}
+.d-meridiaan .m-bar .m-search-go{padding-block:12px;line-height:1.45;text-align:center;white-space:normal}
 .d-meridiaan .m-hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px}
 .d-meridiaan .m-hero.no-foot .m-hero-search{margin-bottom:clamp(34px,5vw,60px)}
 .d-meridiaan .m-hero.no-pic{background:radial-gradient(110% 80% at 100% 0%,var(--moss),transparent 64%),var(--green)}
 .d-meridiaan .m-hero.no-pic .m-hero-in{margin-top:0;padding-top:clamp(140px,26vh,210px)}
-.d-meridiaan .m-hero-mark{position:absolute;right:-5vw;top:56px;font-family:var(--m-display),Georgia,serif;font-size:min(100vw,560px);font-style:italic;line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(185,150,88,.36);pointer-events:none;user-select:none;animation:m-fade 1.8s var(--ease) both}
-@media (min-width:760px){.d-meridiaan .m-search.m-bar{grid-template-columns:repeat(var(--n,3),minmax(0,1fr)) auto}.d-meridiaan .m-bar .m-search-field:first-child{border-left:0}.d-meridiaan .m-bar .m-search-go{max-width:280px;padding-block:12px;line-height:1.45;white-space:normal}}
+.d-meridiaan .m-hero-mark{position:absolute;right:-5vw;top:56px;font-family:var(--m-display),Georgia,serif;font-size:min(100vw,560px);font-style:italic;line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(185,150,88,.46);pointer-events:none;user-select:none;animation:m-fade 1.8s var(--ease) both}
+.d-meridiaan .m-bar .m-search-go svg{flex:none}
+@media (min-width:760px){.d-meridiaan .m-search.m-bar{grid-template-columns:repeat(var(--n,3),minmax(0,1fr))}.d-meridiaan .m-bar .m-search-field:first-child{border-left:0}.d-meridiaan .m-bar .m-search-go{grid-column:1 / -1;min-height:60px}}
+@media (min-width:1000px){.d-meridiaan .m-search.m-bar{grid-template-columns:repeat(var(--n,3),minmax(0,1fr)) auto}.d-meridiaan .m-bar .m-search-go{grid-column:auto;max-width:280px;min-height:82px}}
 @media (min-width:1000px){.d-meridiaan .m-hero h1{font-size:clamp(64px,7.1vw,136px)}.d-meridiaan .m-hero h1.is-m{font-size:clamp(52px,5.3vw,104px);line-height:1}.d-meridiaan .m-hero h1.is-s{font-size:clamp(42px,4vw,78px);line-height:1.04}.d-meridiaan .m-hero.no-pic{min-height:min(100svh,920px)}.d-meridiaan .m-hero.no-pic .m-hero-in{padding-top:132px}.d-meridiaan .m-hero-mark{right:4vw;top:50%;font-size:min(50vw,780px);translate:0 -52%}.d-meridiaan .m-hero.no-pic::before{content:"";position:absolute;left:42%;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--brass),rgba(185,150,88,0));opacity:.6;transform-origin:top;animation:m-draw 1.8s var(--ease) .5s both}}
 .d-meridiaan .m-about,.d-meridiaan .m-say{padding-bottom:clamp(72px,8.8vw,148px)}
 .d-meridiaan .m-about-body{display:grid;gap:30px;margin-top:clamp(8px,1.4vw,22px)}
@@ -95,8 +96,10 @@ const EXTRA = `
 .d-meridiaan .m-feature h2{margin-top:0}
 .d-meridiaan .m-feature-head .btn{margin-top:30px}
 .d-meridiaan .m-spec dd{overflow-wrap:anywhere}
-.d-meridiaan .m-spec a{display:inline-block;padding:5px 0;border-bottom:1px solid var(--rule)}
+.d-meridiaan .m-feature .m-spec div{grid-template-columns:minmax(0,8.4em) minmax(0,1fr)}
+.d-meridiaan .m-spec a{display:inline-block;margin:-8px 0;padding:11px 0;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:5px}
 @media (min-width:1000px){.d-meridiaan .m-feature .m-sheetcard{grid-row:1}.d-meridiaan .m-feature.no-pic .m-sheetcard{margin-top:0}.d-meridiaan .m-feature-grid.is-solo .m-feature-head{grid-column:1 / 11}}
+@media (min-width:1000px) and (max-width:1279px){.d-meridiaan .m-feature .m-sheetcard{grid-column:8 / 13}.d-meridiaan .m-feature-grid:not(.is-solo) .m-feature-head{grid-column:1 / 7}}
 .d-meridiaan .m-voices{padding:clamp(72px,8.8vw,148px) 0}
 .d-meridiaan .m-voices-grid{display:grid;gap:clamp(34px,4vw,64px) clamp(30px,4vw,70px);grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
 .d-meridiaan .m-voices blockquote{max-width:none;border-color:var(--brass-ink)}
@@ -130,6 +133,9 @@ const EXTRA = `
 .d-meridiaan .m-packs{padding:clamp(72px,8.8vw,148px) 0}
 .d-meridiaan .m-packs-grid{display:grid;gap:clamp(16px,2vw,28px);grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
 .d-meridiaan .m-packs .m-sheetcard{grid-column:auto;grid-row:auto;align-content:start;margin-top:0}
+.d-meridiaan .m-packs .m-sheetcard-price{font-size:clamp(28px,2.3vw,38px)}
+@media (min-width:620px){.d-meridiaan .m-packs-grid[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1400px){.d-meridiaan .m-packs-grid[data-n="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .d-meridiaan .m-sheetcard.is-featured{--fg:var(--parch);--dim:var(--soft);--rule:var(--line-d);--accent:var(--brass);background:var(--green);color:var(--parch)}
 .d-meridiaan .m-sheetcard h3{font-size:clamp(27px,2.3vw,38px)}
 .d-meridiaan .m-sheetcard-price small{margin-left:4px}
@@ -155,6 +161,8 @@ const EXTRA = `
 .d-meridiaan .z-rows small,.d-meridiaan .z-steps small{font-family:var(--m-display),Georgia,serif;font-size:24px;font-style:italic;letter-spacing:0}
 .d-meridiaan .z-price{font-family:var(--m-display),Georgia,serif;font-size:1.15em;color:var(--fg)}
 .d-meridiaan .z-channel{background:var(--ivory)}
+.d-meridiaan .z-ba-sec .z-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+@media (min-width:900px){.d-meridiaan .z-ba:only-child{aspect-ratio:16 / 9}}
 .d-meridiaan .z-ba figcaption{background:var(--green);font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
 .d-meridiaan .m-foot-top .m-logo{max-width:100%}
 .d-meridiaan .m-foot-top p.is-long{font-size:clamp(24px,3vw,46px);line-height:1.16}
@@ -924,7 +932,7 @@ export const meridiaan: Family = {
       <section className="m-packs m-tp" id={s.id}>
         <div className="m-wrap">
           {c.head({ kicker: c.t.kick.packages, title: s.title, intro: s.intro })}
-          <div className="m-packs-grid">
+          <div className="m-packs-grid" data-n={s.items.length}>
             {s.items.map((it, n) => (
               <article key={n} className={`m-sheetcard${it.featured ? " is-featured" : ""}`} data-rv style={i(n % 3)}>
                 <p className="m-sheetcard-top">
