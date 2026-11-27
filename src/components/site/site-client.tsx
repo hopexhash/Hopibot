@@ -46,6 +46,8 @@ export function track(event: string, params: Record<string, string | number | un
 
 const CONSENT_KEY = "hopi-consent";
 const CONSENT_EVENT = "hopi:consent-open";
+/** Stored when the visitor closes the notice while nothing is measured. It is not a consent. */
+const CONSENT_SEEN = "seen";
 const readConsent = () => {
   try {
     return localStorage.getItem(CONSENT_KEY);
@@ -62,9 +64,12 @@ function loadScript(src: string) {
 }
 
 /**
- * Click tracking for the whole site (elements with data-track, phone and email links), and,
- * only when a Google ID is configured in Settings, a consent banner. Google scripts load
- * after the visitor accepts; a refusal is remembered and nothing is loaded.
+ * Click tracking for the whole site (elements with data-track, phone and email links), and the
+ * cookie notice. What the notice says is what the site does: with a Google ID configured in
+ * Settings it asks for consent (Google scripts load only after "Accepteren"; a refusal is
+ * remembered and nothing is loaded). Without one there is nothing to consent to, so it only
+ * tells the visitor that no tracking cookies are placed. Having read that notice is never
+ * treated as consent: once measurement is connected, those visitors are asked.
  */
 export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) {
   const enabled = Boolean(gaId || gtmId);
@@ -86,9 +91,8 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
   }, []);
 
   useEffect(() => {
-    if (!enabled) return;
     const start = () => {
-      if (loaded.current) return;
+      if (!enabled || loaded.current) return;
       loaded.current = true;
       const w = window as DataLayerWindow;
       w.dataLayer = w.dataLayer ?? [];
@@ -107,39 +111,59 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
       }
     };
     const choice = readConsent();
-    if (choice === "yes") start();
+    if (enabled && choice === "yes") start();
     // Opening the banner is a response to something outside React (stored choice, footer link).
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    else if (choice === null) setAsk(true);
+    else if (choice === null || (enabled && choice === CONSENT_SEEN)) setAsk(true);
     const reopen = () => setAsk(true);
     window.addEventListener(CONSENT_EVENT, reopen);
     (window as Window & { __hopiStartAnalytics?: () => void }).__hopiStartAnalytics = start;
     return () => window.removeEventListener(CONSENT_EVENT, reopen);
   }, [enabled, gaId, gtmId]);
 
-  if (!enabled || !ask) return null;
-  const decide = (yes: boolean) => {
+  if (!ask) return null;
+  const store = (value: string) => {
     try {
-      localStorage.setItem(CONSENT_KEY, yes ? "yes" : "no");
+      localStorage.setItem(CONSENT_KEY, value);
     } catch {
       /* storage unavailable: the choice applies to this visit only */
     }
     setAsk(false);
+  };
+  const decide = (yes: boolean) => {
+    store(yes ? "yes" : "no");
     if (yes) (window as Window & { __hopiStartAnalytics?: () => void }).__hopiStartAnalytics?.();
   };
   return (
     <div className="consent" role="dialog" aria-label="Cookies" aria-live="polite">
-      <p>
-        We gebruiken alleen met jouw toestemming cookies om te meten hoe de website wordt gebruikt. <Link href="/cookies">Meer over cookies</Link>
-      </p>
-      <div>
-        <button type="button" className="btn btn-line" onClick={() => decide(false)}>
-          Weigeren
-        </button>
-        <button type="button" className="btn btn-dark" onClick={() => decide(true)}>
-          Accepteren
-        </button>
-      </div>
+      <span className="mono" aria-hidden="true">
+        Cookies
+      </span>
+      {enabled ? (
+        <p>
+          We gebruiken alleen met jouw toestemming cookies om te meten hoe de website wordt gebruikt. <Link href="/cookies">Meer over cookies</Link>
+        </p>
+      ) : (
+        <p>
+          Deze website plaatst geen tracking- of advertentiecookies. Gaan we later bezoeken meten, dan vragen we je eerst om toestemming. <Link href="/cookies">Meer over cookies</Link>
+        </p>
+      )}
+      {enabled ? (
+        <div>
+          <button type="button" className="btn btn-line" onClick={() => decide(false)}>
+            Weigeren
+          </button>
+          <button type="button" className="btn btn-accent" onClick={() => decide(true)}>
+            Accepteren
+          </button>
+        </div>
+      ) : (
+        <div>
+          <button type="button" className="btn btn-accent" onClick={() => store(CONSENT_SEEN)}>
+            Begrepen
+          </button>
+        </div>
+      )}
     </div>
   );
 }

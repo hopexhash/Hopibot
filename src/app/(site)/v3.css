@@ -1315,3 +1315,54 @@ html.lenis body {
     align-items: end;
   }
 }
+
+/* ── Cookie notice: a dark, square block in the corner ── */
+.hopi.v3 .consent {
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  gap: 12px;
+  max-width: 460px;
+  padding: 20px;
+  border: 1px solid rgba(242, 238, 230, 0.2);
+  border-radius: 0;
+  background: #0c0c0d;
+  color: #f2eee6;
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.hopi.v3 .consent .mono {
+  color: var(--accent);
+}
+.hopi.v3 .consent p {
+  margin: 0;
+  color: rgba(242, 238, 230, 0.86);
+}
+.hopi.v3 .consent a {
+  color: #f2eee6;
+}
+.hopi.v3 .consent .btn {
+  flex: 1 1 0;
+  min-height: 48px;
+  font-size: 12.5px;
+}
+.hopi.v3 .consent .btn-line {
+  --btn-fill: #f2eee6;
+  border-color: rgba(242, 238, 230, 0.3);
+  color: #f2eee6;
+}
+.hopi.v3 .consent .btn-accent {
+  --btn-fill: #f2eee6;
+}
+.hopi.v3 .consent .btn:hover {
+  color: #0c0c0d;
+}
+
+/* The colour behind everything. A phone shows it below the last pixel of the page, in the
+   strip beside the home indicator. Every page ends in the dark footer, so it is dark; the
+   light paper belongs to the page sheet (.pg), not to the body. */
+body.hopi.v3 {
+  background-color: #0c0c0d;
+}
+

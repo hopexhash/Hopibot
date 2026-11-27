@@ -16,7 +16,7 @@ export default function CookiesPage() {
             <p>Op deze pagina lees je welke cookies en vergelijkbare technieken deze website gebruikt. We houden het bewust beperkt.</p>
 
             <h2>Noodzakelijk</h2>
-            <p>De website werkt zonder cookies. Geef je een keuze door over statistieken, dan onthoudt je browser die keuze in de lokale opslag, zodat we het je niet bij elk bezoek opnieuw vragen. Daar is geen toestemming voor nodig.</p>
+            <p>De website werkt zonder cookies. Sluit je de cookiemelding of geef je een keuze door over statistieken, dan onthoudt je browser dat in de lokale opslag, zodat je de melding niet bij elk bezoek opnieuw ziet. Daar is geen toestemming voor nodig.</p>
 
             <h2>Statistieken</h2>
             {tracking ? (
