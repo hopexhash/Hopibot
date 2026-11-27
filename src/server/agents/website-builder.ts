@@ -8,6 +8,7 @@ import { DIRECTIONS, finalizeIdentity, fingerprintOf, seedOf } from "@/sites/ide
 import { fallbackBrief, planCreative, recentFingerprints, type CreativeBrief } from "../website/creative";
 import { siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
 import { DESIGN_KEYS, getDesign } from "@/sites/designs";
+import { familyOf } from "@/sites/families";
 import { FONT_FAMILIES } from "@/sites/fonts";
 import { db, schema } from "../db";
 import { claudeStructured } from "../integrations/anthropic";
@@ -160,7 +161,8 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   // A new site is always built in one of the demo designs; later versions of a site keep the design they have.
   const current = DESIGN_KEYS.includes(project.templateKey) ? getDesign(project.templateKey) : null;
   const chosen = current && (type !== "generate_website" || current.demo) ? { design: current, reason: "kept from the project" } : selectDesign({ category: b.category, name: b.name, text: researchText });
-  const design = chosen.design;
+  // A demo design without its family (one that is still being built) falls back to the classic design of the industry.
+  const design = chosen.design.demo && !familyOf(chosen.design.key) ? selectIndustry({ category: b.category, name: b.name, text: researchText }).design : chosen.design;
   // A demo design has one fixed look: no identity is planned for it. The industry still decides content and photographs.
   const fixedLook = Boolean(design.demo);
   const industry = selectIndustry({ category: b.category, name: b.name, text: researchText }).design;
