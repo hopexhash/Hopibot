@@ -61,7 +61,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {/* The page is one opaque sheet: whatever lies behind it only shows when it is pulled away. */}
         <div className="pg">{children}</div>
         <Fx />
-        <StickyCta from={data.fromCents !== null ? data.prices.from : null} whatsapp={data.whatsapp} />
+        <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
         <Reveal />
         <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />
         <JsonLd data={organizationLd({ name: data.name, email: data.email, phone: data.phone, address: data.address, kvk: data.kvk, googleBusinessUrl: data.site.googleBusinessUrl, fromCents: data.fromCents })} />

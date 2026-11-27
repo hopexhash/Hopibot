@@ -332,7 +332,7 @@ export function SiteHeader() {
  * Phone only: a slim bar with the main action once the visitor has scrolled past the first
  * screen. It steps aside while the contact form itself is in view.
  */
-export function StickyCta({ from, whatsapp }: { from: string | null; whatsapp: string | null }) {
+export function StickyCta({ from }: { from: string | null }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     let atForm = false;
@@ -359,22 +359,10 @@ export function StickyCta({ from, whatsapp }: { from: string | null; whatsapp: s
           <b>Eerst zien, dan betalen</b>
           {from && <small>Website vanaf {from}</small>}
         </span>
-        {whatsapp && (
-          <a href={whatsapp} target="_blank" rel="noopener" className="wa-mini" tabIndex={show ? 0 : -1} aria-label="Stuur ons een WhatsApp" data-track="whatsapp_click" data-track-label="sticky">
-            <WhatsAppIcon />
-          </a>
-        )}
         <Link href="/#contact" className="btn btn-green" tabIndex={show ? 0 : -1} data-track="cta_click" data-track-label="sticky">
           Start een project
         </Link>
       </div>
-      {/* Desktop: a floating button in the corner. On phones the bar above carries it once the visitor scrolls. */}
-      {whatsapp && (
-        <a href={whatsapp} target="_blank" rel="noopener" className={`wa-fab${show ? " lifted" : ""}`} aria-label="WhatsApp ons: stuur ons een bericht" data-track="whatsapp_click" data-track-label="floating">
-          <WhatsAppIcon />
-          <span>WhatsApp ons</span>
-        </a>
-      )}
     </>
   );
 }
@@ -581,7 +569,7 @@ export function ContactForm({ packages, source, whatsapp }: { packages: { key: s
             <span>of</span>
           </p>
           <a href={whatsapp} target="_blank" rel="noopener" className="btn btn-wa form-wa" data-track="whatsapp_click" data-track-label="form" data-track-location={source}>
-            <WhatsAppIcon /> Stuur een WhatsApp
+            <WhatsAppIcon /> WhatsApp ons
           </a>
         </>
       )}
