@@ -42,6 +42,12 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   torque: { all: ["Garage Snelweg", "car_repair", "garage"], plain: ["Bandencentrum Noord", "car_repair", "garage"] },
   ledger: { all: ["Administratiekantoor Meijer", "accountant", "estate"], plain: ["Advocatenkantoor Bos", "lawyer", "estate"] },
   kiosk: { all: ["IJssalon Tutti", "shop", "studio"], plain: ["Bubbletea Boba Bar", "street_food", "street-food"] },
+  apex: { all: ["Autobedrijf Van Leeuwen", "car_dealer", "garage"], plain: ["Autoservice Van Dam", "car_repair", "garage"] },
+  nimbus: { all: ["Cloudwerk Software", "it_company", "studio"], plain: ["Schoonmaakbedrijf Glans", "cleaning", "local-service"] },
+  vigor: { all: ["Sportschool Kracht", "gym", "studio"], plain: ["Boksschool De Ring", "personal_trainer", "studio"] },
+  cutline: { all: ["Barbier Van Dam", "barbershop", "barbershop"], plain: ["Tattoo Studio Inkt", "tattoo_studio", "studio"] },
+  serene: { all: ["Kliniek Lumen", "beauty_clinic", "beauty-salon"], plain: ["Praktijk Oost Fysiotherapie", "physiotherapist", "clinic"] },
+  fjord: { all: ["Tandartsenpraktijk Duin", "dentist", "clinic"], plain: ["Schoonmaakbedrijf Glans", "cleaning", "cleaning"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
@@ -60,6 +66,12 @@ const PHOTO_SET: Record<string, string> = {
   torque: "automotive",
   ledger: "law-firm",
   kiosk: "restaurant",
+  apex: "automotive",
+  nimbus: "saas",
+  vigor: "fitness",
+  cutline: "beauty-salon",
+  serene: "beauty-salon",
+  fjord: "dental",
 };
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */

@@ -1,0 +1,161 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo content of the Vigor template: a fictional performance club in Rotterdam. Everything
+ * here is invented for the demonstration (the demo bar says so); prices are labelled as
+ * example prices, there are no reviews, awards, statistics or named people.
+ */
+const photo = (key: string, id: string, alt: string) => ({ key, src: `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=1600`, alt, license: "stock" as const, credit: "Unsplash" });
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Vigor Performance Club — trainen met een plan in Rotterdam",
+    description: "Kracht, conditie, boksen, sprint en mobiliteit in kleine groepen met een coach. Plan een gratis proefles bij Vigor Performance Club in Rotterdam.",
+    lang: "nl",
+    keywords: ["sportschool Rotterdam", "krachttraining", "small group training", "boksen", "conditietraining", "personal training", "proefles", "performance training"],
+  },
+  theme: { template: "corporate", design: "vigor", variation: 0, primary: "#0c0c0d", accent: "#ff4b12", mode: "light", font: "Big Shoulders Display", radius: "sharp" },
+  business: {
+    name: "Vigor Performance Club",
+    tagline: "Train met een plan. Meet wat je doet.",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Rotterdam",
+    mapsUrl: null,
+    openingHours: ["Maandag – Vrijdag: 06:00 – 22:00", "Zaterdag: 08:00 – 17:00", "Zondag: 08:00 – 13:00"],
+  },
+  images: [
+    photo("hero", "1534367507873-d2d7e24c797f", "Atlete met een halter op de schouders, klaar voor een squat"),
+    photo("about", "1599058945522-28d584b6f0ff", "Atleet die even uitrust tegen een betonnen muur na een training buiten"),
+    photo("art:svc0", "1517836477839-7072aaa8b121", "Deadlift met een volle halter op een rubberen vloer"),
+    photo("art:svc1", "1599058917765-a780eda07a3e", "Battle ropes in een overdekte trainingsruimte"),
+    photo("art:svc2", "1517438322307-e67111335449", "Bokstraining op de pads met een coach"),
+    photo("art:svc3", "1461896836934-ffe607ba8211", "Sprinter in de startblokken op een atletiekbaan"),
+    photo("art:svc4", "1599901860904-17e6ed7083a0", "Mobiliteitsoefening op een mat, in zwart-wit"),
+    photo("art:svc5", "1520334363269-c1b342d17261", "Atlete hangt aan de pull-up bar van een rig"),
+    photo("art:svc6", "1552674605-db6ffd4facb5", "Drie hardlopers in tegenlicht op een lege weg"),
+    photo("art:svc7", "1611672585731-fa10603fb9e0", "Sporter met dumbbells voor een rek in een donkere gym"),
+    photo("g1", "1517344884509-a0c97ec11bcc", "Handen om een klimtouw, in zwart-wit"),
+    photo("g2", "1590487988256-9ed24133863e", "Squat rack in een industriële trainingsruimte"),
+    photo("g3", "1521805103424-d8f8430e8933", "Halterschijven en een stang op de vloer"),
+    photo("g4", "1603287681836-b174ce5074c2", "Gespierde rug van een sporter in het donker"),
+    photo("g5", "1549060279-7e168fcee0c2", "Hand om de halterstang vlak voor een lift"),
+    photo("g6", "1605296867724-fa87a8ef53fd", "Sporter bij de halter in een donkere zaal"),
+    photo("show", "1518310383802-640c2de311b2", "Groepsles met dumbbells in een lichte loods"),
+  ],
+  hero: {
+    eyebrow: "Performance club · Rotterdam",
+    headline: "Sterker dan *gisteren*",
+    subheadline: "Kracht, conditie, boksen en snelheid in kleine groepen, met een coach die je techniek ziet en je voortgang bijhoudt. Je eerste les is een proefles.",
+    primaryCta: { label: "Plan je proefles", href: "#proefles" },
+    secondaryCta: { label: "Bekijk de programma's", href: "#programmas" },
+    image: "hero",
+    layout: "fullbleed",
+    note: "Train met een plan",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "club",
+      title: "Geen gym vol apparaten. Een *club* met een plan.",
+      paragraphs: [
+        "Bij Vigor train je in blokken van zes weken, in groepen van maximaal acht. Elke training heeft een doel, elke oefening een reden.",
+        "We beginnen met een intake waarin we kijken hoe je beweegt, wat je wilt bereiken en wat er in je agenda past. Daarna weet je precies welke lessen je volgt en waarom.",
+        "Je logt je gewichten, tijden en rondes in de club. Zo zie je zwart op wit wat je beter doet dan zes weken geleden.",
+      ],
+      image: "about",
+      highlights: ["Maximaal acht sporters per les", "Blokken van zes weken", "Intake en bewegingsscan", "Voortgang die je kunt teruglezen"],
+    },
+    {
+      type: "services",
+      id: "programmas",
+      title: "Programma's",
+      intro: "Acht programma's, één aanpak: techniek eerst, dan intensiteit. Combineer ze zoals het in je schema past.",
+      items: [
+        { title: "Strength Lab", description: "Squat, deadlift, press en pull. Techniek, opbouw in gewicht en een logboek per blok van zes weken.", icon: "bolt", duration: "Ma, wo, vr · 07:00", price: null },
+        { title: "Engine", description: "Intervallen op rower, airbike en sled. Je werkt in hartslagzones, zodat je conditie meetbaar groeit.", icon: "flame", duration: "Di, do · 18:30", price: null },
+        { title: "Fight Fit", description: "Bokstechniek op de pads en zakken, gecombineerd met footwork en core. Geen sparring, wel volle inzet.", icon: "spark", duration: "Ma, wo · 19:30", price: null },
+        { title: "Sprint & Speed", description: "Starts, versnellingen en plyometrie op de baan en in de zaal. Voor sporters die sneller willen zijn op het veld.", icon: "bike", duration: "Za · 09:00", price: null },
+        { title: "Mobility Reset", description: "Een rustig uur voor heupen, schouders en wervelkolom. Ideaal naast zware trainingsdagen.", icon: "leaf", duration: "Di, do · 07:00", price: null },
+        { title: "Rig & Bodyweight", description: "Pull-ups, dips, handstanden en ringen. Stap voor stap van de eerste hang naar je eerste muscle-up.", icon: "user", duration: "Vr · 18:30", price: null },
+        { title: "Hybrid Run", description: "Hardlopen gecombineerd met functionele stations. Een uitdagende mix van kracht en uithoudingsvermogen.", icon: "map", duration: "Zo · 09:30", price: null },
+        { title: "Personal Coaching", description: "Eén op één met een coach, met een programma dat volledig om jouw doel en blessuregeschiedenis heen is gebouwd.", icon: "calendar", duration: "Op afspraak", price: null },
+      ],
+    },
+    {
+      type: "statement",
+      id: "manifest",
+      title: "Motivatie komt en gaat. *Een plan* blijft.",
+      note: "Waarom we in blokken trainen",
+    },
+    {
+      type: "features",
+      id: "aanpak",
+      title: "Zo trainen we",
+      intro: "Vier afspraken die in elke les terugkomen, of je nu voor je eerste deadlift komt of voor een wedstrijd traint.",
+      items: [
+        { title: "Techniek eerst", description: "Een coach kijkt mee bij elke lift. Pas als de beweging klopt, gaat het gewicht omhoog.", icon: "check" },
+        { title: "Kleine groepen", description: "Maximaal acht sporters per les, zodat er tijd is voor correctie en een eigen schaal.", icon: "user" },
+        { title: "Meetbaar", description: "Gewichten, tijden en rondes noteer je per blok. Zo zie je wat werkt en wat aandacht nodig heeft.", icon: "chart" },
+        { title: "Herstel telt mee", description: "Mobiliteit en rustdagen staan in je schema, niet als bijzaak maar als onderdeel van de training.", icon: "leaf" },
+      ],
+    },
+    {
+      type: "process",
+      id: "start",
+      title: "Je eerste zes weken",
+      intro: "Van proefles tot je eerste nieuwe persoonlijke record: zo ziet de start eruit.",
+      steps: [
+        { title: "Proefles", description: "Je traint een les mee in het programma van je keuze en maakt kennis met de coaches." },
+        { title: "Intake", description: "We bespreken je doel en doen een korte bewegingsscan van heupen, schouders en enkels." },
+        { title: "Startblok", description: "Zes weken met een vast schema, waarin je de basistechnieken onder begeleiding leert." },
+        { title: "Evaluatie", description: "We vergelijken je logboek met week één en stellen samen het volgende blok op." },
+      ],
+    },
+    {
+      type: "packages",
+      id: "lidmaatschap",
+      title: "Lidmaatschappen",
+      intro: "Kies hoe vaak je wilt trainen. Elk lidmaatschap begint met een intake en een proefles.",
+      items: [
+        { name: "Starter", price: "€ 59", unit: "per maand", description: "Twee lessen per week in alle groepsprogramma's.", features: ["2 lessen per week", "Intake en bewegingsscan", "Logboek per blok"], featured: false },
+        { name: "Unlimited", price: "€ 89", unit: "per maand", description: "Train zo vaak als je wilt, in elk programma.", features: ["Onbeperkt lessen", "Intake en bewegingsscan", "Evaluatie na elk blok", "Open gym in daluren"], featured: true },
+        { name: "Personal", price: "€ 69", unit: "per sessie", description: "Eén op één met een coach, op een moment dat jou past.", features: ["Programma op maat", "Sessies van 60 minuten", "Evaluatie per blok"], featured: false },
+      ],
+      note: "Voorbeeldprijzen in dit ontwerpconcept. De definitieve tarieven staan op de officiële website.",
+    },
+    { type: "gallery", id: "in-beeld", title: "De club in *beeld*", images: ["g1", "g2", "g3", "g4", "g5", "g6"] },
+    {
+      type: "showcase",
+      id: "samen",
+      title: "Samen *sneller*",
+      body: "In kleine groepen train je harder dan alleen. Iedereen werkt op een eigen schaal, maar niemand stopt als eerste.",
+      image: "show",
+      cta: { label: "Kies een programma", href: "#programmas" },
+    },
+    { type: "hours", id: "trainingstijden", title: "Trainingstijden", note: "Buiten de lessen is de zaal open voor leden met Unlimited. Op feestdagen gelden aangepaste tijden." },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Vragen",
+      items: [
+        { q: "Moet ik al fit zijn om te beginnen?", a: "Nee. Elke oefening heeft een lichtere variant en de coach past de schaal aan jouw niveau aan. Je start altijd met een proefles en een intake." },
+        { q: "Wat neem ik mee naar de proefles?", a: "Sportkleding, schone zaalschoenen en een bidon. Kom tien minuten eerder, dan laten we je de club zien." },
+        { q: "Kan ik programma's combineren?", a: "Ja. Met een Unlimited lidmaatschap train je in elk programma. Tijdens de intake stellen we samen een weekschema op dat bij je doel past." },
+        { q: "Hoe werkt opzeggen?", a: "Lidmaatschappen zijn maandelijks opzegbaar. Na je startblok van zes weken kies je zelf of en hoe je verdergaat." },
+        { q: "Is er een kleedruimte met douches?", a: "Ja, er zijn kleedruimtes met douches en kluisjes. Neem een eigen slot en handdoek mee." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "proefles",
+      title: "Plan je *proefles*",
+      body: "Kies een programma en een moment. We bevestigen je proefles en sturen je wat je moet weten voor je eerste training.",
+      kind: "appointment",
+      options: ["Strength Lab", "Engine", "Fight Fit", "Sprint & Speed", "Mobility Reset", "Rig & Bodyweight", "Hybrid Run", "Personal Coaching"],
+    },
+    { type: "contact", id: "contact", title: "Vraag het de coach", body: "Twijfel je welk programma bij je past, of heb je een blessure waar we rekening mee moeten houden? Stuur een bericht, dan denken we mee.", showForm: true, showMap: false },
+  ],
+  footer: { blurb: "Vigor Performance Club — kracht, conditie en snelheid in kleine groepen in Rotterdam." },
+};

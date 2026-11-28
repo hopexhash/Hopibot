@@ -1,0 +1,145 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo content of the Fjord template: a fictional dental practice in Haarlem. Treatments,
+ * durations and example prices are illustrative (the demo bar labels the site a concept); the
+ * team is described by role only, without names or registrations.
+ */
+const img = (id: string, w = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Tandartsen Fjord · Tandartsenpraktijk in Haarlem",
+    description: "Tandartsenpraktijk in Haarlem voor het hele gezin. Rustige tandzorg, uitleg bij elke stap en een heldere prijs vooraf. Ook voor angstige patiënten.",
+    lang: "nl",
+    keywords: ["tandarts Haarlem", "tandartsenpraktijk", "mondhygiënist", "onzichtbare beugel", "tanden bleken", "implantaat", "angst voor de tandarts", "nieuwe patiënten"],
+  },
+  theme: { template: "dental", design: "fjord", variation: 0, primary: "#14212b", accent: "#2d5b80", mode: "light", font: "Manrope", radius: "soft" },
+  business: {
+    name: "Tandartsen Fjord",
+    tagline: "Tandartsenpraktijk voor het hele gezin in Haarlem",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Haarlem",
+    mapsUrl: null,
+    openingHours: ["Maandag: 08:00 – 17:00", "Dinsdag: 08:00 – 17:00", "Woensdag: 08:00 – 17:00", "Donderdag: 08:00 – 20:00", "Vrijdag: 08:00 – 15:00", "Zaterdag: Gesloten", "Zondag: Gesloten"],
+  },
+  images: [
+    { key: "hero", src: img("1445527815219-ecbfec67492e", 1920), alt: "Lichte behandelkamer met twee tandartsstoelen en veel daglicht", license: "stock", credit: "Unsplash" },
+    { key: "about", src: img("1524758631624-e2822e304c36"), alt: "Lichte wachtruimte met grijze stoelen, houten kasten en grote ramen", license: "stock", credit: "Unsplash" },
+    { key: "art:svc0", src: img("1606811971618-4486d14f3f99", 1100), alt: "Tandarts controleert het gebit met een spiegeltje en sonde", license: "stock", credit: "Unsplash" },
+    { key: "art:svc1", src: img("1607613009820-a29f7bb81c04", 1100), alt: "Bamboe tandenborstels in een glas naast een takje eucalyptus", license: "stock", credit: "Unsplash" },
+    { key: "art:svc2", src: img("1489278353717-f64c6ee8a4d2", 1100), alt: "Lachende vrouw met krullend haar, close-up van haar glimlach", license: "stock", credit: "Unsplash" },
+    { key: "art:svc3", src: img("1564420228450-d9a5bc8d6565", 1100), alt: "Handen houden doorzichtige aligners en een bewaardoosje omhoog", license: "stock", credit: "Unsplash" },
+    { key: "art:svc4", src: img("1600170311833-c2cf5280ce49", 1100), alt: "Tandarts wijst op een 3D-scan van het gebit op een tablet", license: "stock", credit: "Unsplash" },
+    { key: "art:svc5", src: img("1519710164239-da123dc03ef4", 1100), alt: "Rustige witte hoek met een tafeltje, stoel en planten", license: "stock", credit: "Unsplash" },
+    { key: "team0", src: img("1588776813677-77aaf5595b83", 1100), alt: "Tandarts met mondkapje en loepbril aan het werk", license: "stock", credit: "Unsplash" },
+    { key: "team1", src: img("1606265752439-1f18756aa5fc", 1100), alt: "Mondhygiënist met mondkapje houdt een spiegeltje en sonde vast", license: "stock", credit: "Unsplash" },
+    { key: "team2", src: img("1527613426441-4da17471b66d", 1100), alt: "Assistent met mondkapje en witte jas in de praktijk", license: "stock", credit: "Unsplash" },
+    { key: "g1", src: img("1629909615184-74f495363b67", 1100), alt: "Witte behandelkamer met lichtblauwe tandartsstoel", license: "stock", credit: "Unsplash" },
+    { key: "g2", src: img("1609207825181-52d3214556dd", 1100), alt: "Behandelkamer met natuurstenen wand, houten vloer en groot raam", license: "stock", credit: "Unsplash" },
+    { key: "g3", src: img("1588776814546-1ffcf47267a5", 1100), alt: "Tandarts bekijkt röntgenfoto's van het gebit op een lichtscherm", license: "stock", credit: "Unsplash" },
+    { key: "g4", src: img("1629909613654-28e377c37b09", 1100), alt: "Ruime behandelkamer met lamellen voor de ramen", license: "stock", credit: "Unsplash" },
+    { key: "g5", src: img("1580489944761-15a19d654956", 1100), alt: "Glimlachende vrouw in een wit shirt tegen een lichte achtergrond", license: "stock", credit: "Unsplash" },
+    { key: "show", src: img("1606811841689-23dfddce3e95", 1920), alt: "Tandarts legt een patiënt in de stoel iets uit op het scherm", license: "stock", credit: "Unsplash" },
+  ],
+  hero: {
+    eyebrow: "Tandartsenpraktijk · Haarlem",
+    headline: "Rustige tandzorg, *eerlijk* uitgelegd",
+    subheadline: "Een tandartsenpraktijk voor het hele gezin. We nemen de tijd, laten u zien wat we zien en u weet vooraf wat een behandeling kost.",
+    primaryCta: { label: "Maak een afspraak", href: "#afspraak" },
+    secondaryCta: { label: "Uw eerste bezoek", href: "#eerste-bezoek" },
+    image: "hero",
+    layout: "split",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "praktijk",
+      title: "Een praktijk met *ruimte* om te ademen",
+      paragraphs: [
+        "Tandartsen Fjord is een kleine praktijk in Haarlem met drie lichte behandelkamers en een wachtruimte waar u niet tussen de boren zit.",
+        "We werken op afspraak en plannen ruim. Zo is er tijd voor uw vragen, en voor uitleg voordat we beginnen.",
+      ],
+      image: "about",
+      highlights: ["Nieuwe patiënten welkom", "Kindertandzorg", "Avondspreekuur op donderdag", "Rolstoeltoegankelijk"],
+    },
+    {
+      type: "features",
+      id: "afspraken",
+      title: "Waar u op kunt *rekenen*",
+      intro: "Geen beloftes over wonderen. Wel over hoe we met u en uw gebit omgaan.",
+      items: [
+        { title: "Heldere prijs vooraf", description: "Bij elke behandeling buiten de controle krijgt u eerst een begroting op papier.", icon: "check" },
+        { title: "Ook voor angstige patiënten", description: "Extra tijd, een rustige uitleg en u bepaalt zelf het tempo.", icon: "heart" },
+        { title: "Uitleg op het scherm", description: "U ziet de foto's en scans zelf, en we leggen uit wat we zien.", icon: "chat" },
+        { title: "Bij pijn snel geholpen", description: "Elke werkdag houden we ruimte vrij voor spoedafspraken.", icon: "clock" },
+      ],
+    },
+    {
+      type: "services",
+      id: "behandelingen",
+      title: "Behandelingen",
+      intro: "Van controle tot implantaat. Per behandeling leest u wat u kunt verwachten. Genoemde tarieven zijn voorbeeldprijzen.",
+      items: [
+        { title: "Controle", description: "Een controle van tanden, tandvlees en eerdere vullingen. We beginnen met uw vragen. Röntgenfoto's maken we alleen als het nodig is. U hoort direct wat we zien.", icon: "check", duration: "20 minuten", price: "vanaf € 30" },
+        { title: "Mondhygiëne", description: "Een grondige reiniging door de mondhygiënist. Tandsteen en aanslag worden verwijderd. Bij gevoeligheid kan het met verdoving. U krijgt tips die passen bij uw poetsroutine.", icon: "drop", duration: "45 minuten", price: "vanaf € 65" },
+        { title: "Tanden bleken", description: "Thuisbleken met lepels die op maat worden gemaakt. Eerst controleren we of bleken bij u past. Na twee weken bekijken we samen het resultaat.", icon: "sun", duration: "2 afspraken", price: "vanaf € 295" },
+        { title: "Onzichtbare beugel", description: "Doorzichtige aligners die uw tanden stap voor stap verplaatsen. We starten met een 3D-scan, zonder afdrukmateriaal. U ziet vooraf een simulatie van het plan.", icon: "spark", duration: "Intake 60 min", price: "vanaf € 1.950" },
+        { title: "Implantaten & kronen", description: "Vervanging van een ontbrekende tand of kies door een implantaat met kroon. Na een 3D-scan bespreken we het plan en de kosten. De behandeling verloopt in fases.", icon: "tooth", duration: "In fases", price: "Prijs na intake" },
+        { title: "Begeleiding bij angst", description: "Een rustige aanpak voor wie spanning voelt bij de tandarts. We plannen eerst een kennismaking zonder behandeling. U kunt altijd een stopteken geven.", icon: "heart", duration: "Extra tijd" },
+      ],
+    },
+    { type: "showcase", id: "uitleg", title: "Eerst *uitleg*, dan pas behandelen", body: "Op het scherm naast de stoel ziet u dezelfde foto's als wij. Zo begrijpt u waarom we iets voorstellen, en wat er gebeurt als u nog even wacht.", image: "show", cta: { label: "Uw eerste bezoek", href: "#eerste-bezoek" } },
+    {
+      type: "process",
+      id: "eerste-bezoek",
+      title: "Uw eerste bezoek",
+      intro: "Nieuw bij Fjord? Zo verloopt het, van aanmelding tot behandeling.",
+      steps: [
+        { title: "Aanmelden", description: "Via het formulier of aan de balie. U ontvangt een korte vragenlijst over uw gezondheid en medicijnen." },
+        { title: "Kennismaken", description: "We beginnen met een gesprek: hoe gaat het met uw gebit, en waar maakt u zich zorgen over?" },
+        { title: "Onderzoek & uitleg", description: "Een volledig onderzoek, met foto's als dat nodig is. Alles wat we zien, laten we u op het scherm zien." },
+        { title: "Plan & prijs", description: "U krijgt een behandelplan met een begroting. U beslist zelf wanneer u verder wilt." },
+        { title: "Behandeling", description: "Op een moment dat u past, met extra tijd als u die nodig heeft." },
+      ],
+    },
+    {
+      type: "team",
+      id: "team",
+      title: "Het *team*",
+      intro: "Een klein team, ieder met een eigen rol. Bij uw eerste bezoek stellen we ons voor.",
+      members: [
+        { name: "Tandarts", role: "Algemene tandheelkunde", bio: "Controles, vullingen, kronen en implantaten, en uw vaste aanspreekpunt voor het behandelplan.", image: "team0" },
+        { name: "Mondhygiënist", role: "Preventie & reiniging", bio: "Reiniging, tandvleesbehandelingen en advies over poetsen en ragen dat bij u past.", image: "team1" },
+        { name: "Tandartsassistent", role: "Ontvangst & assistentie", bio: "Plant uw afspraken, helpt bij de behandeling en is er voor uw vragen.", image: "team2" },
+      ],
+    },
+    { type: "gallery", id: "de-praktijk", title: "De praktijk", images: ["g1", "g2", "g3", "g4", "g5"] },
+    { type: "statement", id: "visie", title: "Goede tandzorg begint met *luisteren*, niet met de boor.", note: "Hoe wij werken" },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Veelgestelde vragen",
+      items: [
+        { q: "Nemen jullie nieuwe patiënten aan?", a: "Ja. Meld u aan via het formulier, dan plannen we een eerste bezoek. Neem uw identiteitsbewijs en zorgpas mee." },
+        { q: "Wat kost een controle?", a: "Een controle valt onder de vastgestelde tarieven voor mondzorg. Voor andere behandelingen krijgt u altijd eerst een begroting." },
+        { q: "Vergoedt mijn zorgverzekering de behandeling?", a: "Voor kinderen tot 18 jaar valt de meeste tandzorg onder de basisverzekering. Voor volwassenen hangt het af van uw aanvullende verzekering." },
+        { q: "Ik zie erg op tegen de tandarts. Wat nu?", a: "Vertel het ons bij de aanmelding. We plannen dan eerst een kennismaking zonder behandeling en nemen bij elke afspraak extra tijd." },
+        { q: "Kunnen kinderen bij jullie terecht?", a: "Ja, vanaf het doorbreken van de eerste tandjes. Kinderen komen het liefst samen met een ouder op controle." },
+        { q: "Wat doe ik bij spoed buiten openingstijden?", a: "Buiten openingstijden kunt u terecht bij de tandartsenspoeddienst in de regio. Bij de aanmelding ontvangt u het nummer." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "afspraak",
+      title: "Maak een *afspraak*",
+      body: "Kies waarvoor u komt en wanneer het u uitkomt. We bellen of mailen u binnen één werkdag om de afspraak te bevestigen.",
+      kind: "appointment",
+      options: ["Eerste bezoek (nieuwe patiënt)", "Controle", "Mondhygiëne", "Tanden bleken", "Onzichtbare beugel", "Implantaten & kronen", "Ik heb pijn"],
+    },
+    { type: "hours", id: "openingstijden", title: "Openingstijden & bereikbaarheid", note: "In het centrum van Haarlem, op loopafstand van het station. Fietsen kunt u voor de deur stallen; in de buurt is betaald parkeren." },
+  ],
+  footer: { blurb: "Tandartsen Fjord is een tandartsenpraktijk in Haarlem voor het hele gezin: rustige tandzorg, uitleg bij elke stap en een heldere prijs vooraf." },
+};

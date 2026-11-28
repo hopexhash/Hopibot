@@ -117,6 +117,30 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Sorbet", swatch: "#ff7a45", rules: [{ h: [320, 345], s: [0.4, 1], dh: 50, ds: 1 }, { h: [150, 170], dh: 40, ds: 0.9 }] },
     { name: "Blue raspberry", swatch: "#3f8cff", rules: [{ h: [320, 345], s: [0.4, 1], dh: -115, ds: 1 }, { h: [150, 170], dh: -100, ds: 1.1 }] },
   ],
+  apex: [
+    { name: "Giallo", swatch: "#f2b705", rules: [{ h: [330, 20], s: [0.4, 1], dh: 52, ds: 1, dl: 0.04 }] },
+    { name: "Blu", swatch: "#2f6bff", rules: [{ h: [330, 20], s: [0.4, 1], dh: -132, ds: 1, dl: 0.06 }] },
+  ],
+  nimbus: [
+    { name: "Emerald", swatch: "#12b886", rules: [{ h: [185, 245], s: [0.3, 1], l: [0.2, 0.95], dh: -68, ds: 0.9, dl: -0.04 }] },
+    { name: "Sunset", swatch: "#f0446a", rules: [{ h: [185, 245], s: [0.3, 1], l: [0.2, 0.95], dh: 122, ds: 0.95 }] },
+  ],
+  vigor: [
+    { name: "Hyper pink", swatch: "#ff1f6c", rules: [{ h: [5, 30], s: [0.6, 1], dh: -31, ds: 1, dl: 0.02 }] },
+    { name: "Signal yellow", swatch: "#ffc21a", rules: [{ h: [5, 30], s: [0.6, 1], dh: 27, ds: 1, dl: 0.04 }] },
+  ],
+  cutline: [
+    { name: "Tobacco", swatch: "#c9a27a", rules: [{ h: [20, 50], s: [0.08, 1], l: [0.5, 1], dh: -6, ds: 2.6, dl: -0.06 }, { h: [20, 50], l: [0, 0.5], dh: -8, ds: 2.4, dl: 0.01 }] },
+    { name: "Steel", swatch: "#b9c4cc", rules: [{ h: [20, 50], dh: 168, ds: 1.1 }] },
+  ],
+  serene: [
+    { name: "Rosé", swatch: "#9a6b62", rules: [{ h: [20, 60], s: [0.2, 1], dh: -28, ds: 1.05 }, { h: [20, 60], s: [0, 0.2], dh: -22, ds: 1.2 }] },
+    { name: "Celadon", swatch: "#5f7a68", rules: [{ h: [20, 60], s: [0.2, 1], dh: 105, ds: 0.75 }, { h: [20, 60], s: [0, 0.2], dh: 100, ds: 0.8 }] },
+  ],
+  fjord: [
+    { name: "Pine", swatch: "#2f6a5a", rules: [{ h: [190, 225], dh: -45, ds: 0.9 }] },
+    { name: "Dusk", swatch: "#5a4f86", rules: [{ h: [190, 225], dh: 45, ds: 0.85 }] },
+  ],
 };
 
 /** How many looks a family has: its original colours plus its colourways. */

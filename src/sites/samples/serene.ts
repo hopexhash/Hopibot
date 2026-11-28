@@ -1,0 +1,148 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo content of the Serene template: a fictional private clinic in Amsterdam-Zuid. Treatments,
+ * durations and example prices are illustrative (the demo bar labels the site a concept); the
+ * team is described by role only, without names or registrations.
+ */
+const img = (id: string, w = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Serene Kliniek · Privékliniek in Amsterdam-Zuid",
+    description: "Privékliniek voor esthetische en medische huidbehandelingen in Amsterdam-Zuid. Altijd eerst een persoonlijk consult, een plan op maat en de prijs vooraf.",
+    lang: "nl",
+    keywords: ["privékliniek", "huidkliniek Amsterdam", "huidconsult", "skinbooster", "chemische peeling", "microneedling", "rimpelbehandeling", "Amsterdam-Zuid"],
+  },
+  theme: { template: "beauty", design: "serene", variation: 0, primary: "#2a2723", accent: "#7d6442", mode: "light", font: "Italiana", radius: "round" },
+  business: {
+    name: "Serene Kliniek",
+    tagline: "Privékliniek voor esthetische en medische huidzorg",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Amsterdam-Zuid",
+    mapsUrl: null,
+    openingHours: ["Maandag: 09:00 – 18:00", "Dinsdag: 09:00 – 20:00", "Woensdag: 09:00 – 18:00", "Donderdag: 09:00 – 20:00", "Vrijdag: 09:00 – 17:00", "Zaterdag: 10:00 – 15:00", "Zondag: Gesloten"],
+  },
+  images: [
+    { key: "hero", src: img("1614283233556-f35b0c801ef1", 1920), alt: "Vrouw met gesloten ogen en een stralende huid, in profiel tegen een lichte achtergrond", license: "stock", credit: "Unsplash" },
+    { key: "about", src: img("1631679706909-1844bbd07221"), alt: "Lichte wachtlounge met crèmekleurige bank, ronde spiegels en zachte vloerkleden", license: "stock", credit: "Unsplash" },
+    { key: "art:svc0", src: img("1573461160327-b450ce3d8e7f", 1100), alt: "Druppel serum uit een pipet op de rug van een hand", license: "stock", credit: "Unsplash" },
+    { key: "art:svc1", src: img("1552693673-1bf958298935", 1100), alt: "Behandelaar met handschoenen werkt nauwkeurig aan het gezicht van een cliënt", license: "stock", credit: "Unsplash" },
+    { key: "art:svc2", src: img("1588776814546-daab30f310ce", 1100), alt: "Medische behandeling in een witte behandelkamer met twee behandelaars", license: "stock", credit: "Unsplash" },
+    { key: "art:svc3", src: img("1616394584738-fc6e612e71b9", 1100), alt: "Cliënt met een masker op het gezicht tijdens een peeling", license: "stock", credit: "Unsplash" },
+    { key: "art:svc4", src: img("1570172619644-dfd03ed5d881", 1100), alt: "Gezichtsbehandeling waarbij een product met een kwast wordt aangebracht", license: "stock", credit: "Unsplash" },
+    { key: "art:svc5", src: img("1619451334792-150fd785ee74", 1100), alt: "Handen houden een open potje huidverzorging vast", license: "stock", credit: "Unsplash" },
+    { key: "team0", src: img("1532938911079-1b06ac7ceec7", 1100), alt: "Arts in witte jas met de armen over elkaar en een stethoscoop", license: "stock", credit: "Unsplash" },
+    { key: "team1", src: img("1584820927498-cfe5211fd8bf", 1100), alt: "Handen trekken blauwe medische handschoenen aan", license: "stock", credit: "Unsplash" },
+    { key: "team2", src: img("1584432810601-6c7f27d2362b", 1100), alt: "Zorgverlener in wit uniform met de handen gevouwen", license: "stock", credit: "Unsplash" },
+    { key: "g1", src: img("1590439471364-192aa70c0b53", 1100), alt: "Opgerolde handdoek, borstel en keramiek in natuurlijke tinten", license: "stock", credit: "Unsplash" },
+    { key: "g2", src: img("1608571423902-eed4a5ad8108", 1100), alt: "Amberkleurig flesje op een houten sokkel met schaduwen van bladeren", license: "stock", credit: "Unsplash" },
+    { key: "g3", src: img("1617897903246-719242758050", 1100), alt: "Flesje gezichtsolie met eucalyptus op wit linnen", license: "stock", credit: "Unsplash" },
+    { key: "g4", src: img("1600428877878-1a0fd85beda8", 1100), alt: "Rozenkwarts gezichtsroller en serum op een witte ondergrond", license: "stock", credit: "Unsplash" },
+    { key: "g5", src: img("1503236823255-94609f598e71", 1100), alt: "Kwast in een potje poeder op een witte tafel", license: "stock", credit: "Unsplash" },
+    { key: "g6", src: img("1620916297397-a4a5402a3c6c", 1100), alt: "Hand met een klein flesje serum boven zacht linnen", license: "stock", credit: "Unsplash" },
+    { key: "show", src: img("1507652313519-d4e9174996dd", 1920), alt: "Ruimte met een vrijstaand bad, natuursteen en een palm in zacht daglicht", license: "stock", credit: "Unsplash" },
+  ],
+  hero: {
+    eyebrow: "Privékliniek · Amsterdam-Zuid",
+    headline: "Rust, aandacht en *medische* precisie",
+    subheadline: "Een privékliniek voor esthetische en medische huidbehandelingen. U begint altijd met een persoonlijk consult, krijgt een plan op maat en kent de prijs vooraf.",
+    primaryCta: { label: "Plan een consult", href: "#afspraak" },
+    secondaryCta: { label: "Bekijk behandelingen", href: "#behandelingen" },
+    image: "hero",
+    layout: "centered",
+    note: "Altijd eerst een consult",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "kliniek",
+      title: "Een kliniek die de *tijd* neemt",
+      paragraphs: [
+        "Bij Serene begint elke behandeling met een gesprek. Wat wilt u bereiken, wat past bij uw huid en wat is verstandig? Pas daarna kiezen we samen of, en zo ja hoe, we behandelen.",
+        "De kliniek is klein gehouden: twee behandelkamers en een stille lounge, zodat u nooit in een volle wachtkamer zit.",
+        "U ziet bij elke afspraak dezelfde behandelaar. Zo hoeft u uw verhaal niet steeds opnieuw te vertellen en bouwen we rustig verder aan het plan dat we samen maakten.",
+      ],
+      image: "about",
+      highlights: ["Altijd eerst een consult", "Eén vaste behandelaar", "Privé behandelkamers", "Prijs vooraf op papier"],
+    },
+    {
+      type: "services",
+      id: "behandelingen",
+      title: "Behandelingen",
+      intro: "Elke behandeling wordt afgestemd op uw huid. Per behandeling leest u wat het is, hoe lang het duurt en wat u qua herstel kunt verwachten. Genoemde tarieven zijn voorbeeldprijzen.",
+      items: [
+        { title: "Huidconsult & analyse", description: "Een uitgebreid gesprek en een analyse van uw huid onder vergrootlicht. U ontvangt een persoonlijk plan, zonder verplichting om te behandelen. Herstel: geen.", icon: "spark", duration: "45 minuten", price: "€ 85" },
+        { title: "Rimpelbehandeling", description: "Ontspanning van mimische lijnen op het voorhoofd en rond de ogen, uitgevoerd door de arts na een medisch consult. Herstel: direct weer aan het werk, sporten na 24 uur.", icon: "user", duration: "30 minuten", price: "vanaf € 245" },
+        { title: "Skinbooster", description: "Kleine injecties met hyaluronzuur die de huid van binnenuit van vocht voorzien, voor een frissere en egalere teint. Herstel: kleine bultjes die binnen 1 à 2 dagen wegtrekken.", icon: "drop", duration: "45 minuten", price: "vanaf € 295" },
+        { title: "Chemische peeling", description: "Een medische peeling op maat die de bovenste huidlaag vernieuwt, gericht op pigment, textuur en een doffe huid. Herstel: 3 tot 5 dagen lichte schilfering.", icon: "sun", duration: "40 minuten", price: "vanaf € 145" },
+        { title: "Microneedling", description: "Met fijne naaldjes zetten we de huid aan tot eigen herstel, gericht op littekens, poriën en textuur. Meestal in een kuur van drie. Herstel: 1 à 2 dagen een rode huid.", icon: "leaf", duration: "60 minuten", price: "vanaf € 225" },
+        { title: "Huidverzorging op maat", description: "Een routine voor thuis, samengesteld op basis van uw huidanalyse, met uitleg over gebruik en volgorde. Zo houdt u het resultaat langer vast. Herstel: geen.", icon: "heart", duration: "30 minuten", price: "€ 65" },
+      ],
+    },
+    { type: "statement", id: "visie", title: "Wij behandelen alleen wat u *werkelijk* nodig heeft, en zeggen het eerlijk als dat niets is.", note: "Onze werkwijze in één zin" },
+    {
+      type: "process",
+      id: "traject",
+      title: "Uw traject",
+      intro: "Van eerste kennismaking tot nazorg: zo verloopt een behandeling bij Serene.",
+      steps: [
+        { title: "Kennismaking", description: "U plant online of telefonisch een consult. Vooraf ontvangt u een korte vragenlijst over uw huid en eventuele medicatie." },
+        { title: "Consult & analyse", description: "We bekijken uw huid, bespreken uw wens en vertellen eerlijk wat wel en niet haalbaar is." },
+        { title: "Plan & prijs vooraf", description: "U krijgt een behandelplan met de kosten op papier mee naar huis. Er is geen haast: u beslist wanneer het u uitkomt." },
+        { title: "Behandeling", description: "In een privé behandelkamer, door dezelfde behandelaar die u tijdens het consult sprak." },
+        { title: "Nazorg", description: "U krijgt schriftelijke nazorginstructies en we plannen een controlemoment om het resultaat samen te bekijken." },
+      ],
+    },
+    {
+      type: "team",
+      id: "specialisten",
+      title: "Uw specialisten",
+      intro: "Een klein team, ieder met een eigen vakgebied. U weet vooraf wie u behandelt.",
+      members: [
+        { name: "Cosmetisch arts", role: "Medische behandelingen", bio: "Voert alle injecties uit en is bij elk medisch consult aanwezig om met u te bespreken wat verstandig is.", image: "team0" },
+        { name: "Huidtherapeut", role: "Peelings & microneedling", bio: "Begeleidt huidverbeterende trajecten en stelt samen met u de verzorging voor thuis samen.", image: "team1" },
+        { name: "Verpleegkundige", role: "Nazorg & controle", bio: "Uw aanspreekpunt na de behandeling: voor vragen, controles en het nazorggesprek.", image: "team2" },
+      ],
+    },
+    {
+      type: "features",
+      id: "beloften",
+      title: "Wat u van ons mag *verwachten*",
+      intro: "Geen beloftes over resultaten, wel over hoe we met u omgaan.",
+      items: [
+        { title: "Eerst een consult", description: "We behandelen nooit zonder een persoonlijk gesprek vooraf.", icon: "chat" },
+        { title: "Prijs vooraf", description: "U ontvangt de kosten op papier voordat u een besluit neemt.", icon: "check" },
+        { title: "Tijd om te beslissen", description: "Na het consult kiest u zelf het moment om te behandelen.", icon: "clock" },
+        { title: "Nazorg inbegrepen", description: "Een controlemoment hoort bij elke behandeling.", icon: "heart" },
+      ],
+    },
+    { type: "gallery", id: "sfeer", title: "De *kliniek*", images: ["g1", "g2", "g3", "g4", "g5", "g6"] },
+    { type: "showcase", id: "rust", title: "Privé, *rustig* en zonder haast", body: "Twee behandelkamers en een stille lounge. U wacht nooit tussen andere cliënten en heeft na de behandeling alle tijd om bij te komen.", image: "show", cta: { label: "Plan een consult", href: "#afspraak" } },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Veelgestelde vragen",
+      items: [
+        { q: "Heb ik een verwijzing nodig?", a: "Nee, u kunt zelf een consult plannen. Gebruikt u medicijnen of heeft u een huidaandoening, vermeld dat dan in de vragenlijst die u vooraf ontvangt." },
+        { q: "Is een consult verplicht?", a: "Ja. Voor elke eerste behandeling plannen we eerst een consult. Zo weten we zeker dat een behandeling bij u past, en u weet precies wat u kunt verwachten." },
+        { q: "Worden behandelingen vergoed door mijn zorgverzekering?", a: "Esthetische behandelingen worden meestal niet vergoed. Twijfelt u, neem dan contact op met uw verzekeraar voordat u een behandeling plant." },
+        { q: "Kan ik direct weer aan het werk?", a: "Bij de meeste behandelingen wel. Per behandeling ziet u hierboven wat u qua herstel kunt verwachten; tijdens het consult bespreken we dit voor uw situatie." },
+        { q: "Wat als ik na het consult twijfel?", a: "Dan neemt u de tijd. U krijgt het plan en de prijs mee naar huis en plant pas een behandeling als u er zeker van bent." },
+        { q: "Kan ik mijn afspraak verzetten?", a: "Ja, tot 48 uur van tevoren kunt u uw afspraak kosteloos verzetten." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "afspraak",
+      title: "Plan uw *consult*",
+      body: "Kies de behandeling waarvoor u komt, of laat het open: dan bespreken we tijdens het consult wat bij u past. U ontvangt binnen één werkdag een bevestiging.",
+      kind: "appointment",
+      options: ["Huidconsult & analyse", "Rimpelbehandeling", "Skinbooster", "Chemische peeling", "Microneedling", "Huidverzorging op maat", "Weet ik nog niet"],
+    },
+    { type: "hours", id: "bezoek", title: "Bezoek de kliniek", note: "U vindt ons in Amsterdam-Zuid, op loopafstand van tram en metro. Behandelingen zijn uitsluitend op afspraak; het adres en de route ontvangt u bij de bevestiging." },
+  ],
+  footer: { blurb: "Serene Kliniek is een privékliniek in Amsterdam-Zuid voor esthetische en medische huidbehandelingen, uitsluitend op afspraak." },
+};

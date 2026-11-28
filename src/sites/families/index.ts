@@ -25,6 +25,12 @@ import { shiro } from "./shiro";
 import { torque } from "./torque";
 import { ledger } from "./ledger";
 import { kiosk } from "./kiosk";
+import { apex } from "./apex";
+import { nimbus } from "./nimbus";
+import { vigor } from "./vigor";
+import { cutline } from "./cutline";
+import { serene } from "./serene";
+import { fjord } from "./fjord";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -58,6 +64,12 @@ export const FAMILIES: Record<string, Family> = {
   torque,
   ledger,
   kiosk,
+  apex,
+  nimbus,
+  vigor,
+  cutline,
+  serene,
+  fjord,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);
