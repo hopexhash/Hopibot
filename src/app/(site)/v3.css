@@ -1608,3 +1608,10 @@ body.hopi.v3 {
   }
 }
 
+
+/* Phones and tablets: the header already has the language switch; the menu keeps its height. */
+@media (max-width: 999px) {
+  .hopi.v3 .mn-side > div:has(.mn-langs) {
+    display: none;
+  }
+}

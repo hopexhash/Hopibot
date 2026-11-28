@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { counterpart } from "@/lib/site/i18n";
 import { DEFAULT_CATALOG, eur } from "@/lib/catalog";
 import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS } from "@/lib/site/landing";
@@ -143,7 +144,9 @@ describe("public website: SEO content", () => {
   it("lists exactly the indexable pages in the sitemap", async () => {
     const urls = (await sitemap()).map((e) => new URL(e.url).pathname || "/");
     expect(new Set(urls).size).toBe(urls.length);
-    expect(new Set(urls)).toEqual(PATHS);
+    // Every Dutch page, plus its English counterpart under /en.
+    expect(new Set(urls)).toEqual(new Set([...PATHS].flatMap((p) => [p, counterpart(p, "en")])));
+    expect(urls.filter((u) => u === "/en" || u.startsWith("/en/"))).toHaveLength(PATHS.size);
     expect(urls.some((u) => /^\/(command|login|api|p|d|u)(\/|$)/.test(u))).toBe(false);
   });
 });

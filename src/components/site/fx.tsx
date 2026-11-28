@@ -369,9 +369,10 @@ export function Fx() {
       // The language switch: the other language is a separate document, so it loads anew,
       // behind the same curtain as the wordmark.
       if (a.dataset.lang !== undefined) {
+        // While a curtain is still moving (just after arriving) or with reduced motion, the
+        // link simply works as a link.
+        if (s.busy || reduce) return;
         e.preventDefault();
-        if (s.busy) return;
-        if (reduce) return void window.location.assign(url.href);
         s.busy = true;
         setPtLabel(url.pathname === "/en" || url.pathname.startsWith("/en/") ? "English" : "Nederlands");
         root.classList.add("pt-cover");

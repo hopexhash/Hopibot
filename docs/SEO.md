@@ -407,3 +407,14 @@ Open points for the owner:
 2. **Social links.** The footer shows WhatsApp and a Google profile only when they are set
    under Settings. No other social profiles exist in Settings, so none are shown.
 3. **Language.** The site is Dutch; only the two display statements are English.
+
+## English version (/en)
+
+Every public page also exists in English under /en with English addresses (map in
+`src/lib/site/i18n.ts`, `NL_TO_EN`). Each page declares both languages with hreflang
+(`x-default` = Dutch), the sitemap lists both with alternates, and structured data carries
+`inLanguage`. The language switch (NL/EN in the header, the menu on large screens, the footer)
+opens the same page in the other language. English content: `landing.en.ts`, `blog.en.ts`,
+`home.en.ts`, `src/demos/catalog.en.ts`, `src/lib/catalog.en.ts` (price catalogue texts; text an
+owner changes in Settings shows as written). The demo websites stay Dutch. Enquiries from the
+English pages are marked "reply in English" in the CRM. Tests: `tests/unit/i18n.test.ts`.
