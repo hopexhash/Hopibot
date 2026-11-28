@@ -8,6 +8,7 @@ import type { Lang } from "@/lib/email/templates";
 import { requireAuth } from "@/server/auth";
 import { getOrgSettings } from "@/server/org";
 import { emailContext } from "@/server/sales/email-html";
+import { testRecipients } from "@/server/sales/test-recipients";
 import { EmailFrames } from "./email-frames";
 
 export const metadata = { title: "Email designs" };
@@ -23,6 +24,7 @@ export default async function EmailDesignsPage({ searchParams }: { searchParams:
   const s = await getOrgSettings(auth.org.id);
   const ctx = emailContext(s, lang);
   const emails = sampleEmails(ctx, lang);
+  const recipients = await testRecipients(auth.org.id);
   const checks = [
     { label: "Company name", ok: Boolean(s.agencyName), value: s.agencyName },
     { label: "Sender name (signature)", ok: Boolean(s.senderName), value: s.senderName || `not set: emails are signed “${ctx.senderName}”` },
@@ -70,7 +72,7 @@ export default async function EmailDesignsPage({ searchParams }: { searchParams:
       </Section>
       {emails.map((e) => (
         <Section key={e.key} title={e.name} description={e.when}>
-          <EmailFrames subject={e.subject} html={e.html} test={e.key === "test" ? undefined : { key: e.key, lang, to: auth.user.email }} />
+          <EmailFrames subject={e.subject} html={e.html} test={e.key === "test" || !recipients.length ? undefined : { key: e.key, lang, recipients }} />
         </Section>
       ))}
     </>

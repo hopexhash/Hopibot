@@ -13,6 +13,7 @@ import { action, UserError } from "./_util";
 import { CLOSED_STAGES } from "@/lib/constants";
 import { publishedAddressReview } from "../sales/outreach-review";
 import { sampleEmails } from "@/lib/email/samples";
+import { testRecipients } from "../sales/test-recipients";
 import { buildEmailHtml, emailContext } from "../sales/email-html";
 
 async function ownedEmail(orgId: string, id: string) {
@@ -115,6 +116,7 @@ export async function sendEmailTestAction(id: string) {
     const s = auth.org.settings;
     if (!s.agencyName || !s.senderEmail) throw new UserError("Add your agency name and sender email in Settings first.");
     if ((await integrationMode(auth.org.id, "resend")) !== "live") throw new UserError("Resend is not connected, so no test email can be sent. Connect it in Integrations.");
+    if (/\.(invalid|test|example|local)$/i.test(auth.user.email)) throw new UserError(`You are signed in as ${auth.user.email}, which cannot receive email. Sign in with your own account, or use Email designs → Send test.`);
     await sendEmail(
       { organizationId: auth.org.id },
       {
@@ -190,22 +192,25 @@ export async function removeSuppressionAction(id: string) {
 
 /**
  * Sends one of the email designs, with sample customer data and the real company details,
- * to the signed-in user's own address (never to anyone else), so it can be checked in a
+ * to a member of this workspace (never to anyone outside it), so it can be checked in a
  * real inbox.
  */
-export async function sendDesignTestAction(key: string, lang: "nl" | "en") {
+export async function sendDesignTestAction(key: string, lang: "nl" | "en", to: string) {
   return action({ name: "email.design_test", limit: 6 }, async (auth) => {
     const s = auth.org.settings;
     if (!s.agencyName || !s.senderEmail) throw new UserError("Add your agency name and sender email in Settings first.");
     if ((await integrationMode(auth.org.id, "resend")) !== "live") throw new UserError("Resend is not connected, so no test email can be sent. Connect it in Integrations.");
+    const allowed = await testRecipients(auth.org.id);
+    const recipient = allowed.find((a) => a.toLowerCase() === to.trim().toLowerCase());
+    if (!recipient) throw new UserError("A test can only go to a real address of a member of this workspace.");
     const l = lang === "en" ? "en" : "nl";
-    const sample = sampleEmails(emailContext(s, l), l, { to: auth.user.email }).find((e) => e.key === key);
+    const sample = sampleEmails(emailContext(s, l), l, { to: recipient }).find((e) => e.key === key);
     if (!sample) throw new UserError("Unknown email design.");
     await sendEmail(
       { organizationId: auth.org.id },
       {
         from: `${s.senderName || s.agencyName} <${s.senderEmail}>`,
-        to: auth.user.email,
+        to: recipient,
         replyTo: s.replyToEmail || s.senderEmail,
         subject: `[TEST] ${sample.subject}`,
         text: sample.text,
@@ -214,6 +219,6 @@ export async function sendDesignTestAction(key: string, lang: "nl" | "en") {
         tags: { kind: "email_design_test", template: key },
       },
     );
-    return { to: auth.user.email };
+    return { to: recipient };
   });
 }

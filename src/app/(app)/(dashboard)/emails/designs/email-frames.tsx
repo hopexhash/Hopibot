@@ -14,9 +14,10 @@ const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
 };
 
 /** One email in a sandboxed frame, at a computer or a phone width, with its subject line. */
-export function EmailFrames({ subject, html, test }: { subject: string; html: string; test?: { key: string; lang: "nl" | "en"; to: string } }) {
+export function EmailFrames({ subject, html, test }: { subject: string; html: string; test?: { key: string; lang: "nl" | "en"; recipients: string[] } }) {
   const [width, setWidth] = useState<"desktop" | "phone">("desktop");
   const [sending, start] = useTransition();
+  const [to, setTo] = useState(test?.recipients[0] ?? "");
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2.5 text-[13px]">
@@ -25,21 +26,30 @@ export function EmailFrames({ subject, html, test }: { subject: string; html: st
           <b className="font-medium">{subject}</b>
         </p>
         <div className="flex flex-wrap gap-1">
+          {test && test.recipients.length > 1 && (
+            <select aria-label="Send the test to" value={to} onChange={(e) => setTo(e.target.value)} className="max-w-[220px] rounded-md border border-border bg-transparent px-2 py-1 text-muted">
+              {test.recipients.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          )}
           {test && (
             <button
               type="button"
               disabled={sending}
-              title={`Sends this email with sample data to ${test.to}`}
+              title={`Sends this email with sample data to ${to}`}
               onClick={() =>
                 start(async () => {
-                  const r = await sendDesignTestAction(test.key, test.lang);
+                  const r = await sendDesignTestAction(test.key, test.lang, to);
                   if (!r.ok) return void toast.error(r.error);
                   toast.success(`Test email sent to ${r.data.to}.`);
                 })
               }
               className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-muted hover:text-fg disabled:opacity-50"
             >
-              <Send className="h-3.5 w-3.5" /> {sending ? "Sending…" : "Send test to me"}
+              <Send className="h-3.5 w-3.5" /> {sending ? "Sending…" : test.recipients.length > 1 ? "Send test" : `Send test to ${to}`}
             </button>
           )}
           {(["desktop", "phone"] as const).map((w) => (
