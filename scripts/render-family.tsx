@@ -36,6 +36,12 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   pulse: { all: ["Studio Puls", "gym", "studio"], plain: ["Coach Lisa", "personal_trainer", "studio"] },
   atlas: { all: ["Studio Vorm Architecten", "interior_designer", "estate"], plain: ["Makelaar De Wit", "real_estate", "estate"] },
   puur: { all: ["Fysio Balans", "physiotherapist", "clinic"], plain: ["Tandarts Zuid", "dentist", "clinic"] },
+  flora: { all: ["Bloemenatelier Linde", "shop", "studio"], plain: ["Hoveniersbedrijf Groenrijk", "landscaping", "landscaping"] },
+  frame: { all: ["Fotostudio Licht", "photographer", "studio"], plain: ["Inkt Tattoo Studio", "tattoo_studio", "barbershop"] },
+  shiro: { all: ["Sushi Kaze", "asian_restaurant", "sushi"], plain: ["Ramen Ya", "asian_restaurant", "asian-fusion"] },
+  torque: { all: ["Garage Snelweg", "car_repair", "garage"], plain: ["Bandencentrum Noord", "car_repair", "garage"] },
+  ledger: { all: ["Administratiekantoor Meijer", "accountant", "estate"], plain: ["Advocatenkantoor Bos", "lawyer", "estate"] },
+  kiosk: { all: ["IJssalon Tutti", "shop", "studio"], plain: ["Bubbletea Boba Bar", "street_food", "street-food"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
@@ -48,6 +54,12 @@ const PHOTO_SET: Record<string, string> = {
   pulse: "fitness",
   atlas: "real-estate",
   puur: "dental",
+  flora: "beauty-salon",
+  frame: "creative-agency",
+  shiro: "restaurant",
+  torque: "automotive",
+  ledger: "law-firm",
+  kiosk: "restaurant",
 };
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */

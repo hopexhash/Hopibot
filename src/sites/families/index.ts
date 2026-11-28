@@ -19,6 +19,12 @@ import { zondag } from "./zondag";
 import { vesper } from "./vesper";
 import { velours } from "./velours";
 import { pulse } from "./pulse";
+import { flora } from "./flora";
+import { frame } from "./frame";
+import { shiro } from "./shiro";
+import { torque } from "./torque";
+import { ledger } from "./ledger";
+import { kiosk } from "./kiosk";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -46,6 +52,12 @@ export const FAMILIES: Record<string, Family> = {
   pulse,
   atlas,
   puur,
+  flora,
+  frame,
+  shiro,
+  torque,
+  ledger,
+  kiosk,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

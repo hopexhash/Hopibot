@@ -93,6 +93,30 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Cobalt", swatch: "#3640f2", rules: [{ h: [0, 25], dh: 225, ds: 1 }, { h: [220, 250], dh: -225, ds: 1 }] },
     { name: "Mint", swatch: "#1fd19a", rules: [{ h: [0, 25], dh: 149, ds: 0.85, dl: -0.06 }, { h: [55, 95], dh: 247, ds: 1, dl: 0.04 }, { h: [220, 250], dh: 34, ds: 1 }] },
   ],
+  flora: [
+    { name: "Lavender", swatch: "#7d6a9e", rules: [{ h: [85, 175], dh: 150, ds: 0.8 }] },
+    { name: "Petrol & peach", swatch: "#1f4f5e", rules: [{ h: [85, 175], dh: 46, ds: 1.1 }, { h: [0, 25], s: [0.2, 1], dh: 12, ds: 1.15 }] },
+  ],
+  frame: [
+    { name: "Safelight", swatch: "#e5402e", rules: [{ h: [25, 50], s: [0.4, 1], dh: -30, ds: 1 }] },
+    { name: "Cyan", swatch: "#3ec7d8", rules: [{ h: [25, 50], s: [0.4, 1], dh: 152, ds: 0.85 }] },
+  ],
+  shiro: [
+    { name: "Indigo", swatch: "#27408a", rules: [{ h: [345, 25], s: [0.4, 1], l: [0, 0.75], dh: 214, ds: 0.75, dl: -0.06 }] },
+    { name: "Matcha", swatch: "#5f7a2e", rules: [{ h: [345, 25], s: [0.4, 1], l: [0, 0.75], dh: 72, ds: 0.62, dl: -0.06 }] },
+  ],
+  torque: [
+    { name: "Papaya", swatch: "#ff7a00", rules: [{ h: [38, 64], s: [0.5, 1], dh: -21, ds: 1 }] },
+    { name: "Gulf blue", swatch: "#7cc4ea", rules: [{ h: [38, 64], s: [0.5, 1], dh: 150, ds: 0.68, dl: 0.12 }] },
+  ],
+  ledger: [
+    { name: "Bottle green", swatch: "#1d6b45", rules: [{ h: [345, 15], s: [0.4, 1], dh: 152, ds: 0.75, dl: 0.02 }] },
+    { name: "Ink blue", swatch: "#1f4b9c", rules: [{ h: [345, 15], s: [0.4, 1], dh: 220, ds: 0.75, dl: 0.04 }, { h: [30, 60], s: [0, 0.5], dh: 170, ds: 0.6 }] },
+  ],
+  kiosk: [
+    { name: "Sorbet", swatch: "#ff7a45", rules: [{ h: [320, 345], s: [0.4, 1], dh: 50, ds: 1 }, { h: [150, 170], dh: 40, ds: 0.9 }] },
+    { name: "Blue raspberry", swatch: "#3f8cff", rules: [{ h: [320, 345], s: [0.4, 1], dh: -115, ds: 1 }, { h: [150, 170], dh: -100, ds: 1.1 }] },
+  ],
 };
 
 /** How many looks a family has: its original colours plus its colourways. */
