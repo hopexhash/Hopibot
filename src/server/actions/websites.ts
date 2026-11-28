@@ -12,6 +12,9 @@ import { action, UserError } from "./_util";
 import { isCustomerStage } from "@/lib/constants";
 import { INQUIRY_SOURCE, inquirySendBlocker } from "@/lib/inquiry-email";
 import { integrationMode } from "../integrations/credentials";
+import { colorwayCount, colorwayName } from "@/sites/colorways";
+import { familyOf } from "@/sites/families";
+import { designName } from "@/sites/designs";
 
 async function ownedProject(orgId: string, projectId: string) {
   const [p] = await db()
@@ -213,5 +216,27 @@ export async function latestProjectForBusiness(businessId: string) {
       .orderBy(desc(schema.websiteProjects.createdAt))
       .limit(1);
     return p?.id ?? null;
+  });
+}
+
+/**
+ * "Use this template": rebuild a website in another design and colourway, keeping its content.
+ * The current version's content is re-applied; the builder renders it in the chosen design, runs
+ * quality control and saves it as a new version (the old one stays restorable).
+ */
+export async function applyTemplateAction(projectId: string, designKey: string, variation = 0) {
+  return action({ name: "website.apply_template", revalidate: ["/websites", "/websites/templates"] }, async (auth) => {
+    const p = await ownedProject(auth.org.id, projectId);
+    const key = z.string().max(40).parse(designKey);
+    if (!familyOf(key)) throw new UserError("Unknown template.");
+    const v = z.number().int().min(0).max(colorwayCount(key) - 1).parse(variation);
+    if (!p.currentVersionId) throw new UserError("This website has no version yet. Generate it first, then switch the template.");
+    const [cur] = await db().select().from(schema.websiteVersions).where(eq(schema.websiteVersions.id, p.currentVersionId));
+    const parsed = siteSpecSchema.safeParse(cur?.spec);
+    if (!parsed.success) throw new UserError("The current version cannot be read; regenerate the website first.");
+    const spec = { ...parsed.data, theme: { ...parsed.data.theme, design: key, variation: v } };
+    await db().update(schema.websiteProjects).set({ templateKey: key, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, p.id));
+    await builderTask(auth.org.id, p, "apply_edit", { spec, variation: v, summary: `Template switched to ${designName(key)}${v ? ` (${colorwayName(key, v)})` : ""}.` });
+    return { projectId: p.id };
   });
 }

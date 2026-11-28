@@ -144,7 +144,7 @@ async function spawnQc(ctx: AgentContext, businessId: string, projectId: string,
 
 export const websiteBuilder: AgentHandler = async (ctx) => {
   const type = ctx.task.type;
-  const input = ctx.task.input as { next?: string[]; iteration?: number; instruction?: string; spec?: unknown; issues?: { code: string; message: string; detail?: string }[]; weaknesses?: { area: string; problem: string; fix: string }[]; visualRound?: number };
+  const input = ctx.task.input as { next?: string[]; iteration?: number; instruction?: string; spec?: unknown; issues?: { code: string; message: string; detail?: string }[]; weaknesses?: { area: string; problem: string; fix: string }[]; visualRound?: number; variation?: number; summary?: string };
   // The builder always triggers QC itself, so an explicit "qc" step is consumed here.
   const next = (input.next ?? []).filter((a) => a !== "qc");
   const iteration = input.iteration ?? 0;
@@ -166,7 +166,8 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   const keep = Boolean(current && (type !== "generate_website" || current.demo));
   const look = keep ? null : selectLook({ category: b.category, name: b.name, city: b.city, text: researchText }, await usedLooks(ctx.organizationId, project.id));
   const chosen = look ?? { design: current!, reason: "kept from the project" };
-  const keptVariation = keep ? ((await currentSpec(project.id))?.spec.theme.variation ?? 0) : 0;
+  // A template chosen by hand ("use this template") brings its colourway along in the task.
+  const keptVariation = keep ? (typeof input.variation === "number" ? input.variation : ((await currentSpec(project.id))?.spec.theme.variation ?? 0)) : 0;
   // A demo design without its family (one that is still being built) falls back to the classic design of the industry.
   const design = chosen.design.demo && !familyOf(chosen.design.key) ? selectIndustry({ category: b.category, name: b.name, text: researchText }).design : chosen.design;
   // A demo design has one fixed look: no identity is planned for it. The industry still decides content and photographs.
@@ -338,7 +339,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
     }
   } else if (type === "apply_edit") {
     spec = siteSpecSchema.parse(input.spec);
-    changeSummary = "Manual content edit.";
+    changeSummary = typeof input.summary === "string" ? input.summary.slice(0, 200) : "Manual content edit.";
     createdBy = "user_edit";
   } else {
     throw new Error(`Unknown builder task type ${type}`);
