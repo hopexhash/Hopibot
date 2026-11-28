@@ -1,0 +1,146 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo content of the Beton template: a fictional construction company in Tilburg. Everything
+ * here is invented for the demonstration (the demo bar says so); there are no reviews, awards,
+ * certificates, statistics or real people, and no address or phone number.
+ */
+const u = (id: string, w = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
+const photo = (key: string, id: string, alt: string, w?: number) => ({ key, src: u(id, w), alt, license: "stock" as const, credit: "Unsplash" });
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Beton Bouwgroep — bouwbedrijf in Tilburg",
+    description: "Nieuwbouw, renovatie, utiliteitsbouw en betonwerk in Tilburg en omgeving. Eén aanspreekpunt, een vaste prijs vooraf en een planning die klopt.",
+    lang: "nl",
+    keywords: ["bouwbedrijf Tilburg", "aannemer Tilburg", "nieuwbouw", "renovatie", "utiliteitsbouw", "betonwerk", "casco", "aanbouw"],
+  },
+  theme: { template: "construction", design: "beton", variation: 0, primary: "#1d1e1f", accent: "#b8371a", mode: "light", font: "Big Shoulders Display", radius: "sharp" },
+  business: {
+    name: "Beton Bouwgroep",
+    tagline: "Nieuwbouw, renovatie, utiliteitsbouw en betonwerk in Tilburg",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Tilburg",
+    mapsUrl: null,
+    openingHours: ["Maandag – Vrijdag: 07:00 – 17:00", "Zaterdag: Gesloten", "Zondag: Gesloten"],
+  },
+  images: [
+    photo("hero", "1531834685032-c34bf0d84c77", "Bouwvakkers vlechten wapening voor betonnen kolommen op een bouwplaats", 1920),
+    photo("about", "1626885930974-4b69aa21bbf9", "Uitvoerder en projectleider in werkkleding overleggen op de bouwplaats"),
+    photo("art:svc0", "1600585154526-990dced4db0d", "Nieuwgebouwde woning met donkere gevel en grote ramen in de avond"),
+    photo("art:svc1", "1517581177682-a085bb7ffb15", "Interieur tijdens renovatie: open gesloopte wanden en zichtbare constructie"),
+    photo("art:svc2", "1574958269340-fa927503f3dd", "Modern bedrijfspand met gevel van metaal en glas"),
+    photo("art:svc3", "1504307651254-35680f356dfd", "Bovenaanzicht van een bouwvloer met wapeningsstaal en werklieden"),
+    photo("art:svc4", "1508450859948-4e04fabaa4ea", "Ruwbouw van een gebouw met meerdere verdiepingen in aanbouw"),
+    photo("art:svc5", "1505798577917-a65157d3320a", "Timmerlieden zagen en meten binnen tijdens een verbouwing"),
+    photo("g1", "1599707254554-027aeb4deacd", "Bouwkranen en steigers rond een gebouw in aanbouw"),
+    photo("g2", "1541888946425-d81bb19240f5", "Bouwploeg op een gestorte betonvloer met uitstekende wapening"),
+    photo("g3", "1536895058696-a69b1c7ba34f", "Bouwkraan boven een ruwbouwproject onder een donkere lucht"),
+    photo("g4", "1541976590-713941681591", "Grijze gevel van een appartementengebouw van onderaf gezien"),
+    photo("g5", "1504917595217-d4dc5ebe6122", "Vonken van een slijptol bij het op maat maken van staal"),
+    photo("g6", "1429497419816-9ca5cfb4571a", "Kranen boven een gebouw met een staalskelet in aanbouw"),
+    photo("g7", "1460574283810-2aab119d8511", "Gestapelde witte betonnen balkons van een woongebouw"),
+    photo("g8", "1485083269755-a7b559a4fe5e", "Silhouetten van bouwkranen tegen de avondlucht"),
+    photo("show", "1599995903128-531fc7fb694b", "Bouwterrein met kranen in de schemering", 1920),
+  ],
+  hero: {
+    eyebrow: "Bouwbedrijf · Tilburg",
+    headline: "Wij bouwen in beton. *Vanaf de eerste paal.*",
+    subheadline: "Nieuwbouw, renovatie, utiliteitsbouw en betonwerk. Met een eigen ploeg, een vaste prijs vooraf en één aanspreekpunt van fundering tot oplevering.",
+    primaryCta: { label: "Project aanvragen", href: "#aanvraag" },
+    secondaryCta: { label: "Bekijk projecten", href: "#projecten" },
+    image: "hero",
+    layout: "fullbleed",
+    note: "Nieuwbouw · Renovatie · Betonwerk",
+  },
+  sections: [
+    {
+      type: "services",
+      id: "diensten",
+      title: "Wat wij *bouwen*",
+      intro: "Van een vrijstaande woning tot een bedrijfshal: we nemen het hele werk aan, of precies het deel dat u nodig heeft. Altijd met dezelfde ploeg en dezelfde afspraken.",
+      items: [
+        { title: "Nieuwbouw", description: "Woningen en kleinere complexen, van fundering tot sleutel. We denken mee over het ontwerp, regelen de constructie en bouwen op een vaste prijs.", icon: "home" },
+        { title: "Renovatie", description: "Bestaande panden constructief gezond maken: vloeren vervangen, draagmuren doorbreken, funderingen herstellen en alles weer strak afwerken.", icon: "tool" },
+        { title: "Utiliteitsbouw", description: "Bedrijfshallen, werkplaatsen en kantoren. Met een planning die rekening houdt met uw bedrijfsvoering en duidelijke bouwfasen.", icon: "chart" },
+        { title: "Betonwerk", description: "Funderingen, keldervloeren, wanden en trappen. Bekisten, wapenen en storten doen we zelf, zodat de kwaliteit in eigen hand blijft.", icon: "ruler" },
+        { title: "Casco & ruwbouw", description: "Een wind- en waterdicht casco als basis voor uw eigen afbouw. Helder afgebakend, met een overdracht waar u op verder kunt.", icon: "shield" },
+        { title: "Aanbouw & verbouw", description: "Meer ruimte aan of in uw huis: een aanbouw, opbouw of nieuwe indeling. We zorgen voor de constructie én de afwerking.", icon: "key" },
+      ],
+    },
+    {
+      type: "about",
+      id: "over-ons",
+      title: "Beton is geduld. *Bouwen ook.*",
+      paragraphs: [
+        "Beton Bouwgroep is een bouwbedrijf uit Tilburg voor particulieren en ondernemers in Midden-Brabant. We bouwen zoals we beton storten: goed voorbereid, in de juiste volgorde en zonder haast op de verkeerde momenten.",
+        "Op elk project staat één uitvoerder die u kent en die u kunt bellen. Hij plant het werk, stuurt de ploeg aan en houdt u op de hoogte. Wat we afspreken, leggen we vast; wat verandert, bespreken we eerst.",
+      ],
+      image: "about",
+      highlights: ["Eén vaste uitvoerder", "Vaste prijs vooraf", "Eigen betonploeg", "Opgeruimde bouwplaats"],
+    },
+    { type: "gallery", id: "projecten", title: "Project*index*", images: ["g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8"] },
+    {
+      type: "process",
+      id: "werkwijze",
+      title: "Van eerste paal tot *sleutel*",
+      intro: "Elk project volgt dezelfde vijf fasen. Zo weet u altijd waar we staan, wat er komt en wanneer u iets van ons kunt verwachten.",
+      steps: [
+        { title: "Kennismaking op locatie", description: "We komen kijken, luisteren naar uw plannen en bespreken wat haalbaar is binnen uw budget en planning." },
+        { title: "Ontwerp & begroting", description: "Samen met uw architect of onze constructeur werken we het plan uit tot een complete, onderbouwde begroting." },
+        { title: "Vaste prijs & planning", description: "U ontvangt een vaste prijs en een bouwplanning per fase. Pas als alles duidelijk is, tekenen we." },
+        { title: "Uitvoering", description: "Onze ploeg bouwt volgens planning. U krijgt elke week een korte update van uw vaste uitvoerder." },
+        { title: "Oplevering & nazorg", description: "We lopen samen alles na en lossen punten snel op. Ook na de oplevering blijven we bereikbaar." },
+      ],
+    },
+    {
+      type: "features",
+      id: "afspraken",
+      title: "Onze afspraken met u",
+      intro: "Geen beloftes op papier die op de bouwplaats verdwijnen. Dit zijn de afspraken waar u ons op kunt aanspreken.",
+      items: [
+        { title: "Vaste prijs vooraf", description: "U weet vóór de start wat het kost. Meerwerk bespreken we altijd eerst, met prijs, voordat we het uitvoeren.", icon: "check" },
+        { title: "Veilig werken", description: "Een afgezette, overzichtelijke bouwplaats en een ploeg die veilig werkt. Voor onze mensen, voor u en voor de buren.", icon: "shield" },
+        { title: "Planning die klopt", description: "We plannen per fase en houden u op de hoogte. Loopt iets uit, dan hoort u dat van ons en niet van de buren.", icon: "calendar" },
+        { title: "Eén aanspreekpunt", description: "Eén uitvoerder van begin tot eind. Geen doorverbinden, geen wisselende gezichten.", icon: "user" },
+        { title: "Opgeruimd opleveren", description: "We laten de bouwplaats en uw woning schoon achter. Afval voeren we gescheiden af.", icon: "home" },
+        { title: "Garantie op ons werk", description: "Wat we bouwen, daar staan we voor. Komt er na oplevering iets aan het licht, dan komen we het herstellen.", icon: "tool" },
+      ],
+    },
+    { type: "statement", id: "visie", title: "Wat wij bouwen, staat er over vijftig jaar *nog steeds*. Daar bouwen we elke dag voor.", note: "Beton Bouwgroep · Tilburg" },
+    {
+      type: "showcase",
+      id: "betonwerk",
+      title: "Betonwerk in *eigen hand*",
+      body: "Bekisting, wapening en storten: onze eigen betonploeg doet het allemaal. Zo bepalen we zelf de kwaliteit van de basis waar uw gebouw op staat.",
+      image: "show",
+      cta: { label: "Bespreek uw project", href: "#aanvraag" },
+    },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Veelgestelde vragen",
+      items: [
+        { q: "Werken jullie ook voor particulieren?", a: "Ja. We bouwen voor particulieren en voor bedrijven. Van een aanbouw of renovatie van uw woning tot een complete bedrijfshal." },
+        { q: "Hoe komt de vaste prijs tot stand?", a: "Na de kennismaking werken we het plan uit tot een begroting per onderdeel. Als alles duidelijk is, krijgt u één vaste prijs. Wilt u later iets veranderen, dan bespreken we eerst wat dat kost." },
+        { q: "Regelen jullie de vergunning en de constructieberekening?", a: "We helpen u daarbij. Samen met een constructeur en, als u die nog niet heeft, een architect zorgen we dat de stukken compleet zijn voor de aanvraag." },
+        { q: "In welke regio bouwen jullie?", a: "Vooral in Tilburg en Midden-Brabant: onder meer Goirle, Oisterwijk, Berkel-Enschot, Dongen en Waalwijk. Voor grotere projecten kijken we graag verder." },
+        { q: "Kunnen jullie alleen het betonwerk doen?", a: "Zeker. Veel opdrachtgevers en andere aannemers schakelen ons alleen in voor funderingen, vloeren of wanden." },
+        { q: "Hoe snel kunnen jullie starten?", a: "Dat hangt af van de omvang en de planning van lopende projecten. In het eerste gesprek geven we u een eerlijke indicatie." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "aanvraag",
+      title: "Project aanvragen",
+      body: "Vertel ons kort wat u wilt bouwen of verbouwen. We nemen binnen twee werkdagen contact op voor een kennismaking op locatie.",
+      kind: "quote",
+      options: ["Nieuwbouw", "Renovatie", "Utiliteitsbouw", "Betonwerk", "Casco & ruwbouw", "Aanbouw & verbouw"],
+    },
+    { type: "hours", id: "bereikbaar", title: "Kantoor & *bouwplaats*", note: "Ons kantoor is op werkdagen bereikbaar. Op de bouwplaats zijn we vaak al eerder aan het werk; een afspraak op locatie plannen we graag in overleg." },
+    { type: "contact", id: "contact", title: "Contact", body: "Liever eerst even overleggen? Laat via het formulier een bericht achter, dan bellen we u terug.", showForm: true, showMap: false },
+  ],
+  footer: { blurb: "Bouwbedrijf in Tilburg voor nieuwbouw, renovatie, utiliteitsbouw en betonwerk." },
+};

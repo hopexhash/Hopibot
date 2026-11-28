@@ -15,13 +15,13 @@ export const metadata = { title: "Template library" };
 /** Sector of each business category, for the filter chips. */
 const SECTOR_OF: Record<string, string> = {
   restaurant: "Food & drink", italian_restaurant: "Food & drink", turkish_restaurant: "Food & drink", sushi_restaurant: "Food & drink",
-  burger_restaurant: "Food & drink", pizzeria: "Food & drink", coffee_shop: "Food & drink", bakery: "Food & drink", street_food: "Food & drink",
-  asian_restaurant: "Food & drink", food_truck: "Food & drink", hotel: "Hospitality", event_business: "Hospitality",
+  burger_restaurant: "Food & drink", pizzeria: "Food & drink", bar: "Food & drink", coffee_shop: "Food & drink", bakery: "Food & drink", street_food: "Food & drink",
+  asian_restaurant: "Food & drink", food_truck: "Food & drink", hotel: "Hospitality", event_business: "Hospitality", wedding_planner: "Hospitality", travel_agency: "Hospitality",
   barbershop: "Beauty & care", hair_salon: "Beauty & care", beauty_salon: "Beauty & care", beauty_clinic: "Beauty & care", tattoo_studio: "Beauty & care",
   dentist: "Health", physiotherapist: "Health", gym: "Sport", personal_trainer: "Sport",
   car_detailing: "Automotive", car_repair: "Automotive", car_dealer: "Automotive",
   construction: "Trades & home", cleaning: "Trades & home", landscaping: "Trades & home", plumber: "Trades & home", electrician: "Trades & home",
-  roofing: "Trades & home", local_service: "Trades & home", interior_designer: "Trades & home",
+  roofing: "Trades & home", local_service: "Trades & home", interior_designer: "Trades & home", architect: "Trades & home",
   real_estate: "Professional", lawyer: "Professional", accountant: "Professional", consultant: "Professional",
   marketing_agency: "Creative & tech", it_company: "Creative & tech", photographer: "Creative & tech",
   clothing_store: "Retail", jewelry_store: "Retail", shop: "Retail",

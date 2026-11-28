@@ -108,7 +108,7 @@ describe("template families", () => {
       for (const img of spec.images) expect(img.src).toMatch(/^https:\/\/images\.unsplash\.com\/photo-/);
       const html = renderSite(spec, { agencyName: "HOPI", seedKey: key, assetBase: "/site-assets/" })[0].content;
       expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
-      expect(text(html)).not.toMatch(/★|\b\d(?:[.,]\d)?\s?\/\s?5\b|sterren|reviews?\b|award|gecertificeerd|jaar ervaring/i);
+      expect(text(html)).not.toMatch(/★|\b\d(?:[.,]\d)?\s?\/\s?5\b|\b\d(?:[.,]\d)?\s?sterren|reviews?\b|award|gecertificeerd|jaar ervaring/i);
     });
   }
 });

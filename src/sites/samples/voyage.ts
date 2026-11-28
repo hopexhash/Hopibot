@@ -1,0 +1,157 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo site of the Voyage template: a fictional atelier for tailor-made journeys in Haarlem, set
+ * as a travel magazine. City only (no address, phone or e-mail); example journeys carry example
+ * prices labelled as such; the pull quote is editorial copy, not a testimonial.
+ */
+const photo = (key: string, id: string, alt: string, w = 1600) => ({
+  key,
+  src: `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`,
+  alt,
+  license: "stock" as const,
+  credit: "Unsplash",
+});
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Voyage Atelier — reizen op maat vanuit Haarlem",
+    description: "Voyage Atelier ontwerpt reizen op maat: van twaalf dagen Japan tot een safari in Tanzania. Persoonlijk advies in ons atelier in Haarlem.",
+    lang: "nl",
+    keywords: ["reizen op maat", "reisbureau Haarlem", "maatwerkreis", "rondreis Japan", "safari Tanzania", "individuele rondreis", "reisadvies"],
+  },
+  theme: { template: "service", design: "voyage", variation: 0, primary: "#121519", accent: "#3e6a6e", mode: "light", font: "Playfair Display", radius: "sharp" },
+  business: {
+    name: "Voyage Atelier",
+    tagline: "Reizen op maat, ontworpen in Haarlem",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Haarlem",
+    mapsUrl: null,
+    openingHours: ["Maandag: Gesloten", "Dinsdag – Vrijdag: 10:00 – 17:30", "Zaterdag: 10:00 – 16:00", "Zondag: Gesloten"],
+  },
+  images: [
+    photo("cover", "1493976040374-85c8e12f0c0e", "Een straat met houten huizen en een pagode in Kyoto bij zonsondergang", 1920),
+    photo("atelier", "1504609773096-104ff2c73ba4", "Reisvoorbereiding op een houten tafel: kaart, camera, foto’s en een notitieboek"),
+    photo("art:svc0", "1490806843957-31f4c9a91c65", "De besneeuwde Fuji tussen bloeiende kersenbloesem"),
+    photo("art:svc1", "1489392191049-fc10c97e64b6", "Savanne met acacia’s voor de Kilimanjaro"),
+    photo("art:svc2", "1516483638261-f4dbaf036963", "Gekleurde huizen van Manarola op de rotsen boven zee"),
+    photo("art:svc3", "1539020140153-e479b8c22e70", "Fonteinen met zellige-tegelwerk in een Marokkaanse binnenplaats"),
+    photo("art:svc4", "1531168556467-80aace0d0144", "Een diepe, groene kloof met een rivier in IJsland"),
+    photo("art:svc5", "1548013146-72479768bada", "De Taj Mahal gezien door een rode zandstenen poort"),
+    photo("globe", "1521295121783-8a321d551ad2", "Een oude wereldbol op een bureau in warm licht"),
+    photo("tokio", "1528360983277-13d401cdc186", "Rode lantaarns in een smalle steeg in Tokio bij nacht"),
+    photo("fuji", "1528164344705-47542687000d", "Pagode boven de stad met de Fuji in de verte"),
+    photo("sakura", "1524413840807-0c3cb6fa808d", "Verlichte kersenbloesem langs een rivier in de avond"),
+    photo("art:bay", "1528127269322-539801943592", "Kalksteenrotsen en boten in de baai van Ha Long", 1920),
+    photo("art:j1", "1488646953014-85cb44e25828", "Kaart, camera, rugzak en reisgidsen op tafel"),
+    photo("art:j2", "1473625247510-8ceb1760943f", "Reiziger met koffer in een poort, kijkend naar de ondergaande zon"),
+    photo("art:j3", "1537996194471-e657df975ab4", "Tempel aan het meer in de ochtendmist op Bali"),
+    photo("art:j4", "1436491865332-7a61a109cc05", "Vliegtuigvleugel boven een wolkendek in het avondlicht"),
+    photo("art:j5", "1555400038-63f5ba517a47", "Groene rijstterrassen tussen palmbomen op Bali"),
+    photo("art:j6", "1483347756197-71ef80e95f73", "Noorderlicht boven een donker naaldbos"),
+  ],
+  hero: {
+    eyebrow: "Reizen op maat · Haarlem",
+    headline: "De wereld, *op uw tempo*",
+    subheadline: "Wij ontwerpen reizen zoals een goed tijdschrift wordt gemaakt: met research, ritme en oog voor detail. Van eerste gesprek tot de laatste overstap.",
+    primaryCta: { label: "Plan een gesprek", href: "#consult" },
+    secondaryCta: { label: "Bekijk de reizen", href: "#reizen" },
+    image: "cover",
+    layout: "fullbleed",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "atelier",
+      title: "Een reis begint aan *tafel*",
+      paragraphs: [
+        "In ons atelier in Haarlem liggen kaarten, dienstregelingen en stapels notities. Daar begint elke reis: met een gesprek over wat u wilt zien, voelen en vooral: niet wilt missen.",
+        "We maken geen pakketten. Elke route bouwen we vanaf een leeg vel: welke trein u neemt, in welk huis u slaapt, waar u een dag niets hoeft. We werken met kleine adressen en lokale gidsen die we zelf hebben leren kennen.",
+        "Onderweg zijn we bereikbaar als het nodig is, en anders laten we u met rust. Na thuiskomst horen we graag wat er beter kon, zodat de volgende reiziger daar van profiteert.",
+      ],
+      image: "atelier",
+      highlights: ["Elke route vanaf een leeg vel", "Eén vaste reisontwerper", "Bereikbaar tijdens de reis", "Vaste prijs vooraf"],
+    },
+    {
+      type: "statement",
+      id: "manifest",
+      title: "Een goede reis voelt achteraf niet als een planning, maar als een *verhaal* dat vanzelf leek te gaan.",
+      note: "Uit het atelier",
+    },
+    {
+      type: "services",
+      id: "reizen",
+      title: "Zes reizen, *om mee te beginnen*",
+      intro: "Voorbeeldreizen om u op weg te helpen; we passen ze volledig aan. Voorbeeldprijzen per persoon op basis van twee reizigers, inclusief verblijf en vervoer ter plaatse, exclusief vluchten.",
+      items: [
+        { title: "Japan in de lente", description: "35°01′N 135°46′O — Van de neonstraten van Tokio naar stille tempels in Kyoto en een ryokan in de bergen, met de trein als rode draad.", icon: "globe", price: "vanaf € 5.950", duration: "16 dagen" },
+        { title: "Tanzania, de grote trek", description: "3°04′S 37°21′O — Safari door de Serengeti en de Ngorongoro-krater, met kleine tentenkampen en tot slot een paar dagen Zanzibar.", icon: "sun", price: "vanaf € 6.400", duration: "14 dagen" },
+        { title: "Ligurië, langzaam", description: "44°06′N 9°44′O — Wandelen tussen de dorpen van de Cinque Terre, koken met een familie in de heuvels en de trein langs de kust.", icon: "map", price: "vanaf € 2.350", duration: "9 dagen" },
+        { title: "Marokko van riad tot woestijn", description: "34°02′N 5°00′W — De medina’s van Fez en Marrakech, het Atlasgebergte en een nacht onder de sterren in de Sahara.", icon: "sun", price: "vanaf € 2.900", duration: "11 dagen" },
+        { title: "IJsland in de zomer", description: "63°46′N 18°10′W — Een rondreis per auto langs kloven, gletsjers en warme bronnen, met lange lichte avonden en kleine gastenhuizen.", icon: "car", price: "vanaf € 3.750", duration: "12 dagen" },
+        { title: "Rajasthan per trein", description: "27°10′N 78°03′O — Van Delhi via Agra naar de paleizen van Jaipur en Udaipur, met een privéchauffeur voor de stukken zonder spoor.", icon: "globe", price: "vanaf € 4.200", duration: "15 dagen" },
+      ],
+    },
+    {
+      type: "process",
+      id: "japan",
+      title: "Japan, *in zestien dagen*",
+      intro: "Een voorbeeld van hoe wij een reis opbouwen: dag voor dag, met ruimte om te verdwalen.",
+      steps: [
+        { title: "Tokio, dag 1–3", description: "Aankomst en bijkomen in een klein hotel in Yanaka. Een ochtend vismarkt, een avond in de steegjes van Shinjuku." },
+        { title: "Hakone, dag 4–5", description: "Met de trein de bergen in. Een ryokan met een eigen bron en, bij helder weer, de Fuji vanaf het meer." },
+        { title: "Kyoto, dag 6–9", description: "Tempels vroeg in de ochtend, voordat de stad wakker wordt. Een middag met een theemeester en een fiets voor de rest." },
+        { title: "Nara & Koya-san, dag 10–12", description: "Herten in het park van Nara en een nacht in een klooster op de berg Koya, met de ochtenddienst bij kaarslicht." },
+        { title: "Naoshima, dag 13–14", description: "Kunst op een eiland in de Binnenzee: musea in de rotsen en een gele pompoen op de pier." },
+        { title: "Osaka, dag 15–16", description: "Afsluiten met straatvoedsel in Dotonbori en een laatste bad voordat de vlucht naar huis vertrekt." },
+      ],
+    },
+    {
+      type: "showcase",
+      id: "verte",
+      title: "Soms is de mooiste plek *net achter de bocht*",
+      body: "We plannen ruimte in elke reis: een ochtend op een boot, een dag zonder programma. Daar ontstaan de herinneringen die u later vertelt.",
+      image: "art:bay",
+      cta: { label: "Vertel ons uw idee", href: "#consult" },
+    },
+    {
+      type: "features",
+      id: "werkwijze",
+      title: "Zo werkt *het atelier*",
+      intro: "Van eerste idee tot thuiskomst, met één vaste reisontwerper.",
+      items: [
+        { title: "Het gesprek", description: "In het atelier, per video of telefonisch. We vragen door op wat u zoekt, hoe u reist en wat u liever overslaat.", icon: "chat" },
+        { title: "Het ontwerp", description: "Binnen twee weken ontvangt u een uitgewerkt reisvoorstel met route, adressen en een vaste prijs.", icon: "map" },
+        { title: "De voorbereiding", description: "We schaven tot het klopt en regelen alles: verblijf, vervoer, gidsen en de kleine reserveringen die het verschil maken.", icon: "calendar" },
+        { title: "Onderweg", description: "U krijgt een reisboek op papier en in uw telefoon. Is er iets? Dan zijn we bereikbaar, ook in het weekend.", icon: "phone" },
+      ],
+    },
+    { type: "gallery", id: "journal", title: "Uit het *journal*", images: ["art:j1", "art:j2", "art:j3", "art:j4", "art:j5", "art:j6"] },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Vragen voor *vertrek*",
+      items: [
+        { q: "Hoe ver van tevoren moet ik beginnen?", a: "Voor verre reizen adviseren we zes tot negen maanden vooraf, zeker in het hoogseizoen. Een kortere reis in Europa kan vaak binnen enkele weken geregeld worden." },
+        { q: "Wat kost een gesprek en een voorstel?", a: "Het eerste gesprek en het eerste reisvoorstel zijn vrijblijvend. Pas als u besluit te boeken, betaalt u een aanbetaling op de reis." },
+        { q: "Regelen jullie ook de vluchten?", a: "Dat kan. We zoeken vluchten die passen bij de route, maar u mag ze ook zelf boeken; dan sluiten we het programma daarop aan." },
+        { q: "Zijn de reizen in de groep?", a: "Nee. Elke reis is voor u alleen, met uw eigen gezelschap. Gidsen en chauffeurs boeken we waar dat iets toevoegt, nooit voor de vorm." },
+        { q: "Hoe zit het met verzekering en garantie?", a: "Bij de boeking leggen we precies uit welke garanties op uw reis van toepassing zijn en welke reis- en annuleringsverzekering we adviseren." },
+        { q: "Kunnen we langskomen zonder afspraak?", a: "Dat mag, maar met een afspraak nemen we de tijd voor u en liggen de kaarten al klaar. Plan hieronder een moment." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "consult",
+      title: "Plan een *gesprek*",
+      body: "Vertel ons kort waar u aan denkt. We nemen binnen twee werkdagen contact op om een moment te plannen: in het atelier, per video of telefonisch.",
+      kind: "appointment",
+      options: ["Gesprek in het atelier", "Videogesprek", "Telefonisch gesprek"],
+    },
+    { type: "hours", id: "bezoek", title: "Het atelier in *Haarlem*", note: "We werken op afspraak, zodat we de tijd voor u hebben. Binnenlopen voor een kop koffie en een stapel reisboeken kan tijdens de openingstijden." },
+    { type: "contact", id: "colofon", title: "Colofon", body: "Voyage Atelier ontwerpt reizen op maat vanuit Haarlem. Voor een eerste kennismaking plant u hierboven een gesprek.", showForm: false, showMap: false },
+  ],
+  footer: { blurb: "Reizen op maat, ontworpen aan een tafel in Haarlem en gemaakt om over te vertellen." },
+};

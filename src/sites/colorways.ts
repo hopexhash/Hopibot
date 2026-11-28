@@ -149,6 +149,46 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Rose gold", swatch: "#b7745f", rules: [{ h: [25, 55], s: [0.3, 1], dh: -22, ds: 0.95 }, { h: [25, 55], s: [0, 0.3], dh: -18, ds: 1.2 }] },
     { name: "Platinum", swatch: "#7d8a92", rules: [{ h: [25, 55], s: [0.3, 1], dh: 170, ds: 0.22, dl: 0.02 }, { h: [25, 55], s: [0, 0.3], dh: 175, ds: 0.6 }] },
   ],
+  etoile: [
+    { name: "Bordeaux", swatch: "#b0586a", rules: [{ h: [30, 50], s: [0.3, 1], l: [0, 0.82], dh: -42, ds: 0.95 }, { h: [20, 50], s: [0, 0.3], l: [0, 0.3], dh: -32, ds: 1.6 }] },
+    { name: "Midnight", swatch: "#8fb0d6", rules: [{ h: [20, 60], s: [0, 0.3], l: [0, 0.3], dh: 190, ds: 2.2 }, { h: [30, 50], s: [0.3, 1], l: [0, 0.82], dh: 178, ds: 0.75, dl: 0.04 }, { h: [30, 50], l: [0.82, 1], dh: 180, ds: 0.35 }] },
+  ],
+  skyline: [
+    { name: "Ultraviolet", swatch: "#5b6cff", rules: [{ h: [300, 360], s: [0.4, 1], dh: -95, ds: 1 }, { h: [20, 45], s: [0.4, 1], dh: -60, ds: 1 }, { h: [240, 280], s: [0.4, 1], dh: -58, ds: 1 }] },
+    { name: "Aqua", swatch: "#2ee6c9", rules: [{ h: [300, 360], s: [0.4, 1], dh: -170, ds: 0.95, dl: -0.04 }, { h: [20, 45], s: [0.4, 1], dh: 170, ds: 0.85 }, { h: [240, 280], s: [0.4, 1], dh: -50, ds: 1 }] },
+  ],
+  linnen: [
+    { name: "Ink", swatch: "#33465a", rules: [{ h: [60, 140], s: [0.12, 1], dh: 128, ds: 1.05, dl: 0.01 }] },
+    { name: "Terracotta", swatch: "#8a4a36", rules: [{ h: [60, 140], s: [0.12, 1], dh: -68, ds: 1.25 }, { h: [20, 45], s: [0.25, 1], l: [0, 0.8], dh: -10, ds: 1.1 }] },
+  ],
+  monolith: [
+    { name: "Sandstone", swatch: "#4a4136", rules: [{ h: [190, 250], dh: -180, ds: 2.6 }] },
+    { name: "Basalt blue", swatch: "#2b3747", rules: [{ h: [190, 250], dh: 4, ds: 3.4 }] },
+  ],
+  beton: [
+    { name: "Signal blue", swatch: "#2443c9", rules: [{ h: [0, 30], s: [0.35, 1], dh: 218, ds: 0.85, dl: 0.02 }] },
+    { name: "Site green", swatch: "#2f6b45", rules: [{ h: [0, 30], s: [0.35, 1], dh: 132, ds: 0.6, dl: -0.02 }] },
+  ],
+  stroom: [
+    { name: "Teal & amber", swatch: "#0f8a80", rules: [{ h: [205, 235], s: [0.3, 1], dh: -48, ds: 0.8, dl: -0.13 }, { h: [5, 30], s: [0.5, 1], dh: 22, ds: 1 }] },
+    { name: "Violet & coral", swatch: "#6a4cff", rules: [{ h: [205, 235], s: [0.3, 1], dh: 30, ds: 1 }, { h: [5, 30], s: [0.5, 1], dh: -12, ds: 1 }] },
+  ],
+  maison: [
+    { name: "Bottle green", swatch: "#1f4a3a", rules: [{ h: [335, 20], s: [0.25, 1], dh: 152, ds: 0.85, dl: 0.02 }] },
+    { name: "Midnight blue", swatch: "#1d2d55", rules: [{ h: [335, 20], s: [0.25, 1], dh: -132, ds: 0.95, dl: 0.03 }] },
+  ],
+  voyage: [
+    { name: "Faded coral", swatch: "#c9775f", rules: [{ h: [160, 200], s: [0.08, 1], dh: -172, ds: 1.25, dl: -0.02 }] },
+    { name: "Sun-bleached ochre", swatch: "#b8913f", rules: [{ h: [160, 200], s: [0.08, 1], dh: -144, ds: 1.35, dl: -0.03 }] },
+  ],
+  kinetik: [
+    { name: "Azure", swatch: "#1f7bff", rules: [{ h: [250, 270], s: [0.5, 1], dh: -42, ds: 1 }, { h: [325, 345], s: [0.5, 1], dh: 34, ds: 1 }] },
+    { name: "Hot tomato", swatch: "#ff3b1f", rules: [{ h: [250, 270], s: [0.5, 1], dh: 115, ds: 1, dl: 0.04 }, { h: [325, 345], s: [0.5, 1], dh: -60, ds: 1 }, { h: [40, 60], s: [0.5, 1], dh: 125, ds: 0.9, dl: -0.08 }] },
+  ],
+  vow: [
+    { name: "Sage garden", swatch: "#5f7358", rules: [{ h: [25, 50], s: [0.15, 1], l: [0, 0.6], dh: 62, ds: 0.75 }, { h: [25, 50], s: [0.15, 1], l: [0.6, 1], dh: 50, ds: 0.6 }, { h: [190, 215], dh: -100, ds: 0.9 }] },
+    { name: "Dusk blue", swatch: "#4d6178", rules: [{ h: [25, 50], s: [0.15, 1], l: [0, 0.6], dh: 178, ds: 0.6, dl: -0.02 }, { h: [25, 50], s: [0.15, 1], l: [0.6, 1], dh: 170, ds: 0.55 }] },
+  ],
 };
 
 /** How many looks a family has: its original colours plus its colourways. */

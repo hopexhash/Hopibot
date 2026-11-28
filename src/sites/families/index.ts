@@ -33,6 +33,16 @@ import { serene } from "./serene";
 import { fjord } from "./fjord";
 import { ivoor } from "./ivoor";
 import { aurum } from "./aurum";
+import { etoile } from "./etoile";
+import { skyline } from "./skyline";
+import { linnen } from "./linnen";
+import { monolith } from "./monolith";
+import { beton } from "./beton";
+import { stroom } from "./stroom";
+import { maison } from "./maison";
+import { voyage } from "./voyage";
+import { kinetik } from "./kinetik";
+import { vow } from "./vow";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -74,6 +84,16 @@ export const FAMILIES: Record<string, Family> = {
   fjord,
   ivoor,
   aurum,
+  etoile,
+  skyline,
+  linnen,
+  monolith,
+  beton,
+  stroom,
+  maison,
+  voyage,
+  kinetik,
+  vow,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

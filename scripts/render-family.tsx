@@ -50,6 +50,16 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   fjord: { all: ["Tandartsenpraktijk Duin", "dentist", "clinic"], plain: ["Schoonmaakbedrijf Glans", "cleaning", "cleaning"] },
   ivoor: { all: ["Makelaardij Van Loon", "real_estate", "estate"], plain: ["Interieurstudio Vorm", "interior_designer", "estate"] },
   aurum: { all: ["Juwelier Sterre", "shop", "studio"], plain: ["Horlogerie Van Dam", "shop", "studio"] },
+  etoile: { all: ["Restaurant Sterrenhof", "restaurant", "fine-dining"], plain: ["Atelier Ivoor", "beauty_clinic", "beauty-salon"] },
+  skyline: { all: ["Rooftop Maas", "restaurant", "asian-fusion"], plain: ["Club Noordzee", "event_business", "studio"] },
+  linnen: { all: ["Atelier Ruimte", "interior_designer", "studio"], plain: ["Bloemenatelier Mos", "shop", "studio"] },
+  monolith: { all: ["Bureau Vorm", "construction", "construction"], plain: ["Fotostudio Grijs", "photographer", "studio"] },
+  beton: { all: ["Bouwbedrijf Van Leeuwen", "construction", "construction"], plain: ["Dakwerken Smits", "roofing", "construction"] },
+  stroom: { all: ["Installatietechniek Jansen", "plumber", "local-service"], plain: ["Schoonmaakbedrijf Glans", "cleaning", "cleaning"] },
+  maison: { all: ["Hotel Het Grachtenhuis", "hotel", "fine-dining"], plain: ["Bistro De Waag", "restaurant", "luxury-restaurant"] },
+  voyage: { all: ["Reisbureau Verre Horizon", "travel_agency", "studio"], plain: ["Taalinstituut Babel", "consultant", "studio"] },
+  kinetik: { all: ["Bureau Zwaai", "marketing_agency", "studio"], plain: ["Fotostudio Flits", "photographer", "studio"] },
+  vow: { all: ["Landgoed De Hoeve", "event_business", "fine-dining"], plain: ["Bruidsvisagie Elin", "beauty_salon", "beauty-salon"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
@@ -76,6 +86,16 @@ const PHOTO_SET: Record<string, string> = {
   fjord: "dental",
   ivoor: "real-estate",
   aurum: "fashion",
+  etoile: "restaurant",
+  skyline: "restaurant",
+  linnen: "real-estate",
+  monolith: "construction",
+  beton: "construction",
+  stroom: "construction",
+  maison: "hotel",
+  voyage: "real-estate",
+  kinetik: "creative-agency",
+  vow: "hotel",
 };
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */

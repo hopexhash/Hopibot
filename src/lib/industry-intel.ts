@@ -51,7 +51,7 @@ const PROFILES = {
 const BY_CATEGORY: Record<string, keyof typeof PROFILES> = {
   restaurant: "restaurant", italian_restaurant: "restaurant", turkish_restaurant: "restaurant", sushi_restaurant: "restaurant", asian_restaurant: "restaurant",
   burger_restaurant: "fastfood", pizzeria: "fastfood", street_food: "fastfood", food_truck: "fastfood",
-  coffee_shop: "cafe", bakery: "cafe",
+  coffee_shop: "cafe", bakery: "cafe", bar: "hospitality",
   barbershop: "grooming", hair_salon: "grooming",
   beauty_salon: "beauty", beauty_clinic: "beauty",
   car_detailing: "automotive", car_repair: "automotive", car_dealer: "automotive",
@@ -59,9 +59,9 @@ const BY_CATEGORY: Record<string, keyof typeof PROFILES> = {
   landscaping: "green", cleaning: "cleaning",
   dentist: "health", physiotherapist: "health",
   lawyer: "professional", accountant: "professional", consultant: "professional",
-  marketing_agency: "creative", photographer: "creative", event_business: "hospitality",
+  marketing_agency: "creative", photographer: "creative", event_business: "hospitality", wedding_planner: "hospitality", travel_agency: "hospitality",
   it_company: "tech", gym: "fitness", personal_trainer: "fitness",
-  real_estate: "property", interior_designer: "property",
+  real_estate: "property", interior_designer: "property", architect: "property",
   clothing_store: "retail", jewelry_store: "retail", shop: "retail", hotel: "hospitality", tattoo_studio: "body_art", local_service: "general",
 };
 

@@ -1,0 +1,168 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo content of the Vow template: a fictional wedding planner in Den Bosch. Venues and styles
+ * are inspiration only (no named real locations); the package prices are marked as examples;
+ * no phone number, address or e-mail.
+ */
+const img = (id: string, w = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Vow Weddings — weddingplanner in Den Bosch",
+    description: "Vow Weddings plant en begeleidt bruiloften vanuit Den Bosch: volledige planning, gedeeltelijke planning, dagcoördinatie en styling. Rustig, persoonlijk en tot in detail.",
+    lang: "nl",
+    keywords: ["weddingplanner Den Bosch", "bruiloft plannen", "dagcoördinatie", "trouwstyling", "bruiloft Brabant", "weddingplanning", "trouwlocatie zoeken", "ceremoniemeester"],
+  },
+  theme: { template: "service", design: "vow", variation: 0, primary: "#3a3330", accent: "#7f6239", mode: "light", font: "Cormorant", radius: "soft" },
+  business: {
+    name: "Vow Weddings",
+    tagline: "Weddingplanning met rust, aandacht en oog voor detail.",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Den Bosch",
+    mapsUrl: null,
+    openingHours: ["Maandag – Vrijdag: 09:00 – 17:30", "Zaterdag: Op afspraak", "Zondag: Gesloten"],
+  },
+  images: [
+    { key: "hero", src: img("1546032996-6dfacbacbf3f", 1920), alt: "Een bruidspaar omarmt elkaar onder een wapperende sluier in een veld met hoog gras", license: "stock", credit: "Unsplash" },
+    { key: "hero2", src: img("1529636798458-92182e662485"), alt: "Een boog van linnen met een weelderig bloemstuk in perzik en roze", license: "stock", credit: "Unsplash" },
+    { key: "hero3", src: img("1465495976277-4387d4b0b4c6"), alt: "Twee handen met trouwringen rusten op een bruidsboeket met perzikkleurige rozen", license: "stock", credit: "Unsplash" },
+    { key: "over", src: img("1550005809-91ad75fb315f"), alt: "Bruid met een boeket van rozen en eucalyptus naast haar partner in een stenen zaal", license: "stock", credit: "Unsplash" },
+    { key: "art:svc0", src: img("1519225421980-715cb0215aed"), alt: "Een lange gedekte tafel met witte linnen kleden en kleine boeketten", license: "stock", credit: "Unsplash" },
+    { key: "art:svc1", src: img("1522673607200-164d1b6ce486"), alt: "Twee versierde stoelen op een grasveld aan het water", license: "stock", credit: "Unsplash" },
+    { key: "art:svc2", src: img("1469371670807-013ccf25f16a"), alt: "Een ceremonieopstelling met houten stoelen en bloemstukken langs het gangpad", license: "stock", credit: "Unsplash" },
+    { key: "art:svc3", src: img("1525772764200-be829a350797"), alt: "Kaarsen, rozen en kristallen glazen op een feestelijk gedekte tafel", license: "stock", credit: "Unsplash" },
+    { key: "art:svc4", src: img("1502635385003-ee1e6a1a742d"), alt: "Een lichte tent met gedekte tafels, groen en een kroonluchter", license: "stock", credit: "Unsplash" },
+    { key: "sfeer", src: img("1460364157752-926555421a7e", 1920), alt: "Een bruidspaar zit samen in het gras en kijkt naar de ondergaande zon boven het water", license: "stock", credit: "Unsplash" },
+    { key: "g1", src: img("1532712938310-34cb3982ef74"), alt: "Een bruidspaar wandelt hand in hand door een weids heuvellandschap", license: "stock", credit: "Unsplash" },
+    { key: "g2", src: img("1525258946800-98cfd641d0de"), alt: "Close-up van een bruidsboeket met zachtroze rozen tegen een witte jurk", license: "stock", credit: "Unsplash" },
+    { key: "g3", src: img("1606800052052-a08af7148866"), alt: "Twee gouden trouwringen op een zacht wit doek", license: "stock", credit: "Unsplash" },
+    { key: "g4", src: img("1511795409834-ef04bbd61622"), alt: "Een lange feesttafel met kleurige bloemen en warm licht", license: "stock", credit: "Unsplash" },
+    { key: "g5", src: img("1537633552985-df8429e8048b"), alt: "Een bruidspaar staat op het strand terwijl de lange sluier over de kiezels valt", license: "stock", credit: "Unsplash" },
+    { key: "g6", src: img("1535254973040-607b474cb50d"), alt: "Een witte bruidstaart met verse bloemen in de tuin", license: "stock", credit: "Unsplash" },
+    { key: "g7", src: img("1527529482837-4698179dc6ce"), alt: "Gasten heffen het glas onder slingers van lichtjes tijdens het diner", license: "stock", credit: "Unsplash" },
+    { key: "g8", src: img("1513278974582-3e1b4a4fa21e"), alt: "Een lichte zaal met hoge ramen en rozenblaadjes op de vloer", license: "stock", credit: "Unsplash" },
+  ],
+  hero: {
+    eyebrow: "Weddingplanner · Den Bosch",
+    headline: "Jullie dag, met *liefde* geregeld",
+    subheadline: "Vow Weddings plant en begeleidt bruiloften met rust en aandacht. Van de eerste kop koffie tot de laatste dans: wij houden het overzicht, jullie genieten.",
+    primaryCta: { label: "Plan een kennismaking", href: "#kennismaken" },
+    secondaryCta: { label: "Bekijk de pakketten", href: "#pakketten" },
+    image: "hero",
+    layout: "split",
+    note: "Zeg ja, wij doen de rest",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "over",
+      title: "Een bruiloft die voelt als *jullie*",
+      paragraphs: [
+        "Geen draaiboek uit een la, maar een dag die past bij wie jullie zijn. Daar begint elke bruiloft die wij plannen.",
+        "Vow Weddings is een kleine weddingplanner uit Den Bosch. We luisteren eerst, denken mee over locatie, stijl en budget en houden daarna alle draadjes in handen: leveranciers, planning, aankleding en de dag zelf. Zo kunnen jullie op de dag alleen nog maar aanwezig zijn.",
+        "We werken met een beperkt aantal bruiloften per seizoen, zodat elk stel de aandacht krijgt die het verdient.",
+      ],
+      image: "over",
+      highlights: ["Eén vaste planner", "Heldere afspraken", "Rust op de dag zelf"],
+    },
+    {
+      type: "services",
+      id: "diensten",
+      title: "Waar wij jullie bij *helpen*",
+      intro: "Van de volledige organisatie tot alleen de dag zelf: jullie kiezen hoeveel je uit handen geeft.",
+      items: [
+        { title: "Volledige planning", description: "Vanaf het eerste idee tot het laatste glas: budget, locatie, leveranciers, draaiboek en begeleiding op de dag. Jullie maken de keuzes, wij doen het werk.", icon: "heart" },
+        { title: "Gedeeltelijke planning", description: "Hebben jullie al een locatie of een paar leveranciers? Wij nemen het stokje over en maken het plaatje compleet.", icon: "calendar" },
+        { title: "Dagcoördinatie", description: "Jullie plannen zelf, wij nemen het in de laatste weken over en zorgen dat alles op de dag precies loopt zoals bedacht.", icon: "clock" },
+        { title: "Styling & aankleding", description: "Een sfeer die klopt van ceremonie tot feest: kleurpalet, bloemen, tafels en licht, afgestemd op jullie locatie.", icon: "brush" },
+        { title: "Locatie zoeken", description: "Op basis van jullie wensen, gastenaantal en budget maken we een korte selectie en gaan we mee op bezichtiging.", icon: "map" },
+      ],
+    },
+    {
+      type: "features",
+      id: "stijlen",
+      title: "Inspiratie voor elke *stijl*",
+      intro: "Geen vaste formule: dit zijn sferen waar we graag mee werken. Jullie verhaal bepaalt de rest.",
+      items: [
+        { title: "Landgoed & tuin", description: "Een ceremonie onder oude bomen, een lange tafel op het gras en lampjes in de avond.", icon: "leaf" },
+        { title: "Stadse loft", description: "Industrieel licht, strakke lijnen en een diner dat overgaat in een feest.", icon: "home" },
+        { title: "Aan het water", description: "Zachte tinten, linnen en een ceremonie met uitzicht, op de oever of op het strand.", icon: "drop" },
+        { title: "Boerderij & schuur", description: "Hout, droogbloemen en een warme, ongedwongen sfeer voor een groot gezelschap.", icon: "sprout" },
+        { title: "Klein & intiem", description: "Een handvol gasten, een bijzondere plek en alle tijd voor elkaar.", icon: "heart" },
+        { title: "Groot feest", description: "Veel gasten, veel muziek en een planning die het allemaal moeiteloos laat lijken.", icon: "spark" },
+      ],
+    },
+    {
+      type: "process",
+      id: "tijdlijn",
+      title: "Van ja-woord tot *laatste dans*",
+      intro: "Zo ziet de weg naar jullie bruiloft eruit wanneer wij de planning verzorgen.",
+      steps: [
+        { title: "Kennismaking", description: "Een eerste gesprek, bij ons of bij jullie thuis. We horen jullie verhaal, wensen en ideeën, zonder verplichtingen." },
+        { title: "Voorstel & budget", description: "Jullie ontvangen een helder voorstel met een realistische begroting en de keuzes die we samen gaan maken." },
+        { title: "Locatie & leveranciers", description: "We zoeken de plek en de mensen die bij jullie passen en regelen offertes, contracten en afspraken." },
+        { title: "Stijl & details", description: "Moodboard, kleurpalet, papierwerk en aankleding: alles komt samen in één ontwerp voor de dag." },
+        { title: "Draaiboek", description: "Een minuut-tot-minuut planning voor iedereen die meewerkt, doorgenomen met jullie, de locatie en de leveranciers." },
+        { title: "De grote dag", description: "Wij zijn er van opbouw tot afbouw, lossen op wat onverwacht gebeurt en zorgen dat jullie alleen hoeven te genieten." },
+      ],
+    },
+    {
+      type: "showcase",
+      id: "sfeer",
+      title: "Even *samen*, terwijl wij de rest regelen",
+      body: "Op de dag zelf houden wij de klok in de gaten, zodat jullie tijd hebben voor elkaar.",
+      image: "sfeer",
+      cta: { label: "Plan een kennismaking", href: "#kennismaken" },
+    },
+    {
+      type: "packages",
+      id: "pakketten",
+      title: "Drie manieren om te *beginnen*",
+      intro: "Elk pakket is een vertrekpunt. Na de kennismaking ontvangen jullie een voorstel op maat.",
+      items: [
+        { name: "Dagcoördinatie", price: "€ 1.450", unit: "eenmalig", description: "Voor stellen die zelf plannen en op de dag willen loslaten.", features: ["Overdracht acht weken vooraf", "Draaiboek en leverancierscontact", "Aanwezig van opbouw tot afbouw", "Eén vaste coördinator"], featured: false },
+        { name: "Gedeeltelijke planning", price: "vanaf € 3.250", unit: "per bruiloft", description: "Wij nemen het over waar jullie zijn gebleven.", features: ["Alles uit Dagcoördinatie", "Leveranciers zoeken en boeken", "Stylingadvies en moodboard", "Maandelijks overleg"], featured: true },
+        { name: "Volledige planning", price: "vanaf € 5.950", unit: "per bruiloft", description: "Van eerste idee tot laatste dans, volledig uit handen.", features: ["Alles uit Gedeeltelijke planning", "Locatie zoeken en bezichtigen", "Budgetbewaking", "Complete styling van de dag"], featured: false },
+      ],
+      note: "Voorbeeldprijzen — de definitieve prijs hangt af van jullie wensen, de locatie en het aantal gasten.",
+    },
+    {
+      type: "gallery",
+      id: "impressie",
+      title: "Momenten om te *koesteren*",
+      images: ["g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8"],
+    },
+    {
+      type: "statement",
+      id: "belofte",
+      title: "Wij plannen niet alleen een bruiloft. Wij bewaken de *rust* op jullie mooiste dag.",
+      note: "Onze belofte",
+    },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Veelgestelde *vragen*",
+      items: [
+        { q: "Hoe ver van tevoren moeten we contact opnemen?", a: "Voor een volledige planning raden we twaalf tot achttien maanden aan, zeker als jullie in het hoogseizoen willen trouwen. Voor dagcoördinatie is een paar maanden vooraf meestal genoeg." },
+        { q: "Werken jullie alleen in Den Bosch?", a: "We zitten in Den Bosch en plannen veel bruiloften in Brabant, maar reizen graag mee naar andere plekken in Nederland. Reiskosten nemen we op in het voorstel." },
+        { q: "Kunnen we ook trouwen op een plek zonder vaste trouwlocatie?", a: "Ja. Een tuin, een schuur of een strand kan prachtig zijn. We denken mee over vergunningen, tenten, stroom, catering en alles wat er verder bij komt kijken." },
+        { q: "Wat als het regent?", a: "Voor elke buitenceremonie maken we een plan B dat net zo mooi is als plan A. Zo hoeven jullie op de dag nergens over na te denken." },
+        { q: "Mogen we onze eigen leveranciers kiezen?", a: "Natuurlijk. We denken mee en doen voorstellen, maar jullie hebben altijd het laatste woord." },
+        { q: "Kloppen de prijzen op deze site?", a: "De prijzen op deze site zijn voorbeeldprijzen. Na de kennismaking ontvangen jullie een voorstel met een vaste prijs, afgestemd op jullie plannen." },
+        { q: "Is een kennismaking vrijblijvend?", a: "Ja. Het eerste gesprek is kosteloos en zonder verplichtingen. Jullie beslissen daarna in alle rust." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "kennismaken",
+      title: "Vertel ons over jullie *dag*",
+      body: "Laat weten wanneer en met hoeveel gasten jullie willen trouwen en waar we mee kunnen helpen. We nemen contact op voor een vrijblijvende kennismaking.",
+      kind: "quote",
+      options: ["Volledige planning", "Gedeeltelijke planning", "Dagcoördinatie", "Styling & aankleding", "Nog geen idee"],
+    },
+  ],
+  footer: { blurb: "Weddingplanning vanuit Den Bosch, met rust, aandacht en oog voor detail. Van eerste idee tot laatste dans." },
+};
