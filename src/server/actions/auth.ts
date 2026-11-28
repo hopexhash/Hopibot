@@ -64,7 +64,7 @@ export async function signUpAction(_prev: AuthFormState, formData: FormData): Pr
   const org = await db().transaction(async (tx) => createOrganization(agency, userId, tx));
   if (process.env.AUTH_PROVIDER !== "supabase") await createSession(userId, org.id);
   await audit({ organizationId: org.id, userId, action: "auth.signup", ip });
-  redirect("/command");
+  redirect("/console");
 }
 
 export async function signInAction(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
@@ -92,7 +92,7 @@ export async function signInAction(_prev: AuthFormState, formData: FormData): Pr
       .values({ id: data.user.id, email, authProvider: "supabase", lastLoginAt: new Date() })
       .onConflictDoUpdate({ target: schema.users.id, set: { lastLoginAt: new Date() } });
     await audit({ organizationId: null, userId: data.user.id, action: "auth.login", ip });
-    redirect("/command");
+    redirect("/console");
   }
 
   const [user] = await db().select().from(schema.users).where(eq(schema.users.email, email));
@@ -112,7 +112,7 @@ export async function signInAction(_prev: AuthFormState, formData: FormData): Pr
     db().update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, user.id)),
     audit({ organizationId: membership?.organizationId ?? null, userId: user.id, action: "auth.login", ip }),
   ]);
-  redirect("/command");
+  redirect("/console");
 }
 
 export async function signOutAction() {
@@ -149,5 +149,5 @@ export async function signInWithCodeAction(_prev: AuthFormState, formData: FormD
   if (!membership) return { error: "That code is not valid." };
   await Promise.all([db().update(schema.users).set({ lastLoginAt: new Date() }).where(eq(schema.users.id, match.id)), createSession(match.id, membership.organizationId, 90)]);
   await audit({ organizationId: membership.organizationId, userId: match.id, action: "auth.code_login", ip });
-  redirect("/command");
+  redirect("/console");
 }

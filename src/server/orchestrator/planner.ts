@@ -5,7 +5,7 @@ import { integrationMode } from "../integrations/credentials";
 import { planSchema, type RunPlan } from "./runs";
 import { resolveMarket } from "@/lib/markets";
 
-const CATEGORY_WORDS: Record<string, string[]> = {
+export const CATEGORY_WORDS: Record<string, string[]> = {
   restaurant: ["restaurant", "restaurants", "restaurant", "eetcafe", "eetcafé", "bistro", "cafe", "café", "cafes"],
   dentist: ["dentist", "dentists", "tandarts", "tandartsen", "dental"],
   hair_salon: ["hairdresser", "hairdressers", "kapper", "kappers", "barber", "barbers", "hair salon"],

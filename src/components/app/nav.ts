@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Mail,
   Megaphone,
+  MessageSquare,
   Plug,
   Radar,
   Search,
@@ -33,6 +34,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "Command",
     items: [
+      { href: "/console", label: "Console", icon: MessageSquare, hint: "Tell the agents what to do in one chat box" },
       { href: "/command", label: "Command Center", icon: LayoutDashboard, hint: "Everything at a glance" },
       { href: "/approvals", label: "Approvals", icon: ShieldCheck, hint: "Things waiting for your OK" },
     ],

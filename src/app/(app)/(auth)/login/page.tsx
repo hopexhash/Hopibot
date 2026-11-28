@@ -7,6 +7,6 @@ export const metadata = { title: "Sign in" };
 
 // With a secret sign-in address, /signup does not exist for visitors, so no link to it.
 export default async function LoginPage() {
-  if (await getAuth()) redirect("/command");
+  if (await getAuth()) redirect("/console");
   return <AuthForm mode="login" action={signInAction} codeAction={signInWithCodeAction} signupEnabled={process.env.ALLOW_SIGNUP !== "false" && !process.env.CONTROL_PATH} />;
 }
