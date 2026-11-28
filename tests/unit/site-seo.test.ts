@@ -210,6 +210,22 @@ describe("website enquiry: the email with the design", () => {
     expect(anon.body.endsWith("Groet,\nHOPI")).toBe(true);
   });
 
+  it("says why they get it (they asked), in their language, never that their details were public", async () => {
+    const { inquiryFooter, inquiryPreviewEmail } = await import("@/lib/inquiry-email");
+    const s = { agencyName: "HOPI", senderName: "", agencyAddress: "Straat 1, 1000 AA Amsterdam", kvkNumber: "12345678", agencyWebsite: "wearehopi.nl" };
+    const nl = inquiryFooter("nl", s, "https://x.test/u/t");
+    expect(nl).toMatch(/via onze website een gratis websiteontwerp hebt aangevraagd/);
+    expect(nl).toMatch(/KvK 12345678/);
+    expect(nl).toMatch(/https:\/\/x\.test\/u\/t/);
+    expect(nl.replace(/https?:\/\/\S+/g, "")).not.toMatch(/openbaar|\buw\b|\bu\b/i);
+    const en = inquiryFooter("en", s, "https://x.test/u/t");
+    expect(en).toMatch(/you requested a free website design/);
+    expect(en).not.toMatch(/publicly listed/);
+    const e = inquiryPreviewEmail({ contactName: "Sam Jones", company: "Jones Bakery", previewUrl: "https://x.test/d/j", senderName: "", agencyName: "HOPI", lang: "en" });
+    expect(e.subject).toBe("Your website design for Jones Bakery is ready");
+    expect(e.body.startsWith("Hi Sam,")).toBe(true);
+  });
+
   it("only allows sending when email is really connected and the sender is known", async () => {
     const { inquirySendBlocker } = await import("@/lib/inquiry-email");
     const ok = { resendLive: true, agencyName: "HOPI", senderEmail: "hallo@example.test", agencyAddress: "Straat 1" };

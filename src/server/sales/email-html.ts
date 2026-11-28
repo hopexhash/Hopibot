@@ -26,7 +26,9 @@ export async function buildEmailHtml(email: Email): Promise<string | null> {
   const paragraphs = text.split(/\n{2,}/).map((p) => p.trim()).filter((p) => p && !/^https?:\/\/\S+$/.test(p));
   const accent = ensureContrast(design.palette.accent, design.palette.bg, 3);
   const prices = settings.catalog.packages.filter((p) => p.enabled && p.priceCents !== null).map((p) => p.priceCents as number);
-  const lang = ((email.proposal as { lang?: string } | null)?.lang ?? "nl") as string;
+  const proposal = (email.proposal ?? {}) as { lang?: string; informal?: boolean };
+  const lang = proposal.lang ?? "nl";
+  const informal = proposal.informal === true;
   return renderEmailHtml({
     lang,
     paragraphs,
@@ -37,6 +39,10 @@ export async function buildEmailHtml(email: Email): Promise<string | null> {
     unsubscribeUrl: `${process.env.APP_URL ?? "http://localhost:3000"}/u/${email.unsubscribeToken}`,
     design: { name: design.name, bg: design.palette.bg, ink: design.palette.ink, accent, onAccent: contrast("#ffffff", accent) >= contrast("#111111", accent) ? "#ffffff" : "#111111", displayFont: fontStack(design.fonts.display).replace(/"/g, "'") },
     fromPriceEur: prices.length ? Math.min(...prices) / 100 : null,
-    benefits: lang === "nl" ? ["Ontworpen voor telefoons en computers", "Snel, veilig en vindbaar in Google", "Direct contact of reserveren vanaf elke pagina", "U beslist: aanpassen kan altijd"] : ["Designed for phones and computers", "Fast, secure and findable in Google", "Contact or booking from every page", "You decide: everything can be adjusted"],
+    informal,
+    benefits:
+      lang === "nl"
+        ? ["Ontworpen voor telefoons en computers", "Snel, veilig en vindbaar in Google", "Direct contact of reserveren vanaf elke pagina", informal ? "Jij beslist: aanpassen kan altijd" : "U beslist: aanpassen kan altijd"]
+        : ["Designed for phones and computers", "Fast, secure and findable in Google", "Contact or booking from every page", "You decide: everything can be adjusted"],
   });
 }

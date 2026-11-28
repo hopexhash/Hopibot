@@ -5,10 +5,27 @@
  */
 export const INQUIRY_SOURCE = "website_inquiry";
 
-export function inquiryPreviewEmail(i: { contactName: string | null; company: string; previewUrl: string; senderName: string; agencyName: string }) {
+export function inquiryPreviewEmail(i: { contactName: string | null; company: string; previewUrl: string; senderName: string; agencyName: string; lang?: "nl" | "en" }) {
   const first = (i.contactName ?? "").trim().split(/\s+/)[0] ?? "";
   const sender = i.senderName.trim() || i.agencyName.trim();
   const signature = sender === i.agencyName.trim() ? sender : `${sender}\n${i.agencyName.trim()}`;
+  if (i.lang === "en") {
+    return {
+      subject: `Your website design for ${i.company} is ready`,
+      body: [
+        first ? `Hi ${first},` : "Hi,",
+        "",
+        `Thank you for your request through our website. The design for ${i.company} is ready. You can view it here:`,
+        "",
+        i.previewUrl,
+        "",
+        "It is a first design: we adjust the copy, colours and photos together with you. Like it? Then choose a package on the same page, or reply to this email with your questions and wishes. If you don't like it, you are not committed to anything.",
+        "",
+        "Kind regards,",
+        signature,
+      ].join("\n"),
+    };
+  }
   return {
     subject: `Je websiteontwerp voor ${i.company} staat klaar`,
     body: [
@@ -24,6 +41,18 @@ export function inquiryPreviewEmail(i: { contactName: string | null; company: st
       signature,
     ].join("\n"),
   };
+}
+
+/**
+ * Footer of the reply to a website enquiry: who it is from and why they get it (they asked
+ * for it), with an opt-out. Not the footer of unsolicited outreach: that one says the
+ * details were public, which is not true here.
+ */
+export function inquiryFooter(lang: "nl" | "en", s: { agencyName: string; senderName: string; agencyAddress: string; kvkNumber: string; agencyWebsite: string }, unsubscribeUrl: string) {
+  const id = [s.agencyName, s.agencyAddress, s.kvkNumber ? `KvK ${s.kvkNumber}` : null, s.agencyWebsite].filter(Boolean).join(" · ");
+  return lang === "en"
+    ? `\n\n--\n${s.senderName || s.agencyName}\n${id}\n\nYou are receiving this email because you requested a free website design through our website. Don't want any more emails from us? Unsubscribe: ${unsubscribeUrl}\nThe design is a concept and has not been published.`
+    : `\n\n--\n${s.senderName || s.agencyName}\n${id}\n\nJe ontvangt deze e-mail omdat je via onze website een gratis websiteontwerp hebt aangevraagd. Wil je geen e-mails meer van ons? Meld je af: ${unsubscribeUrl}\nHet ontwerp is een concept en nog niet gepubliceerd.`;
 }
 
 /** Why the preview email cannot go out right now, in words for the owner; null when it can. */

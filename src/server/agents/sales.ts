@@ -1,5 +1,5 @@
 import "../guard";
-import { INQUIRY_SOURCE, inquiryPreviewEmail, inquirySendBlocker } from "@/lib/inquiry-email";
+import { INQUIRY_SOURCE, inquiryFooter, inquiryPreviewEmail, inquirySendBlocker } from "@/lib/inquiry-email";
 import { assessOutreach } from "@/lib/outreach-compliance";
 import { buildEmailHtml, demoUrl } from "../sales/email-html";
 import { and, desc, eq, ne } from "drizzle-orm";
@@ -312,7 +312,9 @@ async function inquiryPreview(ctx: AgentContext) {
   }
 
   const s = ctx.settings;
-  const text = inquiryPreviewEmail({ contactName: typeof b.sourceData?.contactName === "string" ? b.sourceData.contactName : null, company: b.name, previewUrl: demoUrl(project.slug), senderName: s.senderName, agencyName: s.agencyName });
+  // The language of the page the request came from (English site: English email).
+  const lang = b.sourceData?.language === "en" ? "en" : "nl";
+  const text = inquiryPreviewEmail({ contactName: typeof b.sourceData?.contactName === "string" ? b.sourceData.contactName : null, company: b.name, previewUrl: demoUrl(project.slug), senderName: s.senderName, agencyName: s.agencyName, lang });
   const token = randomToken(24);
   const verdict = assessOutreach({ country: b.country, permission: b.contactPermission, contact: { isGeneric: contact.isGeneric, source: contact.source } });
   const blocker =
@@ -327,9 +329,10 @@ async function inquiryPreview(ctx: AgentContext) {
       contactId: contact.id,
       kind: "intro",
       subject: text.subject,
-      bodyText: text.body + complianceFooter("nl", s, unsubscribeUrl(token)),
+      bodyText: text.body + inquiryFooter(lang, s, unsubscribeUrl(token)),
       toEmail: contact.value,
-      proposal: { lang: "nl", previewDescription: "Requested through the website form." } as Record<string, unknown>,
+      // informal: the website says "je", so the reply does too (buttons and headings included).
+      proposal: { lang, informal: true, previewDescription: "Requested through the website form." } as Record<string, unknown>,
       crmNotes: blocker ? `Reply to a website enquiry. Not sent yet: ${blocker}` : "Reply to a website enquiry, sent on approval of the design.",
       status: blocker ? "awaiting_approval" : "approved",
       approvedBy: blocker ? null : approverId,
