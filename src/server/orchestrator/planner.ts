@@ -18,6 +18,7 @@ const CATEGORY_WORDS: Record<string, string[]> = {
   beauty_salon: ["beauty salon", "beauty salons", "schoonheidssalon", "nail salon", "beauty"],
   gym: ["gym", "gyms", "sportschool", "fitness"],
   hotel: ["hotel", "hotels", "b&b", "bed and breakfast"],
+  jewelry_store: ["jeweller", "jewellers", "jeweler", "jewelers", "juwelier", "juweliers", "horlogerie"],
 };
 
 const STEP_PHRASE: Record<string, string> = {

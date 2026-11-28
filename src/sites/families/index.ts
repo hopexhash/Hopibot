@@ -31,6 +31,8 @@ import { vigor } from "./vigor";
 import { cutline } from "./cutline";
 import { serene } from "./serene";
 import { fjord } from "./fjord";
+import { ivoor } from "./ivoor";
+import { aurum } from "./aurum";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -70,6 +72,8 @@ export const FAMILIES: Record<string, Family> = {
   cutline,
   serene,
   fjord,
+  ivoor,
+  aurum,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

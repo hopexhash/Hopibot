@@ -640,6 +640,22 @@ export const FAMILY_DESIGNS: Design[] = [
     features: ["Opening with window-blind reveal", "Treatment cards with what to expect", "First visit, step by step", "The team by role", "Appointment request", "Opening hours as a week timeline"],
     upsells: ["booking", "seo", "gbp", "copywriting", "email"],
   }),
+  family({
+    key: "ivoor", name: "Ivoor", demo: "ivoor", original: true, industry: "Luxury real estate, architects & interiors", group: "services", legacy: "realestate", mode: "dark", radius: "sharp", art: "estate",
+    description: "Architectural and cinematic: warm charcoal and ivory, an oversized hairline display face in capitals, full-screen photography, a pinned property sequence and a wipe slider.",
+    type: ["Italiana", "Archivo", 400],
+    colors: ["#141311", "#1c1a18", "#ece4d6", "#f3ece1", "#d9d1c4", "#a69d8f", "#141311", "#c7ab82", "#0d0c0b", "#a69d8f"],
+    features: ["Cinematic slit opening", "Pinned full-screen property sequence", "Wipe slider gallery", "Process with a running step number", "Viewing or valuation request", "Office hours & route"],
+    upsells: ["photography", "seo", "copywriting", "gbp", "email"],
+  }),
+  family({
+    key: "aurum", name: "Aurum", demo: "aurum", original: true, industry: "Jewellers, watchmakers, boutiques & bridal", group: "general", legacy: "service", mode: "light", radius: "sharp", art: "service",
+    description: "A fashion campaign in print: cream, true black and a whisper of gold, a light Garamond serif in roman and italic, pieces told as spreads with a loupe and collections as tabs.",
+    type: ["Cormorant", "Inter", 300],
+    colors: ["#f3eee5", "#ebe4d7", "#faf7f1", "#0e0d0b", "#2b2822", "#6d6558", "#0e0d0b", "#a8834a", "#0e0d0b", "#d2b27c"],
+    features: ["Campaign opening with a rising headline", "Pieces as spreads with a loupe", "Collections as tabs with prices", "The making of, told sideways", "Appointment request", "Salon hours & route"],
+    upsells: ["photography", "seo", "gbp", "email", "copywriting"],
+  }),
 ];
 DESIGNS.push(...FAMILY_DESIGNS);
 

@@ -24,7 +24,7 @@ const SECTOR_OF: Record<string, string> = {
   roofing: "Trades & home", local_service: "Trades & home", interior_designer: "Trades & home",
   real_estate: "Professional", lawyer: "Professional", accountant: "Professional", consultant: "Professional",
   marketing_agency: "Creative & tech", it_company: "Creative & tech", photographer: "Creative & tech",
-  clothing_store: "Retail", shop: "Retail",
+  clothing_store: "Retail", jewelry_store: "Retail", shop: "Retail",
 };
 const SECTORS = [...new Set(Object.values(SECTOR_OF))];
 

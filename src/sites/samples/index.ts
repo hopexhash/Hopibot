@@ -1,4 +1,6 @@
 import type { SiteSpec } from "@/lib/site-spec";
+import { sample as aurum } from "./aurum";
+import { sample as ivoor } from "./ivoor";
 import { sample as fjord } from "./fjord";
 import { sample as serene } from "./serene";
 import { sample as cutline } from "./cutline";
@@ -11,4 +13,4 @@ import { sample as apex } from "./apex";
  * photography, shown in the template library and as a public concept demo. Families without
  * an entry use the generic sample business of scripts/render-family.tsx.
  */
-export const SAMPLE_SITES: Record<string, SiteSpec> = { apex, nimbus, vigor, cutline, serene, fjord };
+export const SAMPLE_SITES: Record<string, SiteSpec> = { apex, nimbus, vigor, cutline, serene, fjord, ivoor, aurum };

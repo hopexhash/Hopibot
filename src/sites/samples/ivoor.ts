@@ -1,0 +1,165 @@
+import type { SiteSpec } from "@/lib/site-spec";
+
+/**
+ * Demo site of the Ivoor template: a fictional residential brokerage in Amsterdam. Objects,
+ * prices and sizes are examples (the demonstration notice labels the whole site a concept);
+ * no address, phone number, reviews, awards or people.
+ */
+const u = (id: string, w = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
+const photo = (key: string, id: string, alt: string, w?: number) => ({ key, src: u(id, w), alt, license: "stock" as const, credit: "Unsplash" });
+
+export const sample: SiteSpec = {
+  meta: {
+    title: "Ivoor Residences — makelaardij voor bijzondere woningen in Amsterdam",
+    description: "Ivoor Residences begeleidt de verkoop en aankoop van grachtenpanden, villa's en penthouses in Amsterdam: persoonlijk, discreet en tot in detail verzorgd.",
+    lang: "nl",
+    keywords: ["makelaar Amsterdam", "luxe woning kopen", "grachtenpand", "villa Amsterdam-Zuid", "penthouse", "off-market verkoop", "aankoopmakelaar", "waardebepaling"],
+  },
+  theme: { template: "realestate", design: "ivoor", variation: 0, primary: "#141311", accent: "#c7ab82", mode: "dark", font: "Italiana", radius: "sharp" },
+  business: {
+    name: "Ivoor Residences",
+    tagline: "Makelaardij voor bijzondere woningen in Amsterdam",
+    phone: null,
+    email: null,
+    address: null,
+    city: "Amsterdam",
+    mapsUrl: null,
+    openingHours: ["Maandag – Vrijdag: 09:00 – 18:00", "Zaterdag: 10:00 – 16:00", "Zondag: Gesloten"],
+  },
+  images: [
+    photo("hero", "1600585154340-be6161a56a0c", "Villa met glazen pui en een grote boom in de tuin, in het avondlicht", 1920),
+    photo("art:about", "1600210491892-03d54c0aaf87", "Lichte woonkamer met hoge boogramen, houten balken en een open haard"),
+    photo("art:svc0", "1512470876302-972faa2aa9a4", "Grachtenpanden langs het water in de avondschemering", 1920),
+    photo("art:svc1", "1600585153490-76fb20a32601", "Moderne villa met een zwarte gevel en verlichte ramen in het blauwe uur", 1920),
+    photo("art:svc2", "1600607687939-ce8a6c25118c", "Open woonkamer met glazen pui, houten wand en lichte bank", 1920),
+    photo("art:svc3", "1600566753376-12c8ab7fb75b", "Architectenwoning met een verlichte entree en houten lamellen in het blauwe uur", 1920),
+    photo("art:svc4", "1459679749680-18eb1eb37418", "Rij historische koopmanshuizen die weerspiegelen in het water", 1920),
+    photo("art:show", "1617104678098-de229db51175", "Slaapkamer met een donkere wand, linnen beddengoed en zacht daglicht", 1920),
+    photo("g1", "1600607688066-890987f18a86", "Badkamer met marmeren wanden, houten meubel en glazen pui"),
+    photo("g2", "1600607687920-4e2a09cf159d", "Eetkamer met lange tafel naast een open trap van glas en hout"),
+    photo("g3", "1600573472550-8090b5e0745e", "Zwevende trap achter een glazen gevel met zicht op het zwembad"),
+    photo("g4", "1600566753051-f0b89df2dd90", "Slaapkamer met houten wand en kamerhoge ramen in de ochtendzon"),
+    photo("g5", "1600585152220-90363fe7e115", "Keuken met kookeiland in wit en eikenhout en drie hanglampen"),
+    photo("g6", "1604014237800-1c9102c219da", "Woonkamer die met schuifpuien overloopt in een overdekt terras"),
+    photo("g7", "1600607688969-a5bfcd646154", "Moderne woning met zwarte gevels en een oude boom in de tuin"),
+    photo("g8", "1600566752355-35792bedcfea", "Donkere badkamer met vrijstaand bad en lange daklichtstrook"),
+  ],
+  hero: {
+    eyebrow: "Makelaardij · Amsterdam",
+    headline: "Wonen op *bijzondere* adressen",
+    subheadline: "Ivoor Residences begeleidt de verkoop en aankoop van grachtenpanden, villa's en penthouses in Amsterdam en omgeving: persoonlijk, discreet en tot in detail verzorgd.",
+    primaryCta: { label: "Plan een kennismaking", href: "#afspraak" },
+    secondaryCta: { label: "Bekijk de portefeuille", href: "#portefeuille" },
+    image: "hero",
+    layout: "fullbleed",
+  },
+  sections: [
+    {
+      type: "about",
+      id: "huis",
+      title: "Een makelaardij voor *karakter*",
+      paragraphs: [
+        "Een bijzondere woning verdient meer dan een advertentie. Wij vertellen het verhaal van een huis: de verhoudingen, het licht, de details die je pas ziet als je er even staat.",
+        "Ivoor Residences is een kleine, zelfstandige makelaardij. Wij werken met een beperkt aantal opdrachten tegelijk, zodat u steeds dezelfde makelaar spreekt: van het eerste gesprek tot de sleuteloverdracht bij de notaris.",
+        "Of het nu gaat om een monumentaal grachtenpand of een villa aan de rand van de stad: wij combineren kennis van de Amsterdamse woningmarkt met een presentatie die recht doet aan de architectuur.",
+      ],
+      image: "art:about",
+      highlights: ["Eén vaste makelaar", "Discreet en off-market", "Architectuurfotografie en film", "Bezichtigingen op afspraak"],
+    },
+    {
+      type: "services",
+      id: "portefeuille",
+      title: "Geselecteerde *residenties*",
+      intro: "Een greep uit de portefeuille, van grachtengordel tot het Gooi. Voorbeeldobjecten en voorbeeldprijzen, ter illustratie van dit ontwerp.",
+      items: [
+        { title: "Grachtenpand aan de Gouden Bocht", description: "Dubbel grachtenpand uit de zeventiende eeuw met stucplafonds, een tuinkamer op het zuiden en het oorspronkelijke trappenhuis, met respect voor het monument gerestaureerd.", icon: "home", price: "Prijs op aanvraag", duration: "Grachtengordel" },
+        { title: "Villa aan de rand van het Vondelpark", description: "Vrijstaande villa met glazen puien rondom, een diepe tuin onder een oude boom en een souterrain met wijnkelder en gastenverblijf.", icon: "home", price: "€ 6.250.000 k.k.", duration: "Oud-Zuid" },
+        { title: "Penthouse aan het IJ", description: "Penthouse over de volle breedte van het gebouw, met kamerhoge ramen, een eiken wand van vloer tot plafond en een dakterras met zicht over het water.", icon: "key", price: "€ 3.400.000 k.k.", duration: "IJ-oevers" },
+        { title: "Architectenwoning in Zuid", description: "Hedendaagse woning achter een gevel van donker staal en eikenhouten lamellen, met een vide over drie verdiepingen en een patio die het licht tot diep in het huis brengt.", icon: "ruler", price: "€ 4.875.000 k.k.", duration: "Amsterdam-Zuid" },
+        { title: "Koopmanshuis aan het water", description: "Smal en hoog koopmanshuis met de kap nog in het zicht, verbouwd tot één woning met vijf verdiepingen, een liftschacht in het achterhuis en een eigen steiger.", icon: "key", price: "Prijs op aanvraag", duration: "Centrum" },
+      ],
+    },
+    {
+      type: "statement",
+      id: "visie",
+      title: "Wij verkopen geen vierkante meters, maar *licht, verhouding en rust*.",
+      note: "Ons uitgangspunt",
+    },
+    {
+      type: "features",
+      id: "waarom",
+      title: "Wat u van ons mag *verwachten*",
+      intro: "Wij nemen weinig opdrachten tegelijk aan. Daardoor heeft elke woning, en elke opdrachtgever, de aandacht die past bij de stap die gezet wordt.",
+      items: [
+        { title: "Persoonlijke begeleiding", description: "U spreekt steeds dezelfde makelaar, die uw woning en uw wensen tot in detail kent.", icon: "user" },
+        { title: "Discreet verkopen", description: "Op verzoek verkopen wij zonder openbare advertentie, alleen aan kandidaten die wij vooraf selecteren.", icon: "shield" },
+        { title: "Presentatie met zorg", description: "Architectuurfotografie, een korte film en een plattegrond op schaal: zo komt de woning tot zijn recht.", icon: "camera" },
+        { title: "Onderbouwde waardebepaling", description: "Een vraagprijs met een heldere onderbouwing op basis van vergelijkbare verkopen en de kwaliteit van het object.", icon: "chart" },
+        { title: "Aankoopbegeleiding", description: "Wij zoeken actief mee, beoordelen het object kritisch en voeren de onderhandeling namens u.", icon: "key" },
+        { title: "Ook buiten Nederland", description: "Bij een tweede woning aan de Côte d'Azur of in Dubai denken wij mee en stemmen wij af met adviseurs ter plaatse.", icon: "globe" },
+      ],
+    },
+    {
+      type: "showcase",
+      id: "off-market",
+      title: "Verkopen *zonder* bord in de tuin",
+      body: "Niet iedere verkoop hoeft openbaar. Bij een off-market traject benaderen wij gericht een kleine kring van serieuze kopers, met volledige discretie over adres en prijs.",
+      image: "art:show",
+      cta: { label: "Vraag naar de mogelijkheden", href: "#afspraak" },
+    },
+    {
+      type: "process",
+      id: "traject",
+      title: "Van eerste gesprek tot *sleutel*",
+      intro: "Een helder traject in vijf stappen. U weet steeds waar u staat en wat de volgende stap is.",
+      steps: [
+        { title: "Kennismaking", description: "Een gesprek bij u thuis of op kantoor over uw plannen, de planning en de manier waarop u wilt verkopen of zoeken." },
+        { title: "Waardebepaling", description: "Wij bekijken de woning grondig en onderbouwen een realistische vraagprijs met vergelijkbare transacties in de buurt." },
+        { title: "Presentatie", description: "Fotografie in het juiste licht, een film, een plattegrond en een tekst die het verhaal van het huis vertelt." },
+        { title: "Bezichtigingen", description: "Persoonlijk begeleide bezichtigingen op afspraak, ook in de avond of op zaterdag, met een terugkoppeling na elk bezoek." },
+        { title: "Onderhandeling en overdracht", description: "Wij voeren de onderhandeling, stellen de koopovereenkomst op en begeleiden u tot en met de overdracht bij de notaris." },
+      ],
+    },
+    {
+      type: "gallery",
+      id: "interieurs",
+      title: "Binnen in het *licht*",
+      images: ["g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8"],
+    },
+    {
+      type: "hours",
+      id: "kantoor",
+      title: "Kantoor en *bezichtigingen*",
+      note: "Bezichtigingen vinden plaats op afspraak, ook buiten kantoortijden. Een kennismaking kan op kantoor of bij u thuis.",
+    },
+    {
+      type: "faq",
+      id: "vragen",
+      title: "Veelgestelde vragen",
+      items: [
+        { q: "Werkt u ook voor kopers?", a: "Ja. Als aankoopmakelaar zoeken wij actief mee, ook naar woningen die nog niet openbaar te koop staan. Wij beoordelen het object, adviseren over de bouwkundige keuring en voeren de onderhandeling namens u." },
+        { q: "Wat houdt een off-market verkoop in?", a: "Uw woning wordt niet openbaar aangeboden. Wij benaderen gericht een kleine groep geselecteerde kandidaten en delen adres, beelden en prijs alleen met hen. Zo blijft de verkoop discreet." },
+        { q: "Hoe komt de vraagprijs tot stand?", a: "Op basis van een uitgebreide bezichtiging, recente verkopen van vergelijkbare woningen en de kwaliteit van ligging, staat van onderhoud en architectuur. U ontvangt een schriftelijke onderbouwing." },
+        { q: "Kunnen bezichtigingen in de avond of het weekend?", a: "Zeker. Bezichtigingen plannen wij altijd op afspraak, ook in de avond en op zaterdag. Wij zijn er zelf bij en geven u na elk bezoek een terugkoppeling." },
+        { q: "Begeleidt u ook bij een woning in het buitenland?", a: "Wij denken mee bij de aankoop van een tweede woning, bijvoorbeeld aan de Côte d'Azur of in Dubai, en stemmen af met een lokale makelaar en notaris ter plaatse." },
+      ],
+    },
+    {
+      type: "booking",
+      id: "afspraak",
+      title: "Plan een *kennismaking*",
+      body: "Vertel ons kort waar u aan denkt. Wij nemen binnen een werkdag contact met u op om een moment af te spreken, op kantoor of bij u thuis.",
+      kind: "appointment",
+      options: ["Kennismaking verkoop", "Aankoopbegeleiding", "Waardebepaling", "Off-market verkoop", "Bezichtiging"],
+    },
+    {
+      type: "contact",
+      id: "contact",
+      title: "Een vraag *tussendoor*?",
+      body: "Voor een korte vraag over een woning, een bezichtiging of de mogelijkheden van een discrete verkoop kunt u ons hier een bericht sturen.",
+      showForm: true,
+      showMap: false,
+    },
+  ],
+  footer: { blurb: "Ivoor Residences is een zelfstandige makelaardij in Amsterdam voor de verkoop en aankoop van karakteristieke woningen." },
+};

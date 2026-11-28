@@ -141,6 +141,14 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Pine", swatch: "#2f6a5a", rules: [{ h: [190, 225], dh: -45, ds: 0.9 }] },
     { name: "Dusk", swatch: "#5a4f86", rules: [{ h: [190, 225], dh: 45, ds: 0.85 }] },
   ],
+  ivoor: [
+    { name: "Stone", swatch: "#9aa7ad", rules: [{ h: [15, 65], s: [0, 0.3], dh: 165, ds: 0.42 }, { h: [15, 65], s: [0.3, 1], dh: 172, ds: 0.4, dl: 0.04 }] },
+    { name: "Bronze", swatch: "#b5794a", rules: [{ h: [15, 65], l: [0.8, 1], dh: -6, ds: 0.85 }, { h: [15, 65], s: [0, 0.3], dh: -5, ds: 0.9 }, { h: [15, 65], s: [0.3, 1], dh: -13, ds: 1.4, dl: -0.06 }] },
+  ],
+  aurum: [
+    { name: "Rose gold", swatch: "#b7745f", rules: [{ h: [25, 55], s: [0.3, 1], dh: -22, ds: 0.95 }, { h: [25, 55], s: [0, 0.3], dh: -18, ds: 1.2 }] },
+    { name: "Platinum", swatch: "#7d8a92", rules: [{ h: [25, 55], s: [0.3, 1], dh: 170, ds: 0.22, dl: 0.02 }, { h: [25, 55], s: [0, 0.3], dh: 175, ds: 0.6 }] },
+  ],
 };
 
 /** How many looks a family has: its original colours plus its colourways. */

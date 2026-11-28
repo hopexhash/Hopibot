@@ -103,11 +103,11 @@ export const LOOKS_OF_CATEGORY: Record<string, string[]> = {
   landscaping: ["meridiaan", "flora", "ambacht", "atlas", "kade", "sage"],
   dentist: ["helder", "puur", "fjord", "noord", "sage", "serene", "aerden"],
   physiotherapist: ["helder", "puur", "noord", "fjord", "sage", "serene", "pulse", "forge", "vigor"],
-  real_estate: ["meridiaan", "atlas", "aerden", "lune"],
-  interior_designer: ["meridiaan", "atlas", "lune", "flora", "sage"],
+  real_estate: ["meridiaan", "ivoor", "atlas", "aerden", "lune"],
+  interior_designer: ["meridiaan", "atlas", "ivoor", "lune", "flora", "sage"],
   gym: ["forge", "pulse", "vigor", "antipode", "obsidian"],
   personal_trainer: ["forge", "pulse", "vigor", "antipode", "noord", "helder"],
-  hotel: ["ostara", "vesper", "velours", "meridiaan"],
+  hotel: ["ostara", "vesper", "velours", "ivoor", "meridiaan"],
   lawyer: ["aerden", "ledger", "meridiaan", "veldwerk"],
   accountant: ["aerden", "ledger", "veldwerk", "meridiaan"],
   consultant: ["aerden", "veldwerk", "ledger", "nimbus", "atlas", "meridiaan"],
@@ -116,8 +116,9 @@ export const LOOKS_OF_CATEGORY: Record<string, string[]> = {
   event_business: ["antipode", "ostara", "flora", "velours", "pulse", "zondag", "lune", "frame"],
   it_company: ["veldwerk", "nimbus", "antipode", "aerden"],
   tattoo_studio: ["forge", "velours", "cutline", "frame", "noord", "antipode", "vesper"],
-  clothing_store: ["lune", "noord", "antipode", "sage", "zondag"],
-  shop: ["lune", "kiosk", "zondag", "flora", "antipode", "sage"],
+  jewelry_store: ["aurum", "lune", "ivoor", "sage"],
+  clothing_store: ["lune", "aurum", "noord", "antipode", "sage", "zondag"],
+  shop: ["lune", "kiosk", "zondag", "aurum", "flora", "antipode", "sage"],
 };
 
 /** The same, for an industry that a signal in the name refined (a "Sushi" place in the restaurant category). */

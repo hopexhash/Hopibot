@@ -62,7 +62,7 @@ const BY_CATEGORY: Record<string, keyof typeof PROFILES> = {
   marketing_agency: "creative", photographer: "creative", event_business: "hospitality",
   it_company: "tech", gym: "fitness", personal_trainer: "fitness",
   real_estate: "property", interior_designer: "property",
-  clothing_store: "retail", shop: "retail", hotel: "hospitality", tattoo_studio: "body_art", local_service: "general",
+  clothing_store: "retail", jewelry_store: "retail", shop: "retail", hotel: "hospitality", tattoo_studio: "body_art", local_service: "general",
 };
 
 export function industryProfile(category: string): IndustryProfile {

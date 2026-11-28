@@ -48,6 +48,8 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   cutline: { all: ["Barbier Van Dam", "barbershop", "barbershop"], plain: ["Tattoo Studio Inkt", "tattoo_studio", "studio"] },
   serene: { all: ["Kliniek Lumen", "beauty_clinic", "beauty-salon"], plain: ["Praktijk Oost Fysiotherapie", "physiotherapist", "clinic"] },
   fjord: { all: ["Tandartsenpraktijk Duin", "dentist", "clinic"], plain: ["Schoonmaakbedrijf Glans", "cleaning", "cleaning"] },
+  ivoor: { all: ["Makelaardij Van Loon", "real_estate", "estate"], plain: ["Interieurstudio Vorm", "interior_designer", "estate"] },
+  aurum: { all: ["Juwelier Sterre", "shop", "studio"], plain: ["Horlogerie Van Dam", "shop", "studio"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
@@ -72,6 +74,8 @@ const PHOTO_SET: Record<string, string> = {
   cutline: "beauty-salon",
   serene: "beauty-salon",
   fjord: "dental",
+  ivoor: "real-estate",
+  aurum: "fashion",
 };
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */

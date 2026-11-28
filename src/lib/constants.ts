@@ -172,6 +172,7 @@ export const BUSINESS_CATEGORIES = [
   { key: "interior_designer", label: "Interior designers", placesType: null, design: "estate", family: "meridiaan" },
   { key: "event_business", label: "Event businesses", placesType: null, design: "studio", family: "antipode" },
   { key: "clothing_store", label: "Clothing stores", placesType: "clothing_store", design: "studio", family: "lune" },
+  { key: "jewelry_store", label: "Jewellers & watchmakers", placesType: "jewelry_store", design: "studio", family: "aurum" },
   { key: "shop", label: "Shops & web shops", placesType: "store", design: "studio", family: "lune" },
   { key: "local_service", label: "Local service businesses", placesType: null, design: "local-service", family: "kade" },
 ] as const;
