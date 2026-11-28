@@ -1,25 +1,32 @@
 import type { Metadata } from "next";
+import { alternates as altPaths, localeOf } from "./i18n";
 
 /** Canonical origin of the public website (APP_URL). */
 export const SITE_URL = (process.env.APP_URL ?? "https://wearehopi.nl").replace(/\/+$/, "");
 export const abs = (path: string) => `${SITE_URL}${path === "/" ? "" : path}` || SITE_URL;
 export const OG_IMAGE = "/site/og.jpg";
+/** BCP 47 language of a page, from its path (/en/... is English). */
+export const inLanguage = (path: string) => (localeOf(path) === "en" ? "en" : "nl-NL");
 
 /** Title, description, canonical URL and social cards for one page. */
 export function pageMeta(p: { title: string; description: string; path: string; type?: "website" | "article"; published?: string; modified?: string; image?: string }): Metadata {
   const image = p.image ?? OG_IMAGE;
+  const en = localeOf(p.path) === "en";
+  const alt = altPaths(p.path);
   return {
     title: { absolute: p.title },
     description: p.description,
-    alternates: { canonical: p.path },
+    // Every page links to itself in the other language; Dutch is the default for everyone else.
+    alternates: { canonical: p.path, languages: { nl: alt.nl, en: alt.en, "x-default": alt.nl } },
     openGraph: {
       type: p.type ?? "website",
-      locale: "nl_NL",
+      locale: en ? "en_GB" : "nl_NL",
+      alternateLocale: en ? ["nl_NL"] : ["en_GB"],
       siteName: "HOPI",
       url: p.path,
       title: p.title,
       description: p.description,
-      images: [{ url: image, width: 1200, height: 630, alt: "HOPI: jouw nieuwe website, eerst zien, dan betalen" }],
+      images: [{ url: image, width: 1200, height: 630, alt: en ? "HOPI: your new website, see first, then pay" : "HOPI: jouw nieuwe website, eerst zien, dan betalen" }],
       ...(p.type === "article" ? { publishedTime: p.published, modifiedTime: p.modified ?? p.published } : {}),
     },
     twitter: { card: "summary_large_image", title: p.title, description: p.description, images: [image] },
@@ -78,7 +85,7 @@ export const websiteLd = () => ({
   description: BRAND_DESCRIPTION,
   url: SITE_URL,
   name: "HOPI",
-  inLanguage: "nl-NL",
+  inLanguage: ["nl-NL", "en"],
   publisher: { "@id": ORG_ID },
 });
 
@@ -101,7 +108,7 @@ export function breadcrumbLd(crumbs: Crumb[], page: { description?: string; type
         url,
         name: self.name,
         ...(page.description ? { description: page.description } : {}),
-        inLanguage: "nl-NL",
+        inLanguage: inLanguage(self.path),
         isPartOf: { "@id": WEBSITE_ID },
         publisher: { "@id": ORG_ID },
         breadcrumb: { "@id": `${url}#breadcrumb` },
@@ -110,21 +117,21 @@ export function breadcrumbLd(crumbs: Crumb[], page: { description?: string; type
       {
         "@type": "BreadcrumbList",
         "@id": `${url}#breadcrumb`,
-        itemListElement: [{ name: "Home", path: "/" }, ...crumbs].map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: abs(c.path) })),
+        itemListElement: [{ name: "Home", path: localeOf(self.path) === "en" ? "/en" : "/" }, ...crumbs].map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: abs(c.path) })),
       },
     ],
   };
 }
 
 /** The homepage: about the organisation itself. */
-export const homePageLd = (description: string) => ({
+export const homePageLd = (description: string, path = "/") => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "@id": pageId("/"),
-  url: SITE_URL,
+  "@id": pageId(path),
+  url: abs(path),
   name: "HOPI",
   description,
-  inLanguage: "nl-NL",
+  inLanguage: inLanguage(path),
   isPartOf: { "@id": WEBSITE_ID },
   about: { "@id": ORG_ID },
   publisher: { "@id": ORG_ID },
@@ -142,10 +149,16 @@ export function serviceLd(s: { name: string; description: string; path: string; 
     url: abs(s.path),
     mainEntityOfPage: { "@id": pageId(s.path) },
     provider: { "@id": ORG_ID },
-    areaServed: [
-      { "@type": "Country", name: "Nederland" },
-      { "@type": "Country", name: "België" },
-    ],
+    areaServed:
+      localeOf(s.path) === "en"
+        ? [
+            { "@type": "Country", name: "Netherlands" },
+            { "@type": "Country", name: "Belgium" },
+          ]
+        : [
+            { "@type": "Country", name: "Nederland" },
+            { "@type": "Country", name: "België" },
+          ],
     ...(s.offers?.length
       ? {
           offers: s.offers.map((o) => ({
@@ -153,7 +166,7 @@ export function serviceLd(s: { name: string; description: string; path: string; 
             name: o.name,
             price: (o.priceCents / 100).toFixed(2),
             priceCurrency: "EUR",
-            url: abs("/prijzen"),
+            url: abs(localeOf(s.path) === "en" ? "/en/pricing" : "/prijzen"),
             availability: "https://schema.org/InStock",
           })),
         }
@@ -176,9 +189,9 @@ export function articleLd(a: { title: string; description: string; path: string;
     description: a.description,
     datePublished: a.published,
     dateModified: a.modified,
-    inLanguage: "nl-NL",
+    inLanguage: inLanguage(a.path),
     mainEntityOfPage: { "@id": pageId(a.path) },
-    isPartOf: { "@id": `${abs("/blog")}#blog` },
+    isPartOf: { "@id": `${abs(localeOf(a.path) === "en" ? "/en/blog" : "/blog")}#blog` },
     image: abs(a.image ?? OG_IMAGE),
     ...(a.section ? { articleSection: a.section } : {}),
     ...(a.words ? { wordCount: a.words } : {}),

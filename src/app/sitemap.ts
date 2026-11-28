@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS } from "@/lib/site/landing";
 import { PROJECTS, projectPath } from "@/lib/site/projects";
+import { counterpart } from "@/lib/site/i18n";
 import { abs } from "@/lib/site/seo";
 import { noindexPaths } from "@/lib/site/seo-meta";
 
@@ -12,7 +13,7 @@ const CONTENT_UPDATED = "2026-11-28";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const hidden = await noindexPaths();
   const page = (path: string, priority: number, lastModified = CONTENT_UPDATED, changeFrequency: "weekly" | "monthly" | "yearly" = "monthly") => ({ url: abs(path), lastModified, changeFrequency, priority });
-  const all = [
+  const nl = [
     page("/", 1, CONTENT_UPDATED, "weekly"),
     ...ALL_LANDINGS.map((l) => page(l.path, l.kind === "pillar" ? 0.9 : 0.8)),
     page("/prijzen", 0.9),
@@ -26,5 +27,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/privacy", 0.2, CONTENT_UPDATED, "yearly"),
     page("/cookies", 0.2, CONTENT_UPDATED, "yearly"),
   ];
+  // Every page also exists in English (/en/...); both versions are listed, each with its
+  // counterpart as an alternate language, and the English one a little below the Dutch.
+  const withAlternates = (e: (typeof nl)[number], path: string) => ({
+    ...e,
+    alternates: { languages: { nl: abs(counterpart(path, "nl")), en: abs(counterpart(path, "en")) } },
+  });
+  const all = nl.flatMap((e) => {
+    const path = new URL(e.url).pathname || "/";
+    const en = counterpart(path, "en");
+    return [withAlternates(e, path), withAlternates({ ...e, url: abs(en), priority: Math.round(e.priority * 0.9 * 10) / 10 }, en)];
+  });
   return all.filter((e) => !hidden.has(new URL(e.url).pathname));
 }

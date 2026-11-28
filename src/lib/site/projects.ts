@@ -1,4 +1,6 @@
 import { DEMOS, type Demo } from "@/demos/catalog";
+import { DEMO_EN } from "@/demos/catalog.en";
+import type { Locale } from "./i18n";
 import { workByKey, type Work } from "./work";
 
 /**
@@ -44,3 +46,13 @@ export const projectByKey = (key: string): ProjectView | undefined => {
   return p ? view(p) : undefined;
 };
 export const projectPath = (key: string) => `/werk/${key}`;
+
+/** A project with its texts in the given language (names, cities and typefaces stay as they are). */
+export function inLang<T extends Project & { work?: Work }>(p: T, lang: Locale): T {
+  if (lang === "nl") return p;
+  const e = (DEMO_EN as Record<string, (typeof DEMO_EN)[keyof typeof DEMO_EN] | undefined>)[p.key];
+  if (!e) return p;
+  return { ...p, industry: e.category, line: e.line, summary: e.summary, idea: e.concept, sections: e.sections, ...(p.work ? { work: { ...p.work, type: e.category, note: e.line } } : {}) };
+}
+/** Address of a project page in the given language. */
+export const projectPathIn = (key: string, lang: Locale) => (lang === "en" ? `/en/work/${key}` : `/werk/${key}`);

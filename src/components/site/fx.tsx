@@ -15,6 +15,15 @@ const LABELS: Record<string, string> = {
   "/website-onderhoud": "Onderhoud",
   "/over-ons": "Over ons",
   "/contact": "Contact",
+  "/en": "HOPI",
+  "/en/work": "Work",
+  "/en/pricing": "Pricing",
+  "/en/blog": "Blog",
+  "/en/website-design": "Websites",
+  "/en/website-redesign": "Redesign",
+  "/en/website-maintenance": "Maintenance",
+  "/en/about": "About",
+  "/en/contact": "Contact",
 };
 
 /**
@@ -344,10 +353,12 @@ export function Fx() {
             window.history.scrollRestoration = "manual"; // a reload would otherwise return to the old position
           } catch {}
           window.scrollTo({ top: 0, behavior: "instant" });
-          if (window.location.pathname === "/") {
-            window.history.replaceState(null, "", "/");
+          // The homepage of the language you are in (/ or /en).
+          const home = url.pathname;
+          if (window.location.pathname === home) {
+            window.history.replaceState(null, "", home);
             window.location.reload();
-          } else window.location.assign("/");
+          } else window.location.assign(home);
         };
         if (reduce) return fresh();
         setPtLabel("HOPI");
@@ -355,8 +366,25 @@ export function Fx() {
         window.setTimeout(() => fresh(true), 620);
         return;
       }
+      // The language switch: the other language is a separate document, so it loads anew,
+      // behind the same curtain as the wordmark.
+      if (a.dataset.lang !== undefined) {
+        e.preventDefault();
+        if (s.busy) return;
+        if (reduce) return void window.location.assign(url.href);
+        s.busy = true;
+        setPtLabel(url.pathname === "/en" || url.pathname.startsWith("/en/") ? "English" : "Nederlands");
+        root.classList.add("pt-cover");
+        window.setTimeout(() => {
+          try {
+            window.sessionStorage.setItem("hopi-pt", "1");
+          } catch {}
+          window.location.assign(url.href);
+        }, 620);
+        return;
+      }
       // "Start a project" goes to the request form of the page you are on, when it has one.
-      const here = url.pathname === "/" && url.hash === "#contact" && document.getElementById("contact");
+      const here = (url.pathname === "/" || url.pathname === "/en") && url.hash === "#contact" && document.getElementById("contact");
       if (here || url.pathname === window.location.pathname) {
         const target = url.hash ? document.getElementById(decodeURIComponent(url.hash.slice(1))) : null;
         // Choosing a package ("Kies Starter" → ?pakket=starter#contact): no page load. The form is

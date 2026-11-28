@@ -23,7 +23,7 @@ export async function seoMeta(p: Parameters<typeof pageMeta>[0]): Promise<Metada
     ...base,
     title: { absolute: title },
     description,
-    alternates: { canonical },
+    alternates: { ...base.alternates, canonical },
     openGraph: { ...base.openGraph, title, description, url: canonical },
     twitter: { ...base.twitter, title, description },
     ...(o.noindex ? { robots: { index: false, follow: true } } : {}),

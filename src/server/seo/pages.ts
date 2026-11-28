@@ -1,7 +1,9 @@
 import "../guard";
 import sitemap from "@/app/sitemap";
 import { ARTICLES } from "@/lib/site/blog";
+import { ARTICLES_EN } from "@/lib/site/blog.en";
 import { ALL_LANDINGS } from "@/lib/site/landing";
+import { ALL_LANDINGS_EN } from "@/lib/site/landing.en";
 import { PROJECTS } from "@/lib/site/projects";
 import { getSiteData } from "../site";
 
@@ -17,13 +19,13 @@ export async function publicPages(): Promise<PublicPage[]> {
   const overridden = Object.keys((await getSiteData()).seo.pages);
   const paths = [...new Set([...inMap, ...overridden])];
   return paths.map((path) => {
-    const l = ALL_LANDINGS.find((x) => x.path === path);
-    const a = ARTICLES.find((x) => `/blog/${x.slug}` === path);
-    const p = PROJECTS.find((x) => `/werk/${x.key}` === path);
+    const l = [...ALL_LANDINGS, ...ALL_LANDINGS_EN].find((x) => x.path === path);
+    const a = ARTICLES.find((x) => `/blog/${x.slug}` === path) ?? ARTICLES_EN.find((x) => `/en/blog/${x.slug}` === path);
+    const p = PROJECTS.find((x) => `/werk/${x.key}` === path || `/en/work/${x.key}` === path);
     return {
       path,
-      kind: path === "/" ? "home" : l ? "landing" : a ? "article" : p ? "project" : "page",
-      label: l?.label ?? a?.title ?? (p ? `Werk: ${p.key}` : path === "/" ? "Homepage" : path),
+      kind: path === "/" || path === "/en" ? "home" : l ? "landing" : a ? "article" : p ? "project" : "page",
+      label: l?.label ?? a?.title ?? (p ? `${path.startsWith("/en/") ? "Work" : "Werk"}: ${p.key}` : path === "/" ? "Homepage" : path === "/en" ? "Homepage (English)" : path),
       inSitemap: inMap.has(path),
       keyword: l?.keywords.primary ?? a?.keyword,
     };

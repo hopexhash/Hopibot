@@ -392,6 +392,45 @@ html.lenis body {
 .hopi.v3 .nv.is-open .nv-btn b + b {
   transform: rotate(-45deg);
 }
+/* Language switch (NL / EN): a quiet label before the call to action and the menu button. */
+.hopi.v3 .nv-lang {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: auto;
+  opacity: 0.78;
+  transition: opacity 0.2s ease;
+}
+.hopi.v3 .nv-lang:hover,
+.hopi.v3 .nv-lang:focus-visible {
+  opacity: 1;
+}
+.hopi.v3 .nv-lang ~ .nv-cta {
+  margin-left: 18px;
+}
+.hopi.v3 .nv-lang ~ .nv-btn {
+  margin-left: 8px;
+}
+.hopi.v3 .mn-langs {
+  display: flex;
+  gap: 18px;
+}
+.hopi.v3 .mn-side .mn-langs a {
+  display: inline-block;
+  padding: 5px 0;
+  font-size: 17px;
+  color: rgba(242, 238, 230, 0.7);
+}
+.hopi.v3 .mn-side .mn-langs a[aria-current] {
+  color: #f2eee6;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.hopi.v3 .mn-side .mn-langs a:hover {
+  color: var(--accent);
+}
 @media (min-width: 760px) {
   .hopi.v3 .nv-cta {
     display: inline-block;

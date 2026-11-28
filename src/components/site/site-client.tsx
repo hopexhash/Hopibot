@@ -5,7 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useActionState, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { submitInquiryAction, type InquiryState } from "@/server/actions/site";
+import { counterpart, href as hrefIn, localeOf, type Locale } from "@/lib/site/i18n";
 import { fxState } from "./fx-state";
+
+/** Language of the page being shown (English pages live under /en). */
+export const useLang = (): Locale => localeOf(usePathname() ?? "/");
 
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
@@ -72,6 +76,7 @@ function loadScript(src: string) {
  * treated as consent: once measurement is connected, those visitors are asked.
  */
 export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) {
+  const lang = useLang();
   const enabled = Boolean(gaId || gtmId);
   const [ask, setAsk] = useState(false);
   const loaded = useRef(false);
@@ -122,6 +127,7 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
   }, [enabled, gaId, gtmId]);
 
   if (!ask) return null;
+  const en = lang === "en";
   const store = (value: string) => {
     try {
       localStorage.setItem(CONSENT_KEY, value);
@@ -141,26 +147,28 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
       </span>
       {enabled ? (
         <p>
-          We gebruiken alleen met jouw toestemming cookies om te meten hoe de website wordt gebruikt. <Link href="/cookies">Meer over cookies</Link>
+          {en ? "We only use cookies to measure how the website is used if you agree. " : "We gebruiken alleen met jouw toestemming cookies om te meten hoe de website wordt gebruikt. "}
+          <Link href={hrefIn("/cookies", lang)}>{en ? "More about cookies" : "Meer over cookies"}</Link>
         </p>
       ) : (
         <p>
-          Deze website plaatst geen tracking- of advertentiecookies. Gaan we later bezoeken meten, dan vragen we je eerst om toestemming. <Link href="/cookies">Meer over cookies</Link>
+          {en ? "This website places no tracking or advertising cookies. If we start measuring visits later, we will ask you first. " : "Deze website plaatst geen tracking- of advertentiecookies. Gaan we later bezoeken meten, dan vragen we je eerst om toestemming. "}
+          <Link href={hrefIn("/cookies", lang)}>{en ? "More about cookies" : "Meer over cookies"}</Link>
         </p>
       )}
       {enabled ? (
         <div>
           <button type="button" className="btn btn-line" onClick={() => decide(false)}>
-            Weigeren
+            {en ? "Decline" : "Weigeren"}
           </button>
           <button type="button" className="btn btn-accent" onClick={() => decide(true)}>
-            Accepteren
+            {en ? "Accept" : "Accepteren"}
           </button>
         </div>
       ) : (
         <div>
           <button type="button" className="btn btn-accent" onClick={() => store(CONSENT_SEEN)}>
-            Begrepen
+            {en ? "Got it" : "Begrepen"}
           </button>
         </div>
       )}
@@ -170,6 +178,7 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
 
 /** Square button in the footer that brings the visitor back to the top, with the site's own smooth scroll. */
 export function BackToTop() {
+  const lang = useLang();
   const up = (e: React.MouseEvent<HTMLButtonElement>) => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (fxState.scroller) fxState.scroller.scrollTo(0, { duration: reduce ? 0 : 1.4 });
@@ -179,7 +188,7 @@ export function BackToTop() {
     if (e.detail === 0) document.querySelector<HTMLElement>("a[href='#inhoud'], .nv-logo")?.focus({ preventScroll: true });
   };
   return (
-    <button type="button" className="ft-top" onClick={up} aria-label="Terug naar boven">
+    <button type="button" className="ft-top" onClick={up} aria-label={lang === "en" ? "Back to top" : "Terug naar boven"}>
       <ArrowUp aria-hidden="true" />
       <ArrowUp aria-hidden="true" />
     </button>
@@ -188,28 +197,62 @@ export function BackToTop() {
 
 /** Footer link to change the cookie choice (only rendered when measurement is configured). */
 export function ConsentLink() {
+  const lang = useLang();
   return (
     <button type="button" className="linklike" onClick={() => window.dispatchEvent(new Event(CONSENT_EVENT))}>
-      Cookie-instellingen
+      {lang === "en" ? "Cookie settings" : "Cookie-instellingen"}
     </button>
   );
 }
 
 // ───────────────────────── Navigation ─────────────────────────
 
-const MENU = [
-  { href: "/werk", label: "Werk" },
-  { href: "/#diensten", label: "Diensten" },
-  { href: "/#werkwijze", label: "Werkwijze" },
-  { href: "/prijzen", label: "Prijzen" },
-  { href: "/blog", label: "Blog" },
-  { href: "/#contact", label: "Contact" },
-];
-const QUICK = [
-  { href: "/website-laten-maken", label: "Website laten maken" },
-  { href: "/website-redesign", label: "Website redesign" },
-  { href: "/website-onderhoud", label: "Website onderhoud" },
-];
+const MENU = {
+  nl: [
+    { href: "/werk", label: "Werk" },
+    { href: "/#diensten", label: "Diensten" },
+    { href: "/#werkwijze", label: "Werkwijze" },
+    { href: "/prijzen", label: "Prijzen" },
+    { href: "/blog", label: "Blog" },
+    { href: "/#contact", label: "Contact" },
+  ],
+  en: [
+    { href: "/en/work", label: "Work" },
+    { href: "/en#diensten", label: "Services" },
+    { href: "/en#werkwijze", label: "Process" },
+    { href: "/en/pricing", label: "Pricing" },
+    { href: "/en/blog", label: "Blog" },
+    { href: "/en#contact", label: "Contact" },
+  ],
+};
+const QUICK = {
+  nl: [
+    { href: "/website-laten-maken", label: "Website laten maken" },
+    { href: "/website-redesign", label: "Website redesign" },
+    { href: "/website-onderhoud", label: "Website onderhoud" },
+  ],
+  en: [
+    { href: "/en/website-design", label: "Website design" },
+    { href: "/en/website-redesign", label: "Website redesign" },
+    { href: "/en/website-maintenance", label: "Website maintenance" },
+  ],
+};
+
+/**
+ * Link to the same page in the other language. A plain link (not the router): the two
+ * languages are separate documents (lang="nl" / lang="en"), so the switch loads the page anew.
+ */
+export function LangSwitch({ className = "", full = false }: { className?: string; full?: boolean }) {
+  const pathname = usePathname() ?? "/";
+  const lang = localeOf(pathname);
+  const other: Locale = lang === "en" ? "nl" : "en";
+  const name = other === "en" ? "English" : "Nederlands";
+  return (
+    <a href={counterpart(pathname, other)} className={`lang ${className}`.trim()} hrefLang={other} lang={other} data-lang="" aria-label={full ? undefined : other === "en" ? "English version" : "Nederlandse versie"}>
+      {full ? name : <span aria-hidden="true">{other.toUpperCase()}</span>}
+    </a>
+  );
+}
 
 /**
  * Navigation: a wordmark, one call to action and a menu button, drawn in "difference" so
@@ -219,6 +262,10 @@ const QUICK = [
  */
 export function SiteHeader() {
   const pathname = usePathname();
+  const lang = localeOf(pathname ?? "/");
+  const en = lang === "en";
+  const home = en ? "/en" : "/";
+  const contact = en ? "/en#contact" : "/#contact";
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
@@ -276,7 +323,7 @@ export function SiteHeader() {
   // have themselves): the curtain covers that jump too. Only with reduced motion, where there
   // is no curtain, the menu closes at once.
   const leave = (href: string) => () => {
-    const here = href.split("#")[0] === pathname || href.startsWith("#") || (href === "/#contact" && document.getElementById("contact") !== null);
+    const here = (href.split("#")[0] || home) === pathname || href.startsWith("#") || (href === contact && document.getElementById("contact") !== null);
     const still = here && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.setTimeout(() => setOpen(false), still ? 0 : 520);
   };
@@ -284,20 +331,21 @@ export function SiteHeader() {
     <>
       <header className={`nv${hidden && !open ? " is-hidden" : ""}${open ? " is-open" : ""}`}>
         <a className="skip" href="#inhoud">
-          Naar de inhoud
+          {en ? "Skip to content" : "Naar de inhoud"}
         </a>
-        <Link href="/" className="nv-logo" aria-label="HOPI, naar de homepage" data-home="" onClick={leave("/")}>
+        <Link href={home} className="nv-logo" aria-label={en ? "HOPI, to the homepage" : "HOPI, naar de homepage"} data-home="" onClick={leave(home)}>
           HOPI
           <i aria-hidden="true" />
         </Link>
         <span className="nv-tag mono" aria-hidden="true">
           Digital agency
         </span>
-        <Link href="/#contact" className="nv-cta mono" data-track="cta_click" data-track-label="header" onClick={leave("/#contact")}>
-          Start een project
+        <LangSwitch className="nv-lang mono" />
+        <Link href={contact} className="nv-cta mono" data-track="cta_click" data-track-label="header" onClick={leave(contact)}>
+          {en ? "Start a project" : "Start een project"}
         </Link>
         <button ref={button} type="button" className="nv-btn" aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen((o) => !o)}>
-          <span className="mono">{open ? "Sluit" : "Menu"}</span>
+          <span className="mono">{open ? (en ? "Close" : "Sluit") : "Menu"}</span>
           <i aria-hidden="true">
             <b />
             <b />
@@ -305,9 +353,9 @@ export function SiteHeader() {
         </button>
       </header>
       <div id="site-menu" className={`mn${open ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-label="Menu" inert={!open}>
-        <nav aria-label="Hoofdmenu" className="mn-main">
+        <nav aria-label={en ? "Main menu" : "Hoofdmenu"} className="mn-main">
           <ol>
-            {MENU.map((l, i) => (
+            {MENU[lang].map((l, i) => (
               <li key={l.href} style={{ "--i": i } as CSSProperties}>
                 <Link href={l.href} className="mn-link" aria-current={current(l.href)} data-pt={l.label} onClick={leave(l.href)}>
                   <span className="mono" aria-hidden="true">
@@ -323,9 +371,9 @@ export function SiteHeader() {
         </nav>
         <div className="mn-side">
           <div>
-            <p className="mono">Diensten</p>
+            <p className="mono">{en ? "Services" : "Diensten"}</p>
             <ul>
-              {QUICK.map((l) => (
+              {QUICK[lang].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} onClick={leave(l.href)}>
                     {l.label}
@@ -335,10 +383,21 @@ export function SiteHeader() {
             </ul>
           </div>
           <div>
-            <p className="mono">Nieuw project</p>
-            <Link href="/#contact" className="btn btn-accent" data-track="cta_click" data-track-label="menu" onClick={leave("/#contact")}>
-              Start een project <ArrowRight aria-hidden="true" />
+            <p className="mono">{en ? "New project" : "Nieuw project"}</p>
+            <Link href={contact} className="btn btn-accent" data-track="cta_click" data-track-label="menu" onClick={leave(contact)}>
+              {en ? "Start a project" : "Start een project"} <ArrowRight aria-hidden="true" />
             </Link>
+          </div>
+          <div>
+            <p className="mono">{en ? "Language" : "Taal"}</p>
+            <p className="mn-langs">
+              <a href={counterpart(pathname ?? "/", "nl")} hrefLang="nl" lang="nl" aria-current={en ? undefined : "true"} data-lang="">
+                Nederlands
+              </a>
+              <a href={counterpart(pathname ?? "/", "en")} hrefLang="en" lang="en" aria-current={en ? "true" : undefined} data-lang="">
+                English
+              </a>
+            </p>
           </div>
         </div>
       </div>
@@ -351,6 +410,7 @@ export function SiteHeader() {
  * screen. It steps aside while the contact form itself is in view.
  */
 export function StickyCta({ from }: { from: string | null }) {
+  const lang = useLang();
   const [show, setShow] = useState(false);
   useEffect(() => {
     let atForm = false;
@@ -374,11 +434,11 @@ export function StickyCta({ from }: { from: string | null }) {
     <>
       <div className={`sticky-cta${show ? " show" : ""}`} aria-hidden={!show}>
         <span>
-          <b>Eerst zien, dan betalen</b>
-          {from && <small>Website vanaf {from}</small>}
+          <b>{lang === "en" ? "See first, then pay" : "Eerst zien, dan betalen"}</b>
+          {from && <small>{lang === "en" ? `Websites from ${from}` : `Website vanaf ${from}`}</small>}
         </span>
-        <Link href="/#contact" className="btn btn-green" tabIndex={show ? 0 : -1} data-track="cta_click" data-track-label="sticky">
-          Start een project
+        <Link href={lang === "en" ? "/en#contact" : "/#contact"} className="btn btn-green" tabIndex={show ? 0 : -1} data-track="cta_click" data-track-label="sticky">
+          {lang === "en" ? "Start a project" : "Start een project"}
         </Link>
       </div>
     </>
@@ -469,8 +529,63 @@ export function Reveal() {
 
 // ───────────────────────── Contact form ─────────────────────────
 
+const FORM = {
+  nl: {
+    thanks: "Bedankt, we hebben je aanvraag.",
+    thanksText: "We gaan aan de slag met een ontwerp van je website. Zodra het klaar is, hoor je van ons.",
+    name: "Je naam",
+    company: "Bedrijfsnaam",
+    email: "E-mailadres",
+    phone: "Telefoon",
+    city: "Plaats",
+    country: "Land",
+    nl: "Nederland",
+    be: "België",
+    website: "Huidige website",
+    websitePh: "www.jouwbedrijf.nl",
+    package: "Pakket",
+    unsure: "Weet ik nog niet",
+    message: "Vertel kort over je bedrijf",
+    messagePh: "Wat doe je, en wat moet je website vooral opleveren?",
+    optional: "(optioneel)",
+    hp: "Laat dit veld leeg",
+    consent: "HOPI mag contact met mij opnemen over deze aanvraag. Lees hoe we met je gegevens omgaan in de",
+    privacy: "privacyverklaring",
+    sending: "Bezig met versturen…",
+    submit: "Vraag mijn gratis ontwerp aan",
+    note: "Gratis en vrijblijvend. Je betaalt pas als het ontwerp bevalt.",
+  },
+  en: {
+    thanks: "Thank you, we have received your request.",
+    thanksText: "We are starting on a design of your website. You will hear from us as soon as it is ready.",
+    name: "Your name",
+    company: "Company name",
+    email: "Email address",
+    phone: "Phone",
+    city: "Town or city",
+    country: "Country",
+    nl: "Netherlands",
+    be: "Belgium",
+    website: "Current website",
+    websitePh: "www.yourcompany.com",
+    package: "Package",
+    unsure: "Not sure yet",
+    message: "Tell us briefly about your business",
+    messagePh: "What do you do, and what should your website achieve?",
+    optional: "(optional)",
+    hp: "Leave this field empty",
+    consent: "HOPI may contact me about this request. Read how we handle your data in our",
+    privacy: "privacy statement",
+    sending: "Sending…",
+    submit: "Request my free design",
+    note: "Free and without obligation. You only pay if you like the design.",
+  },
+};
+
 export function ContactForm({ packages, source }: { packages: { key: string; name: string }[]; source: string }) {
   const [state, action, pending] = useActionState<InquiryState, FormData>(submitInquiryAction, null);
+  const lang = useLang();
+  const t = FORM[lang];
   const [pkg, setPkg] = useState("");
   // "Kies Business" buttons link to ?pakket=business#contact.
   useEffect(() => {
@@ -498,32 +613,33 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
     return (
       <div className="form-done" role="status">
         <CheckCircle2 />
-        <h3>Bedankt, we hebben je aanvraag.</h3>
-        <p>We gaan aan de slag met een ontwerp van je website. Zodra het klaar is, hoor je van ons.</p>
+        <h3>{t.thanks}</h3>
+        <p>{t.thanksText}</p>
       </div>
     );
   }
   return (
     <form action={action} className="form">
       <input type="hidden" name="source" value={source} />
+      <input type="hidden" name="lang" value={lang} />
       <div className="row row-pair">
         <label className="field">
-          <span>Je naam</span>
+          <span>{t.name}</span>
           <input name="name" required minLength={2} maxLength={80} autoComplete="name" />
         </label>
         <label className="field">
-          <span>Bedrijfsnaam</span>
+          <span>{t.company}</span>
           <input name="company" required minLength={2} maxLength={120} autoComplete="organization" />
         </label>
       </div>
       <div className="row">
         <label className="field">
-          <span>E-mailadres</span>
+          <span>{t.email}</span>
           <input name="email" type="email" required maxLength={160} autoComplete="email" inputMode="email" />
         </label>
         <label className="field">
           <span>
-            Telefoon <small>(optioneel)</small>
+            {t.phone} <small>{t.optional}</small>
           </span>
           <input name="phone" type="tel" maxLength={30} autoComplete="tel" inputMode="tel" />
         </label>
@@ -531,31 +647,31 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
       <div className="row row-pair">
         <label className="field">
           <span>
-            Plaats <small>(optioneel)</small>
+            {t.city} <small>{t.optional}</small>
           </span>
           <input name="city" maxLength={80} autoComplete="address-level2" />
         </label>
         <label className="field">
-          <span>Land</span>
+          <span>{t.country}</span>
           <select name="country" defaultValue="Netherlands">
-            <option value="Netherlands">Nederland</option>
-            <option value="Belgium">België</option>
+            <option value="Netherlands">{t.nl}</option>
+            <option value="Belgium">{t.be}</option>
           </select>
         </label>
       </div>
       <div className="row">
         <label className="field">
           <span>
-            Huidige website <small>(optioneel)</small>
+            {t.website} <small>{t.optional}</small>
           </span>
-          <input name="website" maxLength={200} placeholder="www.jouwbedrijf.nl" inputMode="url" autoComplete="url" />
+          <input name="website" maxLength={200} placeholder={t.websitePh} inputMode="url" autoComplete="url" />
         </label>
         <label className="field">
           <span>
-            Pakket <small>(optioneel)</small>
+            {t.package} <small>{t.optional}</small>
           </span>
           <select name="package" value={pkg} onChange={(e) => setPkg(e.target.value)}>
-            <option value="">Weet ik nog niet</option>
+            <option value="">{t.unsure}</option>
             {packages.map((p) => (
               <option key={p.key} value={p.key}>
                 {p.name}
@@ -566,18 +682,18 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
       </div>
       <label className="field">
         <span>
-          Vertel kort over je bedrijf <small>(optioneel)</small>
+          {t.message} <small>{t.optional}</small>
         </span>
-        <textarea name="message" maxLength={2000} placeholder="Wat doe je, en wat moet je website vooral opleveren?" />
+        <textarea name="message" maxLength={2000} placeholder={t.messagePh} />
       </label>
       <label className="hp" aria-hidden="true">
-        Laat dit veld leeg
+        {t.hp}
         <input name="bedrijfsfax" tabIndex={-1} autoComplete="off" />
       </label>
       <label className="check">
         <input type="checkbox" name="consent" required />
         <span>
-          HOPI mag contact met mij opnemen over deze aanvraag. Lees hoe we met je gegevens omgaan in de <Link href="/privacy">privacyverklaring</Link>.
+          {t.consent} <Link href={hrefIn("/privacy", lang)}>{t.privacy}</Link>.
         </span>
       </label>
       {state && !state.ok && (
@@ -586,9 +702,9 @@ export function ContactForm({ packages, source }: { packages: { key: string; nam
         </p>
       )}
       <button type="submit" className="btn btn-dark" disabled={pending}>
-        {pending ? "Bezig met versturen…" : "Vraag mijn gratis ontwerp aan"} {!pending && <ArrowRight />}
+        {pending ? t.sending : t.submit} {!pending && <ArrowRight />}
       </button>
-      <p className="form-note">Gratis en vrijblijvend. Je betaalt pas als het ontwerp bevalt.</p>
+      <p className="form-note">{t.note}</p>
     </form>
   );
 }

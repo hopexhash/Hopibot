@@ -2,12 +2,15 @@ import { seoMeta } from "@/lib/site/seo-meta";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { INDUSTRIES, type Landing } from "@/lib/site/landing";
+import { industriesOf } from "@/lib/site/content";
+import { counterpart, href, localeOf, type Locale } from "@/lib/site/i18n";
+import type { Landing } from "@/lib/site/landing";
 import { breadcrumbLd, faqLd, plain, serviceLd, type Crumb } from "@/lib/site/seo";
 import { demoHref, WORK, workByKey } from "@/lib/site/work";
 import { getSiteData } from "@/server/site";
 import { CareVisual } from "./care-visual";
 import { AddonList, Breadcrumbs, ContactSection, Devices, Faq, HeroAmbient, JsonLd, PriceCards, Related, SiteFooter, Steps } from "./parts";
+import { DEMO_EN } from "@/demos/catalog.en";
 import { rich } from "./rich";
 import { SiteHeader } from "./site-client";
 
@@ -25,10 +28,64 @@ export async function landingMetadata(landing: Landing): Promise<Metadata> {
   return seoMeta({ title: plain(landing.title, prices), description: plain(landing.description, prices), path: landing.path });
 }
 
-function crumbsFor(l: Landing): Crumb[] {
+function crumbsFor(l: Landing, lang: Locale): Crumb[] {
   const self = { name: l.label, path: l.path };
+  if (lang === "en") return l.path.startsWith("/en/website-design/") ? [{ name: "Website design", path: "/en/website-design" }, self] : [self];
   return l.path.startsWith("/website-laten-maken/") ? [{ name: "Website laten maken", path: "/website-laten-maken" }, self] : [self];
 }
+
+const T = {
+  nl: {
+    quote: "Vraag een offerte aan",
+    design: "Vraag een gratis ontwerp aan",
+    prices: "Bekijk prijzen",
+    seeFirst: "Eerst zien, dan betalen",
+    perMonth: (x: string) => `Vanaf ${x} per maand`,
+    quotePrice: "Prijs op offerte, vooraf bekend",
+    fixed: (x: string) => `Vaste prijs vanaf ${x}`,
+    mobile: "Gemaakt voor mobiel",
+    demo: "Demo-ontwerp",
+    example: "Voorbeeld",
+    exampleH: "Zo kan jouw website eruitzien",
+    exampleText: (name: string, note: string) => `${name} is een demo-ontwerp voor een fictief bedrijf. ${note} Klik door de hele website, ook op je telefoon. Jouw eigen ontwerp maken we met je eigen naam, diensten en stijl.`,
+    live: "Bekijk de live demo",
+    how: (name: string) => `Lees hoe het ontwerp van ${name} is opgebouwd`,
+    extras: "Veel gekozen extra's",
+    branchesEyebrow: "Per branche",
+    branchesH: "Een website die past bij jouw vak",
+    branchesText: "Een restaurant heeft iets anders nodig dan een loodgieter. Bekijk per branche waar we op letten en hoe een ontwerp eruit kan zien.",
+    view: "Bekijk",
+    pricesEyebrow: "Prijzen",
+    faqEyebrow: "Veelgestelde vragen",
+    faqH: "Goed om te weten",
+    faqText: "Staat je vraag er niet bij? Stel hem gerust via het formulier.",
+  },
+  en: {
+    quote: "Request a quote",
+    design: "Request a free design",
+    prices: "See pricing",
+    seeFirst: "See first, then pay",
+    perMonth: (x: string) => `From ${x} a month`,
+    quotePrice: "Price on quotation, known in advance",
+    fixed: (x: string) => `Fixed price from ${x}`,
+    mobile: "Made for mobile",
+    demo: "Demo design",
+    example: "Example",
+    exampleH: "What your website could look like",
+    exampleText: (name: string, note: string) => `${name} is a demo design for a fictional business. ${note} Click through the whole website, on your phone too. Your own design is made with your own name, services and style. (The demo websites are in Dutch.)`,
+    live: "View the live demo",
+    how: (name: string) => `Read how the design of ${name} was put together`,
+    extras: "Popular extras",
+    branchesEyebrow: "By industry",
+    branchesH: "A website that fits your trade",
+    branchesText: "A restaurant needs something different from a plumber. See per industry what we pay attention to and what a design can look like.",
+    view: "View",
+    pricesEyebrow: "Pricing",
+    faqEyebrow: "Frequently asked questions",
+    faqH: "Good to know",
+    faqText: "Is your question not listed? Feel free to ask it through the form.",
+  },
+};
 
 function Heading({ text }: { text: string }) {
   const [a, em, b] = text.split("*");
@@ -78,12 +135,19 @@ function Section({ s, v, alt }: { s: Landing["sections"][number]; v: Record<stri
 export async function LandingPage({ landing: l }: { landing: Landing }) {
   const data = await getSiteData();
   const v = data.prices;
-  const work = l.work ? workByKey(l.work) : undefined;
-  const [vb, vp] = VISUAL[l.path] ?? [];
+  const lang = localeOf(l.path);
+  const en = lang === "en";
+  const t = T[lang];
+  // The Dutch address identifies the page in both languages.
+  const nlPath = counterpart(l.path, "nl");
+  const care = nlPath === "/website-onderhoud";
+  const work0 = l.work ? workByKey(l.work) : undefined;
+  const work = work0 && en ? { ...work0, note: (DEMO_EN as Record<string, { line: string }>)[work0.key]?.line ?? work0.note } : work0;
+  const [vb, vp] = VISUAL[nlPath] ?? [];
   const heroWork = work ?? workByKey(vb ?? "automotive") ?? WORK[0];
   const heroPhone = work ?? workByKey(vp ?? "restaurant");
   const quote = l.pricing === "quote";
-  const crumbs = crumbsFor(l);
+  const crumbs = crumbsFor(l, lang);
   const [first, ...rest] = l.sections;
   const offers = data.catalog.packages.filter((p) => p.enabled && p.priceCents !== null).map((p) => ({ name: `Website ${p.name}`, priceCents: p.priceCents as number }));
   const planOffers = data.catalog.plans.filter((p) => p.enabled && p.priceCents !== null).map((p) => ({ name: p.name, priceCents: p.priceCents as number }));
@@ -95,7 +159,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
         <section className="hero page-hero">
           <HeroAmbient />
           <div className="wrap">
-            <Breadcrumbs crumbs={crumbs} />
+            <Breadcrumbs crumbs={crumbs} lang={lang} />
             <div className="hero-grid">
               <div>
                 <span className="eyebrow enter">{l.eyebrow}</span>
@@ -105,37 +169,37 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
                 <p className="lead enter">{rich(l.intro, v)}</p>
                 <div className="hero-actions enter">
                   <a href="#contact" className="btn btn-dark" data-track="cta_click" data-track-label="hero" data-track-location={l.path}>
-                    {quote ? "Vraag een offerte aan" : "Vraag een gratis ontwerp aan"} <ArrowRight aria-hidden="true" />
+                    {quote ? t.quote : t.design} <ArrowRight aria-hidden="true" />
                   </a>
-                  <Link href="/prijzen" className="btn btn-line">
-                    Bekijk prijzen
+                  <Link href={href("/prijzen", lang)} className="btn btn-line">
+                    {t.prices}
                   </Link>
                 </div>
                 <ul className="ticks enter">
                   <li>
-                    <Check strokeWidth={2.4} aria-hidden="true" /> Eerst zien, dan betalen
+                    <Check strokeWidth={2.4} aria-hidden="true" /> {t.seeFirst}
                   </li>
-                  {l.path === "/website-onderhoud" ? (
+                  {care ? (
                     <li>
-                      <Check strokeWidth={2.4} aria-hidden="true" /> Vanaf {v.hosting} per maand
+                      <Check strokeWidth={2.4} aria-hidden="true" /> {t.perMonth(v.hosting)}
                     </li>
                   ) : (
                     <li>
-                      <Check strokeWidth={2.4} aria-hidden="true" /> {quote ? "Prijs op offerte, vooraf bekend" : `Vaste prijs vanaf ${v.from}`}
+                      <Check strokeWidth={2.4} aria-hidden="true" /> {quote ? t.quotePrice : t.fixed(v.from)}
                     </li>
                   )}
                   <li>
-                    <Check strokeWidth={2.4} aria-hidden="true" /> Gemaakt voor mobiel
+                    <Check strokeWidth={2.4} aria-hidden="true" /> {t.mobile}
                   </li>
                 </ul>
               </div>
-              {l.path === "/website-onderhoud" ? (
-                <CareVisual />
+              {care ? (
+                <CareVisual lang={lang} />
               ) : (
                 <div className="hero-visual enter">
-                  <Devices work={heroWork} phone={heroPhone} eager />
+                  <Devices work={heroWork} phone={heroPhone} eager lang={lang} />
                   <span className="tag">
-                    <b /> Demo-ontwerp
+                    <b /> {t.demo}
                   </span>
                 </div>
               )}
@@ -149,19 +213,17 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
           <section className="section tint example">
             <div className="wrap example-grid">
               <div data-reveal>
-                <span className="eyebrow">Voorbeeld</span>
-                <h2 className="h2">Zo kan jouw website eruitzien</h2>
-                <p>
-                  {work.name} is een demo-ontwerp voor een fictief bedrijf. {work.note} Klik door de hele website, ook op je telefoon. Jouw eigen ontwerp maken we met je eigen naam, diensten en stijl.
-                </p>
+                <span className="eyebrow">{t.example}</span>
+                <h2 className="h2">{t.exampleH}</h2>
+                <p>{t.exampleText(work.name, work.note)}</p>
                 <a href={demoHref(work.key)} target="_blank" rel="noopener nofollow" className="btn btn-dark" data-track="portfolio_click" data-track-label={work.key} data-track-location={l.path}>
-                  Bekijk de live demo <ArrowUpRight aria-hidden="true" />
+                  {t.live} <ArrowUpRight aria-hidden="true" />
                 </a>
                 <p>
-                  <Link href={`/werk/${work.key}`}>Lees hoe het ontwerp van {work.name} is opgebouwd</Link>
+                  <Link href={en ? `/en/work/${work.key}` : `/werk/${work.key}`}>{t.how(work.name)}</Link>
                 </p>
               </div>
-              {l.addons && <AddonList catalog={data.catalog} keys={l.addons} title={l.addonsTitle ?? "Veel gekozen extra's"} />}
+              {l.addons && <AddonList catalog={data.catalog} keys={l.addons} title={l.addonsTitle ?? t.extras} lang={lang} />}
             </div>
           </section>
         )}
@@ -173,7 +235,7 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
         {!work && l.addons && (
           <section className="section tint">
             <div className="wrap narrow">
-              <AddonList catalog={data.catalog} keys={l.addons} title={l.addonsTitle ?? "Veel gekozen extra's"} />
+              <AddonList catalog={data.catalog} keys={l.addons} title={l.addonsTitle ?? t.extras} lang={lang} />
             </div>
           </section>
         )}
@@ -182,46 +244,65 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
           <section className="section tint" id="branches">
             <div className="wrap">
               <div className="section-head" data-reveal>
-                <span className="eyebrow">Per branche</span>
-                <h2>Een website die past bij jouw vak</h2>
-                <p>Een restaurant heeft iets anders nodig dan een loodgieter. Bekijk per branche waar we op letten en hoe een ontwerp eruit kan zien.</p>
+                <span className="eyebrow">{t.branchesEyebrow}</span>
+                <h2>{t.branchesH}</h2>
+                <p>{t.branchesText}</p>
               </div>
               <div className="branches">
-                {INDUSTRIES.map((ind) => {
+                {industriesOf(lang).map((ind) => {
                   const w = ind.work ? workByKey(ind.work) : undefined;
                   return (
                     <Link key={ind.path} href={ind.path} className="branch" data-reveal>
                       {w && <img src={`/site/work/${w.key}-d-720.webp`} alt="" width={720} height={450} loading="lazy" decoding="async" />}
                       <b>{ind.label}</b>
                       <span>
-                        Bekijk <ArrowRight aria-hidden="true" />
+                        {t.view} <ArrowRight aria-hidden="true" />
                       </span>
                     </Link>
                   );
                 })}
               </div>
-              <p className="note">
-                De afbeeldingen tonen demo-ontwerpen voor fictieve bedrijven. Ook voor <Link href="/website-laten-maken/zzp">zzp&apos;ers</Link> en <Link href="/website-laten-maken/mkb">mkb-bedrijven</Link> in andere branches maken we websites.
-              </p>
+              {en ? (
+                <p className="note">
+                  The images show demo designs for fictional businesses. We also make websites for <Link href="/en/website-design/freelancers">freelancers</Link> and <Link href="/en/website-design/small-business">small businesses</Link> in other industries.
+                </p>
+              ) : (
+                <p className="note">
+                  De afbeeldingen tonen demo-ontwerpen voor fictieve bedrijven. Ook voor <Link href="/website-laten-maken/zzp">zzp&apos;ers</Link> en <Link href="/website-laten-maken/mkb">mkb-bedrijven</Link> in andere branches maken we websites.
+                </p>
+              )}
             </div>
           </section>
         )}
 
-        <Steps />
+        <Steps lang={lang} />
 
-        {l.path !== "/website-onderhoud" && !quote && (
+        {!care && !quote && (
           <section className="section" id="prijzen">
             <div className="wrap">
               <div className="section-head" data-reveal>
-                <span className="eyebrow">Prijzen</span>
-                <h2>
-                  Vaste prijzen, <em>geen</em> verrassingen
-                </h2>
-                <p>
-                  Het ontwerp vooraf is gratis. Daarna kies je een pakket voor een vast bedrag, exclusief {v.vat} btw. Hosting en onderhoud vanaf {v.hosting} per maand. <Link href="/prijzen">Alle prijzen en extra&apos;s</Link>
-                </p>
+                <span className="eyebrow">{t.pricesEyebrow}</span>
+                {en ? (
+                  <>
+                    <h2>
+                      Fixed prices, <em>no</em> surprises
+                    </h2>
+                    <p>
+                      The design up front is free. After that you choose a package for a fixed amount, excluding {v.vat} VAT. Hosting and maintenance from {v.hosting} a month. <Link href="/en/pricing">All prices and extras</Link>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2>
+                      Vaste prijzen, <em>geen</em> verrassingen
+                    </h2>
+                    <p>
+                      Het ontwerp vooraf is gratis. Daarna kies je een pakket voor een vast bedrag, exclusief {v.vat} btw. Hosting en onderhoud vanaf {v.hosting} per maand. <Link href="/prijzen">Alle prijzen en extra&apos;s</Link>
+                    </p>
+                  </>
+                )}
               </div>
-              <PriceCards catalog={data.catalog} source={l.path} />
+              <PriceCards catalog={data.catalog} source={l.path} lang={lang} />
             </div>
           </section>
         )}
@@ -229,20 +310,20 @@ export async function LandingPage({ landing: l }: { landing: Landing }) {
         <section className="section faq-section" id="vragen">
           <div className="wrap faq-grid">
             <div className="section-head" data-reveal>
-              <span className="eyebrow">Veelgestelde vragen</span>
-              <h2>Goed om te weten</h2>
-              <p>Staat je vraag er niet bij? Stel hem gerust via het formulier.</p>
+              <span className="eyebrow">{t.faqEyebrow}</span>
+              <h2>{t.faqH}</h2>
+              <p>{t.faqText}</p>
             </div>
             <Faq items={l.faq} vars={v} />
           </div>
         </section>
 
-        <Related paths={l.related} />
-        <ContactSection data={data} source={l.path} />
+        <Related paths={l.related} lang={lang} />
+        <ContactSection data={data} source={l.path} lang={lang} />
       </main>
-      <SiteFooter data={data} />
+      <SiteFooter data={data} lang={lang} />
       <JsonLd data={breadcrumbLd(crumbs)} />
-      <JsonLd data={serviceLd({ name: l.service, serviceType: l.keywords.primary, description: plain(l.description, v), path: l.path, offers: quote ? undefined : l.path === "/website-onderhoud" ? planOffers : offers })} />
+      <JsonLd data={serviceLd({ name: l.service, serviceType: l.keywords.primary, description: plain(l.description, v), path: l.path, offers: quote ? undefined : care ? planOffers : offers })} />
       <JsonLd data={faqLd(l.faq.map((f) => ({ q: f.q, a: plain(f.a, v) })))} />
     </>
   );

@@ -1,8 +1,9 @@
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { HOME, HOME_FAQ, PROCESS, SERVICES } from "@/lib/site/home";
-import { allProjects, projectPath, selectedProjects } from "@/lib/site/projects";
+import { homeOf } from "@/lib/site/content";
+import type { Locale } from "@/lib/site/i18n";
+import { allProjects, inLang, projectPathIn, selectedProjects } from "@/lib/site/projects";
 import { faqLd, homePageLd, plain, serviceLd } from "@/lib/site/seo";
 import type { SiteData } from "@/server/site";
 import { ContactSection, Faq, JsonLd, SiteFooter } from "../parts";
@@ -15,9 +16,12 @@ import "./home.css";
 const no = (i: number) => String(i + 1).padStart(2, "0");
 
 /** The homepage: hero, introduction, selected work, services, why HOPI, process, closing. */
-export function Home({ data }: { data: SiteData }) {
+export function Home({ data, lang = "nl" }: { data: SiteData; lang?: Locale }) {
+  const { HOME, HOME_FAQ, PROCESS, SERVICES } = homeOf(lang);
+  const en = lang === "en";
+  const home = en ? "/en" : "/";
   const v = data.prices;
-  const projects = selectedProjects();
+  const projects = selectedProjects().map((p) => inLang(p, lang));
   const introWords = HOME.intro.statement.split(" ").length;
   return (
     <>
@@ -40,7 +44,7 @@ export function Home({ data }: { data: SiteData }) {
                 <p>{HOME.lead}</p>
               </div>
               <div className="hx-cta">
-                <a href="#contact" className="btn btn-accent" data-magnetic="0.25" data-track="cta_click" data-track-label="hero" data-track-location="/">
+                <a href="#contact" className="btn btn-accent" data-magnetic="0.25" data-track="cta_click" data-track-label="hero" data-track-location={home}>
                   {HOME.cta} <ArrowRight aria-hidden="true" />
                 </a>
                 <a href="#werk" className="btn btn-ghost">
@@ -116,13 +120,13 @@ export function Home({ data }: { data: SiteData }) {
               <ol className="wx-track" data-hscroll-track>
                 {projects.map((p, i) => (
                   <li key={p.key} className="wx-item" style={{ "--tone": p.tone, "--on": p.on } as CSSProperties}>
-                    <Link href={projectPath(p.key)} className="wx-card" data-cursor="Bekijk" data-pt={p.work.name}>
+                    <Link href={projectPathIn(p.key, lang)} className="wx-card" data-cursor={en ? "View" : "Bekijk"} data-pt={p.work.name}>
                       <div className="wx-media">
                         <img
                           src={`/site/work/${p.key}-d-1440.webp`}
                           srcSet={`/site/work/${p.key}-d-720.webp 720w, /site/work/${p.key}-d-1440.webp 1440w`}
                           sizes="(min-width: 1000px) 56vw, 84vw"
-                          alt={`Demo-website van ${p.work.name}, ${p.industry.toLowerCase()}`}
+                          alt={en ? `Demo website of ${p.work.name}, ${p.industry.toLowerCase()}` : `Demo-website van ${p.work.name}, ${p.industry.toLowerCase()}`}
                           width={1440}
                           height={900}
                           loading="lazy"
@@ -144,9 +148,9 @@ export function Home({ data }: { data: SiteData }) {
                   </li>
                 ))}
                 <li className="wx-item wx-end">
-                  <Link href="/werk" className="wx-all" data-cursor="Open" data-pt="Werk">
+                  <Link href={en ? "/en/work" : "/werk"} className="wx-all" data-cursor="Open" data-pt={en ? "Work" : "Werk"}>
                     <span className="mono">
-                      {no(allProjects().length - 1)} demo-websites
+                      {no(allProjects().length - 1)} {en ? "demo websites" : "demo-websites"}
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                     <span className="wx-all-t">{HOME.work.all}</span>
@@ -172,7 +176,7 @@ export function Home({ data }: { data: SiteData }) {
             <ol className="sx-list">
               {SERVICES.map((s, i) => (
                 <li key={s.title} data-in>
-                  <Link href={s.href} className="sx-row" data-pt={s.href.startsWith("/#") ? undefined : s.title}>
+                  <Link href={s.href} className="sx-row" data-pt={s.href.includes("#") ? undefined : s.title}>
                     <span className="mono sx-n">{no(i)}</span>
                     <div className="sx-t">
                       <h3>{s.title}</h3>
@@ -201,7 +205,7 @@ export function Home({ data }: { data: SiteData }) {
             <p className="lbl mono">
               <span>(04)</span> {HOME.why.label}
             </p>
-            <h2 className="sr-only">Waarom ondernemers voor HOPI kiezen</h2>
+            <h2 className="sr-only">{en ? "Why businesses choose HOPI" : "Waarom ondernemers voor HOPI kiezen"}</h2>
           </div>
           <ol className="yx-stack">
             {HOME.why.items
@@ -250,10 +254,10 @@ export function Home({ data }: { data: SiteData }) {
             <ol className="px-list">
               {PROCESS.map((p, i) => (
                 <li key={p.title} data-step-item>
-                  <span className="mono">Stap {no(i)}</span>
+                  <span className="mono">{en ? "Step" : "Stap"} {no(i)}</span>
                   <h3>{p.title}</h3>
                   <p>{p.text}</p>
-                  {p.free && <em className="chip mono">Gratis</em>}
+                  {"free" in p && p.free && <em className="chip mono">{en ? "Free" : "Gratis"}</em>}
                 </li>
               ))}
             </ol>
@@ -265,10 +269,10 @@ export function Home({ data }: { data: SiteData }) {
           <div className="wrap3 qx-grid">
             <div>
               <p className="lbl mono">
-                <span>(06)</span> Vragen
+                <span>(06)</span> {en ? "Questions" : "Vragen"}
               </p>
               <h2 className="disp" data-in>
-                <Words text="Goed om te weten" />
+                <Words text={en ? "Good to know" : "Goed om te weten"} />
               </h2>
             </div>
             <Faq items={HOME_FAQ} vars={v} />
@@ -283,7 +287,7 @@ export function Home({ data }: { data: SiteData }) {
             </p>
             <div className="cx-row">
               <p>{HOME.closing.text}</p>
-              <a href="#contact" className="cx-btn" data-magnetic="0.35" data-track="cta_click" data-track-label="closing" data-track-location="/">
+              <a href="#contact" className="cx-btn" data-magnetic="0.35" data-track="cta_click" data-track-label="closing" data-track-location={home}>
                 <span>{HOME.cta}</span>
                 <i aria-hidden="true">
                   <ArrowDown />
@@ -292,13 +296,30 @@ export function Home({ data }: { data: SiteData }) {
             </div>
           </div>
         </section>
-        <ContactSection data={data} source="/" title="Start een *project*" text="Vertel kort over je bedrijf en wat je nodig hebt. We nemen contact met je op en maken een ontwerp. Gratis en vrijblijvend: je betaalt pas als het ontwerp bevalt en je een pakket kiest." />
+        <ContactSection
+          data={data}
+          source={home}
+          lang={lang}
+          title={en ? "Start a *project*" : "Start een *project*"}
+          text={
+            en
+              ? "Tell us briefly about your business and what you need. We will get in touch and make a design. Free and without obligation: you only pay if you like the design and choose a package."
+              : "Vertel kort over je bedrijf en wat je nodig hebt. We nemen contact met je op en maken een ontwerp. Gratis en vrijblijvend: je betaalt pas als het ontwerp bevalt en je een pakket kiest."
+          }
+        />
       </main>
-      <SiteFooter data={data} />
-      <JsonLd data={homePageLd(`Webdesign bureau voor Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Websites vanaf ${data.prices.from}.`)} />
+      <SiteFooter data={data} lang={lang} />
+      <JsonLd
+        data={homePageLd(
+          en
+            ? `Web design agency for the Netherlands and Belgium. You see a free design of your website first and only pay if you like it. Websites from ${data.prices.from}.`
+            : `Webdesign bureau voor Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Websites vanaf ${data.prices.from}.`,
+          home,
+        )}
+      />
       <JsonLd data={faqLd(HOME_FAQ.map((f) => ({ q: f.q, a: plain(f.a, data.prices) })))} />
       {SERVICES.map((s) => (
-        <JsonLd key={s.title} data={serviceLd({ name: s.title, description: s.text, path: s.href.startsWith("/#") ? "/" : s.href, serviceType: s.title })} />
+        <JsonLd key={s.title} data={serviceLd({ name: s.title, description: s.text, path: s.href.includes("#") ? home : s.href, serviceType: s.title })} />
       ))}
     </>
   );

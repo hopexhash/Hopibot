@@ -1,0 +1,66 @@
+import type { Metadata } from "next";
+import { JsonLd, PullGuy } from "@/components/site/parts";
+import { Fx } from "@/components/site/fx";
+import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
+import { WebVitals } from "@/components/site/web-vitals";
+import { FONT_VARIABLES } from "@/lib/site/fonts";
+import type { Locale } from "@/lib/site/i18n";
+import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
+import { getSiteData } from "@/server/site";
+
+/** Shared metadata of the public website in one language. */
+export async function siteMetadata(lang: Locale): Promise<Metadata> {
+  const data = await getSiteData();
+  const en = lang === "en";
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: en ? { default: "HOPI | Website design: see first, then pay", template: "%s | HOPI" } : { default: "HOPI | Website laten maken: eerst zien, dan betalen", template: "%s | HOPI" },
+    description: en
+      ? "HOPI designs and builds websites for businesses in the Netherlands and Belgium. You see a free design of your own website first and only pay if you like it."
+      : "HOPI ontwerpt en bouwt websites voor ondernemers in Nederland en België. Je ziet eerst gratis een ontwerp van je eigen website en betaalt pas als het bevalt.",
+    applicationName: "HOPI",
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+    openGraph: { type: "website", locale: en ? "en_GB" : "nl_NL", siteName: "HOPI", images: [{ url: OG_IMAGE, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image" },
+    formatDetection: { telephone: false },
+    verification: {
+      ...(data.site.googleVerification ? { google: data.site.googleVerification } : {}),
+      ...(data.seo.bingVerification ? { other: { "msvalidate.01": data.seo.bingVerification } } : {}),
+    },
+  };
+}
+
+const BOOT = `(function(){var d=document.documentElement;d.classList.add('fx');d.style.setProperty('--vh0',innerHeight+'px');try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&(location.hash||location.pathname==='/'||location.pathname==='/en')){history.scrollRestoration='manual';if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);var top=function(){scrollTo({top:0,left:0,behavior:'instant'})};top();addEventListener('load',function(){top();setTimeout(function(){history.scrollRestoration='auto'},600)})}}catch(e){}try{if(sessionStorage.getItem('hopi-pt')){sessionStorage.removeItem('hopi-pt');d.classList.add('pt-cover','pt-boot');setTimeout(function(){d.classList.remove('pt-boot');if(d.classList.contains('pt-cover')&&!d.classList.contains('pt-reveal'))d.classList.remove('pt-cover')},6000)}}catch(e){}})()`;
+
+/**
+ * The document of the public website in one language (Dutch at the root, English under /en;
+ * each has its own root layout so the page is served with the right lang attribute).
+ */
+export async function SiteRoot({ lang, children }: { lang: Locale; children: React.ReactNode }) {
+  const data = await getSiteData();
+  return (
+    // data-scroll-behavior: the stylesheet scrolls smoothly to in-page anchors; this tells the
+    // router to jump straight to the top when another page opens instead.
+    <html lang={lang} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={`hopi v3 ${FONT_VARIABLES}`}>
+        {/* Before the first paint:
+            - mark the page as scripted (text that animates in is never shown and then hidden) and
+              record the screen height once (phones: see --vh0 in the stylesheets);
+            - a reload starts the page over: the section in the address (#contact) is dropped and
+              the page opens at the top, instead of jumping back to where it was. A first visit
+              through a link to a section still goes to that section. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
+        <PullGuy lang={lang} />
+        {/* The page is one opaque sheet: whatever lies behind it only shows when it is pulled away. */}
+        <div className="pg">{children}</div>
+        <Fx />
+        <WebVitals />
+        <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
+        <Reveal />
+        <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />
+        <JsonLd data={organizationLd({ name: data.name, email: data.email, phone: data.phone, address: data.address, kvk: data.kvk, googleBusinessUrl: data.site.googleBusinessUrl, fromCents: data.fromCents })} />
+        <JsonLd data={websiteLd()} />
+      </body>
+    </html>
+  );
+}

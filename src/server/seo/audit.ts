@@ -40,7 +40,7 @@ export type AuditReport = {
 
 const WEIGHT: Record<Severity, number> = { error: 6, warning: 2, notice: 0.5 };
 /** Pages that are short by nature: no "thin content" notice for them. */
-const SHORT_OK = /^\/(contact|privacy|cookies|algemene-voorwaarden|blog|werk)$/;
+const SHORT_OK = /^\/(?:en\/)?(contact|privacy|cookies|algemene-voorwaarden|terms|blog|werk|work)$/;
 /** Legal pages are linked from every footer by design; they need no links from content. */
 const LEGAL = /^\/(privacy|cookies|algemene-voorwaarden)$/;
 
@@ -128,7 +128,7 @@ export function checkPage(path: string, url: string, status: number, xRobots: st
   if (p.lang !== "nl") add("warning", "lang", `Declares language "${p.lang || "none"}" instead of nl.`);
   if (p.imagesNoAlt) add("warning", "img_alt", `${p.imagesNoAlt} image(s) without an alt attribute.`);
   if (p.imagesNoSize) add("notice", "img_size", `${p.imagesNoSize} image(s) without width and height (can shift the layout while loading).`);
-  if (p.words < 300 && !SHORT_OK.test(path) && path !== "/") add("notice", "thin", `Only about ${p.words} words of text.`);
+  if (p.words < 300 && !SHORT_OK.test(path) && path !== "/" && path !== "/en") add("notice", "thin", `Only about ${p.words} words of text.`);
   return out;
 }
 
@@ -238,8 +238,8 @@ export async function runAudit(origin: string): Promise<AuditReport> {
     if ((byTitle.get(p.title)?.length ?? 0) > 1) p.issues.push({ severity: "warning", code: "title_duplicate", message: `Same title as ${byTitle.get(p.title)!.filter((x) => x !== p.path).join(", ")}.`, path: p.path });
     if ((byDesc.get(p.description)?.length ?? 0) > 1) p.issues.push({ severity: "warning", code: "description_duplicate", message: `Same description as ${byDesc.get(p.description)!.filter((x) => x !== p.path).join(", ")}.`, path: p.path });
     if (LEGAL.test(p.path)) continue;
-    if (p.path !== "/" && p.inbound === 0) p.issues.push({ severity: "warning", code: "orphan", message: "No other page links here from its content (only menus or the footer do).", path: p.path });
-    else if (p.path !== "/" && p.inbound < 3) p.issues.push({ severity: "notice", code: "few_links", message: `Only ${p.inbound} other page(s) link here from their content.`, path: p.path });
+    if (p.path !== "/" && p.path !== "/en" && p.inbound === 0) p.issues.push({ severity: "warning", code: "orphan", message: "No other page links here from its content (only menus or the footer do).", path: p.path });
+    else if (p.path !== "/" && p.path !== "/en" && p.inbound < 3) p.issues.push({ severity: "notice", code: "few_links", message: `Only ${p.inbound} other page(s) link here from their content.`, path: p.path });
   }
 
   // Every internal link that is not a page of the sitemap: does it work?
