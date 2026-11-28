@@ -1,5 +1,6 @@
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { DESIGNS, getDesign, type Design } from "@/sites/designs";
+import { colorwayCount, colorwayName } from "@/sites/colorways";
 
 /**
  * Design selection engine (rule-based, free, deterministic).
@@ -67,4 +68,131 @@ export function selectIndustry(b: { category: string; name: string; text?: strin
     if (sameSector || b.category === "local_service") return { design: getDesign(s.design), reason: `${s.why} detected in the business name or research` };
   }
   return { design: fallback, reason: `default design for ${cat?.label.toLowerCase() ?? "local businesses"}` };
+}
+
+/**
+ * Every design that suits a business category, best fit first. The first one is the look the
+ * category had when it had only one; the others are the designs a second, third... business of
+ * the same kind gets, so neighbours never receive the same website.
+ */
+export const LOOKS_OF_CATEGORY: Record<string, string[]> = {
+  restaurant: ["vesper", "ostara", "lune", "meridiaan"],
+  italian_restaurant: ["vesper", "ostara", "lune"],
+  turkish_restaurant: ["vesper", "ostara", "meridiaan"],
+  sushi_restaurant: ["vesper", "lune", "obsidian"],
+  burger_restaurant: ["vesper", "antipode", "forge"],
+  pizzeria: ["vesper", "antipode", "ostara"],
+  coffee_shop: ["ostara", "sage", "lune", "helder"],
+  bakery: ["ostara", "sage", "lune", "helder"],
+  street_food: ["vesper", "antipode", "forge"],
+  asian_restaurant: ["vesper", "lune", "antipode"],
+  food_truck: ["vesper", "antipode", "forge"],
+  barbershop: ["vesper", "forge", "obsidian", "antipode"],
+  hair_salon: ["sage", "lune", "helder", "ostara"],
+  beauty_salon: ["sage", "lune", "helder", "ostara"],
+  beauty_clinic: ["sage", "helder", "lune"],
+  car_detailing: ["obsidian", "forge", "kade"],
+  car_repair: ["obsidian", "kade", "forge"],
+  car_dealer: ["obsidian", "meridiaan", "forge"],
+  construction: ["kade", "meridiaan", "aerden", "forge"],
+  roofing: ["kade", "meridiaan", "forge"],
+  plumber: ["kade", "helder", "meridiaan"],
+  electrician: ["kade", "helder", "veldwerk"],
+  local_service: ["kade", "helder", "meridiaan"],
+  cleaning: ["helder", "kade", "sage"],
+  landscaping: ["meridiaan", "kade", "sage"],
+  dentist: ["helder", "sage", "aerden"],
+  physiotherapist: ["helder", "sage", "forge"],
+  real_estate: ["meridiaan", "aerden", "lune"],
+  interior_designer: ["meridiaan", "lune", "sage"],
+  gym: ["forge", "antipode", "obsidian"],
+  personal_trainer: ["forge", "antipode", "helder"],
+  hotel: ["ostara", "vesper", "meridiaan"],
+  lawyer: ["aerden", "meridiaan", "veldwerk"],
+  accountant: ["aerden", "veldwerk", "meridiaan"],
+  consultant: ["aerden", "veldwerk", "meridiaan"],
+  marketing_agency: ["antipode", "veldwerk", "lune"],
+  photographer: ["antipode", "lune", "vesper"],
+  event_business: ["antipode", "ostara", "lune"],
+  it_company: ["veldwerk", "antipode", "aerden"],
+  tattoo_studio: ["forge", "antipode", "vesper"],
+  clothing_store: ["lune", "antipode", "sage"],
+  shop: ["lune", "antipode", "sage"],
+};
+
+/** The same, for an industry that a signal in the name refined (a "Sushi" place in the restaurant category). */
+const LOOKS_OF_INDUSTRY: Record<string, string[]> = {
+  sushi: LOOKS_OF_CATEGORY.sushi_restaurant,
+  pizzeria: LOOKS_OF_CATEGORY.pizzeria,
+  burger: LOOKS_OF_CATEGORY.burger_restaurant,
+  "turkish-restaurant": LOOKS_OF_CATEGORY.turkish_restaurant,
+  "modern-italian": LOOKS_OF_CATEGORY.italian_restaurant,
+  "food-truck": LOOKS_OF_CATEGORY.food_truck,
+  "street-food": LOOKS_OF_CATEGORY.street_food,
+  "asian-fusion": LOOKS_OF_CATEGORY.asian_restaurant,
+  "fine-dining": ["vesper", "ostara", "lune"],
+  bakery: LOOKS_OF_CATEGORY.bakery,
+  "coffee-shop": LOOKS_OF_CATEGORY.coffee_shop,
+  barbershop: LOOKS_OF_CATEGORY.barbershop,
+  "car-detailing": LOOKS_OF_CATEGORY.car_detailing,
+  landscaping: LOOKS_OF_CATEGORY.landscaping,
+  cleaning: LOOKS_OF_CATEGORY.cleaning,
+  "beauty-salon": LOOKS_OF_CATEGORY.beauty_salon,
+};
+
+/** A look: one of the demo designs, in its original colours (variation 0) or one of its colourways. */
+export type Look = { family: string; variation: number };
+/** A look already given to another business, with what makes it a neighbour. */
+export type UsedLook = Look & { category: string; city: string | null };
+export type LookChoice = { design: Design; variation: number; reason: string };
+
+const norm = (city: string | null | undefined) => (city ?? "").trim().toLowerCase();
+function hash(text: string) {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+
+/** The designs a business could get, best fit first. */
+export function looksFor(b: { category: string; name: string; text?: string | null }): string[] {
+  const cat = BUSINESS_CATEGORIES.find((c) => c.key === b.category);
+  const industry = selectIndustry(b);
+  const refined = industry.design.key !== (cat?.design ?? "local-service");
+  const primary = selectDesign(b).design.key;
+  const list = (refined && LOOKS_OF_INDUSTRY[industry.design.key]) || LOOKS_OF_CATEGORY[b.category] || [];
+  return [primary, ...list.filter((k) => k !== primary)];
+}
+
+/**
+ * The look for a new website: the best-fitting design and colours that no business of the same
+ * kind has yet, nearby first. A business with no neighbours gets the original of its best design
+ * (what it always got); the second one in the same category gets another design or colourway,
+ * and so on. Deterministic: the same history and the same business give the same look.
+ */
+export function selectLook(b: { category: string; name: string; city?: string | null; text?: string | null }, used: UsedLook[]): LookChoice {
+  const families = looksFor(b);
+  const city = norm(b.city);
+  const peers = used.filter((u) => u.category === b.category);
+  let best: { family: string; variation: number; score: number; tie: number } | null = null;
+  families.forEach((family, rank) => {
+    for (let variation = 0; variation < colorwayCount(family); variation++) {
+      let score = rank * 3 + variation;
+      for (const u of peers) {
+        const near = Boolean(city) && norm(u.city) === city;
+        if (u.family === family && u.variation === variation) score += near ? 1000 : 100;
+        else if (u.family === family) score += near ? 30 : 8;
+      }
+      const tie = hash(`${b.name}:${family}:${variation}`);
+      if (!best || score < best.score || (score === best.score && tie < best.tie)) best = { family, variation, score, tie };
+    }
+  });
+  const pick = best as { family: string; variation: number; score: number } | null;
+  const design = getDesign(pick?.family ?? families[0] ?? "kade");
+  const variation = pick?.variation ?? 0;
+  const sameKind = peers.length;
+  const colours = colorwayName(design.key, variation);
+  const reason = sameKind
+    ? `${design.name} design in ${colours.toLowerCase() === "original" ? "its original colours" : `the ${colours} colourway`}: ${sameKind} other ${sameKind === 1 ? "business" : "businesses"} of this kind already have a website, so this one gets a look none of them has${city ? `, least of all in ${b.city}` : ""}`
+    : `${design.name} design: the best fit for this kind of business`;
+  return { design, variation, reason };
 }

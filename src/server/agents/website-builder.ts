@@ -1,7 +1,7 @@
 import "../guard";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { selectDesign, selectIndustry } from "@/lib/design-select";
+import { selectIndustry, selectLook } from "@/lib/design-select";
 import { industryProfile } from "@/lib/industry-intel";
 import { stageEvent, stageLabel } from "@/lib/website-stages";
 import { DIRECTIONS, finalizeIdentity, fingerprintOf, seedOf } from "@/sites/identity";
@@ -15,6 +15,7 @@ import { claudeStructured } from "../integrations/anthropic";
 import { IntegrationUnavailableError } from "../integrations/credentials";
 import { advanceStage, notifyEvent } from "../orchestrator/tasks";
 import type { AgentContext, AgentHandler } from "../orchestrator/types";
+import { usedLooks } from "../website/looks";
 import { buildMockSpec } from "../website/mock-spec";
 import { attachStockPhotos } from "../website/photos";
 import { enforceSpec, ensureProject, saveVersion } from "../website/service";
@@ -160,7 +161,12 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   const researchText = research ? JSON.stringify(research.profile).slice(0, 4000) : "";
   // A new site is always built in one of the demo designs; later versions of a site keep the design they have.
   const current = DESIGN_KEYS.includes(project.templateKey) ? getDesign(project.templateKey) : null;
-  const chosen = current && (type !== "generate_website" || current.demo) ? { design: current, reason: "kept from the project" } : selectDesign({ category: b.category, name: b.name, text: researchText });
+  // A new site gets the best-fitting look (design + colourway) that no other business of the same
+  // kind has, nearby first; a site that already has a design keeps it, colours included.
+  const keep = Boolean(current && (type !== "generate_website" || current.demo));
+  const look = keep ? null : selectLook({ category: b.category, name: b.name, city: b.city, text: researchText }, await usedLooks(ctx.organizationId, project.id));
+  const chosen = look ?? { design: current!, reason: "kept from the project" };
+  const keptVariation = keep ? ((await currentSpec(project.id))?.spec.theme.variation ?? 0) : 0;
   // A demo design without its family (one that is still being built) falls back to the classic design of the industry.
   const design = chosen.design.demo && !familyOf(chosen.design.key) ? selectIndustry({ category: b.category, name: b.name, text: researchText }).design : chosen.design;
   // A demo design has one fixed look: no identity is planned for it. The industry still decides content and photographs.
@@ -340,7 +346,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
 
   // The design identity is fixed by the selection engine; guardrails restore verified facts and safe links.
   spec.theme = fixedLook
-    ? { template: design.legacy, design: design.key, variation: 0, primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius }
+    ? { template: design.legacy, design: design.key, variation: design.key === chosen.design.key ? (look?.variation ?? keptVariation) : 0, primary: design.palette.primary, accent: design.palette.accent, mode: design.mode, font: design.fonts.display, radius: design.radius }
     : { ...spec.theme, design: design.key, template: design.legacy, mode: design.mode, radius: design.radius, font: FONT_FAMILIES.includes(spec.theme.font as never) ? spec.theme.font : design.fonts.display };
   // Real photography: with Pexels or Unsplash connected, image slots get licensed photos chosen for this business.
   if (photoProvider && type === "generate_website") {

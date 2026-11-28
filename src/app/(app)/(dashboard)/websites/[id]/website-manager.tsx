@@ -25,6 +25,7 @@ import { StatusBadge } from "@/components/app/status";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Dialog, Field, Input, MockBadge, ScoreRing, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@/components/ui";
 import { QC_PASS_SCORE, isCustomerStage } from "@/lib/constants";
 import type { SiteSpec } from "@/lib/site-spec";
+import { colorwayName } from "@/sites/colorways";
 import { designName } from "@/sites/designs";
 import { cn, timeAgo } from "@/lib/utils";
 import {
@@ -129,7 +130,7 @@ export function WebsiteManager({
             <Link href={`/businesses/${business.id}`} className="hover:text-accent">
               Business profile
             </Link>
-            · {designName(project.templateKey)} design · v{current?.versionNo ?? 0} · updated {timeAgo(project.updatedAt)}
+            · {designName(project.templateKey)} design{spec?.theme.variation ? ` · ${colorwayName(project.templateKey, spec.theme.variation)} colours` : ""} · v{current?.versionNo ?? 0} · updated {timeAgo(project.updatedAt)}
           </span>
         }
         actions={

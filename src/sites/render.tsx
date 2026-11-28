@@ -4,6 +4,7 @@ import { SiteDocument, type RenderOptions } from "./site";
 import { designFonts, designForSpec } from "./designs";
 import { fontFaces } from "./fonts";
 import { siteCss } from "./styles";
+import { colorwayOf, recolor } from "./colorways";
 import { familyOf } from "./families";
 import { BASE_CSS, BASE_JS } from "./families/base";
 import { KIT_CSS } from "./families/css/kit";
@@ -37,6 +38,10 @@ export function renderSite(spec: SiteSpec, opts: RenderOptions & { assetBase: st
   if (fam) {
     const css = fontFaces(opts.assetBase, fam.fonts) + KIT_CSS + fam.css + BASE_CSS + fam.extra;
     markup = renderToStaticMarkup(<FamilyDocument spec={valid} opts={opts} fam={fam} css={css} script={BASE_JS + (fam.js ?? "")} />);
+    // A colourway recolours the family's own palette once, in the finished document: its
+    // stylesheet, its inline colours, the browser colour and the icon.
+    const cw = colorwayOf(fam.key, valid.theme.variation);
+    if (cw) markup = recolor(markup, cw);
   } else {
     const design = designForSpec(valid.theme);
     const css = fontFaces(opts.assetBase, designFonts(design)) + siteCss(design.skin ?? design.key);
