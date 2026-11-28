@@ -36,15 +36,16 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
 const PHOTO_SET: Record<string, string> = { brasa: "restaurant", noord: "beauty-salon", ambacht: "construction", zondag: "restaurant" };
 
-const business = (name: string, category: string): BlueprintBusiness => ({
+/** `published`: a sample shown on the public site carries no phone number, address or map link. */
+const business = (name: string, category: string, published = false): BlueprintBusiness => ({
   name,
   category,
   city: "Rotterdam",
   country: "Netherlands",
-  phone: "+31 10 123 4567",
-  address: "Witte de Withstraat 1, 3012 BL Rotterdam",
+  phone: published ? null : "+31 10 123 4567",
+  address: published ? null : "Witte de Withstraat 1, 3012 BL Rotterdam",
   openingHours: ["Maandag: Gesloten", "Dinsdag – Vrijdag: 10:00 – 22:00", "Zaterdag: 10:00 – 23:00", "Zondag: 12:00 – 21:00"],
-  googleMapsUrl: "https://maps.google.com/?q=Rotterdam",
+  googleMapsUrl: published ? null : "https://maps.google.com/?q=Rotterdam",
 });
 
 /** One example of every section type a blueprint may leave out, so each family is seen complete. */
@@ -63,10 +64,10 @@ const EXTRA: SiteSection[] = [
   { type: "order", id: "zo-bestellen", title: "Zo bestelt u", body: "Kies wat u het makkelijkst vindt.", channels: [{ label: "Bel ons", description: "Geef uw bestelling telefonisch door.", href: "tel:+31101234567", icon: "phone" }, { label: "Online", description: "Vul het formulier in.", href: "#contact", icon: "bag" }, { label: "Kom langs", description: "Bekijk de route.", href: "https://maps.google.com/?q=Rotterdam", icon: "map" }] },
 ];
 
-export function sampleSpec(key: string, variant: "all" | "plain"): SiteSpec {
+export function sampleSpec(key: string, variant: "all" | "plain", published = false): SiteSpec {
   const design = FAMILY_DESIGNS.find((d) => d.key === key)!;
   const [name, category, blueprint] = SAMPLES[key][variant];
-  const spec = buildBlueprintSpec(business(name, category), blueprint, 0);
+  const spec = buildBlueprintSpec(business(name, category, published), blueprint, 0);
   spec.theme = { ...spec.theme, design: key, template: design.legacy, mode: design.mode, radius: design.radius, identity: undefined };
   if (variant === "plain") {
     // No photographs; the section types the "all" sample has no room for are shown here.
@@ -77,10 +78,12 @@ export function sampleSpec(key: string, variant: "all" | "plain"): SiteSpec {
     spec.sections = [...[...base.filter((s) => s.type !== "contact"), ...more].slice(0, 14 - last.length), ...last];
     return spec;
   }
-  // Every section type once, contact last.
+  // Every section type once, contact last. A published sample leaves out what would read as
+  // invented facts: example reviews, an example team and example prices.
   const have = new Set(spec.sections.map((s) => s.type));
   const contact = spec.sections.filter((s) => s.type === "contact");
   spec.sections = [...[...spec.sections.filter((s) => s.type !== "contact"), ...EXTRA.filter((s) => !have.has(s.type))].slice(0, 14 - contact.length), ...contact];
+  if (published) spec.sections = spec.sections.filter((s) => !["testimonials", "team", "packages", "beforeafter"].includes(s.type));
   // Photographs: the ones of the family's own demo, from Unsplash.
   const ids = Object.entries((PHOTOS as Record<string, Record<string, string>>)[PHOTO_SET[key] ?? design.demo!]);
   const refs = new Set<string>([spec.hero.image, "art:about2", "art:cta", "art:side1", "art:side2"]);
