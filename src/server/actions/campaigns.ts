@@ -11,6 +11,8 @@ import { integrationMode } from "../integrations/credentials";
 import { sendEmail } from "../integrations/resend";
 import { createApproval } from "../orchestrator/control";
 import { action, UserError } from "./_util";
+import { writtenEmail } from "@/lib/email/templates";
+import { emailContext } from "../sales/email-html";
 
 const campaignSchema = z.object({
   name: z.string().trim().min(2, "Give the campaign a name").max(80),
@@ -136,6 +138,17 @@ export async function sendCampaignTestAction(id: string) {
         replyTo: s.replyToEmail || s.senderEmail,
         subject: `[TEST] ${renderTemplate(c.subjectTemplate, sample).text}`,
         text: `This is a test of the campaign “${c.name}” with sample values. It was sent only to you.\n\n${renderTemplate(c.bodyTemplate, sample).text}${complianceFooter("en", s, "https://example.invalid/unsubscribe-link-appears-here")}`,
+        // The HOPI email design, with sample values and a test banner.
+        html: writtenEmail({
+          ctx: emailContext(s, "nl"),
+          kind: "message",
+          audience: "outreach",
+          subject: renderTemplate(c.subjectTemplate, sample).text,
+          paragraphs: renderTemplate(c.bodyTemplate, sample).text.split(/\n{2,}/),
+          businessName: sample.business_name ?? "",
+          unsubscribeUrl: "https://example.invalid/unsubscribe-link-appears-here",
+          test: { to: "voorbeeldontvangers van de campagne" },
+        }),
         // A test goes only to the operator; the header still needs a valid target.
         unsubscribeUrl: `mailto:${s.replyToEmail || s.senderEmail}?subject=unsubscribe`,
         tags: { kind: "campaign_test" },

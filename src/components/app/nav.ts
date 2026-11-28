@@ -104,6 +104,10 @@ export const SUB_NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/previews", label: "Live previews" },
     { href: "/deployments", label: "Deployments" },
   ],
+  "/emails": [
+    { href: "/emails", label: "Emails" },
+    { href: "/emails/designs", label: "Email designs" },
+  ],
   "/seo": [
     { href: "/seo", label: "Overview" },
     { href: "/seo/pages", label: "Pages" },

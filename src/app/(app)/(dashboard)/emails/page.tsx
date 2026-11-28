@@ -2,6 +2,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { Mail } from "lucide-react";
 import Link from "next/link";
 import { PageHeader, StatCard } from "@/components/app/page";
+import { SubNav } from "@/components/app/sidebar";
 import { StatusBadge } from "@/components/app/status";
 import { Card, EmptyState, MockBadge } from "@/components/ui";
 import { Table, TD, TH, THead, TR } from "@/components/ui/table";
@@ -44,6 +45,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
+      <SubNav section="/emails" />
       <PageHeader eyebrow="Business" title="Email Center" description="Every single email your agents drafted. Nothing goes out until you approve it, and anyone who unsubscribes is never contacted again." />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Awaiting approval" value={count(["awaiting_approval"])} tone="warning" />

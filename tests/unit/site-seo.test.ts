@@ -196,34 +196,57 @@ describe("public website: WhatsApp link", () => {
 });
 
 describe("website enquiry: the email with the design", () => {
-  it("writes a fixed, personal text with the preview link exactly once", async () => {
-    const { inquiryPreviewEmail } = await import("@/lib/inquiry-email");
-    const e = inquiryPreviewEmail({ contactName: "Sanne de Boer", company: "Bakkerij De Boer", previewUrl: "https://example.test/d/bakkerij-de-boer", senderName: "Umut", agencyName: "HOPI" });
-    expect(e.subject).toBe("Je websiteontwerp voor Bakkerij De Boer staat klaar");
-    expect(e.body.startsWith("Hoi Sanne,")).toBe(true);
-    expect(e.body.split("https://example.test/d/bakkerij-de-boer")).toHaveLength(2);
-    expect(e.body).toMatch(/zit je nergens aan vast/);
-    expect(e.body.endsWith("Umut\nHOPI")).toBe(true);
-    // No name given: still a normal greeting, and the agency signs once.
-    const anon = inquiryPreviewEmail({ contactName: null, company: "X", previewUrl: "u", senderName: "", agencyName: "HOPI" });
-    expect(anon.body.startsWith("Hoi,")).toBe(true);
-    expect(anon.body.endsWith("Groet,\nHOPI")).toBe(true);
+  /** What a reader sees: no styles, no Outlook comments, no tags. */
+  const visible = (html: string) => html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;|&middot;/g, " ");
+  const ctx = (lang: "nl" | "en", over: Record<string, string> = {}) => ({
+    lang,
+    siteUrl: "https://wearehopi.nl",
+    company: { name: "HOPI", address: "Straat 1, 1000 AA Amsterdam", kvk: "12345678", website: "wearehopi.nl", email: "hallo@example.test", phone: "", ...over },
+    senderName: "Umut",
+    replyTo: "hallo@example.test",
+    fromPrice: "€ 299",
+    vat: "21%",
+  });
+
+  it("writes a fixed, personal text with the preview link, in je-form", async () => {
+    const { designReadyEmail } = await import("@/lib/email/templates");
+    const e = designReadyEmail({ ctx: ctx("nl"), contactName: "Sanne de Boer", company: "Bakkerij De Boer", previewUrl: "https://example.test/d/bakkerij-de-boer", unsubscribeUrl: "https://x.test/u/t" });
+    expect(e.subject).toBe("Je websiteconcept voor Bakkerij De Boer is klaar");
+    expect(e.text.startsWith("Hoi Sanne,")).toBe(true);
+    expect(e.text).toMatch(/Je zit nergens aan vast/);
+    expect(e.text).toMatch(/Groet,\nUmut/);
+    expect(e.text).toMatch(/€ 299 eenmalig, exclusief 21% btw/);
+    // Formal "u/uw" never appears in the Dutch copy (links stripped first).
+    const words = (x: string) => visible(x).replace(/https?:\/\/\S+/g, "");
+    expect(words(e.text)).not.toMatch(/\b(u|uw)\b/i);
+    expect(words(e.html)).not.toMatch(/\b(u|uw)\b/i);
+    // No name given: still a normal greeting.
+    const anon = designReadyEmail({ ctx: ctx("nl"), contactName: null, company: "X", previewUrl: "https://x.test/d/x", unsubscribeUrl: "https://x.test/u/t" });
+    expect(anon.text.startsWith("Hoi,")).toBe(true);
   });
 
   it("says why they get it (they asked), in their language, never that their details were public", async () => {
-    const { inquiryFooter, inquiryPreviewEmail } = await import("@/lib/inquiry-email");
-    const s = { agencyName: "HOPI", senderName: "", agencyAddress: "Straat 1, 1000 AA Amsterdam", kvkNumber: "12345678", agencyWebsite: "wearehopi.nl" };
-    const nl = inquiryFooter("nl", s, "https://x.test/u/t");
-    expect(nl).toMatch(/via onze website een gratis websiteontwerp hebt aangevraagd/);
-    expect(nl).toMatch(/KvK 12345678/);
-    expect(nl).toMatch(/https:\/\/x\.test\/u\/t/);
-    expect(nl.replace(/https?:\/\/\S+/g, "")).not.toMatch(/openbaar|\buw\b|\bu\b/i);
-    const en = inquiryFooter("en", s, "https://x.test/u/t");
-    expect(en).toMatch(/you requested a free website design/);
-    expect(en).not.toMatch(/publicly listed/);
-    const e = inquiryPreviewEmail({ contactName: "Sam Jones", company: "Jones Bakery", previewUrl: "https://x.test/d/j", senderName: "", agencyName: "HOPI", lang: "en" });
-    expect(e.subject).toBe("Your website design for Jones Bakery is ready");
-    expect(e.body.startsWith("Hi Sam,")).toBe(true);
+    const { designReadyEmail } = await import("@/lib/email/templates");
+    const nl = designReadyEmail({ ctx: ctx("nl"), contactName: "Sanne", company: "Bakkerij", previewUrl: "https://x.test/d/b", unsubscribeUrl: "https://x.test/u/t" });
+    expect(nl.text).toMatch(/via onze website een gratis websiteontwerp hebt aangevraagd/);
+    expect(nl.text).toMatch(/KvK 12345678/);
+    expect(nl.text).toMatch(/https:\/\/x\.test\/u\/t/);
+    expect(nl.text + nl.html).not.toMatch(/openbaar/);
+    const en = designReadyEmail({ ctx: ctx("en"), contactName: "Sam Jones", company: "Jones Bakery", previewUrl: "https://x.test/d/j", unsubscribeUrl: "https://x.test/u/t" });
+    expect(en.subject).toBe("Your website concept for Jones Bakery is ready");
+    expect(en.text.startsWith("Hi Sam,")).toBe(true);
+    expect(en.text).toMatch(/you requested a free website design/);
+    expect(en.text + en.html).not.toMatch(/publicly listed/);
+  });
+
+  it("never shows a placeholder or an empty detail when company details are missing", async () => {
+    const { designReadyEmail } = await import("@/lib/email/templates");
+    const e = designReadyEmail({ ctx: ctx("nl", { address: "", kvk: "", email: "" }), contactName: "Sanne", company: "Bakkerij", previewUrl: "https://x.test/d/b", unsubscribeUrl: "https://x.test/u/t" });
+    expect(visible(e.html) + e.text).not.toMatch(/\[[^\]]*\]|undefined|null|KvK\s*(·|$)/);
+    expect(e.html).toMatch(/hopi-logo-ink\.png/);
+    expect(e.html).toMatch(/alt="HOPI"/);
+    // Every link is absolute (email clients have no base address).
+    for (const m of e.html.matchAll(/(?:href|src)="([^"]+)"/g)) expect(m[1]).toMatch(/^(https:\/\/|mailto:)/);
   });
 
   it("only allows sending when email is really connected and the sender is known", async () => {

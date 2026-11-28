@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_CATALOG, priceOrder, recommendedAddons } from "@/lib/catalog";
-import { renderEmailHtml } from "@/lib/email-html";
+import { writtenEmail } from "@/lib/email/templates";
 import { isSupportedCountry, languageFor, marketCountry, resolveMarket } from "@/lib/markets";
 import { opportunityScore } from "@/lib/opportunity";
 import { assessOutreach } from "@/lib/outreach-compliance";
@@ -113,15 +113,30 @@ describe("permission-based outreach", () => {
 });
 
 describe("HTML email", () => {
-  it("contains the three calls to action, the opt-out and escapes content", () => {
-    const html = renderEmailHtml({
-      lang: "nl", paragraphs: ["Beste <b>team</b>,", "Ik maakte een concept."], footer: "--\nAgency\nAfmelden: https://app.example/u/tok", businessName: "Bakkerij & Zn", agencyName: "Agency",
-      demoUrl: "https://app.example/d/bakkerij", unsubscribeUrl: "https://app.example/u/tok", design: { name: "Crumb", bg: "#fbeee6", ink: "#3b1e24", accent: "#b8455b", onAccent: "#ffffff", displayFont: "Georgia" }, fromPriceEur: 299, benefits: ["Snel"],
+  const ctx = { lang: "nl" as const, siteUrl: "https://app.example", company: { name: "Agency", address: "Straat 1", kvk: "", website: "", email: "", phone: "" }, senderName: "Agency", replyTo: "hi@app.example", fromPrice: "€ 299", vat: "21%" };
+  it("contains the calls to action, the opt-out, and escapes content", () => {
+    const html = writtenEmail({
+      ctx,
+      kind: "intro",
+      audience: "outreach",
+      subject: "Een websiteconcept",
+      paragraphs: ["Hoi <b>team</b>,", "Ik maakte een concept.", "Groet,"],
+      businessName: "Bakkerij & Zn",
+      previewUrl: "https://app.example/d/bakkerij",
+      design: { bg: "#fbeee6", ink: "#3b1e24", accent: "#b8455b", displayFont: "Georgia" },
+      unsubscribeUrl: "https://app.example/u/tok",
     });
-    for (const s of ["Bekijk uw nieuwe website", "Bestel deze website", "Pas uw website aan", "https://app.example/u/tok", "vanaf €299"]) expect(html).toContain(s);
+    for (const s of ["Bekijk je websiteconcept", "Bekijk pakketten en prijzen", "https://app.example/d/bakkerij#order", "https://app.example/u/tok", "vanaf € 299 eenmalig, exclusief 21% btw", "openbaar vermeld"]) expect(html).toContain(s);
     expect(html).toContain("Bakkerij &amp; Zn");
     expect(html).not.toContain("<b>team</b>");
-    expect(html).not.toMatch(/<script|<img/i);
+    expect(html).not.toMatch(/<script/i);
+    // The written closing becomes the signature, not a stray paragraph.
+    expect(html.match(/Groet,/g)).toHaveLength(1);
+  });
+  it("writes a plain message without a concept when there is no preview", () => {
+    const html = writtenEmail({ ctx, kind: "message", audience: "outreach", subject: "Hallo", paragraphs: ["Hoi,", "Een vraag."], businessName: "X", unsubscribeUrl: "https://app.example/u/tok" });
+    expect(html).not.toContain("websiteconcept");
+    expect(html).toContain("Een vraag.");
   });
 });
 

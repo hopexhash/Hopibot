@@ -1,7 +1,8 @@
 import "../guard";
-import { INQUIRY_SOURCE, inquiryFooter, inquiryPreviewEmail, inquirySendBlocker } from "@/lib/inquiry-email";
+import { designReadyEmail } from "@/lib/email/templates";
+import { INQUIRY_SOURCE, inquirySendBlocker } from "@/lib/inquiry-email";
 import { assessOutreach } from "@/lib/outreach-compliance";
-import { buildEmailHtml, demoUrl } from "../sales/email-html";
+import { buildEmailHtml, demoUrl, emailContext } from "../sales/email-html";
 import { and, desc, eq, ne } from "drizzle-orm";
 import { z } from "zod";
 import { categoryLabel } from "@/lib/constants";
@@ -35,7 +36,7 @@ const draftSchema = z.object({
 export function complianceFooter(lang: string, s: OrgSettings, unsubscribeUrl: string) {
   const id = [s.agencyName, s.agencyAddress, s.kvkNumber ? `KvK ${s.kvkNumber}` : null, s.agencyWebsite].filter(Boolean).join(" · ");
   return lang === "nl"
-    ? `\n\n--\n${s.senderName || s.agencyName}\n${id}\n\nU ontvangt dit eenmalige bericht omdat uw bedrijfsgegevens openbaar vermeld staan. Wilt u geen berichten meer van ons ontvangen? Meld u direct af: ${unsubscribeUrl}\nHet websiteconcept is een demonstratie en niet gepubliceerd als uw officiële website.`
+    ? `\n\n--\n${s.senderName || s.agencyName}\n${id}\n\nJe ontvangt dit eenmalige bericht omdat de contactgegevens van je bedrijf openbaar vermeld staan. Wil je geen berichten meer van ons ontvangen? Meld je direct af: ${unsubscribeUrl}\nHet websiteconcept is een demonstratie en niet gepubliceerd als je officiële website.`
     : `\n\n--\n${s.senderName || s.agencyName}\n${id}\n\nYou are receiving this one-off message because your business contact details are publicly listed. To stop receiving messages from us, unsubscribe instantly: ${unsubscribeUrl}\nThe website concept is a demonstration and has not been published as your official website.`;
 }
 
@@ -99,11 +100,11 @@ async function draftIntro(ctx: AgentContext) {
       subject: lang === "nl" ? `Een websiteconcept voor ${b.name}` : `A website concept for ${b.name}`,
       body:
         lang === "nl"
-          ? `Beste ${b.name},\n\nIk kwam uw bedrijf tegen en zag een kans om uw online aanwezigheid te versterken. Daarom heb ik speciaal voor u een websiteconcept gemaakt, zodat u kunt zien hoe een moderne website eruit kan zien.\n\nU kunt het concept hier bekijken:\n[PREVIEW_URL]\n\nAls het ontwerp u bevalt, bespreken we graag of we er uw officiële website van kunnen maken.\n\nMet vriendelijke groet,`
+          ? `Hoi,\n\nIk kwam ${b.name} tegen en zag een kans om je bedrijf online sterker neer te zetten. Daarom heb ik, zonder dat je erom vroeg, een websiteconcept voor je gemaakt. Zo zie je meteen hoe een moderne website voor jouw bedrijf eruit kan zien.\n\nJe bekijkt het concept hier:\n[PREVIEW_URL]\n\nBevalt het ontwerp? Dan bespreken we graag of we er je officiële website van maken.\n\nGroet,`
           : `Hello,\n\nI came across ${b.name} and noticed an opportunity to improve your online presence. I created a website concept specifically for your business so you can see what a more modern website could look like.\n\nYou can preview the concept here:\n[PREVIEW_URL]\n\nIf you like the design, we can discuss turning it into your official website.\n\nKind regards,`,
       previewDescription: "Mobile-friendly concept with clear contact options. (MOCK draft)",
       followUpSubject: lang === "nl" ? `Nog even over het websiteconcept voor ${b.name}` : `Following up on the website concept for ${b.name}`,
-      followUpBody: lang === "nl" ? `Beste ${b.name},\n\nIk wilde even nagaan of u het concept heeft kunnen bekijken: [PREVIEW_URL]\n\nMet vriendelijke groet,` : `Hello,\n\nJust checking whether you had a chance to look at the concept: [PREVIEW_URL]\n\nKind regards,`,
+      followUpBody: lang === "nl" ? `Hoi,\n\nIk wilde even nagaan of je het websiteconcept voor ${b.name} al hebt kunnen bekijken: [PREVIEW_URL]\n\nGroet,` : `Hello,\n\nJust checking whether you had a chance to look at the concept: [PREVIEW_URL]\n\nKind regards,`,
       proposal: {
         summary: "Turn the concept into the official website, including hosting and small content updates.",
         includes: ["Final design and copy review with you", "Domain connection", "Hosting & SSL", "Monthly small updates"],
@@ -123,7 +124,8 @@ async function draftIntro(ctx: AgentContext) {
       maxTokens: 8000,
       system: `You are the Sales Agent of a small web design agency writing a first, personal outreach email to a local business.
 Rules:
-- Write in ${lang === "nl" ? "Dutch (use 'u')" : "the business's language"}. Short (90–160 words), warm, specific to this business, human.
+- Write in ${lang === "nl" ? "Dutch, addressing the reader with 'je' (never 'u'): friendly, confident and professional, flawless spelling and grammar" : "the business's language"}. Short (90–160 words), warm, specific to this business, human.
+- Start with a short greeting line ("Hoi," in Dutch, or with the contact's first name when it is given). End with a short closing line such as "Groet," (the name is added by the system).
 - Honest: say plainly that you made an unsolicited website concept. Mention 1–2 concrete improvements from the research. No exaggeration, no guarantees, no invented facts, no fake urgency or scarcity, no deceptive subject lines.
 - Include [PREVIEW_URL] exactly once. Do not include a signature block, opt-out text or legal footer — the system appends them.
 - Pricing suggestion: base it on the agency's default pricing (setup €${s.defaultPricing.setupFeeEur}, €${s.defaultPricing.monthlyFeeEur}/month), adjusted only if the scope clearly differs; explain the rationale.
@@ -314,8 +316,11 @@ async function inquiryPreview(ctx: AgentContext) {
   const s = ctx.settings;
   // The language of the page the request came from (English site: English email).
   const lang = b.sourceData?.language === "en" ? "en" : "nl";
-  const text = inquiryPreviewEmail({ contactName: typeof b.sourceData?.contactName === "string" ? b.sourceData.contactName : null, company: b.name, previewUrl: demoUrl(project.slug), senderName: s.senderName, agencyName: s.agencyName, lang });
   const token = randomToken(24);
+  const contactName = typeof b.sourceData?.contactName === "string" ? b.sourceData.contactName : null;
+  // The fixed "your design is ready" email (src/lib/email/templates.ts); its HTML is built
+  // from the same data at send time.
+  const text = designReadyEmail({ ctx: emailContext(s, lang), contactName, company: b.name, previewUrl: demoUrl(project.slug), unsubscribeUrl: unsubscribeUrl(token) });
   const verdict = assessOutreach({ country: b.country, permission: b.contactPermission, contact: { isGeneric: contact.isGeneric, source: contact.source } });
   const blocker =
     inquirySendBlocker({ resendLive: (await ctx.mode("resend")) === "live", agencyName: s.agencyName, senderEmail: s.senderEmail, agencyAddress: s.agencyAddress }) ??
@@ -329,10 +334,9 @@ async function inquiryPreview(ctx: AgentContext) {
       contactId: contact.id,
       kind: "intro",
       subject: text.subject,
-      bodyText: text.body + inquiryFooter(lang, s, unsubscribeUrl(token)),
+      bodyText: text.text,
       toEmail: contact.value,
-      // informal: the website says "je", so the reply does too (buttons and headings included).
-      proposal: { lang, informal: true, previewDescription: "Requested through the website form." } as Record<string, unknown>,
+      proposal: { lang, template: "design_ready", contactName, previewDescription: "Requested through the website form." } as Record<string, unknown>,
       crmNotes: blocker ? `Reply to a website enquiry. Not sent yet: ${blocker}` : "Reply to a website enquiry, sent on approval of the design.",
       status: blocker ? "awaiting_approval" : "approved",
       approvedBy: blocker ? null : approverId,

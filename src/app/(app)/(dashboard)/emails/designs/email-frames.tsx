@@ -1,0 +1,39 @@
+"use client";
+
+import { Monitor, Smartphone } from "lucide-react";
+import { useState } from "react";
+import { Card } from "@/components/ui";
+
+/** Grows the frame to the height of the email, so the whole message shows without inner scrolling. */
+const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+  const f = e.currentTarget;
+  const h = f.contentDocument?.documentElement.scrollHeight;
+  if (h) f.style.height = `${h + 8}px`;
+};
+
+/** One email in a sandboxed frame, at a computer or a phone width, with its subject line. */
+export function EmailFrames({ subject, html }: { subject: string; html: string }) {
+  const [width, setWidth] = useState<"desktop" | "phone">("desktop");
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2.5 text-[13px]">
+        <p className="min-w-0 truncate">
+          <span className="text-muted">Subject: </span>
+          <b className="font-medium">{subject}</b>
+        </p>
+        <div className="flex gap-1">
+          {(["desktop", "phone"] as const).map((w) => (
+            <button key={w} type="button" onClick={() => setWidth(w)} aria-pressed={width === w} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 ${width === w ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
+              {w === "desktop" ? <Monitor className="h-3.5 w-3.5" /> : <Smartphone className="h-3.5 w-3.5" />}
+              {w === "desktop" ? "Computer" : "Phone"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-center bg-[#e9e4d9] p-3 sm:p-5">
+        {/* No scripts run inside (emails have none); same-origin only so the frame can be sized to the email. */}
+        <iframe key={width} title={subject} srcDoc={html} onLoad={fit} sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" className="block rounded-md bg-white shadow-sm" style={{ width: width === "desktop" ? "100%" : 390, maxWidth: width === "desktop" ? 720 : 390, height: 1500, border: 0 }} />
+      </div>
+    </Card>
+  );
+}

@@ -12,6 +12,7 @@ import { isSuppressed } from "../suppression";
 import { action, UserError } from "./_util";
 import { CLOSED_STAGES } from "@/lib/constants";
 import { publishedAddressReview } from "../sales/outreach-review";
+import { buildEmailHtml } from "../sales/email-html";
 
 async function ownedEmail(orgId: string, id: string) {
   const [e] = await db()
@@ -122,6 +123,8 @@ export async function sendEmailTestAction(id: string) {
         subject: `[TEST] ${e.subject}`,
         // The real unsubscribe link is replaced so a test click can never unsubscribe the business.
         text: `This is a test copy sent only to you. The real recipient would be: ${e.toEmail ?? "(none yet)"}\n\n${e.bodyText.replaceAll(e.unsubscribeToken, "test-link-disabled")}`,
+        // The same design the recipient gets, with a test banner and a dead unsubscribe link.
+        html: (await buildEmailHtml(e, { test: { to: e.toEmail ?? "—" } })) ?? undefined,
         unsubscribeUrl: `mailto:${s.replyToEmail || s.senderEmail}?subject=unsubscribe`,
         tags: { kind: "email_test" },
       },
