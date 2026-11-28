@@ -1371,7 +1371,8 @@ body {
   font-weight: 600;
   transition: top 0.2s ease;
 }
-.hopi .skip:focus {
+/* Only for keyboard focus: a tap never brings it into view. */
+.hopi .skip:focus-visible {
   top: 12px;
 }
 .hopi .nav a[aria-current="page"]::after {

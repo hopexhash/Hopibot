@@ -170,12 +170,13 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
 
 /** Square button in the footer that brings the visitor back to the top, with the site's own smooth scroll. */
 export function BackToTop() {
-  const up = () => {
+  const up = (e: React.MouseEvent<HTMLButtonElement>) => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (fxState.scroller) fxState.scroller.scrollTo(0, { duration: reduce ? 0 : 1.4 });
     else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-    // Keyboard users continue from the top of the page, not from the footer.
-    document.querySelector<HTMLElement>("a[href='#inhoud'], .nv-logo")?.focus({ preventScroll: true });
+    // Keyboard users continue from the top of the page, not from the footer. A tap or click
+    // (detail > 0) leaves focus alone, so the hidden "Naar de inhoud" link stays hidden.
+    if (e.detail === 0) document.querySelector<HTMLElement>("a[href='#inhoud'], .nv-logo")?.focus({ preventScroll: true });
   };
   return (
     <button type="button" className="ft-top" onClick={up} aria-label="Terug naar boven">
