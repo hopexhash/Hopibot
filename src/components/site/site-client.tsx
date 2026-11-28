@@ -35,7 +35,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 
 // ───────────────────────── Measurement ─────────────────────────
 
-type DataLayerWindow = Window & { dataLayer?: unknown[] };
+type DataLayerWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };
 
 /**
  * Records a conversion event in the dataLayer. Without a connected Google tag nothing is
@@ -44,6 +44,9 @@ type DataLayerWindow = Window & { dataLayer?: unknown[] };
  */
 export function track(event: string, params: Record<string, string | number | undefined> = {}) {
   const w = window as DataLayerWindow;
+  // GA4 directly (gtag): events are sent as gtag commands; with Tag Manager they go into the
+  // dataLayer for its triggers. Before consent neither is loaded and nothing leaves the browser.
+  if (typeof w.gtag === "function") return void w.gtag("event", event, { page_path: window.location.pathname, ...params });
   w.dataLayer = w.dataLayer ?? [];
   w.dataLayer.push({ event, page_path: window.location.pathname, ...params });
 }
@@ -110,6 +113,7 @@ export function SiteAnalytics({ gaId, gtmId }: { gaId: string; gtmId: string }) 
           // eslint-disable-next-line prefer-rest-params
           w.dataLayer!.push(arguments);
         } as (...args: unknown[]) => void;
+        w.gtag = gtag;
         gtag("js", new Date());
         gtag("config", gaId, { anonymize_ip: true });
         loadScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`);
