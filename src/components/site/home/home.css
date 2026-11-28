@@ -176,6 +176,19 @@
   line-height: 1.5;
   color: var(--muted);
 }
+/* Links in the intro: the same quiet underline as other inline links, the ink colour on hover. */
+.hopi.v3 .ix-text a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+.hopi.v3 .ix-text a:hover {
+  color: var(--ink, currentColor);
+  text-decoration-color: var(--accent);
+}
 .hopi.v3 .ix-facts {
   display: grid;
   gap: 0;

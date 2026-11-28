@@ -48,6 +48,11 @@ const nextConfig: NextConfig = {
       // Pages that were taken off the site: visitors and search engines land on the closest page.
       { source: "/ai-website-laten-maken", destination: "/website-laten-maken", permanent: true },
       { source: "/blog/hoe-werkt-een-ai-website-builder", destination: "/blog/website-laten-maken-of-zelf-bouwen", permanent: true },
+      // Addresses people type or other sites link to: one hop to the page that answers them.
+      { source: "/webshop-laten-maken", destination: "/website-laten-maken/webshop", permanent: true },
+      { source: "/webdesign-bureau", destination: "/webdesign", permanent: true },
+      { source: "/gratis-website-ontwerp", destination: "/gratis-websiteontwerp", permanent: true },
+      { source: "/website-laten-maken/zzper", destination: "/website-laten-maken/zzp", permanent: true },
       ...Object.entries(moved).flatMap(([from, to]) => [
       { source: `/werk/${from}`, destination: `/werk/${to}`, permanent: true },
       { source: `/site/demo/${from}.html`, destination: `/demos/${to}`, permanent: true },

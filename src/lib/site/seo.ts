@@ -17,11 +17,11 @@ export function pageMeta(p: { title: string; description: string; path: string; 
     title: { absolute: p.title },
     description: p.description,
     // Every page links to itself in the other language; Dutch is the default for everyone else.
-    alternates: { canonical: p.path, languages: { nl: alt.nl, en: alt.en, "x-default": alt.nl } },
+    alternates: { canonical: p.path, languages: { nl: alt.nl, ...(alt.en ? { en: alt.en } : {}), "x-default": alt.nl } },
     openGraph: {
       type: p.type ?? "website",
       locale: en ? "en_GB" : "nl_NL",
-      alternateLocale: en ? ["nl_NL"] : ["en_GB"],
+      alternateLocale: en ? ["nl_NL"] : alt.en ? ["en_GB"] : [],
       siteName: "HOPI",
       url: p.path,
       title: p.title,
@@ -138,11 +138,12 @@ export const homePageLd = (description: string, path = "/") => ({
 });
 
 /** A service page. Offers are only attached when the catalogue has fixed prices for them. */
-export function serviceLd(s: { name: string; description: string; path: string; serviceType: string; offers?: { name: string; priceCents: number }[] }) {
+export function serviceLd(s: { name: string; description: string; path: string; serviceType: string; offers?: { name: string; priceCents: number }[]; id?: string }) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${abs(s.path)}#service`,
+    // A service without its own page lives on another page: it then needs its own fragment, or two services would share one @id.
+    "@id": `${abs(s.path)}#${s.id ?? "service"}`,
     name: s.name,
     serviceType: s.serviceType,
     description: s.description,

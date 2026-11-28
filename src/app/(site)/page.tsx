@@ -5,8 +5,8 @@ import { getSiteData } from "@/server/site";
 export async function generateMetadata() {
   const { prices } = await getSiteData();
   return seoMeta({
-    title: "Webdesign bureau: eerst zien, dan betalen | HOPI",
-    description: `Webdesign bureau voor Nederland en België. Website, webshop of webapplicatie laten maken: je ziet eerst gratis een ontwerp. Websites vanaf ${prices.from}.`,
+    title: "Website laten maken? Bekijk eerst je gratis ontwerp | HOPI",
+    description: `Een professionele website laten maken? Bij HOPI zie je eerst gratis jouw websiteontwerp. Tevreden? Dan betaal je pas. Websites vanaf ${prices.from} voor ondernemers in Nederland en België.`,
     path: "/",
   });
 }

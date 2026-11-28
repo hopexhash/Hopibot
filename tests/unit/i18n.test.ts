@@ -3,7 +3,7 @@ import { ARTICLES } from "@/lib/site/blog";
 import { ARTICLES_EN } from "@/lib/site/blog.en";
 import { CATALOG_EN } from "@/lib/catalog.en";
 import { DEFAULT_CATALOG } from "@/lib/catalog";
-import { counterpart, EN_TO_NL, href, localeOf, NL_TO_EN } from "@/lib/site/i18n";
+import { counterpart, DUTCH_ONLY, EN_TO_NL, hasEnglish, href, localeOf, NL_TO_EN } from "@/lib/site/i18n";
 import { ALL_LANDINGS } from "@/lib/site/landing";
 import { ALL_LANDINGS_EN } from "@/lib/site/landing.en";
 import { HOME_EN, HOME_FAQ_EN, SERVICES_EN } from "@/lib/site/home.en";
@@ -15,10 +15,18 @@ const knownEn = (p: string) => enPaths.has(p) || /^\/en\/work\/[a-z0-9-]+$/.test
 
 describe("English website", () => {
   it("has an English page for every Dutch landing page and article, and back", () => {
-    for (const l of ALL_LANDINGS) expect(NL_TO_EN[l.path], l.path).toBeDefined();
-    for (const a of ARTICLES) expect(NL_TO_EN[`/blog/${a.slug}`], a.slug).toBeDefined();
-    expect(ALL_LANDINGS_EN.map((l) => l.path).sort()).toEqual(ALL_LANDINGS.map((l) => NL_TO_EN[l.path]).sort());
-    expect(ARTICLES_EN.map((a) => `/en/blog/${a.slug}`).sort()).toEqual(ARTICLES.map((a) => NL_TO_EN[`/blog/${a.slug}`]).sort());
+    // Except the pages that are Dutch-only on purpose, and only those.
+    const landings = ALL_LANDINGS.filter((l) => !DUTCH_ONLY.has(l.path));
+    const articles = ARTICLES.filter((a) => !DUTCH_ONLY.has(`/blog/${a.slug}`));
+    for (const p of DUTCH_ONLY) {
+      expect(NL_TO_EN[p], p).toBeUndefined();
+      expect(hasEnglish(p), p).toBe(false);
+      expect(ALL_LANDINGS.some((l) => l.path === p) || ARTICLES.some((a) => `/blog/${a.slug}` === p), p).toBe(true);
+    }
+    for (const l of landings) expect(NL_TO_EN[l.path], l.path).toBeDefined();
+    for (const a of articles) expect(NL_TO_EN[`/blog/${a.slug}`], a.slug).toBeDefined();
+    expect(ALL_LANDINGS_EN.map((l) => l.path).sort()).toEqual(landings.map((l) => NL_TO_EN[l.path]).sort());
+    expect(ARTICLES_EN.map((a) => `/en/blog/${a.slug}`).sort()).toEqual(articles.map((a) => NL_TO_EN[`/blog/${a.slug}`]).sort());
   });
 
   it("maps every page to its counterpart and back", () => {

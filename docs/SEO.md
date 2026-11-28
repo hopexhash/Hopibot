@@ -10,6 +10,10 @@ Nobody can promise positions in Google, and this document does not. What is in p
 technically clean site with one page per search intent, honest Dutch content, structured data
 that describes one connected organisation, and the measurement to see what works.
 
+> **Round 3 (28 November 2026, evening):** homepage title/description, `/webdesign`,
+> `/gratis-websiteontwerp`, `/website-laten-maken/belgie`, two articles, Dutch-only hreflang
+> handling and a structured-data fix. Full report: `docs/SEO-REPORT-2026-11-28.md`.
+
 ## 0. Round of 28 November 2026
 
 > **Owner decision (28 November, later the same day): the public website says nothing about AI.**

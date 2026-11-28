@@ -46,6 +46,18 @@ export const NL_TO_EN: Record<string, string> = {
   "/blog/maatwerk-website-of-template": "/en/blog/custom-website-or-template",
   "/blog/meer-klanten-via-je-website": "/en/blog/get-more-customers-from-your-website",
 };
+/**
+ * Pages that exist only in Dutch, on purpose: they are about the Dutch-speaking market (Belgium,
+ * Dutch search terms) and have no useful English counterpart. They carry no English hreflang,
+ * are not listed under /en in the sitemap, and the language switch leads to the English homepage.
+ */
+export const DUTCH_ONLY = new Set([
+  "/webdesign",
+  "/gratis-websiteontwerp",
+  "/website-laten-maken/belgie",
+  "/blog/hoe-lang-duurt-het-om-een-website-te-laten-maken",
+  "/blog/waarom-heeft-mijn-bedrijf-een-website-nodig",
+]);
 export const EN_TO_NL: Record<string, string> = Object.fromEntries(Object.entries(NL_TO_EN).map(([nl, en]) => [en, nl]));
 
 /** Project pages keep their key in both languages: /werk/restaurant ↔ /en/work/restaurant. */
@@ -73,9 +85,16 @@ export function counterpart(path: string, to: Locale): string {
 /** A Dutch path written in shared code, in the given language ("/prijzen" → "/en/pricing"). */
 export const href = (nlPath: string, lang: Locale) => (lang === "nl" ? nlPath : counterpart(nlPath, "en"));
 
-/** hreflang alternates for a page given by its path in either language. */
+/** Whether a Dutch page has an English version (some pages exist only in Dutch, such as the page for Belgium). */
+export function hasEnglish(path: string) {
+  const clean = (path.split("#")[0] || "/").replace(/\/+$/, "") || "/";
+  if (localeOf(clean) === "en") return true;
+  return clean in NL_TO_EN || WORK_NL.test(clean);
+}
+
+/** hreflang alternates for a page given by its path in either language; en is null for a Dutch-only page. */
 export function alternates(path: string) {
   const nl = counterpart(path, "nl");
-  const en = counterpart(path, "en");
+  const en = hasEnglish(nl) ? counterpart(path, "en") : null;
   return { nl, en };
 }

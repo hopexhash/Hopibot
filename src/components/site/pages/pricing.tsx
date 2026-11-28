@@ -105,8 +105,8 @@ export async function pricingMetadata(lang: Locale) {
         path: PATH.en,
       })
     : seoMeta({
-        title: `Website laten maken: prijzen vanaf ${prices.from} | HOPI`,
-        description: `Wat kost een website bij HOPI? Vaste prijzen: ${prices.starter}, ${prices.business} of ${prices.premium} eenmalig, hosting vanaf ${prices.hosting} per maand. Het ontwerp vooraf is gratis.`,
+        title: `Betaalbare website laten maken: vanaf ${prices.from} | HOPI`,
+        description: `Wat kost een website laten maken? Vaste, betaalbare prijzen: ${prices.starter}, ${prices.business} of ${prices.premium} eenmalig, hosting vanaf ${prices.hosting} per maand. Het ontwerp vooraf is gratis.`,
         path: PATH.nl,
       });
 }

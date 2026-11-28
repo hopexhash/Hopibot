@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { counterpart } from "@/lib/site/i18n";
+import { counterpart, DUTCH_ONLY } from "@/lib/site/i18n";
 import { DEFAULT_CATALOG, eur } from "@/lib/catalog";
 import { ARTICLES } from "@/lib/site/blog";
 import { ALL_LANDINGS } from "@/lib/site/landing";
@@ -144,9 +144,9 @@ describe("public website: SEO content", () => {
   it("lists exactly the indexable pages in the sitemap", async () => {
     const urls = (await sitemap()).map((e) => new URL(e.url).pathname || "/");
     expect(new Set(urls).size).toBe(urls.length);
-    // Every Dutch page, plus its English counterpart under /en.
-    expect(new Set(urls)).toEqual(new Set([...PATHS].flatMap((p) => [p, counterpart(p, "en")])));
-    expect(urls.filter((u) => u === "/en" || u.startsWith("/en/"))).toHaveLength(PATHS.size);
+    // Every Dutch page, plus its English counterpart under /en (Dutch-only pages have none).
+    expect(new Set(urls)).toEqual(new Set([...PATHS].flatMap((p) => (DUTCH_ONLY.has(p) ? [p] : [p, counterpart(p, "en")]))));
+    expect(urls.filter((u) => u === "/en" || u.startsWith("/en/"))).toHaveLength([...PATHS].filter((p) => !DUTCH_ONLY.has(p)).length);
     expect(urls.some((u) => /^\/(command|login|api|p|d|u)(\/|$)/.test(u))).toBe(false);
   });
 });

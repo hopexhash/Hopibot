@@ -21,6 +21,9 @@ const VISUAL: Record<string, [browser: string, phone: string]> = {
   "/website-laten-maken/mkb": ["dental", "construction"],
   "/website-onderhoud": ["automotive", "dental"],
   "/website-redesign": ["real-estate", "automotive"],
+  "/webdesign": ["creative-agency", "hotel"],
+  "/gratis-websiteontwerp": ["restaurant", "beauty-salon"],
+  "/website-laten-maken/belgie": ["real-estate", "fitness"],
 };
 
 export async function landingMetadata(landing: Landing): Promise<Metadata> {

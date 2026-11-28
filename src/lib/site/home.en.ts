@@ -11,6 +11,7 @@ export const HOME_EN = {
   h1: "Web design agency for websites, online shops and web applications people remember.",
   lead: "First you see a design of your own website. Only then do you decide.",
   cta: "Start a project",
+  ctaShort: "Start a project",
   cta2: "See our work",
   disciplines: ["Web design", "Development", "E-commerce", "Branding"],
 

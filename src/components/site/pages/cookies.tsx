@@ -8,8 +8,8 @@ const PATH = { nl: "/cookies", en: "/en/cookies" };
 
 export function cookiesMetadata(lang: Locale) {
   return lang === "en"
-    ? seoMeta({ title: "Cookies | HOPI", description: "Which cookies and similar technologies the HOPI website uses, what for, and how to change your choice.", path: PATH.en })
-    : seoMeta({ title: "Cookies | HOPI", description: "Welke cookies en vergelijkbare technieken de website van HOPI gebruikt, waarvoor, en hoe je je keuze aanpast.", path: PATH.nl });
+    ? seoMeta({ title: "Cookie policy | HOPI", description: "Which cookies and similar technologies the HOPI website uses, what for, and how to change your choice.", path: PATH.en })
+    : seoMeta({ title: "Cookiebeleid | HOPI", description: "Welke cookies en vergelijkbare technieken de website van HOPI gebruikt, waarvoor, en hoe je je keuze aanpast.", path: PATH.nl });
 }
 
 export function CookiesPage({ lang }: { lang: Locale }) {

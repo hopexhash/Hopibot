@@ -40,9 +40,9 @@ export const PILLAR: Landing = {
   kind: "pillar",
   label: "Website laten maken",
   service: "Website laten maken",
-  keywords: { primary: "website laten maken", secondary: ["website laten bouwen", "professionele website laten maken", "website laten maken bedrijf", "webdesigner inhuren"] },
-  title: "Website laten maken? Eerst zien, dan betalen | HOPI",
-  description: "Laat je website maken door HOPI. Je ziet eerst gratis een ontwerp van je eigen site en betaalt pas als het bevalt. Vaste prijzen vanaf {from}, excl. btw.",
+  keywords: { primary: "professionele website laten maken", secondary: ["website laten maken", "website laten bouwen", "website laten maken bedrijf", "website laten maken inclusief hosting", "webdesigner inhuren"] },
+  title: "Professionele website laten maken of bouwen | HOPI",
+  description: "Een professionele website laten bouwen voor je bedrijf: wat je krijgt, hoe het werkt en wat het kost. Eerst gratis een ontwerp, dan een vaste prijs vanaf {from}.",
   eyebrow: "Website laten maken",
   h1: "Een website laten maken, *zonder* gok",
   intro: "Een website laten maken voelt vaak als een sprong in het diepe: je betaalt vooraf en hoopt dat het resultaat bevalt. Bij HOPI draaien we het om. Je ziet eerst een ontwerp van je eigen website, met je naam, je diensten en je stijl. Pas als je tevreden bent, kies je een pakket.",
@@ -75,14 +75,14 @@ export const PILLAR: Landing = {
     },
   ],
   faq: [
-    { q: "Is het ontwerp vooraf echt gratis?", a: "Ja. Je ziet eerst een ontwerp van je eigen website. Pas als het bevalt en je een pakket kiest, betaal je. Bevalt het niet, dan zit je nergens aan vast." },
-    { q: "Hoe lang duurt het om een website te laten maken?", a: "Dat hangt af van het pakket en van hoe snel teksten en foto's compleet zijn. Zodra je akkoord geeft op het ontwerp, spreken we samen een planning af." },
+    { q: "Is het ontwerp vooraf echt gratis?", a: "Ja. Je ziet eerst een ontwerp van je eigen website. Pas als het bevalt en je een pakket kiest, betaal je. Bevalt het niet, dan zit je nergens aan vast. Hoe dat gaat, lees je bij [gratis websiteontwerp](/gratis-websiteontwerp)." },
+    { q: "Hoe lang duurt het om een website te laten maken?", a: "Dat hangt af van het pakket en van hoe snel teksten en foto's compleet zijn. Zodra je akkoord geeft op het ontwerp, spreken we samen een planning af. Waar het tempo van afhangt, lees je in [hoe lang duurt het om een website te laten maken](/blog/hoe-lang-duurt-het-om-een-website-te-laten-maken)." },
     { q: "Moet ik zelf teksten en foto's aanleveren?", a: "Je vertelt wat je doet; wij zetten een eerste versie van de teksten in het ontwerp. Eigen foto's maken een website persoonlijker. Heb je die niet, dan denken we mee over een oplossing. Professionele teksten en fotografie zijn als extra beschikbaar." },
     { q: "Heb ik al een domeinnaam nodig?", a: "Nee. Heb je er al een, dan koppelen we die. Zo niet, dan helpen we je een passende domeinnaam te registreren." },
     { q: "Kan ik mijn website later laten aanpassen?", a: "Ja. Met een onderhoudsabonnement passen wij kleine dingen voor je aan, zoals openingstijden, prijzen of nieuwe foto's." },
     { q: "Voor welke bedrijven maakt HOPI websites?", a: "Voor ondernemers in Nederland en België: van restaurants, cafés, lunchrooms, kappers en schoonheidssalons tot garages, loodgieters, bouwbedrijven, tandartsen en makelaars. Zowel zzp'ers als mkb-bedrijven. Een [webshop](/website-laten-maken/webshop) maken we op offerte." },
   ],
-  related: ["/prijzen", "/website-redesign", "/website-onderhoud", "/blog/wat-kost-een-website-laten-maken"],
+  related: ["/prijzen", "/gratis-websiteontwerp", "/webdesign", "/blog/wat-kost-een-website-laten-maken"],
 };
 
 export const LANDINGS: Landing[] = [
@@ -648,6 +648,164 @@ export const LANDINGS: Landing[] = [
       { q: "Wat als ik het nieuwe ontwerp niet beter vind?", a: "Dan houd je gewoon je huidige website en betaal je niets. Het ontwerp vooraf is gratis en vrijblijvend." },
     ],
     related: ["/website-laten-maken", "/prijzen", "/website-onderhoud", "/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen"],
+  },
+  {
+    path: "/webdesign",
+    kind: "service",
+    label: "Webdesign",
+    service: "Webdesign",
+    keywords: { primary: "webdesign bureau", secondary: ["webdesign", "webdesign bureau Nederland", "webdesigner Nederland", "website ontwikkeling", "moderne website laten maken"] },
+    title: "Webdesign bureau voor ondernemers in NL en BE | HOPI",
+    description: "Webdesign en website-ontwikkeling in één team: ontwerp, techniek, mobiel en een goede basis voor Google. Je ziet eerst gratis een ontwerp. Vanaf {from}.",
+    eyebrow: "Webdesign bureau",
+    h1: "Webdesign dat *werkt*, niet alleen mooi is",
+    intro: "Goed webdesign is meer dan kleuren en letters. Het bepaalt of een bezoeker binnen een paar seconden snapt wat je doet, of hij je vertrouwt en of hij belt, boekt of een offerte aanvraagt. HOPI is een webdesign bureau voor ondernemers in Nederland en België: we ontwerpen en bouwen je website, en je ziet het ontwerp voordat je iets betaalt.",
+    sections: [
+      {
+        h2: "Wat webdesign bij HOPI inhoudt",
+        body: ["Ontwerp en techniek zitten bij ons in hetzelfde team. Wat je in het ontwerp ziet, is wat er gebouwd wordt: geen plaatje dat daarna door iemand anders wordt nagebouwd."],
+        items: [
+          { title: "Opbouw en inhoud", text: "Welke vragen heeft je bezoeker en in welke volgorde wil hij de antwoorden zien? Daar begint elk ontwerp, nog voor de kleuren." },
+          { title: "Visueel ontwerp", text: "Letters, kleuren, beeld en ruimte die passen bij je vak. Een kapsalon voelt anders aan dan een installatiebedrijf, en dat hoort zo." },
+          { title: "Eerst voor de telefoon", text: "We ontwerpen eerst voor het kleine scherm en daarna voor tablet en computer. Knoppen zijn groot genoeg en tekst blijft leesbaar." },
+          { title: "Ontwikkeling", text: "Een snelle, moderne website met nette code, zonder zware plug-ins die hem traag maken." },
+          { title: "Een basis voor Google", text: "Duidelijke koppen, beschrijvende paginatitels, snelle laadtijden en gestructureerde gegevens, zodat zoekmachines begrijpen wat je doet en waar." },
+          { title: "Toegankelijk", text: "Voldoende contrast, goed te bedienen met een toetsenbord en afbeeldingen met een beschrijving." },
+        ],
+      },
+      {
+        h2: "Hoe we ervoor zorgen dat jouw website niet op die van de buren lijkt",
+        body: [
+          "Een sjabloon van een websitebouwer zie je overal terug, ook bij je concurrent. Wij werken met eigen ontwerpen die we per branche hebben gemaakt, elk met een eigen opbouw, typografie en kleurstelling. Voor jouw bedrijf kiezen we een ontwerp dat past bij je vak en dat we, waar het kan, nog niet gebruiken voor een vergelijkbaar bedrijf in je omgeving. Daarna vullen we het met je eigen naam, diensten, openingstijden en beeld.",
+          "Wil je een ontwerp dat helemaal vanaf nul voor jou wordt gemaakt, bijvoorbeeld met een eigen huisstijl of een koppeling met een boekingssysteem? Dan is het Premium-pakket ({premium}) bedoeld voor jou. In [maatwerk website of template](/blog/maatwerk-website-of-template) lees je wat het verschil in de praktijk betekent.",
+        ],
+      },
+      {
+        h2: "Webdesign bureau of freelance webdesigner?",
+        body: [
+          "Een freelance webdesigner kan prima werk leveren, zeker voor een eenvoudige site. Let er wel op wie de techniek, hosting en het onderhoud daarna doet, en wat er gebeurt als die persoon ziek is of stopt. Bij HOPI regelen we ontwerp, bouw, hosting en [onderhoud](/website-onderhoud) op één plek, met vaste prijzen.",
+          "Twijfel je tussen aanbieders? In [hoe kies je een webdesignbureau](/blog/hoe-kies-je-een-webdesignbureau) staan acht vragen die je vooraf kunt stellen, aan ons en aan anderen.",
+        ],
+      },
+      {
+        h2: "Wat kost webdesign?",
+        body: ["Bij ons heeft een website een vaste prijs, ontwerp en bouw inbegrepen: {starter} voor een one-page website, {business} voor een complete website en {premium} voor een op maat ontworpen website. Alle prijzen zijn exclusief {vat} btw. Webshops en webapplicaties maken we op offerte. Het volledige overzicht staat bij [prijzen](/prijzen)."],
+      },
+    ],
+    work: "creative-agency",
+    addons: ["logo", "copywriting", "photography", "multilingual"],
+    addonsTitle: "Aanvullend ontwerpwerk",
+    faq: [
+      { q: "Wat is het verschil tussen webdesign en een website laten maken?", a: "Webdesign is het ontwerp: hoe de website eruitziet en hoe hij is opgebouwd. Een website laten maken omvat ook de bouw, de teksten, het online zetten en het onderhoud. Bij HOPI krijg je het allemaal, in één team. Meer over het hele traject lees je bij [professionele website laten maken](/website-laten-maken)." },
+      { q: "Werken jullie in heel Nederland en België?", a: "Ja. We werken op afstand: je vraagt het ontwerp aan via het formulier en bekijkt het op je eigen telefoon of computer. Voor ondernemers in Vlaanderen en Brussel staat op de pagina [website laten maken in België](/website-laten-maken/belgie) wat er voor jou anders is." },
+      { q: "Ontwerpen jullie ook een logo of huisstijl?", a: "Een logo en kleurenpalet zijn als extra beschikbaar. Een volledige huisstijl maken we op offerte." },
+      { q: "Kan ik het ontwerp zien voordat ik beslis?", a: "Ja, dat is precies hoe we werken. Je ziet eerst gratis een ontwerp van je eigen website. Hoe dat gaat, staat bij [gratis websiteontwerp](/gratis-websiteontwerp)." },
+    ],
+    related: ["/website-laten-maken", "/gratis-websiteontwerp", "/werk", "/blog/hoe-kies-je-een-webdesignbureau"],
+  },
+  {
+    path: "/gratis-websiteontwerp",
+    kind: "service",
+    label: "Gratis websiteontwerp",
+    service: "Gratis websiteontwerp vooraf",
+    linkLabel: "Zo werkt het gratis ontwerp",
+    keywords: { primary: "gratis website ontwerp", secondary: ["gratis websiteontwerp", "website eerst zien dan betalen", "website ontwerp laten maken", "gratis website voorstel"] },
+    title: "Gratis websiteontwerp: eerst zien, dan betalen | HOPI",
+    description: "Hoe het gratis websiteontwerp van HOPI werkt: wat je krijgt, wat we van je nodig hebben en wat er gebeurt als het je niet bevalt. Tevreden? Pas dan betaal je.",
+    eyebrow: "Gratis websiteontwerp",
+    h1: "Eerst je *gratis* ontwerp zien. Dan pas beslissen.",
+    intro: "Bij de meeste bureaus betaal je een aanbetaling en hoop je dat het resultaat bevalt. Bij HOPI is het andersom: we maken eerst een ontwerp van jouw website, met je eigen naam en diensten. Je bekijkt het rustig, op je telefoon en je computer. Bevalt het, dan kies je een pakket. Bevalt het niet, dan stopt het daar en betaal je niets.",
+    sections: [
+      {
+        h2: "Wat je precies krijgt",
+        items: [
+          { title: "Een echte website, geen plaatje", text: "Je krijgt een link naar een werkend ontwerp dat je kunt doorklikken, ook op je telefoon." },
+          { title: "Met jouw bedrijf erin", text: "Je naam, je diensten en je stijl, op basis van wat je ons vertelt en wat er al over je bedrijf online staat, zoals je huidige website." },
+          { title: "Getest voor je het ziet", text: "We controleren het ontwerp op telefoon, tablet en computer, en kijken het na voordat we je de link sturen." },
+          { title: "Zonder verplichting", text: "Je zit nergens aan vast. Geen aanbetaling, geen abonnement dat ongemerkt start." },
+        ],
+      },
+      {
+        h2: "Zo werkt het, stap voor stap",
+        list: [
+          "**Je vraagt het ontwerp aan.** Vul het formulier in met je bedrijfsnaam, wat je doet en hoe we je kunnen bereiken. Heb je al een website, vermeld die dan.",
+          "**Wij maken het ontwerp.** We zoeken uit wat je doet en voor wie, kiezen een ontwerp dat bij je vak past en vullen het met jouw gegevens.",
+          "**Je bekijkt het.** Je ontvangt een link per e-mail. Neem gerust de tijd en laat het aan anderen zien.",
+          "**Tevreden? Kies een pakket.** Pas dan betaal je. Daarna maken we teksten, beeld en details samen definitief.",
+          "**Je gaat live.** Op je eigen domeinnaam, met hosting en beveiliging geregeld.",
+        ],
+      },
+      {
+        h2: "Waarom we dit gratis doen",
+        body: [
+          "Een offerte of een moodboard zegt weinig over hoe je website er straks echt uitziet. Een werkend ontwerp wel. Door het eerst te laten zien, hoef je ons niet op ons woord te geloven: je beoordeelt het resultaat zelf.",
+          "Het ontwerp is een voorstel, niet de definitieve website. Teksten zijn een eerste versie en foto's kunnen nog voorbeeldbeelden zijn. Die maken we samen definitief zodra je voor een pakket kiest.",
+        ],
+      },
+      {
+        h2: "Wat het daarna kost",
+        body: ["Kies je voor de website, dan betaal je een vast bedrag: {starter} voor een one-page website, {business} voor een complete website of {premium} voor een op maat ontworpen website, exclusief {vat} btw. Hosting en onderhoud kosten vanaf {hosting} per maand. Alles staat op de pagina [prijzen](/prijzen)."],
+      },
+    ],
+    faq: [
+      { q: "Is het ontwerp echt helemaal gratis?", a: "Ja. Je betaalt pas als het ontwerp bevalt en je een pakket kiest. Bevalt het niet, dan zit je nergens aan vast en betaal je niets." },
+      { q: "Moet ik iets voorbereiden?", a: "Nee. Je bedrijfsnaam, wat je doet en je contactgegevens zijn genoeg om te beginnen. Heb je al een website, logo of foto's, dan helpt dat." },
+      { q: "Hoe snel krijg je het ontwerp?", a: "Dat hangt af van hoeveel aanvragen er op dat moment zijn. We kijken elk ontwerp na voordat we het versturen, en sturen je de link zodra het klaar is." },
+      { q: "Wat als ik al een website heb?", a: "Dan maken we een nieuw ontwerp dat je naast je huidige website kunt leggen. Meer daarover lees je bij [website redesign](/website-redesign)." },
+      { q: "Geldt dit ook voor een webshop?", a: "Een webshop maken we op offerte, omdat de prijs afhangt van je producten, betalen en verzenden. Lees meer bij [webshop laten maken](/website-laten-maken/webshop)." },
+    ],
+    related: ["/prijzen", "/website-laten-maken", "/webdesign", "/werk"],
+  },
+  {
+    path: "/website-laten-maken/belgie",
+    kind: "audience",
+    label: "Ondernemers in België",
+    service: "Website laten maken voor ondernemers in België",
+    linkLabel: "Website laten maken in België",
+    keywords: { primary: "website laten maken België", secondary: ["webdesign België", "website laten maken Vlaanderen", "website laten maken kmo", "website zelfstandige"] },
+    title: "Website laten maken in België, eerst gratis ontwerp | HOPI",
+    description: "Een website laten maken als zelfstandige of kmo in Vlaanderen of Brussel? Bekijk eerst gratis je ontwerp. Vaste prijs vanaf {from} excl. btw.",
+    eyebrow: "Website laten maken in België",
+    h1: "Een website laten maken in *België*",
+    intro: "HOPI maakt websites voor zelfstandigen en kmo's in Vlaanderen en Brussel, net zoals voor ondernemers in Nederland. We werken volledig op afstand: je vraagt een ontwerp aan, bekijkt het op je eigen telefoon of computer en beslist dan pas. Op deze pagina staat wat er voor Belgische ondernemers anders is.",
+    sections: [
+      {
+        h2: "Wat er op een Belgische bedrijfswebsite moet staan",
+        body: [
+          "Voor een onderneming in België gelden eigen regels voor de gegevens op je website. Volgens onder meer [VLAIO](https://www.vlaio.be/nl/nieuws/website-facebookpagina-van-je-bedrijf-deze-gegevens-zijn-verplicht) en [DNS Belgium](https://www.dnsbelgium.be/en/your-domain-name/your-own-website/obligatory-information) horen daar je naam, je adres, je contactgegevens en je ondernemingsnummer bij, en als je btw-plichtig bent ook je btw-nummer. Voor vennootschappen komen daar onder meer de rechtsvorm en de zetel bij.",
+          "Wij zetten die gegevens op een vaste plek in de voettekst van elke pagina, zodat je er niet meer aan hoeft te denken. Twijfel je wat er voor jouw onderneming precies verplicht is, vraag het dan aan je boekhouder of ondernemingsloket.",
+        ],
+      },
+      {
+        h2: "Wat er voor jou anders is",
+        items: [
+          { title: "Taal", text: "Je website is in het Nederlands, in woorden die je klanten gebruiken. Heb je ook Franstalige klanten, bijvoorbeeld in Brussel, dan is een extra taal beschikbaar." },
+          { title: "Domeinnaam", text: "Heb je al een .be-domeinnaam, dan koppelen we die. Zo niet, dan helpen we je een passende domeinnaam te registreren." },
+          { title: "Btw", text: "Onze prijzen zijn exclusief btw. Voor diensten tussen ondernemingen in verschillende EU-landen wordt de btw in de regel verlegd als je een geldig btw-nummer hebt. Je boekhouder weet hoe je dat verwerkt." },
+          { title: "Cookies en privacy", text: "Net als in Nederland vraagt je website vooraf toestemming voor cookies die niet strikt nodig zijn, en heeft hij een privacyverklaring." },
+        ],
+      },
+      {
+        h2: "Hoe het werkt, op afstand",
+        body: [
+          "Je vult het formulier in met je bedrijfsnaam en wat je doet. Wij maken een ontwerp van je website en sturen je een link. Je bekijkt het wanneer het jou uitkomt. Bevalt het, dan kies je een pakket en maken we de website samen af. Bevalt het niet, dan betaal je niets. Hoe het gratis ontwerp precies werkt, lees je bij [gratis websiteontwerp](/gratis-websiteontwerp).",
+          "De pakketten en prijzen zijn dezelfde als in Nederland: {starter}, {business} of {premium} eenmalig, en hosting en onderhoud vanaf {hosting} per maand. Alle bedragen zijn exclusief btw en staan op de pagina [prijzen](/prijzen).",
+        ],
+      },
+      {
+        h2: "Voor welke Belgische ondernemers",
+        body: ["We maken websites voor dezelfde soorten zaken als in Nederland: [restaurants](/website-laten-maken/restaurant) en [horeca](/website-laten-maken/horeca), [kappers](/website-laten-maken/kapper) en [schoonheidssalons](/website-laten-maken/schoonheidssalon), [garages](/website-laten-maken/garage), [loodgieters](/website-laten-maken/loodgieter) en andere installateurs, [bouwbedrijven](/website-laten-maken/bouwbedrijf), [tandartsen](/website-laten-maken/tandarts) en [vastgoedkantoren](/website-laten-maken/makelaar). Ook als zelfstandige in bijberoep of met een kleine kmo ben je welkom."],
+      },
+    ],
+    addons: ["multilingual", "domain", "email", "gbp"],
+    addonsTitle: "Handig voor Belgische ondernemers",
+    faq: [
+      { q: "Werken jullie ook voor klanten in Wallonië?", a: "Onze websites en onze communicatie zijn in het Nederlands. Een Franstalige versie van je website is als extra beschikbaar, maar het contact met ons verloopt in het Nederlands of Engels." },
+      { q: "Moet ik naar Nederland komen voor een gesprek?", a: "Nee. Alles verloopt online: de aanvraag, het ontwerp en de afspraken daarna." },
+      { q: "Kunnen klanten op mijn website met Bancontact betalen?", a: "Bij een webshop of online bestellen hangt dat af van de betaalprovider die je kiest. De meeste grote betaalproviders ondersteunen Bancontact. Een webshop maken we op offerte." },
+      { q: "Zijn de prijzen in België hetzelfde?", a: "Ja. De bedragen zijn exclusief btw. Of en hoeveel btw je betaalt, hangt af van je situatie, bijvoorbeeld of je een geldig btw-nummer hebt." },
+    ],
+    related: ["/prijzen", "/gratis-websiteontwerp", "/website-laten-maken/mkb", "/website-laten-maken/zzp"],
   },
 ];
 

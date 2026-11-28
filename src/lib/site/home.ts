@@ -11,7 +11,9 @@ export const HOME = {
   /** The page's H1: what HOPI is, in the words people search for. */
   h1: "Webdesign bureau voor websites, webshops en webapplicaties die mensen onthouden.",
   lead: "Je ziet eerst een ontwerp van je eigen website. Pas daarna beslis je.",
-  cta: "Start een project",
+  cta: "Ontvang jouw gratis ontwerp",
+  /** The round button of the closing section is drawn for a short label. */
+  ctaShort: "Start een project",
   cta2: "Bekijk ons werk",
   disciplines: ["Webdesign", "Development", "E-commerce", "Branding"],
 
@@ -19,7 +21,7 @@ export const HOME = {
     label: "Introductie",
     /** Lights up word by word while you scroll. */
     statement: "HOPI is een digitaal bureau. Wij ontwerpen en bouwen websites, webshops en webapplicaties die er anders uitzien, snel laden en doen wat ze moeten doen. Geen sjablonen. Geen verrassingen.",
-    text: "Of je nu een professionele website wilt laten maken, een webshop wilt laten bouwen of je huidige website wilt vernieuwen: wij werken als webdesign bureau voor ondernemers in heel Nederland en België, van Amsterdam tot Antwerpen.",
+    text: "Of je nu een [professionele website wilt laten maken](/website-laten-maken), een [webshop wilt laten bouwen](/website-laten-maken/webshop) of je huidige website wilt vernieuwen: wij werken als [webdesign bureau](/webdesign) voor ondernemers in heel Nederland en [België](/website-laten-maken/belgie), van Amsterdam tot Antwerpen.",
     facts: [
       { label: "Werkgebied", value: "Nederland & België" },
       { label: "Werkwijze", value: "Eerst zien, dan betalen" },
@@ -44,7 +46,7 @@ export const HOME = {
   why: {
     label: "Waarom HOPI",
     items: [
-      { title: ["Eerst zien.", "Dan beslissen."], text: "Je krijgt een ontwerp van je eigen website voordat je iets betaalt. Bevalt het niet, dan stopt het daar en zit je nergens aan vast." },
+      { title: ["Eerst zien.", "Dan beslissen."], text: "Je krijgt een ontwerp van je eigen website voordat je iets betaalt. Bevalt het niet, dan stopt het daar en zit je nergens aan vast. [Zo werkt het gratis ontwerp](/gratis-websiteontwerp)." },
       { title: ["Geen", "sjablonen."], text: "Elk ontwerp krijgt zijn eigen letters, kleuren en opbouw. Geen twee websites hetzelfde, en zeker niet die van je concurrent." },
       { title: ["Vaste", "prijzen."], text: "Een website heeft bij ons een vast bedrag, vanaf {from} exclusief btw. Je weet vooraf waar je aan toe bent. [Bekijk de prijzen](/prijzen)." },
       { title: ["Eén", "aanspreekpunt."], text: "Van het eerste ontwerp tot hosting en [onderhoud](/website-onderhoud) daarna. Jij hoeft niets technisch te doen." },

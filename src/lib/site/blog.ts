@@ -215,7 +215,7 @@ Als ondernemer vermeld je onder meer je bedrijfsnaam, vestigingsadres, contactge
 Haalt je website zeven of meer punten, dan staat de basis. Mis je er meer dan drie, dan loont het om te kijken of opknappen nog zin heeft of dat [vernieuwen](/website-redesign) verstandiger is.
 
 > Wil je zien hoe een website eruitziet die op al deze punten klopt? [Vraag een gratis ontwerp aan](#contact) van je eigen website.`,
-    related: ["/website-redesign", "/website-laten-maken", "/blog/waarom-is-een-mobiele-website-belangrijk", "/blog/maatwerk-website-of-template"],
+    related: ["/website-redesign", "/website-laten-maken", "/blog/waarom-heeft-mijn-bedrijf-een-website-nodig", "/blog/maatwerk-website-of-template"],
   },
   {
     slug: "hoe-kies-je-een-webdesignbureau",
@@ -734,6 +734,122 @@ Staat je huidige website ver af van deze punten, dan is opnieuw beginnen vaak sn
       { label: "Google Bedrijfsprofiel Help: Je lokale positie op Google verbeteren", url: "https://support.google.com/business/answer/7091?hl=nl" },
       { label: "ACM: Strengere regels voor online verkopers (verbod op nepreviews)", url: "https://www.acm.nl/nl/publicaties/acm-strengere-regels-voor-online-verkopers" },
       { label: "Google Analytics Help: Gebeurtenissen markeren als belangrijke gebeurtenissen", url: "https://support.google.com/analytics/answer/13128484?hl=nl" },
+    ],
+  },  {
+    slug: "hoe-lang-duurt-het-om-een-website-te-laten-maken",
+    category: "aanpak",
+    keyword: "hoe lang duurt het om een website te laten maken",
+    title: "Hoe lang duurt het om een website te laten maken?",
+    seoTitle: "Hoe lang duurt een website laten maken? | HOPI",
+    description: "Hoe lang duurt het om een website te laten maken? De fases, wat het tempo bepaalt, waar het meestal op wacht en hoe je zelf tijd wint.",
+    excerpt: "Het bouwen zelf is zelden het probleem. Waar het meestal op wacht, en hoe je dat voorkomt.",
+    published: "2026-11-28",
+    modified: "2026-11-28",
+    readMinutes: 5,
+    body: `Een eenvoudige website kan binnen enkele dagen tot een paar weken klaar zijn. Een grotere website met veel pagina's, een webshop of koppelingen met andere systemen duurt eerder weken tot maanden. Het bouwen zelf is daarbij zelden wat de meeste tijd kost. Een website wacht meestal op beslissingen, teksten en foto's. In dit artikel lees je uit welke fases het bestaat, wat het tempo bepaalt en hoe je zelf tijd wint.
+
+## De fases van een website
+
+Bijna elk websitetraject bestaat uit dezelfde stappen, ook als ze bij elk bureau anders heten.
+
+| Fase | Wat er gebeurt | Wie is aan zet |
+| Kennismaking | Wat doe je, voor wie, en wat moet de website opleveren? | Jij en de maker |
+| Ontwerp | Opbouw, uitstraling en de belangrijkste pagina's | De maker |
+| Feedback | Je bekijkt het ontwerp en geeft aan wat anders moet | Jij |
+| Inhoud | Teksten, foto's, prijzen, openingstijden | Vaak jij |
+| Bouw en testen | De website wordt gebouwd en gecontroleerd op telefoon, tablet en computer | De maker |
+| Livegang | Koppelen aan je domeinnaam, laatste controle | De maker |
+
+Kijk naar de laatste kolom. Bij minstens twee fases ligt de bal bij jou. Daar ontstaat in de praktijk de meeste vertraging.
+
+## Wat het tempo bepaalt
+
+### De omvang
+
+Eén pagina met je diensten, openingstijden en contact is sneller klaar dan tien pagina's met een aparte pagina per dienst. Een webshop is een vak apart: elk product, elke verzendregel en elke betaalmethode moet kloppen. Meer daarover lees je bij [webshop laten maken](/website-laten-maken/webshop).
+
+### Functies en koppelingen
+
+Online reserveren, een boekingssysteem of een koppeling met je boekhouding kosten extra tijd. Niet alleen om te bouwen, ook om te testen: een reservering die niet aankomt is erger dan geen reserveringsknop.
+
+### Teksten en foto's
+
+Dit is de grootste onbekende. Een ondernemer die zijn teksten en foto's klaar heeft, gaat veel sneller dan iemand die er tussen het werk door aan begint. Lever je ze niet zelf aan, dan kun je ze laten schrijven of maken. Dat kost geld, maar vaak minder tijd dan zelf blijven schuiven.
+
+### Het aantal feedbackrondes
+
+Elke ronde opmerkingen is een paar dagen heen en weer. Spreek vooraf af hoeveel rondes er zijn en verzamel je opmerkingen in één keer, ook die van je compagnon of partner.
+
+## Waar een website meestal op wacht
+
+- **Op een beslissing.** Welke diensten zet je erop? Welke prijzen noem je? Die vragen blijven vaak liggen.
+- **Op teksten.** "Die schrijf ik dit weekend wel" is een van de bekendste vertragingen.
+- **Op foto's.** Goede foto's van je zaak of je werk maak je niet even tussendoor.
+- **Op toegang.** Bij een bestaande domeinnaam heb je de inloggegevens van je huidige provider nodig. Zoek die alvast op.
+
+## Hoe je zelf tijd wint
+
+- Schrijf in een paar zinnen op wat je doet, voor wie en waarom klanten voor jou kiezen. Perfect hoeft niet; de maker helpt je verder.
+- Verzamel foto's die je al hebt, ook van je telefoon. Dan zie je meteen wat er nog mist.
+- Kijk naar twee of drie websites die je goed vindt, en zeg waarom.
+- Spreek af wie bij jou de knopen doorhakt.
+
+## Hoe het bij HOPI gaat
+
+Bij ons begint het met een ontwerp, niet met een offerte. Je vertelt ons kort over je bedrijf en ontvangt een ontwerp van je eigen website, gratis en vrijblijvend. Daardoor ligt het eerste en vaak traagste besluit, "hoe moet het eruitzien?", meteen op tafel. Bevalt het, dan kies je een pakket en spreken we samen een planning af voor de inhoud en de livegang. Hoe dat precies werkt, lees je bij [gratis websiteontwerp](/gratis-websiteontwerp).
+
+> Wil je weten hoe jouw website eruit kan zien? [Vraag een gratis ontwerp aan](#contact). Pas als het bevalt, beslis je.`,
+    related: ["/gratis-websiteontwerp", "/website-laten-maken", "/blog/wat-kost-een-website-laten-maken", "/blog/hoe-kies-je-een-webdesignbureau"],
+  },
+  {
+    slug: "waarom-heeft-mijn-bedrijf-een-website-nodig",
+    category: "aanpak",
+    keyword: "waarom heeft mijn bedrijf een professionele website nodig",
+    title: "Waarom heeft je bedrijf een professionele website nodig?",
+    seoTitle: "Waarom je bedrijf een eigen website nodig heeft | HOPI",
+    description: "Heb je als ondernemer echt een website nodig als je al Instagram of een Google-profiel hebt? Zes redenen, en wanneer een kleine website genoeg is.",
+    excerpt: "Een Instagram-account en een Google-profiel zijn handig. Waarom een eigen website er toch bij hoort.",
+    published: "2026-11-28",
+    modified: "2026-11-28",
+    readMinutes: 5,
+    body: `Veel ondernemers vragen zich af of een website nog nodig is, nu klanten ook via Instagram, Facebook, een Google-profiel of een boekingsplatform bij ze terechtkomen. Het korte antwoord: die kanalen zijn waardevol, maar ze zijn niet van jou. Een eigen website is de enige plek online waar jij bepaalt wat er staat, hoe het eruitziet en waar de bezoeker naartoe gaat. Hieronder zes redenen, en ook wanneer een kleine website genoeg is.
+
+## 1. Klanten zoeken je op voordat ze contact opnemen
+
+Iemand hoort over je via een buurman, ziet je bus rijden of loopt langs je zaak. Wat doet hij daarna? Vaak zoekt hij je naam op. Vindt hij dan een verzorgde website met wat je doet, waar je zit en hoe hij je bereikt, dan is de stap naar contact klein. Vindt hij niets, of een website die er tien jaar oud uitziet, dan twijfelt hij.
+
+## 2. Een platform is niet van jou
+
+Op sociale media en platforms gelden de regels van het platform. Je bereik kan veranderen, je account kan worden geblokkeerd en op een bezorg- of boekingsplatform betaal je vaak per bestelling of boeking. Een eigen website verandert niet zomaar van spelregels. Gebruik de platforms om gevonden te worden, en je website als vaste plek waar alles klopt en waar vaste klanten je direct kunnen bereiken.
+
+## 3. Je Google-profiel werkt beter met een website erachter
+
+Een Google Bedrijfsprofiel is voor lokale ondernemers erg nuttig: je verschijnt op de kaart, met openingstijden en een belknop. In dat profiel kun je ook een link naar je website zetten. Daar vindt een klant wat een profiel niet kan laten zien: je volledige aanbod, je werkwijze, je prijzen en een formulier om iets aan te vragen. Hoe je beide sterker maakt, lees je in [beter vindbaar in Google](/blog/beter-vindbaar-in-google).
+
+## 4. Je website beantwoordt vragen, ook 's avonds
+
+Ben je morgen open? Wat kost een knipbeurt? Werk je ook in mijn gemeente? Een goede website beantwoordt de vragen die je anders steeds aan de telefoon krijgt. Dat scheelt jou tijd, en de klant krijgt antwoord op het moment dat hij zoekt, ook als jij aan het werk bent.
+
+## 5. Vertrouwen
+
+Een duidelijke website met echte foto's, je bedrijfsgegevens en een heldere uitleg van wat je doet, laat zien dat je een serieuze onderneming bent. Dat geldt zeker voor diensten waarbij iemand je in zijn huis laat, zoals een loodgieter of aannemer, of bij behandelingen zoals bij een tandarts of schoonheidssalon.
+
+## 6. Gevonden worden op wat je doet
+
+Wie je naam niet kent, zoekt op wat hij nodig heeft: "kapper Utrecht", "loodgieter spoed" of "restaurant met terras". Om daarop gevonden te worden, helpt een website met een duidelijke pagina over wat je doet en waar. Een social-mediaprofiel alleen is daar minder geschikt voor.
+
+## Wanneer is een kleine website genoeg?
+
+Niet elk bedrijf heeft tien pagina's nodig. Voor veel zelfstandigen en kleine zaken is één goed opgebouwde pagina genoeg: wie je bent, wat je doet, waar je zit, wanneer je open bent en hoe je contact opneemt. Groei je, dan breid je uit met aparte pagina's per dienst. In [waar moet een goede bedrijfswebsite aan voldoen](/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen) staat een checklist, en in [wat kost een website laten maken](/blog/wat-kost-een-website-laten-maken) wat het kost.
+
+## Wat "professioneel" betekent
+
+Een professionele website hoeft niet groot of duur te zijn. Hij moet vooral kloppen: actuele informatie, snel op een telefoon, contact met één tik en een uitstraling die past bij je bedrijf. Bij HOPI zie je eerst gratis een ontwerp van je eigen website, zodat je kunt beoordelen of het past voordat je iets betaalt. Websites hebben een vaste prijs vanaf {from}, exclusief btw.
+
+> Benieuwd hoe jouw website eruit kan zien? [Vraag een gratis ontwerp aan](#contact). Je zit nergens aan vast.`,
+    related: ["/website-laten-maken", "/gratis-websiteontwerp", "/blog/waar-moet-een-goede-bedrijfswebsite-aan-voldoen", "/blog/beter-vindbaar-in-google"],
+    sources: [
+      { label: "Google Bedrijfsprofiel Help: Je lokale positie op Google verbeteren", url: "https://support.google.com/business/answer/7091?hl=nl" },
     ],
   },
 ];

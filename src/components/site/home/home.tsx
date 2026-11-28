@@ -71,7 +71,7 @@ export function Home({ data, lang = "nl" }: { data: SiteData; lang?: Locale }) {
             </h2>
             <div className="ix-row">
               <p className="ix-text" data-in>
-                {HOME.intro.text}
+                {rich(HOME.intro.text, v)}
               </p>
               <dl className="ix-facts" data-in>
                 {HOME.intro.facts
@@ -288,7 +288,7 @@ export function Home({ data, lang = "nl" }: { data: SiteData; lang?: Locale }) {
             <div className="cx-row">
               <p>{HOME.closing.text}</p>
               <a href="#contact" className="cx-btn" data-magnetic="0.35" data-track="cta_click" data-track-label="closing" data-track-location={home}>
-                <span>{HOME.cta}</span>
+                <span>{HOME.ctaShort}</span>
                 <i aria-hidden="true">
                   <ArrowDown />
                 </i>
@@ -313,13 +313,13 @@ export function Home({ data, lang = "nl" }: { data: SiteData; lang?: Locale }) {
         data={homePageLd(
           en
             ? `Web design agency for the Netherlands and Belgium. You see a free design of your website first and only pay if you like it. Websites from ${data.prices.from}.`
-            : `Webdesign bureau voor Nederland en België. Je ziet eerst gratis een ontwerp van je website en betaalt pas als het bevalt. Websites vanaf ${data.prices.from}.`,
+            : `Een professionele website laten maken bij een webdesign bureau voor Nederland en België. Je ziet eerst gratis jouw websiteontwerp en betaalt pas als het bevalt. Websites vanaf ${data.prices.from}.`,
           home,
         )}
       />
       <JsonLd data={faqLd(HOME_FAQ.map((f) => ({ q: f.q, a: plain(f.a, data.prices) })))} />
       {SERVICES.map((s) => (
-        <JsonLd key={s.title} data={serviceLd({ name: s.title, description: s.text, path: s.href.includes("#") ? home : s.href, serviceType: s.title })} />
+        <JsonLd key={s.title} data={serviceLd({ name: s.title, description: s.text, path: s.href.includes("#") ? home : s.href, serviceType: s.title, ...(s.href.includes("#") ? { id: `service-${s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}` } : {}) })} />
       ))}
     </>
   );
