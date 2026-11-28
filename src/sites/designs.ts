@@ -64,6 +64,11 @@ export type Design = {
    * stylesheet, and its look is fixed (no per-business identity, no layout variants).
    */
   demo?: string;
+  /**
+   * An original template: designed for the template library itself, without a demo website in
+   * the portfolio (`demo` then repeats the key). Its sample builds stand in for the demo.
+   */
+  original?: boolean;
 };
 
 const d = (x: Design) => x;
@@ -365,7 +370,7 @@ export const DESIGNS: Design[] = [
  * stylesheet (they are used for e-mails and previews); the page itself is rendered by the
  * family of the same key in src/sites/families.
  */
-type FamilyInput = Pick<Design, "key" | "name" | "demo" | "industry" | "group" | "description" | "legacy" | "mode" | "radius" | "art" | "features" | "upsells"> & {
+type FamilyInput = Pick<Design, "key" | "name" | "demo" | "original" | "industry" | "group" | "description" | "legacy" | "mode" | "radius" | "art" | "features" | "upsells"> & {
   type: [display: FontFamily, body: FontFamily, weight: number];
   colors: [bg: string, alt: string, surface: string, ink: string, text: string, muted: string, primary: string, accent: string, footer: string, footerInk: string];
 };
@@ -472,6 +477,40 @@ export const FAMILY_DESIGNS: Design[] = [
     colors: ["#101010", "#1a1a1a", "#f4f1ea", "#f4f1ea", "#d6d2c8", "#a7a39a", "#2a35f0", "#ff5a36", "#101010", "#a7a39a"],
     features: ["Expressive opening", "Services", "Selected work", "How we work", "Project request", "Contact"],
     upsells: ["seo", "copywriting", "photography", "analytics", "email"],
+  }),
+  // Original templates: built for the library from the ground up, so businesses of the same
+  // kind can get a genuinely different website, not only other colours.
+  family({
+    key: "brasa", name: "Brasa", demo: "brasa", original: true, industry: "Pizza, burgers, street food & snacks", group: "food", legacy: "restaurant", mode: "light", radius: "round", art: "pizza",
+    description: "Warm and loud: cream, tomato red and basil, a chunky slab serif, cards with a hard offset shadow and a menu board with dotted price leaders.",
+    type: ["Alfa Slab One", "Rubik", 400],
+    colors: ["#f7efe2", "#fffaf1", "#fffaf1", "#1d1712", "#1d1712", "#5e5349", "#1f4d36", "#d9381e", "#d9381e", "#fffaf1"],
+    features: ["Playful opening with sticker", "Menu board with price leaders", "Running band of dishes", "Polaroid gallery", "Order and reservation", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "whatsapp"],
+  }),
+  family({
+    key: "noord", name: "Noord", demo: "noord", original: true, industry: "Hair, beauty, barbers & wellness", group: "services", legacy: "beauty", mode: "light", radius: "sharp", art: "hair",
+    description: "Nordic and quiet: off-white and black, a large light serif with italics, thin rules, a price list in two columns and a horizontal photo strip.",
+    type: ["Instrument Serif", "Outfit", 400],
+    colors: ["#f6f5f1", "#ebe8e1", "#ffffff", "#141414", "#2a2a28", "#6b6862", "#b5603c", "#b5603c", "#141414", "#bdb9b0"],
+    features: ["Editorial opening", "Price list in two columns", "Photo strip", "Team portraits", "Appointment request", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "whatsapp"],
+  }),
+  family({
+    key: "ambacht", name: "Ambacht", demo: "ambacht", original: true, industry: "Trades, repairs & local services", group: "services", legacy: "construction", mode: "light", radius: "soft", art: "construction",
+    description: "Clear and dependable: navy and white with a safety-orange call to action, condensed uppercase headings, a phone line on every screen and a quote form.",
+    type: ["Barlow Condensed", "DM Sans", 700],
+    colors: ["#ffffff", "#eef2f6", "#ffffff", "#0e2440", "#22344d", "#5b6b80", "#0e2440", "#f26a1b", "#0b1d34", "#a9b7c9"],
+    features: ["Call-first opening", "Service cards with icons", "Step-by-step process", "Quote request", "Service area & hours", "Frequently asked questions"],
+    upsells: ["seo", "gbp", "photography", "whatsapp", "copywriting"],
+  }),
+  family({
+    key: "zondag", name: "Zondag", demo: "zondag", original: true, industry: "Cafés, bakeries, lunchrooms & shops", group: "food", legacy: "service", mode: "light", radius: "round", art: "bakery",
+    description: "Soft and friendly: paper, cocoa, butter and sage, an italic serif with handwritten notes, arched photographs and a menu in coloured panels.",
+    type: ["Lora", "Sora", 500],
+    colors: ["#fbf4ea", "#f3e7d6", "#fffdf8", "#3a2a20", "#3a2a20", "#7a6556", "#8fa889", "#e2a93b", "#3a2a20", "#f4c95d"],
+    features: ["Arched opening with a handwritten note", "Menu in coloured panels", "Polaroid gallery", "Opening hours board", "Order and visit", "Route & contact"],
+    upsells: ["photography", "seo", "gbp", "booking", "whatsapp"],
   }),
 ];
 DESIGNS.push(...FAMILY_DESIGNS);

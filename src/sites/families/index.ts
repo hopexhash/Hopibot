@@ -1,15 +1,19 @@
 import type { Family } from "./kit";
 import { aerden } from "./aerden";
+import { ambacht } from "./ambacht";
 import { antipode } from "./antipode";
+import { brasa } from "./brasa";
 import { forge } from "./forge";
 import { helder } from "./helder";
 import { kade } from "./kade";
 import { lune } from "./lune";
 import { meridiaan } from "./meridiaan";
+import { noord } from "./noord";
 import { obsidian } from "./obsidian";
 import { ostara } from "./ostara";
 import { sage } from "./sage";
 import { veldwerk } from "./veldwerk";
+import { zondag } from "./zondag";
 import { vesper } from "./vesper";
 
 /**
@@ -30,6 +34,10 @@ export const FAMILIES: Record<string, Family> = {
   ostara,
   veldwerk,
   antipode,
+  brasa,
+  noord,
+  ambacht,
+  zondag,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

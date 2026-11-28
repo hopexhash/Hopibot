@@ -21,10 +21,11 @@ function DesignCard({ d }: { d: Design }) {
   const looks = [{ name: "Original", swatch: d.palette.accent, href: `/site-assets/templates/${d.key}.html` }, ...(COLORWAYS[d.key] ?? []).map((cw, i) => ({ name: cw.name, swatch: cw.swatch, href: `/site-assets/templates/${d.key}-${i + 1}.html` }))];
   return (
     <article id={d.key} className="panel scroll-mt-24 overflow-hidden">
-      {/* The demo website this template is taken from, as shown in the portfolio. */}
-      <a href={`/demos/${d.demo}`} target="_blank" rel="noopener noreferrer" className="relative block aspect-[16/10] overflow-hidden border-b border-border" style={{ background: d.palette.bg }}>
+      {/* The demo website this template is taken from; an original template shows its sample build. */}
+      <a href={d.original ? `/site-assets/templates/${d.key}.html` : `/demos/${d.demo}`} target="_blank" rel="noopener noreferrer" className="relative block aspect-[16/10] overflow-hidden border-b border-border" style={{ background: d.palette.bg }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/site/work/${d.demo}-d-720.webp`} alt={`${d.name}: the demo website of this design`} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top" />
+        <img src={`/site/work/${d.demo}-d-720.webp`} alt={`${d.name}: ${d.original ? "a sample build" : "the demo website"} of this design`} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top" />
+        {d.original && <span className="absolute left-3 top-3 rounded-md bg-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-background">New · original</span>}
       </a>
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
@@ -33,9 +34,11 @@ function DesignCard({ d }: { d: Design }) {
             <p className="text-xs text-muted">{d.industry}</p>
           </div>
           <div className="flex shrink-0 gap-1.5">
-            <Link href={`/demos/${d.demo}`} target="_blank" className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-accent hover:border-border-strong">
-              Demo <ExternalLink className="h-3.5 w-3.5" />
-            </Link>
+            {!d.original && (
+              <Link href={`/demos/${d.demo}`} target="_blank" className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-accent hover:border-border-strong">
+                Demo <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            )}
             <Link href={`/site-assets/templates/${d.key}.html`} target="_blank" className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium hover:border-border-strong" title="A sample build for an example business, without photographs">
               Sample build <ExternalLink className="h-3.5 w-3.5" />
             </Link>

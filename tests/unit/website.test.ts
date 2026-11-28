@@ -125,18 +125,19 @@ describe("template library", () => {
     const look = (category: string, name: string) => selectDesign({ category, name }).design;
     expect(look("restaurant", "De Gouden Lepel").key).toBe("vesper");
     expect(look("restaurant", "Sushi Hana").key).toBe("vesper");
-    expect(look("restaurant", "Lunchroom De Zon").key).toBe("ostara");
+    expect(look("restaurant", "Pizzeria Napoli").key).toBe("brasa");
+    expect(look("restaurant", "Lunchroom De Zon").key).toBe("zondag");
     expect(look("hair_salon", "Salon Elise").key).toBe("sage");
     expect(look("hair_salon", "The Gents Barbershop").key).toBe("vesper");
     expect(look("car_repair", "Pizza Auto Service").key).toBe("obsidian");
     expect(look("local_service", "Hoveniersbedrijf Groen").key).toBe("meridiaan");
-    expect(look("plumber", "Loodgieter Bakker").key).toBe("kade");
+    expect(look("plumber", "Loodgieter Bakker").key).toBe("ambacht");
     expect(look("unknown_category", "Iets Anders").key).toBe("kade");
     // Every category has a look, and every look is a demo design.
     for (const c of BUSINESS_CATEGORIES) expect(look(c.key, "Voorbeeld").demo, c.key).toBeTruthy();
     // The content of a site still follows the business's own industry, whatever the look.
     const bakery = buildBlueprintSpec({ ...sample, category: "bakery", name: "Bakkerij Van Dijk" }, look("bakery", "Bakkerij Van Dijk").key);
-    expect(bakery.theme.design).toBe("ostara");
+    expect(bakery.theme.design).toBe("zondag");
     expect(JSON.stringify(bakery.sections)).toMatch(/brood|gebak|bakker/i);
   });
 

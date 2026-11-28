@@ -27,7 +27,14 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   veldwerk: { all: ["Noordcode", "it_company", "studio"], plain: ["Helder IT Beheer", "it_company", "studio"] },
   ostara: { all: ["Hotel De Linde", "hotel", "fine-dining"], plain: ["Bakkerij Van Dijk", "bakery", "bakery"] },
   antipode: { all: ["Studio Kompas", "marketing_agency", "studio"], plain: ["Fotostudio Licht", "photographer", "studio"] },
+  brasa: { all: ["Pizzeria Fuoco", "pizzeria", "pizzeria"], plain: ["Snackbar De Hoek", "street_food", "street-food"] },
+  noord: { all: ["Salon Nova", "hair_salon", "hair-salon"], plain: ["Barbier Bram", "barbershop", "barbershop"] },
+  ambacht: { all: ["Installatiebedrijf Visser", "plumber", "local-service"], plain: ["Dakwerken Mulder", "roofing", "construction"] },
+  zondag: { all: ["Bakkerij Zondag", "bakery", "bakery"], plain: ["Koffiebar Lof", "coffee_shop", "coffee-shop"] },
 };
+
+/** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
+const PHOTO_SET: Record<string, string> = { brasa: "restaurant", noord: "beauty-salon", ambacht: "construction", zondag: "restaurant" };
 
 const business = (name: string, category: string): BlueprintBusiness => ({
   name,
@@ -75,7 +82,7 @@ export function sampleSpec(key: string, variant: "all" | "plain"): SiteSpec {
   const contact = spec.sections.filter((s) => s.type === "contact");
   spec.sections = [...[...spec.sections.filter((s) => s.type !== "contact"), ...EXTRA.filter((s) => !have.has(s.type))].slice(0, 14 - contact.length), ...contact];
   // Photographs: the ones of the family's own demo, from Unsplash.
-  const ids = Object.entries((PHOTOS as Record<string, Record<string, string>>)[design.demo!]);
+  const ids = Object.entries((PHOTOS as Record<string, Record<string, string>>)[PHOTO_SET[key] ?? design.demo!]);
   const refs = new Set<string>([spec.hero.image, "art:about2", "art:cta", "art:side1", "art:side2"]);
   for (const s of spec.sections) {
     if (s.type === "about" || s.type === "showcase") refs.add(s.image);

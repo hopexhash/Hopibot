@@ -6,8 +6,8 @@
  * the original stays intact: a dark design stays dark, a soft one stays soft.
  */
 
-/** Moves the colours whose hue lies in [h0, h1] (wrapping past 360) and whose saturation lies in [s0, s1]. */
-type Rule = { h: [number, number]; s?: [number, number]; dh: number; ds?: number; dl?: number };
+/** Moves the colours whose hue lies in [h0, h1] (wrapping past 360) and whose saturation and lightness lie in [s0, s1] and [l0, l1]. */
+type Rule = { h: [number, number]; s?: [number, number]; l?: [number, number]; dh: number; ds?: number; dl?: number };
 export type Colorway = { name: string; swatch: string; rules: Rule[] };
 
 const any: [number, number] = [0, 360];
@@ -57,6 +57,22 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Sage", swatch: "#577353", rules: [{ h: [0, 18], dh: 100, ds: 0.5 }, { h: [18, 50], dh: 52, ds: 0.75 }] },
     { name: "Coast", swatch: "#2f5c7c", rules: [{ h: [0, 18], dh: 190, ds: 0.85 }, { h: [18, 50], dh: 172, ds: 0.55 }] },
   ],
+  brasa: [
+    { name: "Blue plate", swatch: "#2f6fd6", rules: [{ h: [0, 22], s: [0.4, 1], dh: 207, ds: 0.85, dl: 0.02 }] },
+    { name: "Berry & teal", swatch: "#c2306e", rules: [{ h: [0, 22], s: [0.4, 1], dh: -36, ds: 0.95 }, { h: [130, 170], dh: 38, ds: 1.1 }] },
+  ],
+  noord: [
+    { name: "Sea", swatch: "#3c6f8f", rules: [{ h: [5, 40], s: [0.3, 1], l: [0, 0.8], dh: 185, ds: 0.8 }] },
+    { name: "Moss", swatch: "#6a7a3a", rules: [{ h: [5, 40], s: [0.3, 1], l: [0, 0.8], dh: 52, ds: 0.75 }] },
+  ],
+  ambacht: [
+    { name: "Forest", swatch: "#12402e", rules: [{ h: [195, 235], dh: -64, ds: 0.9 }] },
+    { name: "Signal red", swatch: "#d93025", rules: [{ h: [195, 235], dh: 0, ds: 0.25 }, { h: [10, 35], s: [0.5, 1], dh: -19, ds: 0.95 }] },
+  ],
+  zondag: [
+    { name: "Mint", swatch: "#5cc4a0", rules: [{ h: [30, 50], s: [0.4, 1], l: [0, 0.86], dh: 118, ds: 0.7 }] },
+    { name: "Rose & lilac", swatch: "#e07a93", rules: [{ h: [30, 50], s: [0.4, 1], l: [0, 0.86], dh: -55, ds: 0.75 }, { h: [90, 130], dh: 160, ds: 1 }, { h: [10, 25], s: [0.4, 1], l: [0.6, 0.95], dh: -30, ds: 1 }] },
+  ],
   antipode: [
     { name: "Cobalt", swatch: "#3640f2", rules: [{ h: [0, 25], dh: 225, ds: 1 }, { h: [220, 250], dh: -225, ds: 1 }] },
     { name: "Mint", swatch: "#1fd19a", rules: [{ h: [0, 25], dh: 149, ds: 0.85, dl: -0.06 }, { h: [55, 95], dh: 247, ds: 1, dl: 0.04 }, { h: [220, 250], dh: 34, ds: 1 }] },
@@ -102,7 +118,7 @@ const clamp = (v: number) => Math.max(0, Math.min(1, v));
 export function shiftRgb(rgb: [number, number, number], cw: Colorway): [number, number, number] {
   const [h, s, l] = toHsl(...rgb);
   if (s < 0.04) return rgb;
-  const rule = cw.rules.find((r) => inHue(h, r.h) && s >= (r.s?.[0] ?? 0) && s <= (r.s?.[1] ?? 1));
+  const rule = cw.rules.find((r) => inHue(h, r.h) && s >= (r.s?.[0] ?? 0) && s <= (r.s?.[1] ?? 1) && l >= (r.l?.[0] ?? 0) && l <= (r.l?.[1] ?? 1));
   if (!rule) return rgb;
   return toRgb((((h + rule.dh) % 360) + 360) % 360, clamp(s * (rule.ds ?? 1)), clamp(l + (rule.dl ?? 0)));
 }
