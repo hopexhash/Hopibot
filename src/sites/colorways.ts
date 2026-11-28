@@ -189,6 +189,14 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Sage garden", swatch: "#5f7358", rules: [{ h: [25, 50], s: [0.15, 1], l: [0, 0.6], dh: 62, ds: 0.75 }, { h: [25, 50], s: [0.15, 1], l: [0.6, 1], dh: 50, ds: 0.6 }, { h: [190, 215], dh: -100, ds: 0.9 }] },
     { name: "Dusk blue", swatch: "#4d6178", rules: [{ h: [25, 50], s: [0.15, 1], l: [0, 0.6], dh: 178, ds: 0.6, dl: -0.02 }, { h: [25, 50], s: [0.15, 1], l: [0.6, 1], dh: 170, ds: 0.55 }] },
   ],
+  lexis: [
+    { name: "Bordeaux", swatch: "#3a0f1f", rules: [{ h: [195, 245], dh: 126, ds: 0.95 }] },
+    { name: "Graphite", swatch: "#2b2d31", rules: [{ h: [195, 245], dh: 0, ds: 0.22 }, { h: [30, 50], s: [0.25, 0.7], l: [0.25, 0.8], dh: 0, ds: 0.12 }, { h: [35, 50], l: [0.85, 1], dh: 0, ds: 0.4 }] },
+  ],
+  snuf: [
+    { name: "Bubblegum & navy", swatch: "#f27a9a", rules: [{ h: [10, 35], s: [0.4, 1], l: [0, 0.92], dh: -38, ds: 0.85 }, { h: [100, 170], dh: 62, ds: 1 }] },
+    { name: "Marigold & teal", swatch: "#f4c04e", rules: [{ h: [10, 35], s: [0.4, 1], l: [0, 0.92], dh: 18, ds: 0.95 }, { h: [100, 170], dh: 30, ds: 1.05 }] },
+  ],
 };
 
 /** How many looks a family has: its original colours plus its colourways. */

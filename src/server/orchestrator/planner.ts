@@ -18,6 +18,7 @@ const CATEGORY_WORDS: Record<string, string[]> = {
   beauty_salon: ["beauty salon", "beauty salons", "schoonheidssalon", "nail salon", "beauty"],
   gym: ["gym", "gyms", "sportschool", "fitness"],
   hotel: ["hotel", "hotels", "b&b", "bed and breakfast"],
+  pet_store: ["pet shop", "pet shops", "pet store", "dierenwinkel", "dierenwinkels", "dierenspeciaalzaak", "trimsalon", "hondentrimsalon"],
   travel_agency: ["travel agency", "travel agencies", "reisbureau", "reisbureaus"],
   wedding_planner: ["wedding planner", "wedding planners", "weddingplanner", "weddingplanners", "trouwplanner"],
   architect: ["architect", "architects", "architecten", "architectenbureau", "architectenbureaus"],

@@ -43,6 +43,8 @@ import { maison } from "./maison";
 import { voyage } from "./voyage";
 import { kinetik } from "./kinetik";
 import { vow } from "./vow";
+import { lexis } from "./lexis";
+import { snuf } from "./snuf";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -94,6 +96,8 @@ export const FAMILIES: Record<string, Family> = {
   voyage,
   kinetik,
   vow,
+  lexis,
+  snuf,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

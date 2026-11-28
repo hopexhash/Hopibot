@@ -736,6 +736,22 @@ export const FAMILY_DESIGNS: Design[] = [
     features: ["Oval opening with cross-fading photographs", "Services with a photograph that follows", "Wedding timeline that draws itself", "Packages as invitation cards", "Dissolving gallery", "Enquiry with date and guest count"],
     upsells: ["photography", "copywriting", "seo", "booking", "email"],
   }),
+  family({
+    key: "lexis", name: "Lexis", demo: "lexis", original: true, industry: "Law, accountancy & corporate advice", group: "general", legacy: "corporate", mode: "light", radius: "sharp", art: "corporate",
+    description: "Modern corporate: ivory and deep navy with one fine metallic line, a high-contrast serif against a light grotesk, an interactive practice index and a sticky case approach.",
+    type: ["DM Serif Display", "Archivo", 400],
+    colors: ["#f6f3ec", "#ece7db", "#fcfbf7", "#0c1a33", "#0c1a33", "#596278", "#0c1a33", "#b0935a", "#0c1a33", "#e0cc9d"],
+    features: ["Masked typographic opening", "Practice areas as an index", "Sticky case approach", "Knowledge index with tabs", "Confidential intake", "Office hours & reach"],
+    upsells: ["seo", "copywriting", "email", "analytics", "gbp"],
+  }),
+  family({
+    key: "snuf", name: "Snuf", demo: "snuf", original: true, industry: "Pet shops, pet brands & pet care", group: "general", legacy: "service", mode: "light", radius: "round", art: "service",
+    description: "Playful and warm: cream, apricot and deep green, a soft chunky serif, a bento opening, a product grid with filter chips and a wishlist heart, and a subscription box.",
+    type: ["Fraunces Soft", "Poppins", 800],
+    colors: ["#fff6ea", "#fde6d0", "#fffdf8", "#183d30", "#183d30", "#5d6f66", "#183d30", "#f28c4f", "#183d30", "#fde6d0"],
+    features: ["Bento opening with a speech bubble", "Products with filter chips", "Wishlist micro-interaction", "Subscription box", "Shop hours & pickup", "Order or pickup request"],
+    upsells: ["photography", "seo", "gbp", "email", "whatsapp"],
+  }),
 ];
 DESIGNS.push(...FAMILY_DESIGNS);
 

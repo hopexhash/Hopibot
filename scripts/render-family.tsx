@@ -60,6 +60,8 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   voyage: { all: ["Reisbureau Verre Horizon", "travel_agency", "studio"], plain: ["Taalinstituut Babel", "consultant", "studio"] },
   kinetik: { all: ["Bureau Zwaai", "marketing_agency", "studio"], plain: ["Fotostudio Flits", "photographer", "studio"] },
   vow: { all: ["Landgoed De Hoeve", "event_business", "fine-dining"], plain: ["Bruidsvisagie Elin", "beauty_salon", "beauty-salon"] },
+  lexis: { all: ["Advocatenkantoor Verbeek", "lawyer", "estate"], plain: ["Administratiekantoor De Wit", "accountant", "estate"] },
+  snuf: { all: ["Lunchroom De Kwispel", "coffee_shop", "coffee-shop"], plain: ["Boekhandel Het Hoekje", "shop", "studio"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
@@ -96,6 +98,8 @@ const PHOTO_SET: Record<string, string> = {
   voyage: "real-estate",
   kinetik: "creative-agency",
   vow: "hotel",
+  lexis: "law-firm",
+  snuf: "restaurant",
 };
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */
