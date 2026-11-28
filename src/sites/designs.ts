@@ -528,6 +528,22 @@ export const FAMILY_DESIGNS: Design[] = [
     features: ["Kinetic opening", "Class cards", "Running band of classes", "Scroll energy bar", "Trial or intake request", "Opening hours & route"],
     upsells: ["booking", "seo", "photography", "analytics", "gbp"],
   }),
+  family({
+    key: "atlas", name: "Atlas", demo: "atlas", original: true, industry: "Architecture, interiors & real estate", group: "services", legacy: "realestate", mode: "light", radius: "sharp", art: "estate",
+    description: "Swiss and exact: paper white and black on a visible twelve-column grid, one signal-red dot, huge numerals, a project band that runs sideways and services as a listing.",
+    type: ["Archivo", "Inter Tight", 700],
+    colors: ["#f4f4f1", "#e8e8e3", "#ffffff", "#0c0c0c", "#2a2a28", "#666662", "#0c0c0c", "#e4251c", "#0c0c0c", "#a8a8a2"],
+    features: ["Typographic opening on the grid", "Index of the page", "Project band that scrolls sideways", "Services as a listing", "Opening hours as a timetable", "Intake or valuation request"],
+    upsells: ["photography", "seo", "copywriting", "gbp", "email"],
+  }),
+  family({
+    key: "puur", name: "Puur", demo: "puur", original: true, industry: "Health, therapy & care", group: "general", legacy: "dental", mode: "light", radius: "round", art: "dental",
+    description: "Soft and reassuring: white, periwinkle and peach, a friendly rounded sans with a soft serif, slow floating shapes, a visit explained along a drawn path and a calm appointment card.",
+    type: ["Manrope", "Manrope", 700],
+    colors: ["#ffffff", "#f3f4fe", "#ffffff", "#232a52", "#3b4266", "#646a8a", "#4f5bd5", "#f4a582", "#eef0fd", "#3b4266"],
+    features: ["Calm opening with an appointment card", "Treatments with icons", "How a visit goes, step by step", "Questions answered warmly", "Appointment request", "Opening hours & route"],
+    upsells: ["booking", "seo", "gbp", "copywriting", "email"],
+  }),
 ];
 DESIGNS.push(...FAMILY_DESIGNS);
 

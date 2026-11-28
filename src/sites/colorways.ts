@@ -81,6 +81,14 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Ultraviolet", swatch: "#6a2cff", rules: [{ h: [215, 250], dh: 32, ds: 1 }, { h: [355, 15], s: [0.5, 1], dh: 22, ds: 1 }] },
     { name: "Teal & magenta", swatch: "#0e9c8f", rules: [{ h: [215, 250], s: [0.8, 1], l: [0.3, 0.7], dh: -55, ds: 0.92, dl: -0.27 }, { h: [215, 250], dh: -55, ds: 0.8 }, { h: [355, 15], s: [0.5, 1], dh: -32, ds: 0.95 }] },
   ],
+  atlas: [
+    { name: "Cobalt", swatch: "#1d47e6", rules: [{ h: [345, 20], s: [0.5, 1], dh: 226, ds: 1, dl: 0.02 }] },
+    { name: "Racing green", swatch: "#0f8a52", rules: [{ h: [345, 20], s: [0.5, 1], dh: 150, ds: 0.85, dl: -0.14 }] },
+  ],
+  puur: [
+    { name: "Lilac & rose", swatch: "#9a55d4", rules: [{ h: [215, 250], l: [0, 0.6], dh: 42, ds: 0.95, dl: -0.06 }, { h: [215, 250], dh: 42, ds: 0.95 }, { h: [10, 30], s: [0.3, 1], dh: -14, ds: 1 }] },
+    { name: "Sky & apricot", swatch: "#3f8fd6", rules: [{ h: [215, 250], l: [0, 0.6], dh: -26, ds: 1, dl: -0.08 }, { h: [215, 250], dh: -26, ds: 1 }, { h: [10, 30], s: [0.3, 1], dh: 14, ds: 1.05 }] },
+  ],
   antipode: [
     { name: "Cobalt", swatch: "#3640f2", rules: [{ h: [0, 25], dh: 225, ds: 1 }, { h: [220, 250], dh: -225, ds: 1 }] },
     { name: "Mint", swatch: "#1fd19a", rules: [{ h: [0, 25], dh: 149, ds: 0.85, dl: -0.06 }, { h: [55, 95], dh: 247, ds: 1, dl: 0.04 }, { h: [220, 250], dh: 34, ds: 1 }] },

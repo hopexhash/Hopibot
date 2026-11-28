@@ -34,10 +34,21 @@ export const SAMPLES: Record<string, { all: [string, string, string]; plain: [st
   zondag: { all: ["Bakkerij Zondag", "bakery", "bakery"], plain: ["Koffiebar Lof", "coffee_shop", "coffee-shop"] },
   velours: { all: ["Barbier Edison", "barbershop", "barbershop"], plain: ["Cocktailbar Mercer", "restaurant", "luxury-restaurant"] },
   pulse: { all: ["Studio Puls", "gym", "studio"], plain: ["Coach Lisa", "personal_trainer", "studio"] },
+  atlas: { all: ["Studio Vorm Architecten", "interior_designer", "estate"], plain: ["Makelaar De Wit", "real_estate", "estate"] },
+  puur: { all: ["Fysio Balans", "physiotherapist", "clinic"], plain: ["Tandarts Zuid", "dentist", "clinic"] },
 };
 
 /** Sample photographs of the original templates (they have no demo of their own): borrowed from a demo of the same trade. */
-const PHOTO_SET: Record<string, string> = { brasa: "restaurant", noord: "beauty-salon", ambacht: "construction", zondag: "restaurant", velours: "hotel", pulse: "fitness" };
+const PHOTO_SET: Record<string, string> = {
+  brasa: "restaurant",
+  noord: "beauty-salon",
+  ambacht: "construction",
+  zondag: "restaurant",
+  velours: "hotel",
+  pulse: "fitness",
+  atlas: "real-estate",
+  puur: "dental",
+};
 
 /** `published`: a sample shown on the public site carries no phone number, address or map link. */
 const business = (name: string, category: string, published = false): BlueprintBusiness => ({
