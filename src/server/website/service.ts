@@ -1,4 +1,5 @@
 import "../guard";
+import { languageFor } from "@/lib/markets";
 import { and, desc, eq, max } from "drizzle-orm";
 import { INTEGRITY_PATTERNS, siteSpecSchema, type SiteSpec } from "@/lib/site-spec";
 import { getDesign } from "@/sites/designs";
@@ -30,6 +31,8 @@ function safeHref(href: string, sectionIds: Set<string>, fallback: string) {
  */
 export function enforceSpec(input: SiteSpec, b: Business, verifiedEmail: string | null, verifiedText = ""): SiteSpec {
   const spec = siteSpecSchema.parse(structuredClone(input));
+  // The site language follows the business's location (Dutch in NL and Flanders, French in Wallonia), never the language of the research.
+  spec.meta.lang = siteLanguage(b, verifiedText);
   spec.business = {
     ...spec.business,
     name: b.name,
@@ -180,4 +183,9 @@ export async function getVersionFile(versionId: string, path: string) {
 export function defaultTheme(b: { category: string; name: string }): SiteSpec["theme"] {
   const d = getDesign(designFor(b));
   return { template: d.legacy, design: d.key, primary: d.palette.primary, accent: d.palette.accent, mode: d.mode, font: d.fonts.display, radius: d.radius };
+}
+
+/** Language of a business's website: from its location, as for outreach. English is never chosen automatically. */
+export function siteLanguage(b: Pick<Business, "country" | "city" | "postalCode" | "address">, ownText = ""): "nl" | "fr" {
+  return languageFor({ country: b.country, city: b.city, postalCode: b.postalCode, address: b.address, ownText });
 }

@@ -19,7 +19,8 @@ export async function loadDemo(slug: string) {
     .select()
     .from(schema.websiteProjects)
     .where(and(eq(schema.websiteProjects.slug, slug), isNull(schema.websiteProjects.deletedAt)));
-  if (!project?.currentVersionId || project.status !== "ready") return null;
+  // While a new version is being built or tested, the customer keeps seeing the current one (no "not found").
+  if (!project?.currentVersionId || project.status === "failed") return null;
   const [business] = await db().select().from(schema.businesses).where(eq(schema.businesses.id, project.businessId));
   if (!business || business.erasedAt) return null;
   const [version] = await db().select({ spec: schema.websiteVersions.spec }).from(schema.websiteVersions).where(eq(schema.websiteVersions.id, project.currentVersionId));

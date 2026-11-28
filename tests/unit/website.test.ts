@@ -155,6 +155,14 @@ describe("template library", () => {
 });
 
 describe("guardrails", () => {
+  it("writes the site in the language of the business's location, never English from the research", () => {
+    const spec = buildMockSpec(biz());
+    spec.meta.lang = "en";
+    expect(enforceSpec(spec, biz(), null, "Mediterranean lunch and dinner").meta.lang).toBe("nl");
+    expect(enforceSpec(spec, biz({ country: "Belgium", city: "Gent", postalCode: "9000", address: "Korenmarkt 1, 9000 Gent" }), null).meta.lang).toBe("nl");
+    expect(enforceSpec(spec, biz({ country: "Belgium", city: "Namur", postalCode: "5000", address: "Rue de Fer 1, 5000 Namur" }), null).meta.lang).toBe("fr");
+  });
+
   it("restores verified facts and strips unsafe links", () => {
     const spec = buildMockSpec(biz());
     spec.business.phone = "+31 6 99999999";

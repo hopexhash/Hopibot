@@ -18,7 +18,7 @@ import type { AgentContext, AgentHandler } from "../orchestrator/types";
 import { usedLooks } from "../website/looks";
 import { buildMockSpec } from "../website/mock-spec";
 import { attachStockPhotos } from "../website/photos";
-import { enforceSpec, ensureProject, saveVersion } from "../website/service";
+import { enforceSpec, ensureProject, saveVersion, siteLanguage } from "../website/service";
 
 const SPEC_GUIDE = `You produce a SiteSpec JSON document that our design system renders into a website.
 - The creative brief decides the brand identity and the page structure. Build exactly the sections it lists, in that order (you may drop one when the verified data cannot fill it honestly). Do not add sections by habit.
@@ -159,6 +159,8 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
   await db().update(schema.websiteProjects).set({ status: "generating", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
   // Design selection: an operator's/previous choice on the project wins, else category + research signals.
   const researchText = research ? JSON.stringify(research.profile).slice(0, 4000) : "";
+  const lang = siteLanguage(b, researchText);
+  const langRule = `\nLanguage: write every word of the website in ${lang === "fr" ? "French" : "Dutch"} and set meta.lang to "${lang}", also when the research, reviews or the business's own listing are in another language (for example English).`;
   // A new site is always built in one of the demo designs; later versions of a site keep the design they have.
   const current = DESIGN_KEYS.includes(project.templateKey) ? getDesign(project.templateKey) : null;
   // A new site gets the best-fitting look (design + colourway) that no other business of the same
@@ -232,7 +234,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: (ctx.config.effort as "high") ?? "high",
         maxTokens: 32000,
-        system: `You are the senior designer and copywriter of a premium web design agency, building one website from a creative brief.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}`,
+        system: `You are the senior designer and copywriter of a premium web design agency, building one website from a creative brief.\n${SPEC_GUIDE}\nOperator instructions: ${ctx.config.instructions || "(none)"}${langRule}`,
         prompt: [
           "Creative brief (decided by the creative director; follow it):",
           JSON.stringify(
@@ -280,7 +282,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: "medium",
         maxTokens: 32000,
-        system: `You are the senior designer of a premium web design agency. A reviewer looked at screenshots of the rendered site and listed its weakest points. Fix exactly those points by editing the spec: copy, section order or choice${fixedLook ? ". The visual design is a fixed, hand-designed template: do not change the theme" : ", and theme.identity (layout variants, fonts, colours, density)"}. Keep everything that works. Never add unverified claims.\n${SPEC_GUIDE}\nLayout variants available — hero: cinema, split, centered, editorial, poster, frame, minimal, panel, card, wordmark, collage, stack, offset; services: cards, pricelist, rows, tiles, index, bento; gallery: mosaic, strip, grid, polaroid, scroller, bento; about: split, overlap, centered, statement; head: left, center, ornament, number, tape; cta: band, full, card.`,
+        system: `You are the senior designer of a premium web design agency. A reviewer looked at screenshots of the rendered site and listed its weakest points. Fix exactly those points by editing the spec: copy, section order or choice${fixedLook ? ". The visual design is a fixed, hand-designed template: do not change the theme" : ", and theme.identity (layout variants, fonts, colours, density)"}. Keep everything that works. Never add unverified claims.\n${SPEC_GUIDE}\nLayout variants available — hero: cinema, split, centered, editorial, poster, frame, minimal, panel, card, wordmark, collage, stack, offset; services: cards, pricelist, rows, tiles, index, bento; gallery: mosaic, strip, grid, polaroid, scroller, bento; about: split, overlap, centered, statement; head: left, center, ornament, number, tape; cta: band, full, card.${langRule}`,
         prompt: `Current SiteSpec:\n${JSON.stringify(cur.spec)}\n\nFindings from the visual review of the rendered site:\n${JSON.stringify(weaknesses, null, 2)}\n\nReturn the improved spec and a one-sentence change summary.`,
       });
       spec = res.data.spec;
@@ -306,7 +308,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: "medium",
         maxTokens: 32000,
-        system: `You are the Website Builder Agent fixing quality-control findings. Make the smallest changes that resolve each issue and keep everything else identical.\n${SPEC_GUIDE}`,
+        system: `You are the Website Builder Agent fixing quality-control findings. Make the smallest changes that resolve each issue and keep everything else identical.\n${SPEC_GUIDE}${langRule}`,
         prompt: `Current SiteSpec:\n${JSON.stringify(spec)}\n\nQuality-control issues to fix:\n${JSON.stringify(remaining, null, 2)}\n\nReturn the corrected spec and a one-sentence change summary.`,
       });
       spec = res.data.spec;
@@ -330,7 +332,7 @@ export const websiteBuilder: AgentHandler = async (ctx) => {
         model: ctx.config.model,
         effort: (ctx.config.effort as "high") ?? "high",
         maxTokens: 32000,
-        system: `You are the Website Builder Agent applying a design change requested by the agency. Modify the existing spec to satisfy the request; keep content, structure and anything not mentioned intact unless the request requires changing it. Do not regenerate from scratch.\n${SPEC_GUIDE}`,
+        system: `You are the Website Builder Agent applying a design change requested by the agency. Modify the existing spec to satisfy the request; keep content, structure and anything not mentioned intact unless the request requires changing it. Do not regenerate from scratch.\n${SPEC_GUIDE}${langRule}`,
         prompt: `Current SiteSpec:\n${JSON.stringify(cur.spec)}\n\nRequested change (from the agency operator):\n${instruction}\n\nReturn the modified spec and a short change summary.`,
       });
       spec = res.data.spec;
