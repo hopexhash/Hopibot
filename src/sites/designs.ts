@@ -512,6 +512,22 @@ export const FAMILY_DESIGNS: Design[] = [
     features: ["Arched opening with a handwritten note", "Menu in coloured panels", "Polaroid gallery", "Opening hours board", "Order and visit", "Route & contact"],
     upsells: ["photography", "seo", "gbp", "booking", "whatsapp"],
   }),
+  family({
+    key: "velours", name: "Velours", demo: "velours", original: true, industry: "Barbers, cocktail bars, clinics & upscale salons", group: "services", legacy: "beauty", mode: "dark", radius: "sharp", art: "finedining",
+    description: "Art Deco lounge: bottle green, burgundy and champagne gold, a high-contrast display face, symmetrical compositions, stepped arches with gold hairlines and a price list with dotted leaders.",
+    type: ["Italiana", "Jost", 400],
+    colors: ["#0d2620", "#123129", "#163a31", "#f3ead6", "#e3d8bf", "#b9ad92", "#5c1a2b", "#d4b273", "#0a1d18", "#b9ad92"],
+    features: ["Curtain-reveal opening", "Price list with dotted leaders", "Arched photo frames", "Gold lines that draw themselves", "Appointment or reservation request", "Opening hours & route"],
+    upsells: ["booking", "photography", "seo", "gbp", "copywriting"],
+  }),
+  family({
+    key: "pulse", name: "Pulse", demo: "pulse", original: true, industry: "Gyms, boxing, dance, yoga & trainers", group: "services", legacy: "corporate", mode: "light", radius: "soft", art: "corporate",
+    description: "Light and kinetic: white with electric cobalt and hot coral, a bold condensed headline, diagonal section cuts, huge outlined numerals, a running band of classes and an energy bar that fills as you scroll.",
+    type: ["Bebas Neue", "Archivo", 400],
+    colors: ["#ffffff", "#f1f4ff", "#ffffff", "#0b1030", "#2a3150", "#5a6182", "#2347ff", "#ff5a4e", "#0b1030", "#b9c0e0"],
+    features: ["Kinetic opening", "Class cards", "Running band of classes", "Scroll energy bar", "Trial or intake request", "Opening hours & route"],
+    upsells: ["booking", "seo", "photography", "analytics", "gbp"],
+  }),
 ];
 DESIGNS.push(...FAMILY_DESIGNS);
 

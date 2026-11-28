@@ -15,6 +15,8 @@ import { sage } from "./sage";
 import { veldwerk } from "./veldwerk";
 import { zondag } from "./zondag";
 import { vesper } from "./vesper";
+import { velours } from "./velours";
+import { pulse } from "./pulse";
 
 /**
  * The template families: the demo websites of the portfolio, as templates the website
@@ -38,6 +40,8 @@ export const FAMILIES: Record<string, Family> = {
   noord,
   ambacht,
   zondag,
+  velours,
+  pulse,
 };
 
 export const familyOf = (designKey: string | undefined): Family | undefined => (designKey ? FAMILIES[designKey] : undefined);

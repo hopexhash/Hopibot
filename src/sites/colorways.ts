@@ -73,6 +73,14 @@ export const COLORWAYS: Record<string, Colorway[]> = {
     { name: "Mint", swatch: "#5cc4a0", rules: [{ h: [30, 50], s: [0.4, 1], l: [0, 0.86], dh: 118, ds: 0.7 }] },
     { name: "Rose & lilac", swatch: "#e07a93", rules: [{ h: [30, 50], s: [0.4, 1], l: [0, 0.86], dh: -55, ds: 0.75 }, { h: [90, 130], dh: 160, ds: 1 }, { h: [10, 25], s: [0.4, 1], l: [0.6, 0.95], dh: -30, ds: 1 }] },
   ],
+  velours: [
+    { name: "Midnight", swatch: "#14233f", rules: [{ h: [140, 190], dh: 58, ds: 1.15 }] },
+    { name: "Aubergine & rose gold", swatch: "#3a1838", rules: [{ h: [140, 190], dh: 140, ds: 0.85 }, { h: [330, 360], s: [0.3, 1], dh: -170, ds: 0.8 }, { h: [25, 55], s: [0.35, 1], l: [0, 0.8], dh: -22, ds: 0.85 }] },
+  ],
+  pulse: [
+    { name: "Ultraviolet", swatch: "#6a2cff", rules: [{ h: [215, 250], dh: 32, ds: 1 }, { h: [355, 15], s: [0.5, 1], dh: 22, ds: 1 }] },
+    { name: "Teal & magenta", swatch: "#0e9c8f", rules: [{ h: [215, 250], s: [0.8, 1], l: [0.3, 0.7], dh: -55, ds: 0.92, dl: -0.27 }, { h: [215, 250], dh: -55, ds: 0.8 }, { h: [355, 15], s: [0.5, 1], dh: -32, ds: 0.95 }] },
+  ],
   antipode: [
     { name: "Cobalt", swatch: "#3640f2", rules: [{ h: [0, 25], dh: 225, ds: 1 }, { h: [220, 250], dh: -225, ds: 1 }] },
     { name: "Mint", swatch: "#1fd19a", rules: [{ h: [0, 25], dh: 149, ds: 0.85, dl: -0.06 }, { h: [55, 95], dh: 247, ds: 1, dl: 0.04 }, { h: [220, 250], dh: 34, ds: 1 }] },
