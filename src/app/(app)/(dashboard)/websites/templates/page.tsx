@@ -45,6 +45,7 @@ function templates(): GalleryTemplate[] {
       sectors: [...new Set([...first, ...also].map((c) => SECTOR_OF[c.key]).filter(Boolean))],
       firstFor: first.map((c) => c.label),
       alsoFor: also.map((c) => c.label),
+      categoryKeys: [...first, ...also].map((c) => c.key),
       terms: [...first, ...also].flatMap((c) => [c.key.replace(/_/g, " "), c.placesType ?? ""]).join(" ").replace(/_/g, " "),
       looks: [
         { name: "Original", swatch: d.palette.accent, href: `/voorbeeld/${d.key}` },
@@ -81,6 +82,7 @@ export default async function TemplateLibraryPage() {
         templates={list}
         sectors={SECTORS.filter((s) => list.some((t) => t.sectors.includes(s)))}
         projects={rows.map((r) => ({ id: r.id, name: r.name, template: designName(r.template), status: r.status }))}
+        categories={BUSINESS_CATEGORIES.map((c) => ({ key: c.key, label: c.label }))}
         canEdit={hasRole(auth.role, "member")}
       />
     </>

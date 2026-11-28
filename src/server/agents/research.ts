@@ -208,6 +208,8 @@ Agency instructions from the operator: ${ctx.config.instructions || "(none)"}`,
   await ctx.log("info", `${stageLabel(1)}: profile and website brief written`, stageEvent(1, "completed"));
   await ctx.log("info", `Research complete: ${result.profile.verifiedFacts.length} verified facts, ${result.profile.assumptions.length} assumptions, ${result.profile.missingInformation.length} gaps.`);
 
-  await continuePipeline(ctx, { businessId: b.id, next: (ctx.task.input.next as string[]) ?? [] });
+  // A colourway chosen with "create with this template" travels on to the website builder.
+  const variation = ctx.task.input.variation;
+  await continuePipeline(ctx, { businessId: b.id, projectId: ctx.task.projectId ?? null, next: (ctx.task.input.next as string[]) ?? [], extra: typeof variation === "number" ? { variation } : undefined });
   return { status: "completed", output: { verifiedFacts: result.profile.verifiedFacts.length, missing: result.profile.missingInformation, mock: mode === "mock" } };
 };

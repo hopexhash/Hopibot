@@ -7,7 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button, Dialog, Select } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { applyTemplateAction } from "@/server/actions/websites";
+import { applyTemplateAction, createFromTemplateAction } from "@/server/actions/websites";
 
 export type GalleryLook = { name: string; swatch: string; href: string };
 export type GalleryTemplate = {
@@ -24,21 +24,24 @@ export type GalleryTemplate = {
   firstFor: string[];
   alsoFor: string[];
   looks: GalleryLook[];
+  /** Business categories this template suits, best first (the create form pre-selects the first). */
+  categoryKeys: string[];
   /** Extra words to match a search on (category keys and Google place types). */
   terms: string;
 };
 export type GalleryProject = { id: string; name: string; template: string; status: string };
+export type GalleryCategory = { key: string; label: string };
 
 /**
  * The template library as a marketplace: search, filter by sector, open a live preview on a
  * computer or phone width in every colourway, and apply a template to an existing website.
  */
-export function TemplateGallery({ templates, sectors, projects, canEdit }: { templates: GalleryTemplate[]; sectors: string[]; projects: GalleryProject[]; canEdit: boolean }) {
+export function TemplateGallery({ templates, sectors, projects, categories, canEdit }: { templates: GalleryTemplate[]; sectors: string[]; projects: GalleryProject[]; categories: GalleryCategory[]; canEdit: boolean }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("");
   const [onlyNew, setOnlyNew] = useState(false);
   const [preview, setPreview] = useState<{ t: GalleryTemplate; look: number } | null>(null);
-  const [apply, setApply] = useState<{ t: GalleryTemplate; look: number } | null>(null);
+  const [apply, setApply] = useState<{ t: GalleryTemplate; look: number; mode?: "create" | "apply" } | null>(null);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -104,7 +107,8 @@ export function TemplateGallery({ templates, sectors, projects, canEdit }: { tem
       )}
 
       {preview && <PreviewModal state={preview} onChange={setPreview} onApply={canEdit ? (look) => (setPreview(null), setApply({ t: preview.t, look })) : undefined} />}
-      {apply && <ApplyDialog state={apply} projects={projects} onClose={() => setApply(null)} />}
+      {apply && apply.mode === "apply" && <ApplyDialog state={apply} projects={projects} onClose={() => setApply(null)} />}
+      {apply && apply.mode !== "apply" && <CreateDialog state={apply} categories={categories} onClose={() => setApply(null)} onApplyInstead={projects.length ? () => setApply({ ...apply, mode: "apply" }) : undefined} />}
     </>
   );
 }
@@ -155,7 +159,7 @@ function Card({ t, onPreview, onApply, canEdit }: { t: GalleryTemplate; onPrevie
           </Button>
           {canEdit && (
             <Button variant="primary" className="flex-1" onClick={() => onApply(look)}>
-              Use this template
+              Create with this template
             </Button>
           )}
         </div>
@@ -196,7 +200,7 @@ function PreviewModal({ state, onChange, onApply }: { state: { t: GalleryTemplat
             </a>
             {onApply && (
               <button type="button" onClick={() => onApply(look)} className="flex h-9 items-center rounded-md bg-brand px-3 text-[12.5px] font-semibold text-[#0c0c0d] hover:bg-brand-hover">
-                Use this template
+                Create with this template
               </button>
             )}
             <RDialog.Close className="grid h-9 w-9 place-items-center rounded-md border border-white/15 text-white/80 hover:text-white" aria-label="Close preview">
@@ -271,6 +275,100 @@ function ApplyDialog({ state, projects, onClose }: { state: { t: GalleryTemplate
           </div>
         </div>
       )}
+    </Dialog>
+  );
+}
+
+/**
+ * "Create with this template": the customer's current website is researched and a new website is
+ * built from its content in this template and colourway. The result waits for approval as usual.
+ */
+function CreateDialog({ state, categories, onClose, onApplyInstead }: { state: { t: GalleryTemplate; look: number }; categories: GalleryCategory[]; onClose: () => void; onApplyInstead?: () => void }) {
+  const router = useRouter();
+  const { t } = state;
+  const [look, setLook] = useState(state.look);
+  const [f, setF] = useState({ websiteUrl: "", name: "", city: "", country: "Netherlands", category: t.categoryKeys[0] ?? categories[0]?.key ?? "local_service" });
+  const [pending, start] = useTransition();
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF((x) => ({ ...x, [k]: e.target.value }));
+  const suited = new Set(t.categoryKeys);
+  const go = () =>
+    start(async () => {
+      const r = await createFromTemplateAction({ designKey: t.key, variation: look, ...f });
+      if (!r.ok) return void toast.error(r.error);
+      toast.success(`${f.name} is being researched and built in ${t.name}. You will find it under Websites when it is ready for approval.`);
+      onClose();
+      router.push(`/websites/${r.data.projectId}`);
+    });
+  const input = "field-m h-10 w-full rounded-md border border-border-strong bg-surface px-3 text-[16px] outline-none focus:border-foreground/40 focus:shadow-[0_0_0_3px_var(--ring)] sm:text-[14px]";
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`Create with ${t.name}`}
+      description="Enter the customer's current website. HOPI reads it, keeps the real content (services, hours, contact details, photos where allowed) and builds a new website in this template. Nothing is sent; the result waits for your approval."
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={go} loading={pending} disabled={!f.websiteUrl.trim() || !f.name.trim() || !f.city.trim()}>
+            <Check className="h-4 w-4" /> Create website
+          </Button>
+        </>
+      }
+    >
+      <form className="grid gap-4" onSubmit={(e) => (e.preventDefault(), go())}>
+        <label className="grid gap-1.5 text-[13px] font-medium">
+          Current website of the customer
+          <input className={input} type="text" inputMode="url" autoComplete="url" placeholder="bakkerijdevries.nl" value={f.websiteUrl} onChange={set("websiteUrl")} />
+        </label>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="grid gap-1.5 text-[13px] font-medium">
+            Business name
+            <input className={input} type="text" autoComplete="organization" value={f.name} onChange={set("name")} />
+          </label>
+          <label className="grid gap-1.5 text-[13px] font-medium">
+            City
+            <input className={input} type="text" autoComplete="address-level2" value={f.city} onChange={set("city")} />
+          </label>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="grid gap-1.5 text-[13px] font-medium">
+            Sector
+            <Select value={f.category} onChange={set("category")}>
+              {[...categories].sort((a, b) => Number(suited.has(b.key)) - Number(suited.has(a.key))).map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                  {suited.has(c.key) ? " ✓" : ""}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="grid gap-1.5 text-[13px] font-medium">
+            Country
+            <Select value={f.country} onChange={set("country")}>
+              <option value="Netherlands">Netherlands</option>
+              <option value="Belgium">Belgium</option>
+            </Select>
+          </label>
+        </div>
+        <div className="grid gap-1.5 text-[13px] font-medium">
+          Colours
+          <div className="flex flex-wrap gap-2">
+            {t.looks.map((l, k) => (
+              <button key={l.name} type="button" aria-pressed={look === k} onClick={() => setLook(k)} className={cn("flex items-center gap-2 rounded-md border px-3 py-2 text-[13px]", look === k ? "border-foreground bg-surface-2" : "border-border")}>
+                <span className="h-4 w-4 rounded-full" style={{ background: l.swatch, boxShadow: "inset 0 0 0 1px rgba(0,0,0,.12)" }} />
+                {l.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        {onApplyInstead && (
+          <button type="button" onClick={onApplyInstead} className="justify-self-start text-[12.5px] text-muted underline underline-offset-2 hover:text-foreground">
+            Or switch a website you already made to this template
+          </button>
+        )}
+      </form>
     </Dialog>
   );
 }

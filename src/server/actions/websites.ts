@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { z } from "zod";
 import { siteSpecSchema } from "@/lib/site-spec";
 import { randomToken } from "../crypto";
@@ -15,6 +15,10 @@ import { integrationMode } from "../integrations/credentials";
 import { colorwayCount, colorwayName } from "@/sites/colorways";
 import { familyOf } from "@/sites/families";
 import { designName } from "@/sites/designs";
+import { BUSINESS_CATEGORIES } from "@/lib/constants";
+import { marketCountry } from "@/lib/markets";
+import { saveLead } from "../leads/save";
+import { slugify } from "@/lib/utils";
 
 async function ownedProject(orgId: string, projectId: string) {
   const [p] = await db()
@@ -238,5 +242,70 @@ export async function applyTemplateAction(projectId: string, designKey: string, 
     await db().update(schema.websiteProjects).set({ templateKey: key, updatedAt: new Date() }).where(eq(schema.websiteProjects.id, p.id));
     await builderTask(auth.org.id, p, "apply_edit", { spec, variation: v, summary: `Template switched to ${designName(key)}${v ? ` (${colorwayName(key, v)})` : ""}.` });
     return { projectId: p.id };
+  });
+}
+
+const fromTemplateSchema = z.object({
+  designKey: z.string().max(40),
+  variation: z.number().int().min(0).max(5).default(0),
+  websiteUrl: z
+    .string()
+    .trim()
+    .max(300)
+    .transform((u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`))
+    .pipe(z.string().url("Enter the customer's current website, for example bakkerijdevries.nl")),
+  name: z.string().trim().min(2, "Enter the business name").max(160),
+  category: z.enum(BUSINESS_CATEGORIES.map((c) => c.key) as [string, ...string[]]),
+  city: z.string().trim().min(1, "Enter the city").max(80),
+  country: marketCountry,
+});
+
+/**
+ * "Create with this template": a customer picked a template. HOPI adds the business (or finds it),
+ * researches its current website and builds a new website from that content in the chosen
+ * template and colourway. Nothing is sent to anyone; the result waits for approval as usual.
+ */
+export async function createFromTemplateAction(input: z.input<typeof fromTemplateSchema>) {
+  return action({ name: "website.create_from_template", revalidate: ["/websites", "/websites/templates", "/businesses"], limit: 20 }, async (auth) => {
+    const p = fromTemplateSchema.parse(input);
+    if (!familyOf(p.designKey)) throw new UserError("Unknown template.");
+    const variation = Math.min(p.variation, colorwayCount(p.designKey) - 1);
+    const saved = await saveLead(
+      auth.org.id,
+      { name: p.name, category: p.category, city: p.city, country: p.country, address: null, phone: null, websiteUrl: p.websiteUrl, source: "manual" },
+      { weights: auth.org.settings.scoringWeights, minScore: auth.org.settings.minLeadScore },
+    );
+    const [b] = await db().select().from(schema.businesses).where(and(eq(schema.businesses.id, saved.id), eq(schema.businesses.organizationId, auth.org.id)));
+    if (!b) throw new UserError("The business could not be saved.");
+    if (b.erasedAt) throw new UserError("This business's data was erased at its request.");
+    // An existing record without a website gets the one the customer gave.
+    if (!b.websiteUrl) await db().update(schema.businesses).set({ websiteUrl: p.websiteUrl, updatedAt: new Date() }).where(eq(schema.businesses.id, b.id));
+    // The business's website project (one per business), now in the chosen template.
+    const [existingProject] = await db()
+      .select()
+      .from(schema.websiteProjects)
+      .where(and(eq(schema.websiteProjects.organizationId, auth.org.id), eq(schema.websiteProjects.businessId, b.id), isNull(schema.websiteProjects.deletedAt)))
+      .orderBy(desc(schema.websiteProjects.createdAt))
+      .limit(1);
+    const project =
+      existingProject ??
+      (
+        await db()
+          .insert(schema.websiteProjects)
+          .values({ organizationId: auth.org.id, businessId: b.id, templateKey: p.designKey, slug: `${slugify(b.name, 36) || "site"}-${randomToken(4).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5)}`, status: "generating" })
+          .returning()
+      )[0];
+    await db().update(schema.websiteProjects).set({ templateKey: p.designKey, status: "generating", updatedAt: new Date() }).where(eq(schema.websiteProjects.id, project.id));
+    // Research first (it reads the current website), then build in the chosen template; the colourway travels along.
+    const { task } = await createTask(auth.org.id, null, {
+      agentKey: "research",
+      type: "research_business",
+      businessId: b.id,
+      projectId: project.id,
+      input: { next: ["generate_website", "qc"], variation },
+      idempotencyKey: `from-template:${b.id}:${randomToken(6)}`,
+      priority: 2,
+    });
+    return { projectId: project.id, taskId: task.id, existing: saved.status === "duplicate" };
   });
 }
