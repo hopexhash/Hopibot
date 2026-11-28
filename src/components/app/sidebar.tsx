@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, ChevronsLeft, ChevronsRight, Cpu, HeartPulse, KanbanSquare, Menu, Search, TerminalSquare, X, type LucideIcon } from "lucide-react";
+import { Bot, ChevronsLeft, ChevronsRight, Cpu, HeartPulse, KanbanSquare, Menu, MessageSquare, Search, X, type LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,7 +38,7 @@ export function Wordmark({ className }: { className?: string }) {
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <Link href="/command" className="flex h-10 items-center gap-2.5 px-1.5" aria-label="HOPI, Command Center">
+    <Link href="/console" className="flex h-10 items-center gap-2.5 px-1.5" aria-label="HOPI, chat with the agents">
       {collapsed ? (
         <LogoMark className="mx-auto h-9 w-9 shrink-0" />
       ) : (
@@ -229,9 +229,9 @@ export function MobileNav({ counts }: { counts: Record<string, number> }) {
 }
 
 const TABS: { href: string; label: string; icon: LucideIcon; hub?: boolean }[] = [
+  { href: "/command", label: "Command", icon: Cpu },
   { href: "/agents", label: "Agents", icon: Bot },
-  { href: "/terminal", label: "Terminal", icon: TerminalSquare },
-  { href: "/command", label: "Command", icon: Cpu, hub: true },
+  { href: "/console", label: "Chat", icon: MessageSquare, hub: true },
   { href: "/pipeline", label: "CRM", icon: KanbanSquare },
   { href: "/health", label: "Health", icon: HeartPulse },
 ];

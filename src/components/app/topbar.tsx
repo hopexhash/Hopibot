@@ -59,7 +59,7 @@ export function Topbar({ user, counts, notifications }: { user: { name: string |
           <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </button>
         {/* Phones: the logo alone, centred in the header. */}
-        <Link href="/command" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI, Command Center">
+        <Link href="/console" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" aria-label="HOPI, chat with the agents">
           <Wordmark className="text-[21px]" />
         </Link>
         <div className="hidden min-w-0 items-center gap-2.5 lg:flex">
