@@ -3,7 +3,6 @@ import { TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CommandPalette } from "@/components/app/command-palette";
-import { MatrixRain } from "@/components/app/matrix-rain";
 import { MobileTabBar, Sidebar } from "@/components/app/sidebar";
 import { Topbar } from "@/components/app/topbar";
 import { requireAuth } from "@/server/auth";
@@ -12,9 +11,9 @@ import { mockModeAllowed } from "@/server/integrations/credentials";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: { default: "HOPI Bot", template: "%s · HOPI Bot" },
+  title: { default: "HOPI Command", template: "%s · HOPI Command" },
   description: "Autonomous AI website agency — command center.",
-  appleWebApp: { capable: true, title: "HOPI Bot", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "HOPI", statusBarStyle: "default" },
 };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -45,7 +44,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="relative flex min-h-dvh">
-      <MatrixRain />
       <Sidebar counts={counts} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         {mock && (
@@ -64,7 +62,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           counts={counts}
           notifications={notifications.map((n) => ({ ...n, createdAt: n.createdAt.toISOString(), readAt: n.readAt?.toISOString() ?? null }))}
         />
-        <main className="mx-auto w-full max-w-[1500px] flex-1 px-3.5 pb-[calc(var(--safe-bottom)+88px)] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+        <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-[calc(var(--safe-bottom)+92px)] pt-6 sm:px-6 lg:px-10 lg:pb-14 lg:pt-8">{children}</main>
       </div>
       <MobileTabBar />
       <CommandPalette />

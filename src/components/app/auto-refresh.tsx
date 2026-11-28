@@ -12,5 +12,5 @@ export function AutoRefresh({ seconds = 5 }: { seconds?: number }) {
     }, seconds * 1000);
     return () => clearInterval(iv);
   }, [router, seconds]);
-  return <span className="h-2 w-2 flex-none animate-pulse-dot rounded-full bg-accent" aria-label="Live" />;
+  return <span className="h-2 w-2 flex-none status-live rounded-full bg-brand text-brand" aria-label="Live" />;
 }

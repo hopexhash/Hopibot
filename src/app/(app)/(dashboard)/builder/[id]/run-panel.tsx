@@ -100,7 +100,7 @@ export function RunPanel({
   const blocked = !claudeConnected ? "Claude is not connected. Add your Anthropic key in Integrations to run custom agents." : !workerOnline ? "No worker is online, so runs will wait in the queue until one connects." : null;
 
   return (
-    <Card className="border-[rgba(0,255,120,0.22)]">
+    <Card className="border-border-strong">
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export function RunPanel({
         {!agent.tested && agent.status === "draft" && <p className="text-[12.5px] text-muted">Activation unlocks after one test finishes successfully.</p>}
 
         {taskId && (
-          <div className="term overflow-hidden rounded-xl border border-border bg-[#030604]">
+          <div className="term overflow-hidden rounded-xl border border-border bg-surface-2">
             <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 text-[12px]">
               <span className="flex items-center gap-2 font-sans font-medium">
                 {running ? <Loader2 className="h-4 w-4 animate-spin text-accent" /> : task?.status === "COMPLETED" ? <CircleCheck className="h-4 w-4 text-accent" /> : <CircleX className="h-4 w-4 text-danger" />}
@@ -167,9 +167,9 @@ export function RunPanel({
 
         {task && DONE.includes(task.status) && (
           <div className="space-y-3">
-            {task.error && <p className="rounded-xl border border-[rgba(255,77,97,0.3)] bg-danger-soft px-3.5 py-3 text-[13px] leading-relaxed text-danger">{task.error}</p>}
+            {task.error && <p className="rounded-xl border border-[rgba(180,42,37,0.3)] bg-danger-soft px-3.5 py-3 text-[13px] leading-relaxed text-danger">{task.error}</p>}
             {task.output?.result && (
-              <div className="rounded-xl border border-border bg-surface-2 p-3.5">
+              <div className="rounded-lg border border-border bg-surface-2 p-3.5">
                 <p className="mb-1.5 text-[12px] font-medium text-accent">Agent report{task.output.test ? " (test run — nothing was written)" : ""}</p>
                 <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed">{task.output.result}</p>
               </div>
@@ -186,7 +186,7 @@ export function RunPanel({
                         {i + 1}. {s.tool.replace(/_/g, " ")}
                         {s.ok ? "" : " — failed"}
                       </span>
-                      <span className="term mt-0.5 block max-h-24 overflow-y-auto break-words rounded-lg bg-[#030604] p-2 text-[11.5px] text-muted">{s.result}</span>
+                      <span className="term mt-0.5 block max-h-24 overflow-y-auto break-words rounded-lg bg-surface-2 p-2 text-[11.5px] text-muted">{s.result}</span>
                     </li>
                   ))}
                 </ol>

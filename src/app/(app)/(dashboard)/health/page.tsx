@@ -68,14 +68,14 @@ export default async function HealthPage() {
       <PageHeader eyebrow="Intelligence" title="System Health" description="Is everything running? These are live checks of the app, the database, the task queue, your agent workers and each connected service. Refreshes every 20 seconds." />
       <div
         className={cn(
-          "mb-4 flex items-start gap-3.5 rounded-2xl border p-4 sm:p-5",
-          overall.tone === "green" ? "border-[rgba(0,255,120,0.3)] bg-accent-soft" : overall.tone === "yellow" ? "border-[rgba(255,191,71,0.3)] bg-warning-soft" : "border-[rgba(255,77,97,0.3)] bg-danger-soft",
+          "mb-4 flex items-start gap-3.5 rounded-xl border p-4 sm:p-5",
+          overall.tone === "green" ? "border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-success-soft" : overall.tone === "yellow" ? "border-[rgba(196,128,0,0.3)] bg-warning-soft" : "border-[rgba(180,42,37,0.3)] bg-danger-soft",
         )}
         role="status"
       >
-        <span className={cn("mt-1 h-3.5 w-3.5 shrink-0 rounded-full", overall.tone === "green" ? "bg-accent text-accent animate-pulse-dot" : overall.tone === "yellow" ? "bg-warning" : "bg-danger")} />
+        <span className={cn("mt-1 h-3.5 w-3.5 shrink-0 rounded-full", overall.tone === "green" ? "bg-success text-success status-live" : overall.tone === "yellow" ? "bg-warning" : "bg-danger")} />
         <div>
-          <p className={cn("text-[17px] font-semibold", overall.tone === "green" ? "text-accent" : overall.tone === "yellow" ? "text-warning" : "text-danger")}>{overall.title}</p>
+          <p className={cn("text-[17px] font-semibold", overall.tone === "green" ? "text-success" : overall.tone === "yellow" ? "text-warning" : "text-danger")}>{overall.title}</p>
           <p className="mt-0.5 text-[13.5px] leading-relaxed text-foreground/90">{overall.text}</p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default async function HealthPage() {
       </div>
       <div className="mt-8 grid gap-4 xl:grid-cols-2">
         <Section title="Recent incidents" description="Errors recorded in the last 7 days." className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {incidents.length === 0 && <p className="px-4 py-8 text-center text-[13px] text-accent">No incidents in the last 7 days.</p>}
             {incidents.map((i, idx) => (
               <div key={idx} className="px-4 py-2.5">
@@ -142,7 +142,7 @@ export default async function HealthPage() {
           </Card>
         </Section>
         <Section title="Failed executions" description="Tasks that need a retry." className="mb-0" actions={<Link href="/tasks?status=FAILED" className="text-[12.5px] font-medium text-accent hover:underline">Open task queue →</Link>}>
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {failed.length === 0 && <p className="px-4 py-8 text-center text-[13px] text-accent">No failed tasks.</p>}
             {failed.map((f) => (
               <div key={f.id} className="px-4 py-2.5">

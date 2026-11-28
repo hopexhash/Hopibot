@@ -44,7 +44,7 @@ export default async function EmailDesignsPage({ searchParams }: { searchParams:
         actions={
           <div className="flex gap-1 text-[13px]">
             {(["nl", "en"] as const).map((l) => (
-              <Link key={l} href={l === "nl" ? "/emails/designs" : "/emails/designs?lang=en"} className={`rounded-md border px-2.5 py-1 ${lang === l ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
+              <Link key={l} href={l === "nl" ? "/emails/designs" : "/emails/designs?lang=en"} className={`rounded-md border px-2.5 py-1 ${lang === l ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-fg"}`}>
                 {l === "nl" ? "Nederlands" : "English"}
               </Link>
             ))}

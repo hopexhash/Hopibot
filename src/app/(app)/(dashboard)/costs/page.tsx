@@ -54,7 +54,7 @@ export default async function CostsPage() {
       <SubNav section="/analytics" />
       <PageHeader eyebrow="Intelligence" title="AI costs" description="Every paid call your agents make is recorded here. When a limit is reached, agents stop spending and ask you first, so the bill can never run away." />
       {worst >= warn && (
-        <div className={cn("mb-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-[13.5px] leading-relaxed", worst >= 100 ? "border-[rgba(255,77,97,0.3)] bg-danger-soft text-danger" : "border-[rgba(255,191,71,0.3)] bg-warning-soft text-warning")}>
+        <div className={cn("mb-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-[13.5px] leading-relaxed", worst >= 100 ? "border-[rgba(180,42,37,0.3)] bg-danger-soft text-danger" : "border-[rgba(196,128,0,0.3)] bg-warning-soft text-warning")}>
           <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
             {worst >= 100
@@ -124,7 +124,7 @@ export default async function CostsPage() {
 
       <div className="mt-8 grid gap-4 xl:grid-cols-3">
         <Section title="Most expensive runs" description="Single tasks, last 30 days." className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {topRuns.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No paid runs yet.</p>}
             {topRuns.map((r) => (
               <div key={String(r.id)} className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -141,10 +141,10 @@ export default async function CostsPage() {
           </Card>
         </Section>
         <Section title="Cost per website" description="All API spend tied to one site." className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {topSites.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No website costs recorded yet.</p>}
             {topSites.map((r) => (
-              <Link key={String(r.id)} href={`/websites/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-[rgba(0,255,120,0.035)]">
+              <Link key={String(r.id)} href={`/websites/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-surface-2">
                 <span className="min-w-0 truncate text-[13.5px] font-medium">{String(r.name)}</span>
                 <span className="tabular shrink-0 text-[13.5px] font-medium">{formatUsd(Number(r.cost))}</span>
               </Link>
@@ -152,10 +152,10 @@ export default async function CostsPage() {
           </Card>
         </Section>
         <Section title="Cost per lead or customer" description="Everything spent on one business." className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {topCustomers.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-muted">No per-lead costs recorded yet.</p>}
             {topCustomers.map((r) => (
-              <Link key={String(r.id)} href={`/businesses/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-[rgba(0,255,120,0.035)]">
+              <Link key={String(r.id)} href={`/businesses/${String(r.id)}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-surface-2">
                 <span className="min-w-0">
                   <span className="block truncate text-[13.5px] font-medium">{String(r.name)}</span>
                   <span className="block text-[12px] text-subtle">{isCustomerStage(String(r.pipeline_stage)) ? "Customer" : "Lead"}</span>

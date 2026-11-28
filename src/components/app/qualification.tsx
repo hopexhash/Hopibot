@@ -48,7 +48,7 @@ export function WebsiteFeedback({ businessId, current }: { businessId: string; c
             }
             className={cn(
               "min-h-11 rounded-lg border px-3 py-2 text-left text-[13px] font-medium transition-colors disabled:opacity-60",
-              chosen === o.key ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:border-border-strong hover:text-foreground",
+              chosen === o.key ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:border-border-strong hover:text-foreground",
             )}
           >
             {o.label}

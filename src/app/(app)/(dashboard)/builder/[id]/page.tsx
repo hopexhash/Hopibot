@@ -57,7 +57,7 @@ export default async function CustomAgentPage({ params, searchParams }: { params
           <Card className="p-4 sm:p-5">
             <h3 className="text-[14px] font-semibold">What this agent remembers</h3>
             <p className="mt-0.5 text-[12.5px] text-muted">Notes it saved for itself on earlier runs.</p>
-            <pre className="term mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-[#030604] p-3 text-[12px] text-muted">{agent.memory || "Nothing yet."}</pre>
+            <pre className="term mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-2 p-3 text-[12px] text-muted">{agent.memory || "Nothing yet."}</pre>
           </Card>
         )}
 

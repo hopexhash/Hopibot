@@ -40,7 +40,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
             href={s ? `/tasks?status=${s}` : "/tasks"}
             className={cn(
               "mono flex h-9 shrink-0 items-center gap-2 rounded-lg border px-3 text-[11.5px] font-semibold uppercase tracking-[0.1em]",
-              filter === s ? "border-[rgba(0,255,120,0.45)] bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+              filter === s ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-foreground",
             )}
           >
             {s ? LABEL[s] : "All"}
@@ -73,7 +73,7 @@ export default async function TaskQueuePage({ searchParams }: { searchParams: Pr
             return (
               <TR key={r.id}>
                 <TD className="mono whitespace-nowrap text-[12px] font-semibold uppercase tracking-[0.1em]">
-                  <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#00ff78" }} />
+                  <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ background: meta?.color ?? "#ff4d23" }} />
                   {meta?.name ?? (r.agentKey === "custom" ? String((r.input as { customAgentName?: string }).customAgentName ?? "Custom agent") : r.agentKey)}
                 </TD>
                 <TD className="max-w-[320px]">

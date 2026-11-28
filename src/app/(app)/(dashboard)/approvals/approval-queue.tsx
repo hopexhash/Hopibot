@@ -63,7 +63,7 @@ export function ApprovalQueue({ items, canDecide }: { items: ApprovalDetail[]; c
             </div>
 
             {a.facts.length > 0 && (
-              <dl className="mt-4 space-y-1.5 rounded-xl border border-border bg-[#050d09] p-3 text-[13px]">
+              <dl className="mt-4 space-y-1.5 rounded-xl border border-border bg-surface-2 p-3 text-[13px]">
                 {a.facts.map((f) => (
                   <div key={f.label} className="flex gap-3">
                     <dt className="w-24 shrink-0 text-muted">{f.label}</dt>
@@ -80,7 +80,7 @@ export function ApprovalQueue({ items, canDecide }: { items: ApprovalDetail[]; c
                 ))}
               </dl>
             )}
-            {a.preview && <p className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-[#050d09] p-3 text-[13px] leading-relaxed text-muted">{a.preview}</p>}
+            {a.preview && <p className="mt-3 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border bg-surface-2 p-3 text-[13px] leading-relaxed text-muted">{a.preview}</p>}
 
             <p className="mt-3 text-[12.5px] leading-relaxed text-muted">{a.consequence}</p>
 

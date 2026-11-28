@@ -62,7 +62,7 @@ export function StatusBadge({ status, className, label }: { status: string; clas
   return (
     <Badge key={status} tone={m.tone} className={cn("capitalize-first", changed && "animate-badge-swap", className)}>
       <span
-        className={cn("status-dot inline-block h-1.5 w-1.5 rounded-full bg-current", m.pulse && "animate-pulse-dot")}
+        className={cn("status-dot inline-block h-1.5 w-1.5 rounded-full bg-current", m.pulse && "status-live")}
         aria-hidden
       />
       {label ?? m.label}

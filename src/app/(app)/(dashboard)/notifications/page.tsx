@@ -28,7 +28,7 @@ export default async function NotificationsPage() {
           <EmptyState icon={<BellOff />} title="No notifications yet" description="When your agents finish something or need you, it shows up here and in the bell at the top." />
         </Card>
       ) : (
-        <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+        <Card className="divide-y divide-border">
           {rows.map((n) => {
             const k = NOTIFICATION_KIND[n.kind] ?? NOTIFICATION_KIND.info;
             const Icon = k.icon;
@@ -44,7 +44,7 @@ export default async function NotificationsPage() {
               </>
             );
             return n.href ? (
-              <Link key={n.id} href={n.href} className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-[rgba(0,255,120,0.035)]">
+              <Link key={n.id} href={n.href} className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-surface-2">
                 {body}
               </Link>
             ) : (

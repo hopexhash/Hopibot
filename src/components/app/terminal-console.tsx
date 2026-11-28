@@ -22,8 +22,8 @@ const TABS: { key: Tab; label: string; about: string }[] = [
   { key: "security", label: "Security", about: "Sign-ins, approvals and configuration changes (admins only)." },
 ];
 const TAG: Record<string, string> = { orchestrator: "SYSTEM", lead_finder: "DISCOVERY", research: "RESEARCH", contact_research: "CONTACTS", website_builder: "BUILDER", quality_control: "QA", deployment: "DEPLOY", sales: "OUTREACH", custom: "CUSTOM" };
-const LEVEL: Record<string, string> = { info: "text-[#b8d6c2]", ok: "text-accent", warn: "text-warning", error: "text-danger" };
-const TONE: Record<string, string> = { ok: "text-accent", warn: "text-warning", error: "text-danger", muted: "text-subtle", head: "text-foreground font-semibold" };
+const LEVEL: Record<string, string> = { info: "text-foreground/85", ok: "text-success", warn: "text-warning", error: "text-danger" };
+const TONE: Record<string, string> = { ok: "text-success", warn: "text-warning", error: "text-danger", muted: "text-subtle", head: "text-foreground font-semibold" };
 
 function hhmmss(iso: string) {
   const d = new Date(iso);
@@ -190,25 +190,23 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
       {/* Live system information from real health checks */}
       <div className="-mx-3.5 flex gap-2 overflow-x-auto px-3.5 pb-0.5 sm:mx-0 sm:flex-wrap sm:px-0">
         {chips.map((c) => (
-          <div key={c.label} className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-2/70 px-3 py-2 text-[12px]">
-            <span className={cn("h-2 w-2 rounded-full", { ok: "bg-accent", warn: "bg-warning", error: "bg-danger", muted: "bg-subtle" }[c.tone])} />
+          <div key={c.label} className="flex shrink-0 items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[12px]">
+            <span className={cn("h-2 w-2 rounded-full", { ok: "bg-success", warn: "bg-warning", error: "bg-danger", muted: "bg-subtle" }[c.tone])} />
             <span className="text-muted">{c.label}</span>
             <span className={cn("tabular font-medium", { ok: "text-foreground", warn: "text-warning", error: "text-danger", muted: "text-subtle" }[c.tone])}>{c.value}</span>
           </div>
         ))}
       </div>
 
-      <div className="panel overflow-hidden">
+      <div className="theme-ink overflow-hidden rounded-xl border border-border">
         {/* Title bar */}
         <div className="flex items-center gap-2 border-b border-border px-3 py-2">
           <div className="flex items-center gap-1.5" aria-hidden>
-            <span className="h-2.5 w-2.5 rounded-full bg-danger/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
-            <span className="h-2.5 w-2.5 rounded-full bg-accent/80" />
+            <span className="h-2 w-2 bg-brand" />
           </div>
           <span className="term ml-1 hidden text-[12px] text-muted sm:inline">hopibot://terminal</span>
           <span className={cn("flex items-center gap-1.5 text-[12px] font-medium", streaming ? "text-accent" : paused ? "text-warning" : "text-danger")}>
-            <span className={cn("h-1.5 w-1.5 rounded-full bg-current", streaming && "animate-pulse-dot")} />
+            <span className={cn("h-1.5 w-1.5 rounded-full bg-current", streaming && "status-live")} />
             {error ? "Disconnected" : paused ? "Paused" : "Live"}
           </span>
           <div className="flex-1" />
@@ -248,7 +246,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
           <p className="min-w-0 flex-1 truncate text-[12.5px] text-muted">{TABS.find((t) => t.key === tab)?.about}</p>
           <div className="flex gap-2">
             {showAgentFilter && (
-              <select value={agent} onChange={(e) => setAgent(e.target.value)} aria-label="Filter by agent" className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-[#040a07] px-2 text-[16px] text-foreground focus:border-accent focus:outline-none sm:w-44 sm:flex-none sm:text-[12.5px]">
+              <select value={agent} onChange={(e) => setAgent(e.target.value)} aria-label="Filter by agent" className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 text-[16px] text-foreground focus:border-accent focus:outline-none sm:w-44 sm:flex-none sm:text-[12.5px]">
                 <option value="">All agents</option>
                 {AGENT_KEYS.map((k) => (
                   <option key={k} value={k}>
@@ -260,7 +258,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
             )}
             <div className="relative min-w-0 flex-1 sm:w-52 sm:flex-none">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-subtle" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter…" aria-label="Filter lines" className="term h-9 w-full rounded-lg border border-border bg-[#040a07] pl-8 pr-8 text-[16px] text-foreground placeholder:text-subtle focus:border-accent focus:outline-none sm:text-[12.5px]" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter…" aria-label="Filter lines" className="term h-9 w-full rounded-lg border border-border bg-surface pl-8 pr-8 text-[16px] text-foreground placeholder:text-subtle focus:border-accent focus:outline-none sm:text-[12.5px]" />
               {query && (
                 <button onClick={() => setQuery("")} className="absolute right-1 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center text-subtle" aria-label="Clear filter">
                   <X className="h-3.5 w-3.5" />
@@ -279,7 +277,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
               if (el) setFollow(el.scrollHeight - el.scrollTop - el.clientHeight < 48);
             }}
             onClick={() => window.getSelection()?.isCollapsed && field.current?.focus({ preventScroll: true })}
-            className="term h-[min(52dvh,560px)] overflow-y-auto bg-[#020503] px-3 py-3 text-[12px] leading-[1.75] sm:text-[12.5px]"
+            className="term h-[min(52dvh,560px)] overflow-y-auto bg-background px-3 py-3 text-[12px] leading-[1.75] sm:text-[12.5px]"
             role="log"
             aria-live="polite"
             aria-label="Terminal output"
@@ -293,19 +291,19 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
             ) : (
               lines.map((l) =>
                 "local" in l ? (
-                  <div key={l.key} className={cn("term-line whitespace-pre-wrap break-words", l.kind === "cmd" ? "mt-1 text-accent" : (TONE[l.tone ?? ""] ?? "text-[#b8d6c2]"))}>
+                  <div key={l.key} className={cn("term-line whitespace-pre-wrap break-words", l.kind === "cmd" ? "mt-1 text-accent" : (TONE[l.tone ?? ""] ?? "text-foreground/85"))}>
                     {l.text}
                   </div>
                 ) : (
-                  <div key={l.key} className="term-line flex gap-2 transition-colors duration-150 hover:bg-[rgba(0,255,120,0.04)]">
+                  <div key={l.key} className="term-line flex gap-2 transition-colors duration-150 hover:bg-surface-2">
                     <span className="shrink-0 text-subtle" suppressHydrationWarning>
                       [{hhmmss(l.at)}]
                     </span>
-                    <span className="hidden w-[84px] shrink-0 truncate font-semibold sm:inline" style={{ color: AGENT_META[l.tag as AgentKey]?.color ?? "#00ff78" }}>
+                    <span className="hidden w-[84px] shrink-0 truncate font-semibold sm:inline" style={{ color: AGENT_META[l.tag as AgentKey]?.color ?? "#ff4d23" }}>
                       {TAG[l.tag] ?? l.tag.toUpperCase()}
                     </span>
                     <span className={cn("min-w-0 whitespace-pre-wrap break-words", LEVEL[l.level])}>
-                      <span className="font-semibold sm:hidden" style={{ color: AGENT_META[l.tag as AgentKey]?.color ?? "#00ff78" }}>
+                      <span className="font-semibold sm:hidden" style={{ color: AGENT_META[l.tag as AgentKey]?.color ?? "#ff4d23" }}>
                         {TAG[l.tag] ?? l.tag.toUpperCase()}{" "}
                       </span>
                       {l.text}
@@ -321,7 +319,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
                 setFollow(true);
                 if (box.current) box.current.scrollTop = box.current.scrollHeight;
               }}
-              className="absolute bottom-3 right-3 flex h-10 items-center gap-1.5 rounded-xl border border-border-strong bg-[#06100b] px-3 text-[12px] font-medium text-accent shadow-[0_0_16px_-4px_rgba(0,255,120,0.5)]"
+              className="absolute bottom-3 right-3 flex h-10 items-center gap-1.5 rounded-xl border border-border-strong bg-surface px-3 text-[12px] font-medium text-accent"
             >
               <ArrowDownToLine className="h-3.5 w-3.5" /> Latest
             </button>
@@ -329,7 +327,7 @@ export function TerminalConsole({ initialTab = "agents", initialAgent = "", canS
         </div>
 
         {/* Prompt */}
-        <div className="border-t border-border bg-[#030705]">
+        <div className="border-t border-border bg-surface">
           <div className="flex items-center gap-2 px-3 py-2">
             <div className="flex shrink-0 rounded-lg border border-border p-0.5" role="group" aria-label="Input mode">
               <button onClick={() => setMode("command")} aria-pressed={mode === "command"} className={cn("term h-8 rounded-md px-2.5 text-[12px] font-semibold", mode === "command" ? "bg-accent-soft text-accent" : "text-muted")}>

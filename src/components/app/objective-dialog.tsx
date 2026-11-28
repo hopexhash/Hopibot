@@ -216,7 +216,7 @@ export function ObjectiveDialog({ label = "New objective", size = "md", variant 
             )}
 
             {estimate && blocked && (
-              <div className="flex items-start gap-2.5 rounded-xl border border-[rgba(255,77,97,0.3)] bg-danger-soft px-3.5 py-3 text-[13px] leading-relaxed text-danger">
+              <div className="flex items-start gap-2.5 rounded-xl border border-[rgba(180,42,37,0.3)] bg-danger-soft px-3.5 py-3 text-[13px] leading-relaxed text-danger">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>
                   {!estimate.ready.googlePlaces && plan.discovery ? "Google Places is not connected, so businesses cannot be discovered. " : ""}
@@ -284,7 +284,7 @@ export function ObjectiveDialog({ label = "New objective", size = "md", variant 
                             key={a.key}
                             onClick={() => toggleAction(a.key)}
                             aria-pressed={on}
-                            className={cn("h-9 rounded-lg border px-3 text-[12.5px] font-medium transition-colors", on ? "border-accent/60 bg-accent-soft text-accent" : "border-border text-muted hover:border-border-strong")}
+                            className={cn("h-9 rounded-lg border px-3 text-[12.5px] font-medium transition-colors", on ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:border-border-strong")}
                           >
                             {a.label}
                           </button>

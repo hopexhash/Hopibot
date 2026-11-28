@@ -10,7 +10,7 @@ import { hasRole, requireAuth } from "@/server/auth";
 import { SUPPORTED_MODELS } from "@/server/costs/pricing";
 import { db, schema } from "@/server/db";
 import { AiSettingsForm } from "./ai-settings";
-import { AgencyForm, InterfaceCard, MembersCard, ScoringForm, WebsiteForm } from "./settings-forms";
+import { AgencyForm, MembersCard, ScoringForm, WebsiteForm } from "./settings-forms";
 
 export const metadata = { title: "Settings" };
 
@@ -64,7 +64,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <div className="space-y-4">
           <AgencyForm settings={auth.org.settings} canAdmin={canAdmin} />
           <WebsiteForm settings={auth.org.settings} canAdmin={canAdmin} />
-          <InterfaceCard />
           <div className="grid gap-3 sm:grid-cols-2">
             <Link href="/integrations" className="panel panel-hover flex items-start gap-3 p-4">
               <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
@@ -103,7 +102,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               </div>
             </CardHeader>
             <CardContent>
-              <dl className="divide-y divide-[rgba(0,255,120,0.06)]">
+              <dl className="divide-y divide-border">
                 {ROLES.map((r) => (
                   <div key={r.role} className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:gap-4">
                     <dt className="w-24 shrink-0 text-[13.5px] font-medium">{r.role}</dt>

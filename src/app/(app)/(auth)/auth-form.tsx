@@ -39,9 +39,9 @@ export function AuthForm({ mode, action, signupEnabled, codeAction }: Props) {
   const f = state?.fields ?? {};
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">{mode === "login" ? "Welcome back" : "Create your agency"}</h1>
+      <h1 className="font-display text-[32px] font-semibold leading-tight tracking-[-0.03em]">{mode === "login" ? "Welcome back" : "Create your agency"}</h1>
       <p className="mt-1.5 text-[13px] text-muted">
-        {mode === "login" ? "Sign in to your HOPI Bot workspace." : "Set up a workspace for your website agency."}
+        {mode === "login" ? "Sign in to your HOPI workspace." : "Set up a workspace for your website agency."}
       </p>
       <form action={formAction} className="mt-8 space-y-4">
         {mode === "signup" && (
@@ -80,8 +80,8 @@ export function AuthForm({ mode, action, signupEnabled, codeAction }: Props) {
         {mode === "login" ? (
           signupEnabled ? (
             <>
-              New to HOPI Bot?{" "}
-              <Link className="font-medium text-accent hover:underline" href="/signup">
+              New to HOPI?{" "}
+              <Link className="font-medium text-foreground underline underline-offset-2 hover:text-accent" href="/signup">
                 Create a workspace
               </Link>
             </>
@@ -89,7 +89,7 @@ export function AuthForm({ mode, action, signupEnabled, codeAction }: Props) {
         ) : (
           <>
             Already have an account?{" "}
-            <Link className="font-medium text-accent hover:underline" href="/login">
+            <Link className="font-medium text-foreground underline underline-offset-2 hover:text-accent" href="/login">
               Sign in
             </Link>
           </>

@@ -71,7 +71,7 @@ export function Onboarding({ steps }: { steps: OnboardingStep[] }) {
                 {s.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className={cn("text-[13.5px] font-medium", s.done && "text-muted line-through decoration-[rgba(0,255,120,0.4)]")}>{s.title}</p>
+                <p className={cn("text-[13.5px] font-medium", s.done && "text-muted line-through decoration-[rgba(12,12,13,0.3)]")}>{s.title}</p>
                 <p className="mt-0.5 text-[12.5px] leading-snug text-muted">{s.text}</p>
                 {!s.done && (
                   <Link href={s.href} className="mt-2 inline-flex h-9 items-center rounded-lg border border-border-strong px-3 text-[12.5px] font-medium text-accent hover:bg-accent-soft">

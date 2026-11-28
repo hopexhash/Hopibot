@@ -14,7 +14,6 @@ import type {
 } from "@/server/queries/command-center";
 import type { AutonomyStatus } from "@/server/orchestrator/autopilot";
 import type { ActivityEntry } from "@/server/queries/metrics";
-import { MatrixRain } from "./matrix-rain";
 import { LogoMark } from "./sidebar";
 import { useCommandCenter, useNow } from "./live";
 
@@ -28,39 +27,39 @@ const STALE_MS = 5 * 60_000;
 const TONE = {
   completed: {
     label: "COMPLETED",
-    text: "text-accent",
-    dot: "bg-accent",
-    pill: "border-[rgba(0,255,120,0.35)] text-accent",
+    text: "text-success",
+    dot: "bg-success",
+    pill: "border-[color-mix(in_srgb,var(--success)_35%,transparent)] text-success",
   },
   info: {
     label: "INFO",
     text: "text-info",
     dot: "bg-info",
-    pill: "border-[rgba(67,191,255,0.35)] text-info",
+    pill: "border-[rgba(47,111,176,0.35)] text-info",
   },
   running: {
     label: "RUNNING",
-    text: "text-warning",
-    dot: "bg-warning",
-    pill: "border-[rgba(255,191,71,0.4)] text-warning",
+    text: "text-accent",
+    dot: "bg-brand",
+    pill: "border-[rgba(255,77,35,0.4)] text-accent",
   },
   waiting: {
     label: "WAITING",
     text: "text-warning",
     dot: "bg-warning",
-    pill: "border-[rgba(255,191,71,0.4)] text-warning",
+    pill: "border-[color-mix(in_srgb,var(--warning)_40%,transparent)] text-warning",
   },
   warning: {
     label: "WARNING",
     text: "text-warning",
     dot: "bg-warning",
-    pill: "border-[rgba(255,191,71,0.4)] text-warning",
+    pill: "border-[rgba(196,128,0,0.4)] text-warning",
   },
   failed: {
     label: "FAILED",
     text: "text-danger",
     dot: "bg-danger",
-    pill: "border-[rgba(255,77,97,0.4)] text-danger",
+    pill: "border-[rgba(180,42,37,0.4)] text-danger",
   },
   done: {
     label: "DONE",
@@ -109,13 +108,13 @@ const AGENT_STATE: Record<
   AgentLiveState["status"],
   { label: string; tone: Tone }
 > = {
-  running: { label: "ACTIVE", tone: "completed" },
-  queued: { label: "QUEUED", tone: "running" },
-  waiting: { label: "WAITING FOR YOU", tone: "waiting" },
-  failed: { label: "LAST TASK FAILED", tone: "failed" },
-  idle: { label: "IDLE", tone: "done" },
-  disabled: { label: "SWITCHED OFF", tone: "done" },
-  offline: { label: "OFFLINE", tone: "failed" },
+  running: { label: "Active", tone: "running" },
+  queued: { label: "Queued", tone: "info" },
+  waiting: { label: "Waiting for you", tone: "waiting" },
+  failed: { label: "Last task failed", tone: "failed" },
+  idle: { label: "Idle", tone: "done" },
+  disabled: { label: "Switched off", tone: "done" },
+  offline: { label: "Offline", tone: "failed" },
 };
 
 /** "Idle" with dots that count 3 → 2 → 1 → 2 → 3 (static when reduced motion is preferred). */
@@ -185,24 +184,24 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
       {/* Phone: one compact, tappable row per agent. */}
       <Link
         href={`/agents/${a.key}`}
-        className="flex min-h-[52px] min-w-0 items-center gap-3 border-b border-[rgba(0,255,120,0.06)] px-4 py-2 last:border-0 sm:hidden"
+        className="flex min-h-[56px] min-w-0 items-center gap-3 border-b border-border px-4 py-2.5 transition-colors last:border-0 active:bg-surface-2 sm:hidden"
       >
         <span
           className={cn(
             "status-dot h-2 w-2 flex-none rounded-full",
             tone.dot,
             tone.text,
-            a.status === "running" && "status-live animate-pulse-dot",
+            a.status === "running" && "status-live",
           )}
         />
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline gap-2">
-            <span className="truncate text-[12.5px] font-semibold uppercase tracking-[0.07em]">
+            <span className="truncate font-display text-[14px] font-semibold tracking-[-0.01em]">
               {AGENT_META[a.key].short}
             </span>
             <span
               className={cn(
-                "flex-none text-[10.5px] font-semibold tracking-[0.06em]",
+                "flex-none font-mono text-[10px] font-medium uppercase tracking-[0.1em]",
                 tone.text,
               )}
             >
@@ -220,7 +219,7 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
           </span>
         </span>
         <span className="flex-none text-right text-[11px] leading-tight">
-          <span className="tabular block text-accent/90">
+          <span className="tabular block text-success">
             ✓ {a.completed30d}
           </span>
           <span
@@ -236,17 +235,17 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
       </Link>
       <Link
         href={`/agents/${a.key}`}
-        className="group hidden min-w-0 flex-col rounded-xl border border-border bg-[rgba(3,8,6,0.55)] p-3 transition-colors hover:border-border-strong sm:flex"
+        className="group hidden min-w-0 flex-col rounded-lg border border-border bg-surface p-3.5 transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-md)] sm:flex"
       >
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-[12px] font-semibold uppercase tracking-[0.08em]">
+          <p className="truncate font-display text-[14.5px] font-semibold tracking-[-0.01em]">
             {AGENT_META[a.key].short}
           </p>
           <ChevronRight className="h-3.5 w-3.5 flex-none text-subtle transition-transform group-hover:translate-x-0.5" />
         </div>
         <p
           className={cn(
-            "mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em]",
+            "mt-2 flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em]",
             tone.text,
           )}
         >
@@ -255,12 +254,12 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
               "status-dot h-1.5 w-1.5 flex-none rounded-full",
               tone.dot,
               tone.text,
-              a.status === "running" && "status-live animate-pulse-dot",
+              a.status === "running" && "status-live",
             )}
           />
           <Swap id={a.status}>{st.label}</Swap>
           {runtime && (
-            <span className="tabular font-normal text-muted">· {runtime}</span>
+            <span className="tabular normal-case tracking-normal text-muted">· {runtime}</span>
           )}
         </p>
         <p className="mt-1.5 min-h-[2.5em] text-[12.5px] leading-snug text-muted">
@@ -274,7 +273,7 @@ function AgentCard({ a, nowSec }: { a: AgentLiveState; nowSec: number }) {
           </p>
         )}
         <p className="mt-2 flex items-center gap-2.5 border-t border-border pt-2 text-[11px] text-subtle">
-          <span className="tabular text-accent/90">✓ {a.completed30d}</span>
+          <span className="tabular text-success">✓ {a.completed30d}</span>
           <span className={cn("tabular", a.failed30d ? "text-danger/90" : "")}>
             ✕ {a.failed30d}
           </span>
@@ -506,7 +505,7 @@ export function LiveOperations({
   return (
     <section
       ref={panel}
-      className={cn("panel relative mb-5 min-w-0 overflow-hidden", full ? "fixed inset-0 z-[100] m-0 h-screen w-screen overflow-hidden rounded-none border-0 bg-background" : className)}
+      className={cn("panel relative mb-4 min-w-0 overflow-hidden", full ? "theme-ink fixed inset-0 z-[100] m-0 h-screen w-screen overflow-hidden rounded-none border-0 bg-background" : className)}
       aria-label="Live operations"
     >
       {full ? (
@@ -514,22 +513,9 @@ export function LiveOperations({
       ) : (
         <>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-4 py-3.5 sm:px-5">
-        <span className="relative flex h-2.5 w-2.5">
-          <span
-            className={cn(
-              "absolute inline-flex h-full w-full rounded-full opacity-60",
-              offline ? "bg-danger" : "animate-ping bg-accent",
-            )}
-          />
-          <span
-            className={cn(
-              "relative inline-flex h-2.5 w-2.5 rounded-full",
-              offline ? "bg-danger" : "bg-accent",
-            )}
-          />
-        </span>
-        <h2 className="text-[15px] font-semibold tracking-[0.12em]">
-          LIVE OPERATIONS
+        <span className={cn("status-dot h-2 w-2 rounded-full", offline ? "bg-danger text-danger" : working ? "status-live bg-brand text-brand" : "bg-success text-success")} aria-hidden />
+        <h2 className="font-display text-[16px] font-semibold tracking-[-0.01em]">
+          Live activity
         </h2>
         {offline ? (
           <span className="flex items-center gap-1.5 text-[12px] text-danger">
@@ -540,14 +526,14 @@ export function LiveOperations({
             <span className="text-[12px] text-muted">
               {working ? (
                 <>
-                  <b className="tabular font-semibold text-accent">{working}</b>{" "}
+                  <b className="tabular font-semibold text-foreground">{working}</b>{" "}
                   agent{working === 1 ? "" : "s"} working now
                 </>
               ) : agents.length > 0 &&
                 agents.every((a) => a.status === "offline") ? (
                 <span className="text-danger">No worker online</span>
               ) : (
-                <Idle className="font-semibold tracking-[0.08em] text-foreground/80" />
+                <Idle className="font-medium text-muted" />
               )}
             </span>
           )
@@ -558,7 +544,7 @@ export function LiveOperations({
           type="button"
           onClick={toggleFull}
           aria-pressed={full}
-          className="hidden h-9 items-center gap-2 rounded-lg border border-border px-3 text-[12px] font-semibold uppercase tracking-[0.07em] text-muted transition-colors hover:border-accent hover:text-accent lg:flex"
+          className="hidden h-9 items-center gap-2 rounded-md border border-border px-3 text-[12.5px] font-medium text-muted transition-colors hover:border-border-strong hover:text-foreground lg:flex"
         >
           {full ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           {full ? "Exit full screen" : "Full screen"}
@@ -587,9 +573,9 @@ export function LiveOperations({
               aria-selected={category === c.key}
               onClick={() => setCategory(c.key)}
               className={cn(
-                "min-h-10 flex-none rounded-lg border px-3 text-[11.5px] font-semibold uppercase tracking-[0.07em] transition-colors",
+                "min-h-9 flex-none rounded-md border px-3 text-[12.5px] font-medium transition-colors",
                 category === c.key
-                  ? "border-accent bg-accent-soft text-accent"
+                  ? "border-foreground bg-foreground text-background"
                   : "border-border text-muted hover:border-border-strong hover:text-foreground",
               )}
             >
@@ -605,7 +591,7 @@ export function LiveOperations({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search activity, business or website…"
-              className="h-10 w-full rounded-lg border border-border bg-[rgba(3,8,6,0.6)] pl-9 pr-3 text-[14px] outline-none placeholder:text-subtle focus:border-accent"
+              className="field-m h-10 w-full rounded-md border border-border bg-surface-2 pl-9 pr-3 text-[16px] outline-none placeholder:text-subtle focus:border-foreground/40 focus:shadow-[0_0_0_3px_var(--ring)] sm:text-[14px]"
             />
           </label>
           {!fixedAgent && (
@@ -613,7 +599,7 @@ export function LiveOperations({
               value={agent}
               onChange={(e) => setAgent(e.target.value)}
               aria-label="Filter by agent"
-              className="h-10 w-[42%] max-w-52 flex-none rounded-lg border border-border bg-[rgba(3,8,6,0.6)] px-2.5 text-[13px] outline-none focus:border-accent"
+              className="field-m h-10 w-[42%] max-w-52 flex-none rounded-md border border-border bg-surface-2 px-2.5 text-[16px] outline-none focus:border-foreground/40 sm:text-[13px]"
             >
               <option value="">All agents</option>
               {AGENT_KEYS.map((k) => (
@@ -628,16 +614,16 @@ export function LiveOperations({
       </div>
 
       <div
-        className={cn("overflow-y-auto overscroll-contain bg-[rgba(1,4,3,0.55)]", full ? "min-h-0 flex-1" : "max-h-[62vh] sm:max-h-[560px]", !full && tall && "xl:max-h-[calc(100vh-19rem)] xl:min-h-[420px]")}
+        className={cn("overflow-y-auto overscroll-contain", full ? "min-h-0 flex-1" : "max-h-[62vh] sm:max-h-[560px]", !full && tall && "xl:max-h-[calc(100vh-19rem)] xl:min-h-[420px]")}
         aria-live="polite"
       >
         {showAgents && !filtered && agents.length > 0 && working === 0 && (
-          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[rgba(0,255,120,0.05)] px-4 py-3.5 font-mono text-subtle">
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border px-4 py-3.5 text-subtle sm:px-5">
             {agents.every((a) => a.status === "offline") ? (
               <span className="text-[12.5px]">No worker is online. Nothing is running.</span>
             ) : (
               <>
-                <Idle className="text-[15px] font-semibold tracking-[0.1em] text-foreground/85" />
+                <Idle className="font-display text-[15px] font-semibold text-foreground" />
                 <span className="text-[12px]">New activity appears here the moment an agent starts working.</span>
               </>
             )}
@@ -666,15 +652,15 @@ export function LiveOperations({
                     initial={{
                       opacity: 0,
                       y: -8,
-                      backgroundColor: "rgba(0,255,120,0.09)",
+                      backgroundColor: "rgba(255,77,35,0.08)",
                     }}
                     animate={{
                       opacity: 1,
                       y: 0,
-                      backgroundColor: "rgba(0,255,120,0)",
+                      backgroundColor: "rgba(255,77,35,0)",
                     }}
                     transition={{ duration: 0.32, ease: EASE.out, backgroundColor: { duration: 1.6, ease: "easeOut" } }}
-                    className="border-b border-[rgba(0,255,120,0.05)] px-3.5 py-2.5 sm:px-5"
+                    className="border-b border-border px-4 py-3 sm:px-5"
                   >
                     <div className="flex items-center gap-2 font-mono text-[11.5px]">
                       <time
@@ -686,8 +672,8 @@ export function LiveOperations({
                       </time>
                       <span
                         className={cn(
-                          "min-w-0 truncate font-semibold tracking-[0.04em]",
-                          dim ? "text-muted" : t.text,
+                          "min-w-0 truncate font-medium uppercase tracking-[0.08em]",
+                          dim ? "text-subtle" : "text-muted",
                         )}
                       >
                         [{categoryTag(e.category)}]
@@ -695,7 +681,7 @@ export function LiveOperations({
                       <span className="flex-1" />
                       <span
                         className={cn(
-                          "flex flex-none items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.08em]",
+                          "flex flex-none items-center gap-1.5 rounded-sm border px-1.5 py-0.5 text-[9.5px] font-medium tracking-[0.1em]",
                           t.pill,
                         )}
                       >
@@ -703,7 +689,7 @@ export function LiveOperations({
                           className={cn(
                             "h-1.5 w-1.5 rounded-full",
                             t.dot,
-                            tone === "running" && "status-live animate-pulse-dot",
+                            tone === "running" && "status-live",
                           )}
                         />
                         {t.label}
@@ -745,7 +731,7 @@ export function LiveOperations({
                         {e.runId && (
                           <Link
                             href={`/automations/runs/${e.runId}`}
-                            className="text-accent/75 hover:text-accent"
+                            className="text-muted hover:text-accent"
                           >
                             objective →
                           </Link>
@@ -763,7 +749,7 @@ export function LiveOperations({
             type="button"
             onClick={loadOlder}
             disabled={loadingMore}
-            className="min-h-11 w-full px-4 py-3 text-[12.5px] font-medium text-accent hover:bg-[rgba(0,255,120,0.04)] disabled:opacity-60"
+            className="min-h-11 w-full px-4 py-3 text-[12.5px] font-medium text-foreground hover:bg-surface-2 disabled:opacity-60"
           >
             {loadingMore ? "Loading…" : "Load earlier activity"}
           </button>
@@ -782,9 +768,8 @@ export function LiveAgents({ initialState, className }: { initialState?: Command
   const agents = cc.data?.agents ?? [];
   if (!agents.length) return null;
   return (
-    <section className={cn("panel mb-5 min-w-0 overflow-hidden", className)} aria-label="Agents">
-      <h2 className="border-b border-border px-4 py-3 text-[13px] font-semibold tracking-[0.12em] sm:px-5">AGENTS</h2>
-      <div className="sm:grid sm:grid-cols-3 sm:gap-2 sm:p-4 lg:grid-cols-4">
+    <section className={cn("mb-4 min-w-0 overflow-hidden rounded-xl border border-border bg-surface sm:border-0 sm:bg-transparent", className)} aria-label="Agents">
+      <div className="sm:grid sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4">
         {agents.map((a) => (
           <AgentCard key={a.key} a={a} nowSec={now} />
         ))}
@@ -838,7 +823,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
   const date = now ? new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(now) : "";
   const working = agents.filter((a) => a.status === "running").length;
   const allOffline = agents.length > 0 && agents.every((a) => a.status === "offline");
-  const state = !status ? null : status.state === "working" ? { label: "ACTIVE · WORKING", tone: "completed" as Tone } : status.state === "paused" ? { label: "PAUSED", tone: "done" as Tone } : status.state === "blocked" ? { label: "CANNOT RUN", tone: "failed" as Tone } : status.state === "limit_reached" ? { label: "DAILY LIMIT REACHED", tone: "waiting" as Tone } : status.state === "off_hours" ? { label: "OUTSIDE WORKING HOURS", tone: "done" as Tone } : { label: "ACTIVE · STANDING BY", tone: "completed" as Tone };
+  const state = !status ? null : status.state === "working" ? { label: "Running", tone: "running" as Tone } : status.state === "paused" ? { label: "Paused", tone: "done" as Tone } : status.state === "blocked" ? { label: "Cannot run", tone: "failed" as Tone } : status.state === "limit_reached" ? { label: "Daily limit reached", tone: "waiting" as Tone } : status.state === "off_hours" ? { label: "Outside working hours", tone: "done" as Tone } : { label: "Standing by", tone: "completed" as Tone };
   const t = status?.today;
   const numbers = status && t
     ? [
@@ -855,19 +840,17 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
 
   return (
     <>
-    {/* Digital rain behind the wall: stronger than on the normal pages, panels stay readable. */}
-    <MatrixRain className="pointer-events-none absolute inset-0 z-0 opacity-[0.8]" density={0.55} fontSize={20} />
     <div className="absolute left-1/2 top-1/2 z-10" style={{ width: TV_W, height: TV_H, transform: `translate(-50%, -50%) scale(${scale})` }}>
       <div className="flex h-full w-full flex-col gap-6 p-9">
         <header className="flex flex-none items-center gap-6">
-          <LogoMark animated className="h-[72px] w-[72px] flex-none drop-shadow-[0_0_14px_rgba(0,255,120,0.55)]" />
+          <LogoMark animated className="h-[72px] w-[72px] flex-none" />
           <div className="min-w-0">
-            <p className="text-[15px] font-semibold tracking-[0.3em] text-accent/80">HOPI BOT</p>
-            <h2 className="text-[38px] font-semibold leading-none tracking-[0.08em]">LIVE OPERATIONS</h2>
+            <p className="font-mono text-[15px] font-medium uppercase tracking-[0.2em] text-muted">HOPI Command</p>
+            <h2 className="mt-1 font-display text-[44px] font-semibold leading-none tracking-[-0.03em]">Live operations</h2>
           </div>
           {state && (
-            <span className={cn("ml-4 flex items-center gap-3 rounded-full border-2 px-6 py-2.5 text-[20px] font-semibold tracking-[0.06em]", TONE[state.tone].pill)}>
-              <span className={cn("h-3.5 w-3.5 rounded-full", TONE[state.tone].dot, status?.state === "working" && "animate-pulse-dot")} />
+            <span className={cn("ml-6 flex items-center gap-3 font-display text-[24px] font-semibold tracking-[-0.01em]", TONE[state.tone].text)}>
+              <span className={cn("status-dot h-3.5 w-3.5 rounded-full", TONE[state.tone].dot, TONE[state.tone].text, status?.state === "working" && "status-live")} />
               {state.label}
             </span>
           )}
@@ -881,7 +864,7 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
               {date}
             </p>
           </div>
-          <button type="button" onClick={onExit} className="flex h-14 flex-none items-center gap-2.5 rounded-xl border border-border px-5 text-[16px] font-semibold uppercase tracking-[0.07em] text-muted transition-colors hover:border-accent hover:text-accent">
+          <button type="button" onClick={onExit} className="flex h-14 flex-none items-center gap-2.5 rounded-md border border-border px-5 text-[17px] font-medium text-muted transition-colors hover:border-border-strong hover:text-foreground">
             <Minimize2 className="h-5 w-5" /> Exit
           </button>
         </header>
@@ -889,21 +872,21 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
         <div className="grid min-h-0 flex-1 grid-cols-[800px_minmax(0,1fr)] gap-6">
           <div className="flex min-h-0 flex-col gap-5">
             <div className="panel tv-glass flex-none p-6">
-              <p className="text-[14px] font-semibold uppercase tracking-[0.16em] text-accent/80">{status?.objective ? (status.objective.active ? "Current objective" : "Last objective") : "Objective"}</p>
-              <p className="mt-2 line-clamp-2 min-h-[2.6em] text-[24px] font-medium leading-snug first-letter:uppercase">{status?.objective?.text ?? (status ? "No objective yet." : "Loading…")}</p>
+              <p className="font-mono text-[14px] font-medium uppercase tracking-[0.16em] text-muted">{status?.objective ? (status.objective.active ? "Current objective" : "Last objective") : "Objective"}</p>
+              <p className="mt-2 line-clamp-2 min-h-[2.6em] font-display text-[26px] font-semibold leading-snug tracking-[-0.01em] first-letter:uppercase">{status?.objective?.text ?? (status ? "No objective yet." : "Loading…")}</p>
               {status?.objective && status.objective.stages.length > 0 && (
                 <ol className="mt-5 grid grid-cols-3 gap-x-6 gap-y-4">
                   {status.objective.stages.map((s) => {
                     const pct = s.target ? Math.min(100, Math.round((s.value / s.target) * 100)) : s.value > 0 ? 100 : 0;
                     return (
                       <li key={s.key} className="min-w-0">
-                        <p className="truncate text-[13px] font-semibold uppercase tracking-[0.1em] text-muted">{s.label}</p>
+                        <p className="truncate font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-muted">{s.label}</p>
                         <p className="mt-1 truncate text-[15px] text-muted">
-                          <b className="tabular text-[30px] font-semibold leading-none text-foreground">{s.value}</b>
+                          <b className="tabular font-display text-[32px] font-semibold leading-none text-foreground">{s.value}</b>
                           {s.target ? <span className="tabular"> / {s.target}</span> : null}
                         </p>
                         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                          <div className={cn("h-full rounded-full transition-all duration-700", s.value > 0 ? "bg-accent" : "bg-transparent")} style={{ width: `${pct}%` }} />
+                          <div className={cn("h-full rounded-full transition-all duration-700", s.value > 0 ? "bg-brand" : "bg-transparent")} style={{ width: `${pct}%` }} />
                         </div>
                       </li>
                     );
@@ -916,14 +899,14 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
               {numbers.map((n) => (
                 <div key={n.label} className="panel tv-glass px-5 py-3">
                   <p className="truncate text-[14px] text-muted">{n.label}</p>
-                  <p className="tabular mt-1 text-[36px] font-semibold leading-none">{n.value}</p>
+                  <p className="tabular mt-1 font-display text-[38px] font-semibold leading-none tracking-[-0.02em]">{n.value}</p>
                   <p className="mt-1.5 truncate text-[13px] text-subtle">{n.sub}</p>
                 </div>
               ))}
             </div>
 
             <div className="panel tv-glass flex min-h-0 flex-1 flex-col overflow-hidden">
-              <p className="flex-none border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
+              <p className="flex-none border-b border-border px-6 py-3 font-mono text-[14px] font-medium uppercase tracking-[0.16em]">
                 Agents <span className="ml-2 font-normal normal-case tracking-normal text-muted">{allOffline ? "no worker online" : working ? `${working} working now` : <Idle />}</span>
               </p>
               <ul className="flex min-h-0 flex-1 flex-col justify-between py-1">
@@ -931,15 +914,15 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
                   const st = AGENT_STATE[a.status];
                   const tone = TONE[st.tone];
                   return (
-                    <li key={a.key} className="flex min-h-0 flex-1 items-center gap-4 border-b border-[rgba(0,255,120,0.06)] px-6 last:border-0">
-                      <span className={cn("h-3 w-3 flex-none rounded-full", tone.dot, a.status === "running" && "animate-pulse-dot")} />
-                      <span className="w-[130px] flex-none truncate text-[17px] font-semibold uppercase tracking-[0.06em]">{AGENT_META[a.key].short}</span>
-                      <span className={cn("w-[150px] flex-none truncate text-[13px] font-semibold tracking-[0.06em]", tone.text)}>{st.label}</span>
+                    <li key={a.key} className="flex min-h-0 flex-1 items-center gap-4 border-b border-border px-6 last:border-0">
+                      <span className={cn("status-dot h-3 w-3 flex-none rounded-full", tone.dot, tone.text, a.status === "running" && "status-live")} />
+                      <span className="w-[130px] flex-none truncate font-display text-[19px] font-semibold">{AGENT_META[a.key].short}</span>
+                      <span className={cn("w-[150px] flex-none truncate font-mono text-[13px] font-medium uppercase tracking-[0.1em]", tone.text)}>{st.label}</span>
                       <span className="min-w-0 flex-1 truncate text-[16px] text-muted">
                         {a.status === "running" && a.subject ? <span className="text-foreground">{a.subject.name}: </span> : null}
                         {agentLine(a)}
                       </span>
-                      <span className="tabular flex-none text-[15px] text-accent/90">✓ {a.completed30d}</span>
+                      <span className="tabular flex-none text-[15px] text-success">✓ {a.completed30d}</span>
                       <span className={cn("tabular w-[52px] flex-none text-[15px]", a.failed30d ? "text-danger/90" : "text-subtle")}>✕ {a.failed30d}</span>
                     </li>
                   );
@@ -949,15 +932,12 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
           </div>
 
           <div className="panel tv-glass flex min-h-0 flex-col overflow-hidden">
-            <p className="flex flex-none items-center gap-3 border-b border-border px-6 py-3 text-[14px] font-semibold uppercase tracking-[0.16em]">
-              <span className="relative flex h-3 w-3">
-                <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-60", offline ? "bg-danger" : "animate-ping bg-accent")} />
-                <span className={cn("relative inline-flex h-3 w-3 rounded-full", offline ? "bg-danger" : "bg-accent")} />
-              </span>
+            <p className="flex flex-none items-center gap-3 border-b border-border px-6 py-3 font-mono text-[14px] font-medium uppercase tracking-[0.16em]">
+              <span className={cn("status-dot h-3 w-3 rounded-full", offline ? "bg-danger text-danger" : working ? "status-live bg-brand text-brand" : "bg-success text-success")} />
               Activity feed
               {!allOffline && !working && <Idle className="ml-1 font-normal normal-case tracking-[0.08em] text-muted" />}
             </p>
-            <ol className="min-h-0 flex-1 overflow-hidden bg-[rgba(1,4,3,0.55)]">
+            <ol className="min-h-0 flex-1 overflow-hidden">
               {rows.length === 0 && <li className="px-6 py-10 text-[20px] text-muted">No activity recorded yet.</li>}
               <AnimatePresence initial={false}>
                 {rows.map((e) => {
@@ -965,16 +945,16 @@ function TvWall({ items, agents, newestPerTask, nowMs, offline, onExit }: { item
                   const tn = TONE[tone];
                   const dim = tone === "done" || tone === "stale";
                   return (
-                    <motion.li key={e.id} layout="position" initial={{ opacity: 0, backgroundColor: "rgba(0,255,120,0.12)" }} animate={{ opacity: 1, backgroundColor: "rgba(0,255,120,0)" }} transition={{ duration: 0.9 }} className="border-b border-[rgba(0,255,120,0.06)] px-6 py-3">
+                    <motion.li key={e.id} layout="position" initial={{ opacity: 0, backgroundColor: "rgba(255,77,35,0.1)" }} animate={{ opacity: 1, backgroundColor: "rgba(255,77,35,0)" }} transition={{ duration: 0.9 }} className="border-b border-border px-6 py-3">
                       <div className="flex items-center gap-3 font-mono text-[15px]">
                         <time className="tabular flex-none text-subtle" dateTime={e.createdAt} suppressHydrationWarning>
                           {clock(e.createdAt)}
                         </time>
-                        <span className={cn("min-w-0 truncate font-semibold tracking-[0.04em]", dim ? "text-muted" : tn.text)}>[{categoryTag(e.category)}]</span>
+                        <span className={cn("min-w-0 truncate font-medium uppercase tracking-[0.08em]", dim ? "text-subtle" : "text-muted")}>[{categoryTag(e.category)}]</span>
                         {e.businessName && <span className="min-w-0 truncate font-sans text-muted">{e.businessName}</span>}
                         <span className="flex-1" />
                         <span className={cn("flex flex-none items-center gap-2 rounded border px-2 py-0.5 text-[12px] font-semibold tracking-[0.08em]", tn.pill)}>
-                          <span className={cn("h-2 w-2 rounded-full", tn.dot, tone === "running" && "animate-pulse-dot")} />
+                          <span className={cn("h-2 w-2 rounded-full", tn.dot, tone === "running" && "status-live")} />
                           {tn.label}
                         </span>
                       </div>

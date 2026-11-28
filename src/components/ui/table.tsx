@@ -8,7 +8,7 @@ export function Table({ className, children }: { className?: string; children: R
   );
 }
 export function THead({ children }: { children: React.ReactNode }) {
-  return <thead className="border-b border-border bg-[rgba(0,255,120,0.03)] text-left text-[11.5px] font-medium uppercase tracking-[0.08em] text-muted">{children}</thead>;
+  return <thead className="border-b border-border bg-surface-2 text-left font-mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-muted">{children}</thead>;
 }
 export function TH({ className, children, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
@@ -19,7 +19,7 @@ export function TH({ className, children, ...props }: React.ThHTMLAttributes<HTM
 }
 export function TR({ className, children, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={cn("border-b border-border last:border-0 transition-colors hover:bg-[rgba(0,255,120,0.035)]", className)} {...props}>
+    <tr className={cn("border-b border-border last:border-0 transition-colors hover:bg-surface-2", className)} {...props}>
       {children}
     </tr>
   );

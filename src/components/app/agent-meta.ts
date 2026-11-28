@@ -15,12 +15,12 @@ export const AGENT_ICON: Record<AgentKey, LucideIcon> = {
 
 type StatusStyle = { label: string; pill: string; dot: string; pulse?: boolean; explain: string };
 export const AGENT_STATUS: Record<AgentLiveState["status"], StatusStyle> = {
-  running: { label: "Executing", pill: "border-[rgba(0,255,120,0.4)] bg-accent-soft text-accent", dot: "bg-accent text-accent", pulse: true, explain: "Working on a task right now (confirmed by a live worker)." },
-  queued: { label: "Queued", pill: "border-[rgba(67,191,255,0.3)] bg-info-soft text-info", dot: "bg-info text-info", explain: "Has tasks lined up and will start them shortly." },
-  waiting: { label: "Waiting for approval", pill: "border-[rgba(255,191,71,0.35)] bg-warning-soft text-warning", dot: "bg-warning text-warning", explain: "Paused until you approve something or a limit is raised." },
-  failed: { label: "Failed", pill: "border-[rgba(255,77,97,0.35)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "Its most recent task failed. Open the logs to see why, then retry." },
-  idle: { label: "Idle", pill: "border-border bg-surface-3 text-muted", dot: "bg-green-2 text-green-2", explain: "Online and ready. Nothing to do at the moment." },
+  running: { label: "Executing", pill: "border-[rgba(255,77,35,0.35)] bg-accent-soft text-accent", dot: "bg-brand text-brand", pulse: true, explain: "Working on a task right now (confirmed by a live worker)." },
+  queued: { label: "Queued", pill: "border-[rgba(47,111,176,0.3)] bg-info-soft text-info", dot: "bg-info text-info", explain: "Has tasks lined up and will start them shortly." },
+  waiting: { label: "Waiting for approval", pill: "border-[rgba(196,128,0,0.35)] bg-warning-soft text-warning", dot: "bg-warning text-warning", explain: "Paused until you approve something or a limit is raised." },
+  failed: { label: "Failed", pill: "border-[rgba(180,42,37,0.35)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "Its most recent task failed. Open the logs to see why, then retry." },
+  idle: { label: "Idle", pill: "border-border bg-surface-3 text-muted", dot: "bg-success text-success", explain: "Online and ready. Nothing to do at the moment." },
   disabled: { label: "Paused", pill: "border-border bg-surface-3 text-muted", dot: "bg-subtle text-subtle", explain: "You paused this agent. Its tasks wait until you resume it." },
-  offline: { label: "Offline", pill: "border-[rgba(255,77,97,0.3)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "No worker process is connected, so this agent cannot run tasks." },
+  offline: { label: "Offline", pill: "border-[rgba(180,42,37,0.3)] bg-danger-soft text-danger", dot: "bg-danger text-danger", explain: "No worker process is connected, so this agent cannot run tasks." },
 };
 

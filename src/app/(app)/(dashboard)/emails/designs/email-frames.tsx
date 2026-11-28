@@ -53,7 +53,7 @@ export function EmailFrames({ subject, html, test }: { subject: string; html: st
             </button>
           )}
           {(["desktop", "phone"] as const).map((w) => (
-            <button key={w} type="button" onClick={() => setWidth(w)} aria-pressed={width === w} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 ${width === w ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
+            <button key={w} type="button" onClick={() => setWidth(w)} aria-pressed={width === w} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 ${width === w ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-fg"}`}>
               {w === "desktop" ? <Monitor className="h-3.5 w-3.5" /> : <Smartphone className="h-3.5 w-3.5" />}
               {w === "desktop" ? "Computer" : "Phone"}
             </button>

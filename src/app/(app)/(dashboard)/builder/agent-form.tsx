@@ -65,7 +65,7 @@ export function AgentForm({ id, initial, models, canEdit, claudeConnected }: { i
 
   return (
     <div className="space-y-4">
-      <Card className="border-[rgba(0,255,120,0.22)]">
+      <Card className="border-border-strong">
         <CardHeader>
           <div>
             <CardTitle className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export function AgentForm({ id, initial, models, canEdit, claudeConnected }: { i
                     aria-checked={on}
                     disabled={!canEdit}
                     onClick={() => toggleTool(t.name, t.permission)}
-                    className={cn("flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors", on ? "border-[rgba(0,255,120,0.4)] bg-accent-soft" : "border-border hover:border-border-strong")}
+                    className={cn("flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors", on ? "border-accent/40 bg-accent-soft" : "border-border hover:border-border-strong")}
                   >
                     <span className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border", on ? "border-accent bg-accent text-accent-foreground" : "border-border-strong")}>{on && <Check className="h-3.5 w-3.5" strokeWidth={3} />}</span>
                     <span className="min-w-0">
@@ -263,7 +263,7 @@ export function AgentForm({ id, initial, models, canEdit, claudeConnected }: { i
       </Card>
 
       <div className="sticky bottom-[calc(var(--safe-bottom)+72px)] z-10 flex justify-end lg:bottom-4">
-        <Button variant="primary" size="lg" onClick={save} loading={pending} disabled={!canEdit} className="w-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.9)] sm:w-auto">
+        <Button variant="primary" size="lg" onClick={save} loading={pending} disabled={!canEdit} className="w-full sm:w-auto">
           <Save /> {id ? "Save changes" : "Save agent"}
         </Button>
       </div>

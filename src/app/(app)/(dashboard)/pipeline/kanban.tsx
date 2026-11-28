@@ -20,7 +20,7 @@ function Card({ deal, onMove }: { deal: Deal; onMove: (id: string, to: string) =
     <div
       ref={setNodeRef}
       style={transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined}
-      className={cn("rounded-xl border border-border bg-surface p-3 transition-shadow", isDragging && "z-50 rotate-1 border-border-strong shadow-[0_0_30px_-8px_rgba(0,255,120,0.5)]")}
+      className={cn("rounded-xl border border-border bg-surface p-3 transition-shadow", isDragging && "z-50 rotate-1 border-border-strong")}
     >
       <div className="flex items-start justify-between gap-2">
         <Link href={`/businesses/${deal.id}`} className="line-clamp-2 min-w-0 text-[13.5px] font-medium hover:text-accent">

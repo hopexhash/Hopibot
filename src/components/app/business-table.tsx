@@ -485,7 +485,7 @@ export function BusinessTable({
                 className={cn(
                   "rounded-lg border px-2.5 py-1.5 text-xs font-medium",
                   on
-                    ? "border-accent bg-accent-soft text-accent"
+                    ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted",
                 )}
               >

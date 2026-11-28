@@ -75,7 +75,7 @@ export default async function RevenuePage({ searchParams }: { searchParams: Prom
               API costs are charged in US dollars and converted at {rate} €/$ (change it in Settings). “From real token counts” means the provider reported exactly how much was used; “estimated” means a published price per call was applied.
             </HelpTip>
           </h3>
-          <dl className="mt-3 divide-y divide-[rgba(0,255,120,0.06)]">
+          <dl className="mt-3 divide-y divide-border">
             {lines
               .filter((l) => l.kind === "in" || l.value !== 0)
               .map((l) => (

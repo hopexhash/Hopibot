@@ -233,7 +233,7 @@ export function AudiencePanel({ id, recipients, editable }: { id: string; recipi
           </div>
         )}
         {recipients.length > 0 && (
-          <ul className="max-h-[420px] divide-y divide-[rgba(0,255,120,0.06)] overflow-y-auto rounded-xl border border-border">
+          <ul className="max-h-[420px] divide-y divide-border overflow-y-auto rounded-xl border border-border">
             {recipients.map((r) => {
               const st = REC[r.status] ?? REC.pending;
               return (
@@ -292,7 +292,7 @@ export function LaunchPanel({ id, name, status, canApprove, waiting, dailyLimit,
   const allConfirmed = Object.values(confirm).every(Boolean);
 
   return (
-    <Card className="border-[rgba(0,255,120,0.22)]">
+    <Card className="border-border-strong">
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
@@ -362,7 +362,7 @@ export function LaunchPanel({ id, name, status, canApprove, waiting, dailyLimit,
 
         {status === "awaiting_approval" &&
           (canApprove ? (
-            <div className="space-y-3 rounded-xl border border-[rgba(255,191,71,0.3)] bg-warning-soft p-4">
+            <div className="space-y-3 rounded-xl border border-[rgba(196,128,0,0.3)] bg-warning-soft p-4">
               <p className="text-[13.5px] font-semibold text-warning">Approve “{name}”</p>
               <p className="text-[12.5px] leading-relaxed text-foreground/90">
                 Approving lets the system send this email to {waiting} business(es), at most {dailyLimit} per day{days > 1 ? ` (about ${days} days)` : ""}. Each address is checked against the unsubscribe list again right before sending.
@@ -380,7 +380,7 @@ export function LaunchPanel({ id, name, status, canApprove, waiting, dailyLimit,
                     role="checkbox"
                     aria-checked={confirm[k]}
                     onClick={() => setConfirm({ ...confirm, [k]: !confirm[k] })}
-                    className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border", confirm[k] ? "border-accent bg-accent text-accent-foreground" : "border-border-strong bg-[#050d09]")}
+                    className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border", confirm[k] ? "border-accent bg-accent text-accent-foreground" : "border-border-strong bg-surface-2")}
                   >
                     {confirm[k] && <Check className="h-4 w-4" strokeWidth={3} />}
                   </button>

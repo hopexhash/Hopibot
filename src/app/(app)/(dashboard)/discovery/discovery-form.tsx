@@ -125,7 +125,7 @@ export function DiscoveryForm({ defaultMinScore, activeCampaignId }: { defaultMi
           <div className="col-span-2 flex items-center justify-between gap-3 md:col-span-3">
             <p className="text-xs text-muted">Business size isn&apos;t exposed by Google Places, so it can&apos;t be filtered reliably.</p>
             <Button type="submit" variant="primary" size="lg" loading={pending} disabled={Boolean(running)}>
-              <Search /> START DISCOVERY
+              <Search /> Start discovery
             </Button>
           </div>
         </form>

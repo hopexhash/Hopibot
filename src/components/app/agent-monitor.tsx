@@ -65,8 +65,8 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
       transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.04 }}
       className={cn(
         "panel panel-hover relative flex flex-col overflow-hidden p-4",
-        running && "scanline border-[rgba(0,255,120,0.32)] shadow-[0_0_30px_-10px_rgba(0,255,120,0.5)]",
-        (a.status === "offline" || a.status === "failed") && "border-[rgba(255,77,97,0.2)]",
+        running && "border-[rgba(255,77,35,0.35)]",
+        (a.status === "offline" || a.status === "failed") && "border-[rgba(180,42,37,0.2)]",
       )}
       aria-label={`${a.name}: ${st.label}`}
     >
@@ -74,7 +74,7 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
         <div className="relative -mt-1 shrink-0" title={`${mascotName(a.key)} — ${st.label}`}>
           <AgentMascot agent={a.key} status={a.status} size={60} />
           <span
-            className={cn("absolute bottom-0.5 right-0 h-3 w-3 rounded-full border-2 border-[#091710]", a.online && a.enabled ? "bg-accent" : a.enabled ? "bg-danger" : "bg-subtle", a.online && a.enabled && "animate-pulse-dot text-accent")}
+            className={cn("absolute bottom-0.5 right-0 h-3 w-3 rounded-full border-2 border-surface", a.online && a.enabled ? "bg-accent" : a.enabled ? "bg-danger" : "bg-subtle", a.online && a.enabled && "status-live text-accent")}
             title={a.online ? "Worker online" : "No worker connected"}
           />
         </div>
@@ -83,14 +83,14 @@ export function AgentCard({ a, index, nowSec, canControl }: { a: AgentLiveState;
           <p className="mt-0.5 truncate text-[12px] text-muted">{AGENT_META[a.key].short} agent{a.model ? ` · ${a.model.replace("claude-", "")}` : ""}</p>
         </div>
         <Tooltip content={st.explain}>
-          <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium", st.pill)}>
-            <span className={cn("h-1.5 w-1.5 rounded-full", st.dot, st.pulse && "animate-pulse-dot")} />
+          <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium", st.pill)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", st.dot, st.pulse && "status-live")} />
             {st.label}
           </span>
         </Tooltip>
       </header>
 
-      <div className="mt-3.5 rounded-xl sm:min-h-[76px] border border-[rgba(0,255,120,0.07)] bg-[#050d09] px-3 py-2.5">
+      <div className="mt-3.5 rounded-xl sm:min-h-[76px] border border-border-strong bg-surface-2 px-3 py-2.5">
         {running && a.objective && (
           <p className="mb-1 line-clamp-1 text-[11.5px] text-subtle">
             Objective:{" "}
@@ -196,7 +196,7 @@ export function AgentMonitor({ initial, canControl = false }: { initial: Command
   return (
     <div>
       {state.workers.online === 0 && (
-        <div className="mb-3 flex items-start gap-3 rounded-xl border border-[rgba(255,191,71,0.25)] bg-warning-soft px-4 py-3 text-[13px] leading-relaxed text-warning">
+        <div className="mb-3 flex items-start gap-3 rounded-xl border border-[rgba(196,128,0,0.25)] bg-warning-soft px-4 py-3 text-[13px] leading-relaxed text-warning">
           <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-warning" />
           <span>
             <strong className="font-semibold">No worker is connected.</strong> Agents are the “brains”; the worker is the machine that runs them. Until one is online, new tasks wait in the queue.{" "}

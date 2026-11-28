@@ -35,7 +35,7 @@ export default async function NetworkPage() {
       <WorkflowNetwork initial={cc} height={560} />
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Section title="Automations" className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {workflows.length === 0 && <p className="mono p-4 text-[12px] text-subtle">No automations defined.</p>}
             {workflows.map((w) => (
               <Link key={w.id} href="/automations" className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">
@@ -46,7 +46,7 @@ export default async function NetworkPage() {
           </Card>
         </Section>
         <Section title="Recent runs" className="mb-0">
-          <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+          <Card className="divide-y divide-border">
             {runs.length === 0 && <p className="mono p-4 text-[12px] text-subtle">No runs yet.</p>}
             {runs.map((r) => (
               <Link key={r.id} href={`/automations/runs/${r.id}`} className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 hover:bg-accent-soft">

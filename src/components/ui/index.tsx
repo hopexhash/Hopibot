@@ -9,16 +9,17 @@ import { cn } from "@/lib/utils";
 // ───────────────────────── Button ─────────────────────────
 
 export const buttonVariants = cva(
-  "btn-m inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-[13.5px] font-medium disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
+  "btn-m inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13.5px] font-medium disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "btn-lift bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover hover:shadow-[0_0_24px_-2px_rgba(0,255,120,0.7)]",
-        secondary: "border border-border bg-surface-2 text-foreground hover:bg-surface-3 hover:border-border-strong hover:text-accent",
-        ghost: "text-muted hover:bg-accent-soft hover:text-accent",
-        danger: "btn-lift bg-danger font-semibold text-white shadow-[0_0_16px_-4px_rgba(255,77,97,0.6)] hover:opacity-90",
+        // The website's main button: brand orange with charcoal text, square corners.
+        primary: "btn-lift bg-brand font-semibold text-[#0c0c0d] hover:bg-brand-hover",
+        secondary: "border border-border-strong bg-surface text-foreground hover:border-foreground/40 hover:bg-surface-2",
+        ghost: "text-muted hover:bg-surface-3 hover:text-foreground",
+        danger: "btn-lift bg-danger font-semibold text-white hover:opacity-90",
         "danger-ghost": "text-danger hover:bg-danger-soft",
-        success: "btn-lift bg-accent font-semibold text-accent-foreground shadow-[0_0_18px_-4px_rgba(0,255,120,0.55)] hover:bg-accent-hover",
+        success: "btn-lift bg-foreground font-semibold text-background hover:opacity-90",
       },
       size: { sm: "h-9 px-3 text-[12.5px]", md: "h-10 px-4", lg: "h-12 px-5 text-[14.5px]", icon: "h-10 w-10", "icon-sm": "h-9 w-9" },
     },
@@ -100,7 +101,7 @@ export function MockBadge({ className }: { className?: string }) {
 // ───────────────────────── Form controls ─────────────────────────
 
 const fieldBase =
-  "w-full rounded-xl border border-border-strong bg-[#050d09] px-3.5 text-[16px] text-foreground placeholder:text-subtle field-m focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13.5px]";
+  "w-full rounded-md border border-border-strong bg-surface px-3.5 text-[16px] text-foreground placeholder:text-subtle field-m focus:border-[color-mix(in_srgb,var(--foreground)_45%,transparent)] focus:outline-none focus:ring-3 focus:ring-[var(--ring)] disabled:opacity-60 sm:text-[13.5px]";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
@@ -179,9 +180,9 @@ export function Switch({
       onCheckedChange={onCheckedChange}
       disabled={disabled}
       aria-label={label}
-      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border border-border-strong bg-surface-3 transition-colors data-[state=checked]:border-accent data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border border-border-strong bg-surface-3 transition-colors data-[state=checked]:border-foreground data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <RSwitch.Thumb className="block h-5 w-5 translate-x-[3px] rounded-full bg-[#b9c9bf] shadow transition-transform data-[state=checked]:translate-x-[23px] data-[state=checked]:bg-accent-foreground" />
+      <RSwitch.Thumb className="block h-5 w-5 translate-x-[3px] rounded-full bg-surface shadow transition-transform data-[state=checked]:translate-x-[23px] data-[state=checked]:bg-white" />
     </RSwitch.Root>
   );
 }
@@ -209,11 +210,11 @@ export function Dialog({
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
-        <RDialog.Overlay className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in" />
+        <RDialog.Overlay className="fixed inset-0 z-50 bg-[#0c0c0d]/45 backdrop-blur-[3px] data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in" />
         <RDialog.Content
           className={cn(
             // Phones: a bottom sheet (thumb-reachable, keyboard-safe). Larger screens: centred modal.
-            "modal-m fixed z-50 flex flex-col border border-border-strong bg-[#06100b] shadow-[0_0_60px_-12px_rgba(0,255,120,0.3)] data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in",
+            "modal-m fixed z-50 flex flex-col border border-border bg-surface shadow-lg data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in",
             "inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-3xl pb-[var(--safe-bottom)]",
             "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[85dvh] sm:w-[calc(100vw-3rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-0",
             width,
@@ -254,7 +255,7 @@ export function DropdownContent({ className, align = "end", ...props }: React.Co
         align={align}
         sideOffset={6}
         className={cn(
-          "z-50 min-w-44 rounded-xl border border-border-strong bg-[#08100c] p-1 shadow-[0_0_40px_-10px_rgba(0,255,120,0.3)] origin-[var(--radix-dropdown-menu-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in",
+          "z-50 min-w-44 rounded-lg border border-border bg-surface p-1 shadow-lg origin-[var(--radix-dropdown-menu-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=open]:animate-pop-in",
           className,
         )}
         {...props}
@@ -308,7 +309,7 @@ export function Tooltip({ content, children, side }: { content: React.ReactNode;
           <RTooltip.Content
             side={side}
             sideOffset={8}
-            className="z-50 max-w-xs rounded-lg border border-border-strong bg-[#08100c] px-2.5 py-1.5 text-xs text-foreground shadow-lg origin-[var(--radix-tooltip-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=delayed-open]:animate-pop-in data-[state=instant-open]:animate-pop-in"
+            className="z-50 max-w-xs rounded-md border border-[rgba(242,238,230,0.12)] bg-[#0c0c0d] px-2.5 py-1.5 text-xs text-[#f2eee6] shadow-lg origin-[var(--radix-tooltip-content-transform-origin)] data-[state=closed]:animate-pop-out data-[state=delayed-open]:animate-pop-in data-[state=instant-open]:animate-pop-in"
           >
             {content}
           </RTooltip.Content>
@@ -326,10 +327,10 @@ export function Skeleton({ className }: { className?: string }) {
 
 /** `active` marks work that is under way right now (a slow sheen runs along the bar); measures such as budgets stay still. */
 export function Progress({ value, className, tone = "accent", active }: { value: number; className?: string; tone?: "accent" | "success" | "warning" | "danger"; active?: boolean }) {
-  const color = { accent: "bg-accent", success: "bg-success", warning: "bg-warning", danger: "bg-danger" }[tone];
+  const color = { accent: "bg-brand", success: "bg-success", warning: "bg-warning", danger: "bg-danger" }[tone];
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn("progress-fill h-full rounded-full", color, tone === "accent" && "shadow-[0_0_10px_#00ff78]")} data-active={active === true} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div className={cn("progress-fill h-full rounded-full", color)} data-active={active === true} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
@@ -349,8 +350,8 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex animate-fade-in flex-col items-center justify-center px-6 py-14 text-center", className)}>
-      {icon && <div className="mb-4 flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent [&_svg]:size-5">{icon}</div>}
-      <p className="text-[15px] font-semibold">{title}</p>
+      {icon && <div className="mb-4 flex h-12 w-12 animate-float-soft items-center justify-center rounded-lg border border-border bg-surface-2 text-foreground [&_svg]:size-5">{icon}</div>}
+      <p className="font-display text-[17px] font-semibold tracking-tight">{title}</p>
       {description && <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-muted">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -462,7 +463,7 @@ export function HelpTip({ children, label = "What is this?" }: { children: React
           </button>
         </RTooltip.Trigger>
         <RTooltip.Portal>
-          <RTooltip.Content sideOffset={6} collisionPadding={12} className="z-[80] max-w-[260px] rounded-xl border border-border-strong bg-[#06100b] px-3 py-2 text-[12.5px] leading-relaxed text-foreground shadow-[0_0_30px_-10px_rgba(0,255,120,0.4)] data-[state=delayed-open]:animate-fade-in data-[state=instant-open]:animate-fade-in">
+          <RTooltip.Content sideOffset={6} collisionPadding={12} className="z-[80] max-w-[260px] rounded-md border border-[rgba(242,238,230,0.12)] bg-[#0c0c0d] px-3 py-2 text-[12.5px] leading-relaxed text-[#f2eee6] shadow-[0_0_30px_-10px_rgba(0,255,120,0.4)] data-[state=delayed-open]:animate-fade-in data-[state=instant-open]:animate-fade-in">
             {children}
           </RTooltip.Content>
         </RTooltip.Portal>

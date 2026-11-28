@@ -57,10 +57,10 @@ export function IntegrationCard({ card, canAdmin }: { card: CardData; canAdmin: 
     });
 
   return (
-    <Card className={`flex flex-col p-4 sm:p-5 ${card.state === "failed" ? "border-[rgba(255,77,97,0.25)]" : card.state === "connected" ? "border-[rgba(0,255,120,0.2)]" : ""}`}>
+    <Card className={`flex flex-col p-4 sm:p-5 ${card.state === "failed" ? "border-[rgba(180,42,37,0.25)]" : card.state === "connected" ? "border-border-strong" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-[16px] font-semibold ${card.state === "connected" ? "border-[rgba(0,255,120,0.35)] bg-accent-soft text-accent" : "border-border bg-surface-2 text-muted"}`}>{card.name.charAt(0)}</div>
+          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-[16px] font-semibold ${card.state === "connected" ? "border-foreground bg-foreground text-background" : "border-border bg-surface-2 text-muted"}`}>{card.name.charAt(0)}</div>
           <div className="min-w-0">
             <p className="truncate text-[15px] font-semibold tracking-tight">{card.name}</p>
             <p className="truncate text-[12px] text-muted">{card.usedBy.length ? `Used by ${card.usedBy.map((k) => AGENT_META[k as AgentKey]?.name ?? k).join(", ")}` : "Infrastructure"}</p>

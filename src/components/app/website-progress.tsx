@@ -55,7 +55,7 @@ export async function WebsiteProgress({ businessId, organizationId, status, visu
                   className={cn(
                     "mt-0.5 grid h-6 w-6 flex-none place-items-center rounded-full border text-[11px] font-semibold tabular transition-colors duration-300",
                     // While the site is being built, a stage that finishes gets one ring; a finished site is shown calmly.
-                    state === "done" && cn("border-accent bg-accent-soft text-accent", working && "done-ring"),
+                    state === "done" && cn("border-foreground bg-foreground text-background", working && "done-ring"),
                     state === "running" && "border-warning text-warning",
                     state === "warning" && "border-warning bg-warning-soft text-warning",
                     (state === "pending" || state === "skipped") && "border-border text-subtle",

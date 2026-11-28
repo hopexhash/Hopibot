@@ -93,13 +93,13 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
 
       <div className="mb-4 flex flex-wrap items-center gap-2 text-[13px]">
         {(["all", "mobile", "desktop"] as const).map((d) => (
-          <Link key={d} href={link({ device: d })} className={`rounded-md border px-2.5 py-1 ${device === d ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
+          <Link key={d} href={link({ device: d })} className={`rounded-md border px-2.5 py-1 ${device === d ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-fg"}`}>
             {d === "all" ? "All devices" : d === "mobile" ? "Phones" : "Desktop"}
           </Link>
         ))}
         <span className="mx-1 text-muted">·</span>
         {([7, 28, 90] as const).map((d) => (
-          <Link key={d} href={link({ days: String(d) })} className={`rounded-md border px-2.5 py-1 ${days === d ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
+          <Link key={d} href={link({ days: String(d) })} className={`rounded-md border px-2.5 py-1 ${days === d ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-fg"}`}>
             {d} days
           </Link>
         ))}

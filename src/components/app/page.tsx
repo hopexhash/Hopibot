@@ -19,8 +19,13 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow && <div className="hud-label mb-2 text-accent/80">{eyebrow}</div>}
-        <h1 className="text-[24px] font-semibold leading-tight tracking-tight sm:text-[28px]">{title}</h1>
+        {eyebrow && (
+          <div className="label-mono mb-2.5 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 bg-brand" aria-hidden />
+            {eyebrow}
+          </div>
+        )}
+        <h1 className="font-display text-[26px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[32px]">{title}</h1>
         {description && <p className="mt-1.5 max-w-2xl text-[14px] leading-relaxed text-muted">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">{actions}</div>}
@@ -30,13 +35,13 @@ export function PageHeader({
 
 type Tone = "accent" | "success" | "warning" | "danger" | "neutral";
 const ICON_TONE: Record<Tone, string> = {
-  accent: "bg-accent-soft text-accent",
-  success: "bg-success-soft text-success",
-  warning: "bg-warning-soft text-warning",
-  danger: "bg-danger-soft text-danger",
-  neutral: "bg-surface-3 text-muted",
+  accent: "text-subtle",
+  success: "text-success",
+  warning: "text-warning",
+  danger: "text-danger",
+  neutral: "text-subtle",
 };
-const VALUE_TONE: Record<Tone, string> = { accent: "text-foreground", success: "text-accent", warning: "text-warning", danger: "text-danger", neutral: "text-foreground" };
+const VALUE_TONE: Record<Tone, string> = { accent: "text-foreground", success: "text-foreground", warning: "text-foreground", danger: "text-danger", neutral: "text-foreground" };
 
 export type Delta = { pct: number | null; direction: "up" | "down" | "flat"; good: boolean; label: string };
 
@@ -56,7 +61,7 @@ export function DeltaBadge({ delta }: { delta: Delta }) {
   // Nothing in either period: a "no change" badge would only be noise.
   if (delta.direction === "flat" && delta.pct == null) return null;
   const Icon = delta.direction === "up" ? ArrowUpRight : delta.direction === "down" ? ArrowDownRight : Minus;
-  const tone = delta.direction === "flat" ? "text-subtle" : delta.good ? "text-accent" : "text-danger";
+  const tone = delta.direction === "flat" ? "text-subtle" : delta.good ? "text-success" : "text-danger";
   const text = delta.direction === "flat" ? "No change" : delta.pct == null ? "New" : `${delta.pct > 0 ? "+" : ""}${Math.abs(delta.pct) >= 100 ? Math.round(delta.pct) : delta.pct.toFixed(1)}%`;
   return (
     <span className={cn("inline-flex items-center gap-0.5 text-[12px] font-medium", tone)} title={delta.label}>
@@ -95,9 +100,9 @@ export function StatCard({
           <span className="line-clamp-2">{label}</span>
           {help && <HelpTip label={`About ${label}`}>{help}</HelpTip>}
         </p>
-        {icon && <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl [&_svg]:size-4", ICON_TONE[tone])}>{icon}</div>}
+        {icon && <div className={cn("flex h-6 w-6 shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:stroke-[1.6]", ICON_TONE[tone])}>{icon}</div>}
       </div>
-      <p className={cn("tabular mt-2.5 text-[26px] font-semibold leading-none tracking-tight sm:text-[28px]", VALUE_TONE[tone])}>{typeof value === "string" || typeof value === "number" ? <CountUp value={value} /> : value}</p>
+      <p className={cn("tabular mt-3 font-display text-[28px] font-semibold leading-none tracking-[-0.03em] sm:text-[32px]", VALUE_TONE[tone])}>{typeof value === "string" || typeof value === "number" ? <CountUp value={value} /> : value}</p>
       <div className="mt-2 flex min-h-[18px] flex-wrap items-center gap-x-2 gap-y-0.5">
         {delta && <DeltaBadge delta={delta} />}
         {sub && <span className="min-w-0 truncate text-[12px] text-muted">{sub}</span>}
@@ -107,7 +112,7 @@ export function StatCard({
   // The whole tile is the link target, but the "?" stays a separate control (no nested interactive elements).
   return (
     <div className={cn("panel panel-hover relative p-4 animate-fade-in", className)}>
-      {href && <Link href={href} className="absolute inset-0 z-0 rounded-[14px]" aria-label={`${label}: open details`} />}
+      {href && <Link href={href} className="absolute inset-0 z-0 rounded-xl" aria-label={`${label}: open details`} />}
       <div className={cn("relative", href && "pointer-events-none [&_button]:pointer-events-auto")}>{body}</div>
     </div>
   );
@@ -118,8 +123,8 @@ export function Section({ title, description, actions, children, className }: { 
     <section className={cn("mb-8 min-w-0", className)}>
       <div className="mb-3.5 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2.5 text-[16px] font-semibold tracking-tight text-foreground">
-            <span className="h-4 w-[3px] rounded-full bg-accent shadow-[0_0_8px_#00ff78]" aria-hidden />
+          <h2 className="flex items-center gap-2.5 font-display text-[17px] font-semibold tracking-[-0.01em] text-foreground">
+            <span className="h-1.5 w-1.5 bg-brand" aria-hidden />
             {title}
           </h2>
           {description && <p className="mt-1 text-[13px] text-muted">{description}</p>}
@@ -174,7 +179,7 @@ export function RangePicker({ path, current, from, to }: { path: string; current
             aria-current={current === p.key ? "true" : undefined}
             className={cn(
               "flex h-10 shrink-0 items-center rounded-xl border px-3.5 text-[13px] font-medium transition-colors",
-              current === p.key ? "border-[rgba(0,255,120,0.45)] bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+              current === p.key ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:text-foreground",
             )}
           >
             {p.label}
@@ -183,9 +188,9 @@ export function RangePicker({ path, current, from, to }: { path: string; current
       </div>
       <form method="get" action={path} className="flex items-center gap-2">
         <input type="hidden" name="range" value="custom" />
-        <input type="date" name="from" defaultValue={from} aria-label="From date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-[#050d09] px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-[rgba(0,255,120,0.45)]" : "border-border-strong")} />
+        <input type="date" name="from" defaultValue={from} aria-label="From date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-surface-2 px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-accent/40" : "border-border-strong")} />
         <span className="text-[12px] text-subtle">to</span>
-        <input type="date" name="to" defaultValue={to} aria-label="To date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-[#050d09] px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-[rgba(0,255,120,0.45)]" : "border-border-strong")} />
+        <input type="date" name="to" defaultValue={to} aria-label="To date" required className={cn("h-10 min-w-0 flex-1 rounded-xl border bg-surface-2 px-2.5 text-[16px] text-foreground focus:border-accent focus:outline-none sm:text-[13px] lg:w-[150px] lg:flex-none", current === "custom" ? "border-accent/40" : "border-border-strong")} />
         <button type="submit" className="h-10 shrink-0 rounded-xl border border-border bg-surface-2 px-3.5 text-[13px] font-medium hover:border-border-strong hover:text-accent">
           Apply
         </button>

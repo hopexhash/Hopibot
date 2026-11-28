@@ -118,7 +118,7 @@ export function CommandPalette() {
         <RDialog.Overlay className="fixed inset-0 z-[70] bg-black/75 backdrop-blur-sm data-[state=open]:animate-fade-in" />
         <RDialog.Content
           aria-describedby={undefined}
-          className="fixed left-1/2 top-[calc(var(--safe-top)+12px)] z-[70] flex max-h-[min(78dvh,620px)] w-[calc(100vw-1.5rem)] max-w-xl -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border-strong bg-[#06100b] shadow-[0_0_70px_-12px_rgba(0,255,120,0.35)] data-[state=open]:animate-fade-in sm:top-[14vh]"
+          className="fixed left-1/2 top-[calc(var(--safe-top)+12px)] z-[70] flex max-h-[min(78dvh,620px)] w-[calc(100vw-1.5rem)] max-w-xl -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border-strong bg-surface data-[state=open]:animate-fade-in sm:top-[14vh]"
         >
           <RDialog.Title className="sr-only">Search and quick actions</RDialog.Title>
           <div className="flex items-center gap-3 border-b border-border px-4">
@@ -165,7 +165,7 @@ export function CommandPalette() {
                     aria-selected={i === index}
                     onMouseMove={() => setIndex(i)}
                     onClick={() => go(e)}
-                    className={cn("flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors", i === index ? "bg-accent-soft" : "hover:bg-[rgba(0,255,120,0.04)]")}
+                    className={cn("flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors", i === index ? "bg-accent-soft" : "hover:bg-surface-2")}
                   >
                     <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border", i === index ? "text-accent" : "text-muted")}>
                       <Icon className="h-4 w-4" strokeWidth={1.75} />

@@ -151,6 +151,7 @@ async function currentObjective(organizationId: string) {
     status: run.status,
     active: run.status === "RUNNING" || run.status === "WAITING_FOR_APPROVAL",
     startedAt: run.createdAt.toISOString(),
+    completedAt: run.completedAt ? run.completedAt.toISOString() : null,
     target: plan.discovery?.limit ?? null,
     stages: rows.length === 0 && !(run.status === "RUNNING" || run.status === "WAITING_FOR_APPROVAL") ? [] : [
       { key: "discovery", label: "Discovery", unit: "businesses found", value: count(PROGRESS_KINDS.discovered), target: plan.discovery?.limit ?? null },

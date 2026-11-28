@@ -131,7 +131,7 @@ export default async function ApprovalsPage() {
       )}
 
       <Section className="mt-10" title="Recently decided">
-        <Card className="divide-y divide-[rgba(0,255,120,0.06)]">
+        <Card className="divide-y divide-border">
           {decided.length === 0 && <p className="px-4 py-8 text-center text-[13px] text-muted">No decisions yet.</p>}
           {decided.map(({ a, by, email }) => (
             <div key={a.id} className="flex items-center justify-between gap-3 px-4 py-3">

@@ -91,8 +91,8 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[24px] font-semibold leading-tight tracking-tight">{meta.name}</h1>
-              <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium", st.pill)}>
-                <span className={cn("h-1.5 w-1.5 rounded-full", st.dot, st.pulse && "animate-pulse-dot")} />
+              <span className={cn("inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium", st.pill)}>
+                <span className={cn("h-1.5 w-1.5 rounded-full", st.dot, st.pulse && "status-live")} />
                 {st.label}
               </span>
             </div>
@@ -136,7 +136,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
                 </p>
               ) : (
                 tasks.map(({ task, business }) => (
-                  <div key={task.id} className="rounded-xl border border-[rgba(0,255,120,0.25)] bg-accent-soft p-3">
+                  <div key={task.id} className="rounded-xl border border-border-strong bg-accent-soft p-3">
                     <p className="text-[13.5px] font-medium">
                       {task.type.replace(/_/g, " ")}
                       {business ? ` — ${business}` : ""}
@@ -279,7 +279,7 @@ export default async function AgentPage({ params, searchParams }: { params: Prom
                 </ul>
               </div>
               {caps.approval && (
-                <p className="flex items-start gap-2 rounded-xl border border-[rgba(255,191,71,0.25)] bg-warning-soft px-3 py-2.5 text-[13px] leading-relaxed text-warning">
+                <p className="flex items-start gap-2 rounded-xl border border-[rgba(196,128,0,0.25)] bg-warning-soft px-3 py-2.5 text-[13px] leading-relaxed text-warning">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" /> {caps.approval}
                 </p>
               )}

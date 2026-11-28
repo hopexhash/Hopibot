@@ -11,10 +11,10 @@ export default function DashboardError({ error, reset }: { error: Error & { dige
   }, [error]);
   return (
     <Card className="mx-auto mt-10 max-w-lg p-6 text-center sm:p-8">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-danger-soft text-danger">
+      <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-danger-soft text-danger">
         <TriangleAlert className="h-6 w-6" />
       </div>
-      <h2 className="text-[18px] font-semibold">This page could not be loaded</h2>
+      <h2 className="font-display text-[20px] font-semibold">This page could not be loaded</h2>
       <p className="mt-2 text-[14px] leading-relaxed text-muted">
         Something went wrong while loading it. Your data is safe. Try again; if it keeps happening, the System Health page shows whether a service is down.
       </p>

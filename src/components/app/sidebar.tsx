@@ -12,45 +12,40 @@ import { openCommandPalette } from "./command-palette";
 import { activeHref, NAV_GROUPS, SUB_NAV } from "./nav";
 
 /**
- * The HOPI mark. With `animated`, the lines around the H move: a bright trace runs along the
- * outer hexagon, a second one runs the other way along the inner hexagon, and the three
- * nodes orbit slowly.
- * The H itself stays still. Motion is switched off for people who prefer reduced motion.
+ * The HOPI mark for small places (collapsed rail, app icon): the H of the wordmark with its
+ * orange dot on charcoal, the same drawing as the favicon. `animated` is accepted for older
+ * call sites; the dot settles in once, it does not loop.
  */
 export function LogoMark({ className, animated }: { className?: string; animated?: boolean }) {
-  // Each copy needs its own gradient id: a gradient inside a hidden copy does not paint.
-  const gid = `lg${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
-    <svg viewBox="0 0 32 32" className={cn(className, animated && "logo-anim overflow-visible")} aria-hidden>
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#4dffa0" />
-          <stop offset="1" stopColor="#008f39" />
-        </linearGradient>
-      </defs>
-      <path d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" fill="none" stroke={`url(#${gid})`} strokeWidth="1.6" />
-      {animated && <path className="logo-trace" d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" pathLength={100} fill="none" stroke="#b6ffd6" strokeWidth="1.9" strokeLinecap="round" />}
-      <path d="M16 8 23 12v8l-7 4-7-4v-8Z" fill="rgba(0,255,120,0.12)" stroke="#00ff78" strokeWidth="1.2" />
-      {animated && <path className="logo-trace logo-trace-inner" d="M16 8 23 12v8l-7 4-7-4v-8Z" pathLength={100} fill="none" stroke="#eafff3" strokeWidth="1.4" strokeLinecap="round" />}
-      <path d="M12.7 11.5v9M19.3 11.5v9M12.7 16h6.6" fill="none" stroke="#e8f5ec" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <g className="logo-orbit">
-        <circle cx="16" cy="2" r="1.3" fill="#00ff78" />
-        <circle cx="29" cy="22.5" r="1.3" fill="#00ff78" />
-        <circle cx="3" cy="22.5" r="1.3" fill="#00ff78" />
-      </g>
+    <svg viewBox="0 0 64 64" className={cn(className, animated && "logo-settle")} aria-hidden>
+      <rect width="64" height="64" rx="14" fill="#0c0c0d" />
+      <path fill="#f2eee6" d="M13 16h9v12.5h12V16h9v32h-9V35.5H22V48h-9z" />
+      <circle className="logo-dot" cx="52" cy="43" r="5" fill="#ff4d23" />
     </svg>
+  );
+}
+
+/** The HOPI wordmark as on wearehopi.nl: "HOPI" in Space Grotesk with the orange dot. */
+export function Wordmark({ className }: { className?: string }) {
+  return (
+    <span className={cn("inline-flex items-center gap-[3px] font-display text-[22px] font-bold leading-none tracking-[-0.04em] text-foreground", className)}>
+      HOPI
+      <i className="mt-[7px] inline-block h-[6px] w-[6px] rounded-full bg-brand" aria-hidden />
+    </span>
   );
 }
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <Link href="/command" className="flex items-center gap-2.5 px-1" aria-label="HOPI Bot — Command Center">
-      <LogoMark animated className="h-9 w-9 shrink-0 drop-shadow-[0_0_8px_rgba(0,255,120,0.45)]" />
-      {!collapsed && (
-        <div className="min-w-0 leading-none">
-          <div className="text-[15px] font-semibold tracking-[0.16em] text-foreground">HOPI BOT</div>
-          <div className="mt-1 text-[10.5px] font-medium tracking-[0.24em] text-accent/80">AI OPERATIONS</div>
-        </div>
+    <Link href="/command" className="flex h-10 items-center gap-2.5 px-1.5" aria-label="HOPI, Command Center">
+      {collapsed ? (
+        <LogoMark className="mx-auto h-9 w-9 shrink-0" />
+      ) : (
+        <>
+          <Wordmark />
+          <span className="label-mono mt-0.5 !text-[10px] !tracking-[0.16em]">Command</span>
+        </>
       )}
     </Link>
   );
@@ -64,7 +59,7 @@ function NavList({ collapsed, counts, onNavigate }: { collapsed?: boolean; count
     <nav className="flex flex-col gap-4" aria-label="Main">
       {NAV_GROUPS.map((g) => (
         <div key={g.title}>
-          {collapsed ? <div className="mx-auto mb-2 h-px w-6 bg-border" /> : <div className="mb-1.5 px-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-subtle">{g.title}</div>}
+          {collapsed ? <div className="mx-auto mb-2 h-px w-6 bg-border" /> : <div className="label-mono mb-2 px-3 !text-[10px] !text-subtle">{g.title}</div>}
           <div className="flex flex-col gap-0.5">
             {g.items.map(({ href, label, icon: Icon, hint }) => {
               const isActive = active === href;
@@ -77,11 +72,9 @@ function NavList({ collapsed, counts, onNavigate }: { collapsed?: boolean; count
                   aria-current={isActive ? "page" : undefined}
                   aria-label={collapsed ? label : undefined}
                   className={cn(
-                    "group relative flex h-10 items-center gap-3 rounded-xl px-3 text-[13.5px] font-medium transition-all duration-200",
+                    "group relative flex h-10 items-center gap-3 rounded-md px-3 text-[13.5px] font-medium transition-colors duration-200",
                     collapsed && "justify-center px-0",
-                    isActive
-                      ? "bg-accent-soft text-accent shadow-[inset_0_0_0_1px_rgba(0,255,120,0.2),0_0_18px_-8px_rgba(0,255,120,0.6)]"
-                      : "text-muted hover:bg-[rgba(0,255,120,0.05)] hover:text-foreground",
+                    isActive ? "bg-surface text-foreground shadow-[0_1px_2px_rgba(12,12,13,0.06)]" : "text-muted hover:bg-surface/70 hover:text-foreground",
                   )}
                 >
                   {isActive && (
@@ -89,13 +82,13 @@ function NavList({ collapsed, counts, onNavigate }: { collapsed?: boolean; count
                       // One marker per list (desktop rail, phone drawer): it slides to the page you open.
                       layoutId={`nav-marker-${markerId}`}
                       transition={{ type: "tween", duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute -left-3 top-1/2 -mt-2.5 h-5 w-[3px] rounded-r bg-accent shadow-[0_0_10px_#00ff78]"
+                      className="absolute -left-3 top-1/2 -mt-2.5 h-5 w-[3px] rounded-r bg-brand"
                     />
                   )}
-                  <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-colors", isActive ? "text-accent" : "text-subtle group-hover:text-accent/80")} strokeWidth={1.75} />
+                  <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-[color,transform] duration-200 group-hover:scale-105", isActive ? "text-foreground" : "text-subtle group-hover:text-foreground")} strokeWidth={1.6} />
                   {!collapsed && <span className="truncate">{label}</span>}
                   {count ? (
-                    <span className={cn("tabular rounded-md bg-warning-soft px-1.5 text-[11px] font-semibold leading-[18px] text-warning", collapsed ? "absolute right-1 top-0.5 px-1" : "ml-auto")}>{count}</span>
+                    <span className={cn("tabular rounded-[4px] bg-brand px-1.5 text-[11px] font-semibold leading-[18px] text-[#0c0c0d]", collapsed ? "absolute right-1 top-0.5 px-1" : "ml-auto")}>{count}</span>
                   ) : null}
                 </Link>
               );
@@ -129,7 +122,7 @@ export function SubNav({ section }: { section: keyof typeof SUB_NAV }) {
           aria-selected={current === t.href}
           className={cn(
             "tab-m -mb-px flex h-11 shrink-0 items-center whitespace-nowrap px-3 text-[13px] font-medium transition-colors duration-200",
-            current === t.href ? "text-accent" : "text-muted hover:text-foreground",
+            current === t.href ? "text-foreground" : "text-muted hover:text-foreground",
           )}
         >
           {t.label}
@@ -171,7 +164,7 @@ export function Sidebar({ counts }: { counts: Record<string, number> }) {
   return (
     <aside
       className={cn(
-        "sticky top-0 z-20 hidden h-dvh shrink-0 flex-col border-r border-border bg-[linear-gradient(180deg,rgba(0,255,120,0.03),transparent_30%),rgba(3,8,6,0.9)] py-4 backdrop-blur-xl transition-[width] duration-300 lg:flex",
+        "sticky top-0 z-20 hidden h-dvh shrink-0 flex-col border-r border-border bg-[#ece7dc]/60 py-5 transition-[width] duration-300 lg:flex",
         collapsed ? "w-[72px] px-2" : "w-[248px] px-3",
       )}
     >
@@ -179,7 +172,7 @@ export function Sidebar({ counts }: { counts: Record<string, number> }) {
       <button
         onClick={openCommandPalette}
         className={cn(
-          "mt-5 flex h-10 items-center gap-2.5 rounded-xl border border-border bg-surface-2/70 text-[13px] text-muted transition-colors hover:border-border-strong hover:text-foreground",
+          "mt-6 flex h-10 items-center gap-2.5 rounded-md border border-border bg-surface text-[13px] text-muted transition-colors hover:border-border-strong hover:text-foreground",
           collapsed ? "justify-center" : "px-3",
         )}
         aria-label="Search and quick actions"
@@ -188,7 +181,7 @@ export function Sidebar({ counts }: { counts: Record<string, number> }) {
         {!collapsed && (
           <>
             <span className="flex-1 text-left">Search…</span>
-            <kbd className="rounded border border-border px-1.5 text-[11px] text-subtle">⌘K</kbd>
+            <kbd className="rounded-[3px] border border-border px-1.5 font-mono text-[10.5px] text-subtle">⌘K</kbd>
           </>
         )}
       </button>
@@ -197,7 +190,7 @@ export function Sidebar({ counts }: { counts: Record<string, number> }) {
       </div>
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex h-9 items-center justify-center gap-2 rounded-xl border border-border text-[12px] font-medium text-muted transition-colors hover:border-border-strong hover:text-accent"
+        className="flex h-9 items-center justify-center gap-2 rounded-md text-[12px] font-medium text-muted transition-colors hover:bg-surface/70 hover:text-foreground"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {collapsed ? <ChevronsRight className="h-4 w-4" /> : <><ChevronsLeft className="h-4 w-4" /> Collapse</>}
@@ -210,17 +203,17 @@ export function MobileNav({ counts }: { counts: Record<string, number> }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted active:bg-accent-soft lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+      <button className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground active:bg-surface-2 lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
         <Menu className="h-5 w-5" />
       </button>
       {open &&
         createPortal(
           <div className="fixed inset-0 z-[60] lg:hidden">
-            <div className="absolute inset-0 animate-overlay-in bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
-            <div className="drawer-in absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col border-r border-border-strong bg-[#040a07] px-4 pb-[calc(var(--safe-bottom)+16px)] pt-[calc(var(--safe-top)+16px)] shadow-[0_0_60px_-10px_rgba(0,255,120,0.25)] animate-fade-in">
+            <div className="absolute inset-0 animate-overlay-in bg-[#0c0c0d]/40 backdrop-blur-[3px]" onClick={() => setOpen(false)} />
+            <div className="drawer-in absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col border-r border-border bg-background px-4 pb-[calc(var(--safe-bottom)+16px)] pt-[calc(var(--safe-top)+16px)] animate-fade-in">
               <div className="flex items-center justify-between">
                 <Brand />
-                <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted" onClick={() => setOpen(false)} aria-label="Close navigation">
+                <button className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-foreground" onClick={() => setOpen(false)} aria-label="Close navigation">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -243,39 +236,36 @@ const TABS: { href: string; label: string; icon: LucideIcon; hub?: boolean }[] =
   { href: "/health", label: "Health", icon: HeartPulse },
 ];
 
-/** Thumb-reachable tab bar on phones (respects the home-indicator safe area). */
+/**
+ * Thumb-reachable tab bar on phones (respects the home-indicator safe area). Paper glass with a
+ * hairline; the active tab carries the orange marker. The Command Center sits in the middle as
+ * a small charcoal tile, a quiet emphasis rather than a raised circle.
+ */
 export function MobileTabBar() {
   const pathname = usePathname();
   const active = activeHref(pathname);
   return (
-    <nav
-      aria-label="Quick navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-[rgba(3,8,6,0.94)] pb-[var(--safe-bottom)] backdrop-blur-xl lg:hidden"
-    >
+    <nav aria-label="Quick navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-[#f6f3ed]/95 pb-[var(--safe-bottom)] backdrop-blur-xl lg:hidden">
       <div className="mx-auto grid max-w-lg grid-cols-5">
         {TABS.map(({ href, label, icon: Icon, hub }) => {
           const on = active === href;
-          // The Command Center is the hub: a larger, raised button in the middle of the bar.
-          if (hub) {
-            return (
-              <Link key={href} href={href} aria-current={on ? "page" : undefined} className="relative flex h-[60px] flex-col items-center justify-end pb-[7px] text-[11px] font-semibold text-accent">
-                <span
-                  className={cn(
-                    "absolute -top-6 grid h-[62px] w-[62px] place-items-center rounded-full border-2 bg-[#06120c] transition-shadow",
-                    on ? "border-accent shadow-[0_0_26px_rgba(0,255,120,0.55),inset_0_0_14px_rgba(0,255,120,0.25)]" : "border-[rgba(0,255,120,0.5)] shadow-[0_0_16px_rgba(0,255,120,0.28)]",
-                  )}
-                >
-                  <Icon className="h-[30px] w-[30px] drop-shadow-[0_0_8px_rgba(0,255,120,0.8)]" strokeWidth={1.6} />
-                </span>
-                <span>{label}</span>
-              </Link>
-            );
-          }
           return (
-            <Link key={href} href={href} aria-current={on ? "page" : undefined} className={cn("relative flex h-[60px] flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors", on ? "text-accent" : "text-muted")}>
-              {on && <span className="absolute top-0 h-[2px] w-8 rounded-b bg-accent shadow-[0_0_10px_#00ff78]" />}
-              <Icon className={cn("h-[21px] w-[21px]", on && "drop-shadow-[0_0_6px_rgba(0,255,120,0.7)]")} strokeWidth={1.75} />
-              <span>{label}</span>
+            <Link
+              key={href}
+              href={href}
+              aria-current={on ? "page" : undefined}
+              className={cn("group relative flex h-[62px] flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-200", on ? "text-foreground" : "text-muted")}
+            >
+              {on && <motion.span layoutId="tab-marker" transition={{ type: "tween", duration: 0.26, ease: [0.16, 1, 0.3, 1] }} className="absolute top-0 h-[2px] w-7 rounded-b bg-brand" />}
+              {hub ? (
+                <span className="relative grid h-8 w-8 place-items-center rounded-md bg-foreground text-background transition-transform duration-200 group-active:scale-95">
+                  <Icon className="h-[17px] w-[17px]" strokeWidth={1.7} />
+                  <span className={cn("absolute -right-[3px] -top-[3px] h-2 w-2 rounded-full bg-brand ring-2 ring-[#f6f3ed] transition-transform duration-200", on ? "scale-100" : "scale-0")} aria-hidden />
+                </span>
+              ) : (
+                <Icon className="h-[21px] w-[21px] transition-transform duration-200 group-active:scale-90" strokeWidth={1.6} />
+              )}
+              <span className={cn(hub && "font-semibold")}>{label}</span>
             </Link>
           );
         })}

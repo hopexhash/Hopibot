@@ -54,7 +54,7 @@ export default async function BusinessesPage({ searchParams }: { searchParams: P
         ]}
       />
       {filters.view === "leads" && checked > 0 && (
-        <p className="mb-4 rounded-xl border border-border bg-[rgba(3,8,6,0.5)] px-4 py-3 text-[13.5px] leading-relaxed text-muted">
+        <p className="mb-4 rounded-lg border border-border bg-surface-2 px-4 py-3 text-[13.5px] leading-relaxed text-muted">
           <b className="font-semibold text-foreground">{checked}</b> businesses checked so far: <b className="font-semibold text-foreground">{count(["qualified", "high_priority", "website_down"])}</b> qualified,{" "}
           <b className="font-semibold text-foreground">{count(["review"])}</b> need your review, <b className="font-semibold text-foreground">{goodSites}</b> turned down because their website is already good,{" "}
           <b className="font-semibold text-foreground">{count(["no_email"])}</b> without a public email.{" "}

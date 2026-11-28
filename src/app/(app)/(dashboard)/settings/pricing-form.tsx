@@ -159,7 +159,7 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
             <p className="mb-2 text-[13px] font-medium">Industries to target</p>
             <div className="flex flex-wrap gap-2">
               {BUSINESS_CATEGORIES.map((c) => (
-                <button key={c.key} type="button" disabled={!canAdmin} aria-pressed={a.categories.includes(c.key)} onClick={() => toggleCat(c.key)} className={`min-h-10 rounded-full border px-3.5 text-[13px] transition ${a.categories.includes(c.key) ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:border-border-strong"}`}>
+                <button key={c.key} type="button" disabled={!canAdmin} aria-pressed={a.categories.includes(c.key)} onClick={() => toggleCat(c.key)} className={`min-h-10 rounded-full border px-3.5 text-[13px] transition ${a.categories.includes(c.key) ? "border-foreground bg-foreground text-background" : "border-border text-muted hover:border-border-strong"}`}>
                   {c.label}
                 </button>
               ))}
@@ -170,7 +170,7 @@ export function AutopilotForm({ settings, canAdmin }: { settings: OrgSettings; c
               <p className="mb-2 text-[13px] font-medium">Working days</p>
               <div className="flex flex-wrap gap-1.5">
                 {DAYS.map((d, i) => (
-                  <button key={d} type="button" disabled={!canAdmin} aria-pressed={a.days.includes(i)} onClick={() => toggleDay(i)} className={`h-10 w-12 rounded-lg border text-[13px] ${a.days.includes(i) ? "border-accent bg-accent-soft text-accent" : "border-border text-muted"}`}>
+                  <button key={d} type="button" disabled={!canAdmin} aria-pressed={a.days.includes(i)} onClick={() => toggleDay(i)} className={`h-10 w-12 rounded-lg border text-[13px] ${a.days.includes(i) ? "border-foreground bg-foreground text-background" : "border-border text-muted"}`}>
                     {d}
                   </button>
                 ))}
