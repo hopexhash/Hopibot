@@ -1,51 +1,7 @@
-import Link from "next/link";
-import { seoMeta } from "@/lib/site/seo-meta";
-import { LegalPage } from "@/components/site/legal-page";
-import { ConsentLink } from "@/components/site/site-client";
-const PATH = "/cookies";
-export const generateMetadata = () =>
-  seoMeta({ title: "Cookies | HOPI", description: "Welke cookies en vergelijkbare technieken de website van HOPI gebruikt, waarvoor, en hoe je je keuze aanpast.", path: PATH });
+import { CookiesPage, cookiesMetadata } from "@/components/site/pages/cookies";
 
-export default function CookiesPage() {
-  return (
-    <LegalPage title="Cookies" path={PATH} updated="2026-11-26">
-      {(d) => {
-        const tracking = Boolean(d.site.gaId || d.site.gtmId);
-        return (
-          <>
-            <p>Op deze pagina lees je welke cookies en vergelijkbare technieken deze website gebruikt. We houden het bewust beperkt.</p>
+export const generateMetadata = () => cookiesMetadata("nl");
 
-            <h2>Noodzakelijk</h2>
-            <p>De website werkt zonder cookies. Sluit je de cookiemelding of geef je een keuze door over statistieken, dan onthoudt je browser dat in de lokale opslag, zodat je de melding niet bij elk bezoek opnieuw ziet. Daar is geen toestemming voor nodig.</p>
-
-            <h2>Statistieken</h2>
-            {tracking ? (
-              <>
-                <p>Met je toestemming gebruiken we Google Analytics om te zien hoe de website wordt gebruikt: welke pagina&apos;s worden bezocht en of het aanvraagformulier wordt verstuurd. Zo kunnen we de website verbeteren. Deze cookies worden pas geplaatst nadat je op &quot;Accepteren&quot; hebt geklikt. Weiger je, dan wordt er niets geladen en werkt de website gewoon.</p>
-                <p>
-                  Je keuze aanpassen kan altijd: <ConsentLink />.
-                </p>
-              </>
-            ) : (
-              <p>Op dit moment gebruiken we geen statistiek- of trackingcookies. Als dat verandert, vragen we je eerst om toestemming en passen we deze pagina aan.</p>
-            )}
-
-            <h2>Laadsnelheid</h2>
-            <p>Om de website snel te houden meet je browser hoe lang een pagina erover doet om te laden en te reageren (de zogenoemde Core Web Vitals). Die getallen sturen we anoniem naar onze eigen server: alleen het adres van de pagina, de meetwaarden, of het om een telefoon of computer gaat en het type netwerkverbinding. Er wordt daarvoor geen cookie geplaatst en niets in je browser opgeslagen, we bewaren geen IP-adres en er is geen kenmerk waarmee je herkend kunt worden. De metingen worden na 90 dagen verwijderd.</p>
-
-            <h2>Advertenties</h2>
-            <p>We plaatsen geen advertentiecookies en delen geen gegevens met advertentienetwerken.</p>
-
-            <h2>Demo-websites</h2>
-            <p>De demo-ontwerpen die je vanaf onze voorbeelden opent, plaatsen geen cookies. Formulieren op die demo&apos;s versturen niets.</p>
-
-            <h2>Meer weten</h2>
-            <p>
-              Hoe we omgaan met de gegevens die je via het formulier met ons deelt, lees je in de <Link href="/privacy">privacyverklaring</Link>.
-            </p>
-          </>
-        );
-      }}
-    </LegalPage>
-  );
+export default function Page() {
+  return <CookiesPage lang="nl" />;
 }
