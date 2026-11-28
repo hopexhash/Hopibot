@@ -1,7 +1,9 @@
 "use client";
 
-import { Monitor, Smartphone } from "lucide-react";
-import { useState } from "react";
+import { Monitor, Send, Smartphone } from "lucide-react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { sendDesignTestAction } from "@/server/actions/emails";
 import { Card } from "@/components/ui";
 
 /** Grows the frame to the height of the email, so the whole message shows without inner scrolling. */
@@ -12,8 +14,9 @@ const fit = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
 };
 
 /** One email in a sandboxed frame, at a computer or a phone width, with its subject line. */
-export function EmailFrames({ subject, html }: { subject: string; html: string }) {
+export function EmailFrames({ subject, html, test }: { subject: string; html: string; test?: { key: string; lang: "nl" | "en"; to: string } }) {
   const [width, setWidth] = useState<"desktop" | "phone">("desktop");
+  const [sending, start] = useTransition();
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2.5 text-[13px]">
@@ -21,7 +24,24 @@ export function EmailFrames({ subject, html }: { subject: string; html: string }
           <span className="text-muted">Subject: </span>
           <b className="font-medium">{subject}</b>
         </p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
+          {test && (
+            <button
+              type="button"
+              disabled={sending}
+              title={`Sends this email with sample data to ${test.to}`}
+              onClick={() =>
+                start(async () => {
+                  const r = await sendDesignTestAction(test.key, test.lang);
+                  if (!r.ok) return void toast.error(r.error);
+                  toast.success(`Test email sent to ${r.data.to}.`);
+                })
+              }
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-muted hover:text-fg disabled:opacity-50"
+            >
+              <Send className="h-3.5 w-3.5" /> {sending ? "Sending…" : "Send test to me"}
+            </button>
+          )}
           {(["desktop", "phone"] as const).map((w) => (
             <button key={w} type="button" onClick={() => setWidth(w)} aria-pressed={width === w} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 ${width === w ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-fg"}`}>
               {w === "desktop" ? <Monitor className="h-3.5 w-3.5" /> : <Smartphone className="h-3.5 w-3.5" />}
