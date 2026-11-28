@@ -52,7 +52,11 @@ for (const slug of slugs) {
   const full = await page.screenshot({ fullPage: true });
   // The whole page, capped so one very long demo does not become a huge file.
   const cap = Math.min(height, 10800);
-  await webp(await sharp(full).extract({ left: 0, top: 0, width: 1440, height: cap }).toBuffer(), 960, `${slug}-tall-960.webp`, 66);
+  const tall = await sharp(full).extract({ left: 0, top: 0, width: 1440, height: cap }).toBuffer();
+  await webp(tall, 960, `${slug}-tall-960.webp`, 66);
+  // Smaller copies for phones (the project page picks one with srcset).
+  await webp(tall, 768, `${slug}-tall-768.webp`, 70);
+  await webp(tall, 480, `${slug}-tall-480.webp`, 70);
   await webp(await sharp(full).extract({ left: 0, top: 0, width: 1440, height: Math.min(height, 4500) }).toBuffer(), 720, `${slug}-scroll-720.webp`, 68);
   await ctx.close();
 

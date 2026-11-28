@@ -53,6 +53,8 @@ export const orgSettingsSchema = z.object({
     .default({ bingVerification: "", pages: {} }),
   /** Result of the last SEO audit (written by the audit, shown in the SEO control center). */
   seoAudit: z.unknown().optional(),
+  /** Recent lab tests (Google PageSpeed Insights), newest first; shown on the Performance page. */
+  perfLab: z.unknown().optional(),
   dailySpendLimitUsd: z.number().min(0).max(100000).default(25),
   monthlySpendLimitUsd: z.number().min(0).max(1000000).default(300),
   /** Warn (notification + banner) when spend reaches this share of a limit. */

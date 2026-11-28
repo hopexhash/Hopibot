@@ -114,6 +114,16 @@ export const INTEGRATIONS = [
     docs: "https://developers.google.com/webmaster-tools/v1/how-tos/authorizing",
   },
   {
+    key: "pagespeed",
+    name: "Google PageSpeed Insights",
+    description: "Lab tests of the public website (Lighthouse run by Google) on the Performance page. Needs a free API key from Google Cloud with the PageSpeed Insights API enabled.",
+    secretLabel: "API key",
+    configFields: [],
+    envVar: "PAGESPEED_API_KEY",
+    usedBy: [],
+    docs: "https://developers.google.com/speed/docs/insights/v5/get-started",
+  },
+  {
     key: "supabase",
     name: "Supabase",
     description: "PostgreSQL database, authentication and storage. Configured via environment variables.",

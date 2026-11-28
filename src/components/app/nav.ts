@@ -2,6 +2,7 @@ import {
   BarChart3,
   Blocks,
   Bot,
+  Gauge,
   Globe,
   HeartPulse,
   KanbanSquare,
@@ -59,6 +60,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { href: "/analytics", label: "Analytics", icon: BarChart3, match: ["/revenue", "/costs"], hint: "Results, revenue and AI costs" },
       { href: "/seo", label: "SEO", icon: Search, hint: "How the HOPI website does in Google" },
+      { href: "/performance", label: "Performance", icon: Gauge, hint: "How fast the HOPI website is for real visitors" },
       { href: "/automations", label: "Automations", icon: Workflow, hint: "Workflows that run by themselves" },
       { href: "/health", label: "System Health", icon: HeartPulse, hint: "Is everything running?" },
     ],

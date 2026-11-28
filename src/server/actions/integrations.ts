@@ -105,6 +105,9 @@ export async function testIntegrationAction(provider: string) {
           case "google_search":
             message = await (await import("../integrations/google-search")).testGoogleSearch(cred.secret, cred.config);
             break;
+          case "pagespeed":
+            message = await (await import("../performance/pagespeed")).testPageSpeed(cred.secret);
+            break;
           case "posthog":
             message = await (await import("../integrations/posthog")).testPosthog(cred.secret, cred.config.host);
             break;

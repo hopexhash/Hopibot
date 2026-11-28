@@ -22,4 +22,4 @@ export const workByKey = (key: string) => WORK.find((w) => w.key === key);
 /** The live demo website. */
 export const demoHref = (key: string) => `/demos/${key}`;
 /** Portfolio screenshots made by scripts/shoot-demos.mjs. */
-export const shot = (key: string, name: "d-1440" | "d-720" | "m-780" | "m-390" | "tall-960" | "scroll-720" | "mtall-390") => `/site/work/${key}-${name}.webp`;
+export const shot = (key: string, name: "d-1440" | "d-720" | "m-780" | "m-390" | "tall-960" | "tall-768" | "tall-480" | "scroll-720" | "mtall-390") => `/site/work/${key}-${name}.webp`;

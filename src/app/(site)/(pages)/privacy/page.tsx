@@ -28,7 +28,7 @@ export default function PrivacyPage() {
 
           <h2>Cookies en statistieken</h2>
           <p>
-            Deze website plaatst geen tracking- of advertentiecookies zonder je toestemming. Wat we wel en niet gebruiken, lees je op de pagina over <Link href="/cookies">cookies</Link>.
+            Deze website plaatst geen tracking- of advertentiecookies zonder je toestemming. We meten wel anoniem hoe snel de pagina&apos;s laden, zonder cookie en zonder IP-adres of ander kenmerk. Wat we wel en niet gebruiken, lees je op de pagina over <Link href="/cookies">cookies</Link>.
           </p>
 
           <h2>Je rechten</h2>

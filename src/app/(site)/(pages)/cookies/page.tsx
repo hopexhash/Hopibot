@@ -30,6 +30,9 @@ export default function CookiesPage() {
               <p>Op dit moment gebruiken we geen statistiek- of trackingcookies. Als dat verandert, vragen we je eerst om toestemming en passen we deze pagina aan.</p>
             )}
 
+            <h2>Laadsnelheid</h2>
+            <p>Om de website snel te houden meet je browser hoe lang een pagina erover doet om te laden en te reageren (de zogenoemde Core Web Vitals). Die getallen sturen we anoniem naar onze eigen server: alleen het adres van de pagina, de meetwaarden, of het om een telefoon of computer gaat en het type netwerkverbinding. Er wordt daarvoor geen cookie geplaatst en niets in je browser opgeslagen, we bewaren geen IP-adres en er is geen kenmerk waarmee je herkend kunt worden. De metingen worden na 90 dagen verwijderd.</p>
+
             <h2>Advertenties</h2>
             <p>We plaatsen geen advertentiecookies en delen geen gegevens met advertentienetwerken.</p>
 

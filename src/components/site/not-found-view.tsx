@@ -1,6 +1,5 @@
-import { FONT_VARIABLES } from "@/lib/site/fonts";
-import { NotFoundStage } from "./not-found-stage";
-import "./not-found.css";
+import { NOT_FOUND_FONT_VARIABLES } from "@/lib/site/fonts-404";
+import { NotFoundStageLazy } from "./not-found-lazy";
 
 /**
  * "Page not found" for everyone. It brings its own typefaces and stylesheet, so it looks the
@@ -10,8 +9,8 @@ import "./not-found.css";
  */
 export function NotFoundView() {
   return (
-    <div className={`nf ${FONT_VARIABLES}`}>
-      <NotFoundStage />
+    <div className={`nf ${NOT_FOUND_FONT_VARIABLES}`}>
+      <NotFoundStageLazy />
     </div>
   );
 }

@@ -90,287 +90,313 @@ export function HeroSculpture() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    const hero = canvas?.closest<HTMLElement>(".hx");
-    if (!canvas || !hero) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    const chars = fine && !reduce ? [...hero.querySelectorAll<HTMLElement>(".hx-st .c")] : [];
-
-    const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" });
-    let prog: WebGLProgram | null = null;
-    let post: WebGLProgram | null = null;
-    let target: WebGLFramebuffer | null = null;
-    let texture: WebGLTexture | null = null;
-    const U: Record<string, WebGLUniformLocation | null> = {};
-    const P: Record<string, WebGLUniformLocation | null> = {};
-    if (gl) {
-      const make = (type: number, src: string) => {
-        const sh = gl.createShader(type)!;
-        gl.shaderSource(sh, src);
-        gl.compileShader(sh);
-        if (gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return sh;
-        canvas.dataset.gl = `compile: ${gl.getShaderInfoLog(sh) ?? ""}`.slice(0, 300);
-        return null;
-      };
-      const link = (frag: string) => {
-        const vs = make(gl.VERTEX_SHADER, VERT);
-        const fs = make(gl.FRAGMENT_SHADER, frag);
-        if (!vs || !fs) return null;
-        const pr = gl.createProgram()!;
-        gl.attachShader(pr, vs);
-        gl.attachShader(pr, fs);
-        gl.bindAttribLocation(pr, 0, "a"); // both programs draw the same triangle
-        gl.linkProgram(pr);
-        return gl.getProgramParameter(pr, gl.LINK_STATUS) ? pr : null;
-      };
-      prog = link(FRAG);
-      if (prog) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-        gl.useProgram(prog);
-        for (const n of ["uRes", "uT", "uM", "uV", "uC", "uK", "uA", "uBg", "uE"]) U[n] = gl.getUniformLocation(prog, n);
-        gl.uniform3f(U.uA, 1, 0.302, 0.137);
-        gl.uniform3f(U.uBg, 0.047, 0.047, 0.051);
-        // The smoothing pass is an extra: without it the sculpture is drawn straight to the screen.
-        post = link(SMOOTH);
-        texture = post ? gl.createTexture() : null;
-        target = post ? gl.createFramebuffer() : null;
-        if (post && texture && target) {
-          gl.useProgram(post);
-          P.uTex = gl.getUniformLocation(post, "uTex");
-          P.uRes = gl.getUniformLocation(post, "uRes");
-          gl.uniform1i(P.uTex, 0);
-          gl.bindTexture(gl.TEXTURE_2D, texture);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        } else post = null;
-      }
-    }
-    const live = Boolean(gl && prog);
-    if (!gl) canvas.dataset.gl = "unavailable";
-    // No graphics chip (the browser would draw every frame on the processor): show one still
-    // frame of the sculpture instead of animating it.
-    const info = gl?.getExtension("WEBGL_debug_renderer_info");
-    const renderer = gl && info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
-    // (In development, ?gl=live animates anyway, to judge the picture on a machine without a chip.)
-    const forced = process.env.NODE_ENV !== "production" && window.location.search.includes("gl=live");
-    const software = !forced && /swiftshader|llvmpipe|software|basic render/i.test(renderer);
-    let still = reduce || software;
-    if (!live && chars.length === 0) return;
-
-    // Pixels drawn per frame. Enough for crisp edges on a phone's dense screen; it is lowered
-    // automatically when a device cannot keep up.
-    let budget = still ? 200_000 : fine ? 1_600_000 : 1_300_000;
-    let w = 1;
-    let h = 1;
-    let cxo = 0; // where the sculpture sits, in units of the hero's height from the centre
-    let cyo = 0;
-    let k = 1;
-    const resize = () => {
-      const r = hero.getBoundingClientRect();
-      const wide = r.width >= 900;
-      cxo = wide ? 0.2 * (r.width / r.height) : 0.06;
-      cyo = wide ? 0.03 : 0.2;
-      k = wide ? 0.62 : 0.5;
-      if (!live || !gl) return;
-      const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), Math.sqrt(budget / Math.max(1, r.width * r.height)));
-      const nw = Math.max(2, Math.round(r.width * scale));
-      const nh = Math.max(2, Math.round(r.height * scale));
-      if (nw === w && nh === h) return; // resizing a canvas clears it: only when the size really changed
-      w = nw;
-      h = nh;
-      canvas.width = w;
-      canvas.height = h;
-      gl.viewport(0, 0, w, h);
-      if (post && texture && target) {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, target);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) post = null;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      }
-      if (shown) draw(lastT); // never leave the freshly cleared canvas empty for a frame
+    // Compiling the shaders holds up the main thread for a moment (longest on phones), so the
+    // sculpture is set up once the page has loaded and the browser is idle, never while the
+    // page is still becoming usable. It fades in when its first frame is drawn, as before.
+    let dispose: (() => void) | undefined;
+    let off = false;
+    let timer = 0;
+    let idleId = 0;
+    const run = () => {
+      if (!off) dispose = mount();
     };
-
-    let visible = true;
-    let pointer = false;
-    let tx = 0.9;
-    let ty = 0.5;
-    let mx = tx;
-    let my = ty;
-    let energy = 0;
-    let lastX = 0;
-    let lastY = 0;
-    let cpx = -9999;
-    let cpy = -9999;
-    let charsDirty = false;
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
-      const r = hero.getBoundingClientRect();
-      if (e.clientY > r.bottom) return;
-      pointer = true;
-      // Screen position → the sculpture's own space (see the camera in the shader).
-      const nx = (e.clientX - r.left - r.width / 2) / r.height;
-      const ny = -(e.clientY - r.top - r.height / 2) / r.height;
-      tx = ((nx - cxo) / k) * 2;
-      ty = ((ny - cyo) / k) * 2;
-      const len = Math.hypot(tx, ty);
-      if (len > 1.5) {
-        tx *= 1.5 / len;
-        ty *= 1.5 / len;
-      }
-      energy = Math.min(1, energy + Math.hypot(e.clientX - lastX, e.clientY - lastY) / 900);
-      lastX = e.clientX;
-      lastY = e.clientY;
-      cpx = e.clientX;
-      cpy = e.clientY;
-      charsDirty = true;
+    const later = () => {
+      if ("requestIdleCallback" in window) idleId = window.requestIdleCallback(run, { timeout: 1500 });
+      else timer = setTimeout(run, 1) as unknown as number;
     };
-    const onLeave = () => {
-      pointer = false;
-      cpx = cpy = -9999;
-      charsDirty = true;
-    };
-
-    let raf = 0;
-    let start = 0;
-    let slow = 0;
-    let stalls = 0;
-    let frames = 0;
-    let prev = 0;
-    let shown = false;
-    let lastT = 12;
-    let lastScroll = -1;
-    let restUntil = 0;
-    let odd = false;
-    const draw = (t: number) => {
-      if (!gl || !live) return;
-      lastT = t;
-      // The sculpture grows and rises a little as you scroll past it.
-      const sy = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)));
-      gl.useProgram(prog);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, post ? target : null);
-      gl.uniform2f(U.uRes, w, h);
-      gl.uniform1f(U.uT, t);
-      gl.uniform2f(U.uM, mx, my);
-      gl.uniform1f(U.uV, energy);
-      gl.uniform2f(U.uC, cxo, cyo + sy * 0.22);
-      gl.uniform1f(U.uK, k * (1 + sy * 0.35));
-      gl.uniform1f(U.uE, still ? 2.6 : 1.5); // a still frame is drawn smaller, so its edge is softened more
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      if (post) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.useProgram(post);
-        gl.uniform2f(P.uRes, w, h);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-      }
-      if (!shown) {
-        shown = true;
-        canvas.classList.add("is-live");
-      }
-    };
-    const frame = (now: number) => {
-      raf = requestAnimationFrame(frame);
-      if (!visible || document.hidden) {
-        prev = 0;
-        return;
-      }
-      if (!start) start = now;
-      // Touch screens: while a finger is scrolling the sculpture keeps moving, but is drawn
-      // every other frame, which leaves the graphics chip room to keep the scroll smooth.
-      let skip = false;
-      if (!fine) {
-        const y = window.scrollY;
-        if (y !== lastScroll) {
-          lastScroll = y;
-          restUntil = now + 160;
-        }
-        if (now < restUntil) {
-          odd = !odd;
-          skip = odd;
-        }
-      }
-      const t = (now - start) / 1000 + 8;
-      if (!pointer) {
-        tx = 0.95 * Math.cos(t * 0.37);
-        ty = 0.75 * Math.sin(t * 0.29);
-      }
-      mx += (tx - mx) * 0.055;
-      my += (ty - my) * 0.055;
-      energy *= 0.965;
-      if (!still && !skip) draw(t);
-      if (charsDirty) {
-        charsDirty = false;
-        for (const c of chars) {
-          const r = c.getBoundingClientRect();
-          const d = Math.hypot(cpx - (r.left + r.width / 2), cpy - (r.top + r.height / 2));
-          const f = Math.max(0, 1 - d / 240);
-          c.style.setProperty("--f", f.toFixed(3));
-        }
-      }
-      // Too slow for a few dozen frames in a row: draw fewer pixels.
-      if (live && prev && !still) {
-        const dt = now - prev;
-        // A frame that takes this long means the device is far out of its depth: halve at once
-        // instead of waiting for the average.
-        if (dt > 110 && ++stalls >= 2) {
-          stalls = 0;
-          if (budget > 240_000) {
-            budget *= 0.5;
-            resize();
-          } else still = true;
-        }
-        if (dt > 26) slow++;
-        if (++frames >= 45) {
-          if (slow > 20) {
-            if (budget > 120_000) {
-              budget *= 0.7;
-              resize();
-            } else still = true; // still too slow at the lowest quality: hold the last frame
-          }
-          frames = 0;
-          slow = 0;
-        }
-      }
-      prev = now;
-    };
-
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(hero);
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
-    io.observe(hero);
-    // The page loads and becomes usable first; the sculpture joins a moment later.
-    let startTimer = 0;
-    const begin = () => {
-      startTimer = window.setTimeout(() => {
-        if (still) draw(12);
-        if (!reduce) raf = requestAnimationFrame(frame); // also drives the letters' reaction to the pointer
-      }, 350);
-    };
-    if (!reduce) {
-      window.addEventListener("pointermove", onMove, { passive: true });
-      hero.addEventListener("pointerleave", onLeave);
-    }
-    if (document.readyState === "complete") begin();
-    else window.addEventListener("load", begin, { once: true });
+    if (document.readyState === "complete") later();
+    else window.addEventListener("load", later, { once: true });
     return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(startTimer);
-      window.removeEventListener("load", begin);
-      ro.disconnect();
-      io.disconnect();
-      window.removeEventListener("pointermove", onMove);
-      hero.removeEventListener("pointerleave", onLeave);
-      // The context belongs to the canvas and is reused if this effect runs again; only the loop stops.
+      off = true;
+      window.removeEventListener("load", later);
+      if (idleId) window.cancelIdleCallback(idleId);
+      window.clearTimeout(timer);
+      dispose?.();
     };
+
+    function mount(): (() => void) | undefined {
+      const canvas = ref.current;
+      const hero = canvas?.closest<HTMLElement>(".hx");
+      if (!canvas || !hero) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+      const chars = fine && !reduce ? [...hero.querySelectorAll<HTMLElement>(".hx-st .c")] : [];
+
+      const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" });
+      let prog: WebGLProgram | null = null;
+      let post: WebGLProgram | null = null;
+      let target: WebGLFramebuffer | null = null;
+      let texture: WebGLTexture | null = null;
+      const U: Record<string, WebGLUniformLocation | null> = {};
+      const P: Record<string, WebGLUniformLocation | null> = {};
+      if (gl) {
+        const make = (type: number, src: string) => {
+          const sh = gl.createShader(type)!;
+          gl.shaderSource(sh, src);
+          gl.compileShader(sh);
+          if (gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return sh;
+          canvas.dataset.gl = `compile: ${gl.getShaderInfoLog(sh) ?? ""}`.slice(0, 300);
+          return null;
+        };
+        const link = (frag: string) => {
+          const vs = make(gl.VERTEX_SHADER, VERT);
+          const fs = make(gl.FRAGMENT_SHADER, frag);
+          if (!vs || !fs) return null;
+          const pr = gl.createProgram()!;
+          gl.attachShader(pr, vs);
+          gl.attachShader(pr, fs);
+          gl.bindAttribLocation(pr, 0, "a"); // both programs draw the same triangle
+          gl.linkProgram(pr);
+          return gl.getProgramParameter(pr, gl.LINK_STATUS) ? pr : null;
+        };
+        prog = link(FRAG);
+        if (prog) {
+          gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(0);
+          gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+          gl.useProgram(prog);
+          for (const n of ["uRes", "uT", "uM", "uV", "uC", "uK", "uA", "uBg", "uE"]) U[n] = gl.getUniformLocation(prog, n);
+          gl.uniform3f(U.uA, 1, 0.302, 0.137);
+          gl.uniform3f(U.uBg, 0.047, 0.047, 0.051);
+          // The smoothing pass is an extra: without it the sculpture is drawn straight to the screen.
+          post = link(SMOOTH);
+          texture = post ? gl.createTexture() : null;
+          target = post ? gl.createFramebuffer() : null;
+          if (post && texture && target) {
+            gl.useProgram(post);
+            P.uTex = gl.getUniformLocation(post, "uTex");
+            P.uRes = gl.getUniformLocation(post, "uRes");
+            gl.uniform1i(P.uTex, 0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          } else post = null;
+        }
+      }
+      const live = Boolean(gl && prog);
+      if (!gl) canvas.dataset.gl = "unavailable";
+      // No graphics chip (the browser would draw every frame on the processor): show one still
+      // frame of the sculpture instead of animating it.
+      const info = gl?.getExtension("WEBGL_debug_renderer_info");
+      const renderer = gl && info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
+      // (In development, ?gl=live animates anyway, to judge the picture on a machine without a chip.)
+      const forced = process.env.NODE_ENV !== "production" && window.location.search.includes("gl=live");
+      const software = !forced && /swiftshader|llvmpipe|software|basic render/i.test(renderer);
+      let still = reduce || software;
+      if (!live && chars.length === 0) return;
+
+      // Pixels drawn per frame. Enough for crisp edges on a phone's dense screen; it is lowered
+      // automatically when a device cannot keep up.
+      let budget = still ? 200_000 : fine ? 1_600_000 : 1_300_000;
+      let w = 1;
+      let h = 1;
+      let cxo = 0; // where the sculpture sits, in units of the hero's height from the centre
+      let cyo = 0;
+      let k = 1;
+      const resize = () => {
+        const r = hero.getBoundingClientRect();
+        const wide = r.width >= 900;
+        cxo = wide ? 0.2 * (r.width / r.height) : 0.06;
+        cyo = wide ? 0.03 : 0.2;
+        k = wide ? 0.62 : 0.5;
+        if (!live || !gl) return;
+        const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), Math.sqrt(budget / Math.max(1, r.width * r.height)));
+        const nw = Math.max(2, Math.round(r.width * scale));
+        const nh = Math.max(2, Math.round(r.height * scale));
+        if (nw === w && nh === h) return; // resizing a canvas clears it: only when the size really changed
+        w = nw;
+        h = nh;
+        canvas.width = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+        if (post && texture && target) {
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+          gl.bindFramebuffer(gl.FRAMEBUFFER, target);
+          gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+          if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) post = null;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        }
+        if (shown) draw(lastT); // never leave the freshly cleared canvas empty for a frame
+      };
+
+      let visible = true;
+      let pointer = false;
+      let tx = 0.9;
+      let ty = 0.5;
+      let mx = tx;
+      let my = ty;
+      let energy = 0;
+      let lastX = 0;
+      let lastY = 0;
+      let cpx = -9999;
+      let cpy = -9999;
+      let charsDirty = false;
+      const onMove = (e: PointerEvent) => {
+        if (e.pointerType === "touch") return;
+        const r = hero.getBoundingClientRect();
+        if (e.clientY > r.bottom) return;
+        pointer = true;
+        // Screen position → the sculpture's own space (see the camera in the shader).
+        const nx = (e.clientX - r.left - r.width / 2) / r.height;
+        const ny = -(e.clientY - r.top - r.height / 2) / r.height;
+        tx = ((nx - cxo) / k) * 2;
+        ty = ((ny - cyo) / k) * 2;
+        const len = Math.hypot(tx, ty);
+        if (len > 1.5) {
+          tx *= 1.5 / len;
+          ty *= 1.5 / len;
+        }
+        energy = Math.min(1, energy + Math.hypot(e.clientX - lastX, e.clientY - lastY) / 900);
+        lastX = e.clientX;
+        lastY = e.clientY;
+        cpx = e.clientX;
+        cpy = e.clientY;
+        charsDirty = true;
+      };
+      const onLeave = () => {
+        pointer = false;
+        cpx = cpy = -9999;
+        charsDirty = true;
+      };
+
+      let raf = 0;
+      let start = 0;
+      let slow = 0;
+      let stalls = 0;
+      let frames = 0;
+      let prev = 0;
+      let shown = false;
+      let lastT = 12;
+      let lastScroll = -1;
+      let restUntil = 0;
+      let odd = false;
+      const draw = (t: number) => {
+        if (!gl || !live) return;
+        lastT = t;
+        // The sculpture grows and rises a little as you scroll past it.
+        const sy = Math.min(1, Math.max(0, window.scrollY / Math.max(1, hero.offsetHeight)));
+        gl.useProgram(prog);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, post ? target : null);
+        gl.uniform2f(U.uRes, w, h);
+        gl.uniform1f(U.uT, t);
+        gl.uniform2f(U.uM, mx, my);
+        gl.uniform1f(U.uV, energy);
+        gl.uniform2f(U.uC, cxo, cyo + sy * 0.22);
+        gl.uniform1f(U.uK, k * (1 + sy * 0.35));
+        gl.uniform1f(U.uE, still ? 2.6 : 1.5); // a still frame is drawn smaller, so its edge is softened more
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        if (post) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          gl.useProgram(post);
+          gl.uniform2f(P.uRes, w, h);
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        }
+        if (!shown) {
+          shown = true;
+          canvas.classList.add("is-live");
+        }
+      };
+      const frame = (now: number) => {
+        raf = requestAnimationFrame(frame);
+        if (!visible || document.hidden) {
+          prev = 0;
+          return;
+        }
+        if (!start) start = now;
+        // Touch screens: while a finger is scrolling the sculpture keeps moving, but is drawn
+        // every other frame, which leaves the graphics chip room to keep the scroll smooth.
+        let skip = false;
+        if (!fine) {
+          const y = window.scrollY;
+          if (y !== lastScroll) {
+            lastScroll = y;
+            restUntil = now + 160;
+          }
+          if (now < restUntil) {
+            odd = !odd;
+            skip = odd;
+          }
+        }
+        const t = (now - start) / 1000 + 8;
+        if (!pointer) {
+          tx = 0.95 * Math.cos(t * 0.37);
+          ty = 0.75 * Math.sin(t * 0.29);
+        }
+        mx += (tx - mx) * 0.055;
+        my += (ty - my) * 0.055;
+        energy *= 0.965;
+        if (!still && !skip) draw(t);
+        if (charsDirty) {
+          charsDirty = false;
+          for (const c of chars) {
+            const r = c.getBoundingClientRect();
+            const d = Math.hypot(cpx - (r.left + r.width / 2), cpy - (r.top + r.height / 2));
+            const f = Math.max(0, 1 - d / 240);
+            c.style.setProperty("--f", f.toFixed(3));
+          }
+        }
+        // Too slow for a few dozen frames in a row: draw fewer pixels.
+        if (live && prev && !still) {
+          const dt = now - prev;
+          // A frame that takes this long means the device is far out of its depth: halve at once
+          // instead of waiting for the average.
+          if (dt > 110 && ++stalls >= 2) {
+            stalls = 0;
+            if (budget > 240_000) {
+              budget *= 0.5;
+              resize();
+            } else still = true;
+          }
+          if (dt > 26) slow++;
+          if (++frames >= 45) {
+            if (slow > 20) {
+              if (budget > 120_000) {
+                budget *= 0.7;
+                resize();
+              } else still = true; // still too slow at the lowest quality: hold the last frame
+            }
+            frames = 0;
+            slow = 0;
+          }
+        }
+        prev = now;
+      };
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(hero);
+      const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
+      io.observe(hero);
+      // The page loads and becomes usable first; the sculpture joins a moment later.
+      let startTimer = 0;
+      const begin = () => {
+        startTimer = window.setTimeout(() => {
+          if (still) draw(12);
+          if (!reduce) raf = requestAnimationFrame(frame); // also drives the letters' reaction to the pointer
+        }, 350);
+      };
+      if (!reduce) {
+        window.addEventListener("pointermove", onMove, { passive: true });
+        hero.addEventListener("pointerleave", onLeave);
+      }
+      if (document.readyState === "complete") begin();
+      else window.addEventListener("load", begin, { once: true });
+      return () => {
+        cancelAnimationFrame(raf);
+        window.clearTimeout(startTimer);
+        window.removeEventListener("load", begin);
+        ro.disconnect();
+        io.disconnect();
+        window.removeEventListener("pointermove", onMove);
+        hero.removeEventListener("pointerleave", onLeave);
+        // The context belongs to the canvas and is reused if this effect runs again; only the loop stops.
+      };
+    }
   }, []);
 
   return <canvas ref={ref} className="hx-gl" aria-hidden="true" />;

@@ -40,7 +40,7 @@ export function DemoPreview({ slug, name, mode, eager = false }: { slug: string;
               </div>
             ) : (
               <div className="pv-screen pv-scroll" tabIndex={0} data-lenis-prevent aria-label={`De hele website van ${name}, scroll om verder te kijken`}>
-                <img src={shot(slug, "tall-960")} alt={`De hele website van ${name} op een groot scherm, van boven naar beneden (demo-ontwerp)`} width={960} height={6400} loading={load} fetchPriority={eager ? "high" : undefined} decoding="async" />
+                <img src={shot(slug, "tall-960")} srcSet={`${shot(slug, "tall-480")} 480w, ${shot(slug, "tall-768")} 768w, ${shot(slug, "tall-960")} 960w`} sizes="(max-width: 1540px) calc(100vw - 40px), 1500px" alt={`De hele website van ${name} op een groot scherm, van boven naar beneden (demo-ontwerp)`} width={960} height={6400} loading={load} fetchPriority={eager ? "high" : undefined} decoding="async" />
               </div>
             )}
           </div>

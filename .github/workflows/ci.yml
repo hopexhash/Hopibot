@@ -38,3 +38,5 @@ jobs:
       - run: npm run db:migrate
       - run: npm test
       - run: npm run build
+      # Performance budgets of the public website (JS, CSS, fonts, images); fails when exceeded.
+      - run: npm run perf:budget

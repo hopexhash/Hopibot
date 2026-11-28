@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
+import "./not-found.css";
 
 /**
  * The "page not found" experience. Everything here is self-contained (no site engine, no

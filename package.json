@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/perf-budget.mjs",
+    "perf:budget": "node scripts/perf-budget.mjs --strict",
     "start": "next start",
     "lint": "eslint src tests",
     "worker": "tsx src/worker/index.ts",

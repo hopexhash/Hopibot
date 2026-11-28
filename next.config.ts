@@ -8,6 +8,9 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
 ];
 
+const ASSET_CACHE = [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=2592000" }];
+const FONT_CACHE = [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=31536000" }];
+
 const nextConfig: NextConfig = {
   // Every dashboard route is authenticated and organisation-specific, so there is no
   // static shell to prerender; see docs/ARCHITECTURE.md §9.
@@ -55,6 +58,12 @@ const nextConfig: NextConfig = {
       { source: "/((?!p/).*)", headers: securityHeaders },
       // Demo websites of fictional businesses: viewable, never indexed.
       { source: "/demos/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] },
+      // Public images and fonts. Their names carry no content hash (a screenshot can be shot
+      // again under the same name), so they are not "immutable": browsers keep them a week
+      // and may use a stale copy while fetching a new one. Nothing here is private.
+      { source: "/demos/:slug/:file([^/]+\\.(?:webp|avif|jpg|jpeg|png|svg))", headers: ASSET_CACHE },
+      { source: "/site/:file((?:work/)?[^/]+\\.(?:webp|avif|jpg|jpeg|png|svg))", headers: ASSET_CACHE },
+      { source: "/site-assets/fonts/:file*", headers: FONT_CACHE },
     ];
   },
 };

@@ -965,3 +965,35 @@ export const websiteFeedback = pgTable(
   },
   (t) => [uniqueIndex("website_feedback_org_domain").on(t.organizationId, t.domain), index("website_feedback_org_created").on(t.organizationId, t.createdAt)],
 );
+
+// ───────────────────────── Website performance (field data) ─────────────────────────
+
+/**
+ * One Core Web Vitals measurement from a real visit to the public website. Anonymous by
+ * design: no IP address, no user agent, no visitor or session identifier, no cookie. Only the
+ * page path (without query string), the metric and coarse context (phone or desktop, network
+ * class) are kept, for 90 days.
+ */
+export const webVitals = pgTable(
+  "web_vitals",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    organizationId: orgId(),
+    path: text("path").notNull(),
+    /** LCP | INP | CLS | FCP | TTFB */
+    metric: text("metric").notNull(),
+    value: doublePrecision("value").notNull(),
+    /** good | needs-improvement | poor (Google's thresholds) */
+    rating: text("rating").notNull(),
+    /** mobile | desktop (from the viewport width) */
+    device: text("device").notNull(),
+    /** navigate | reload | back-forward | soft-navigation | ... */
+    navigation: text("navigation"),
+    /** Effective network class reported by the browser (4g, 3g, ...), when available. */
+    connection: text("connection"),
+    /** LCP: the element and image; INP: the element interacted with; once per page: largest files. */
+    detail: jsonb("detail"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("web_vitals_org_created").on(t.organizationId, t.createdAt), index("web_vitals_org_metric").on(t.organizationId, t.metric, t.createdAt)],
+);

@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const NOT_FOUND = "/__not-found";
 
 /** First path segments that belong to the control room (pages and private APIs). */
-const PRIVATE = new Set(["command", "activity", "agents", "analytics", "approvals", "automations", "builder", "businesses", "campaigns", "costs", "deployments", "discovery", "emails", "health", "integrations", "network", "notifications", "pipeline", "previews", "revenue", "seo", "settings", "tasks", "terminal", "websites", "api"]);
+const PRIVATE = new Set(["command", "activity", "agents", "analytics", "approvals", "automations", "builder", "businesses", "campaigns", "costs", "deployments", "discovery", "emails", "health", "integrations", "network", "notifications", "performance", "pipeline", "previews", "revenue", "seo", "settings", "tasks", "terminal", "websites", "api"]);
 
 /**
  * 1. The sign-in page only answers at a secret address (CONTROL_PATH, e.g. "/hq-…"). The
@@ -61,5 +61,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|site-assets|site/|favicon.ico|robots.txt|sitemap.xml|api/demo|api/webhooks|api/unsubscribe|api/health).*)"],
+  matcher: ["/((?!_next/static|_next/image|site-assets|site/|favicon.ico|robots.txt|sitemap.xml|api/demo|api/webhooks|api/unsubscribe|api/health|api/vitals).*)"],
 };

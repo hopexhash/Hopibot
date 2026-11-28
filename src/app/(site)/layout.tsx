@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { JsonLd, PullGuy } from "@/components/site/parts";
 import { Fx } from "@/components/site/fx";
 import { Reveal, SiteAnalytics, StickyCta } from "@/components/site/site-client";
+import { WebVitals } from "@/components/site/web-vitals";
 import { FONT_VARIABLES } from "@/lib/site/fonts";
 import { OG_IMAGE, organizationLd, SITE_URL, websiteLd } from "@/lib/site/seo";
 import { getSiteData } from "@/server/site";
@@ -54,6 +55,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {/* The page is one opaque sheet: whatever lies behind it only shows when it is pulled away. */}
         <div className="pg">{children}</div>
         <Fx />
+        <WebVitals />
         <StickyCta from={data.fromCents !== null ? data.prices.from : null} />
         <Reveal />
         <SiteAnalytics gaId={data.site.gaId} gtmId={data.site.gtmId} />
