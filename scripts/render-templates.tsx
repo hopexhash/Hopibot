@@ -7,6 +7,7 @@ import { FAMILY_DESIGNS } from "../src/sites/designs";
 import { FAMILIES } from "../src/sites/families";
 import { colorwayCount } from "../src/sites/colorways";
 import { renderSite } from "../src/sites/render";
+import { SAMPLE_SITES } from "../src/sites/samples";
 import { sampleSpec } from "./render-family";
 
 const OUT = "public/site-assets/templates";
@@ -16,7 +17,9 @@ let n = 0;
 for (const d of live) {
   // One sample per look: the original colours (<key>.html) and each colourway (<key>-<n>.html).
   for (let variation = 0; variation < colorwayCount(d.key); variation++) {
-    const spec = sampleSpec(d.key, "all", true);
+    // A family with its own complete demo content uses it; the others the generic sample business.
+    const own = SAMPLE_SITES[d.key];
+    const spec = own ? structuredClone(own) : sampleSpec(d.key, "all", true);
     spec.theme.variation = variation;
     const [index] = renderSite(spec, { agencyName: "HOPI", seedKey: d.key, assetBase: "/site-assets/" });
     writeFileSync(`${OUT}/${d.key}${variation ? `-${variation}` : ""}.html`, index.content);

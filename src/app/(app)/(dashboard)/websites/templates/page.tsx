@@ -47,8 +47,8 @@ function templates(): GalleryTemplate[] {
       alsoFor: also.map((c) => c.label),
       terms: [...first, ...also].flatMap((c) => [c.key.replace(/_/g, " "), c.placesType ?? ""]).join(" ").replace(/_/g, " "),
       looks: [
-        { name: "Original", swatch: d.palette.accent, href: `/site-assets/templates/${d.key}.html` },
-        ...(COLORWAYS[d.key] ?? []).map((cw, i) => ({ name: cw.name, swatch: cw.swatch, href: `/site-assets/templates/${d.key}-${i + 1}.html` })),
+        { name: "Original", swatch: d.palette.accent, href: `/voorbeeld/${d.key}` },
+        ...(COLORWAYS[d.key] ?? []).map((cw, i) => ({ name: cw.name, swatch: cw.swatch, href: `/voorbeeld/${d.key}-${i + 1}` })),
       ],
     };
   });

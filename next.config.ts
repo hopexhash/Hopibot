@@ -53,11 +53,17 @@ const nextConfig: NextConfig = {
       { source: `/site/demo/${from}.html`, destination: `/demos/${to}`, permanent: true },
     ])];
   },
+  // Short public address for a template's sample build: /voorbeeld/<template>(-<colourway>).
+  async rewrites() {
+    return [{ source: "/voorbeeld/:key([a-z0-9-]+)", destination: "/site-assets/templates/:key.html" }];
+  },
   async headers() {
     return [
       { source: "/((?!p/).*)", headers: securityHeaders },
       // Demo websites of fictional businesses: viewable, never indexed.
       { source: "/demos/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] },
+      { source: "/voorbeeld/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] },
+      { source: "/site-assets/templates/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] },
       // Public images and fonts. Their names carry no content hash (a screenshot can be shot
       // again under the same name), so they are not "immutable": browsers keep them a week
       // and may use a stale copy while fetching a new one. Nothing here is private.

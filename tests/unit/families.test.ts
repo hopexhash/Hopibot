@@ -5,6 +5,7 @@ import { FAMILY_DESIGNS } from "@/sites/designs";
 import { FAMILIES } from "@/sites/families";
 import { fontFilesInHtml } from "@/sites/fonts";
 import { renderSite } from "@/sites/render";
+import { SAMPLE_SITES } from "@/sites/samples";
 import { sampleSpec } from "../../scripts/render-family";
 import { build } from "../../scripts/family-css.mjs";
 
@@ -94,5 +95,20 @@ describe("template families", () => {
         }
       });
     }
+  }
+
+  // A family's own demo content is a concept for a fictional business: valid, without claims.
+  for (const [key, sample] of Object.entries(SAMPLE_SITES)) {
+    it(`${key} demo content is valid and makes no claims`, () => {
+      const spec = siteSpecSchema.parse(sample);
+      expect(spec.theme.design).toBe(key);
+      expect(FAMILIES[key], key).toBeDefined();
+      expect([spec.business.phone, spec.business.address, spec.business.mapsUrl, spec.business.email]).toEqual([null, null, null, null]);
+      expect(spec.sections.some((s) => s.type === "testimonials")).toBe(false);
+      for (const img of spec.images) expect(img.src).toMatch(/^https:\/\/images\.unsplash\.com\/photo-/);
+      const html = renderSite(spec, { agencyName: "HOPI", seedKey: key, assetBase: "/site-assets/" })[0].content;
+      expect(html.match(/<h1[\s>]/g)?.length).toBe(1);
+      expect(text(html)).not.toMatch(/★|\b\d(?:[.,]\d)?\s?\/\s?5\b|sterren|reviews?\b|award|gecertificeerd|jaar ervaring/i);
+    });
   }
 });

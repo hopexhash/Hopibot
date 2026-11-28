@@ -9,6 +9,7 @@ import type { SiteSection, SiteSpec } from "../src/lib/site-spec";
 import { FAMILY_DESIGNS } from "../src/sites/designs";
 import { FAMILIES } from "../src/sites/families";
 import { renderSite } from "../src/sites/render";
+import { SAMPLE_SITES } from "../src/sites/samples";
 import PHOTOS from "./family-sample-photos.json";
 
 const url = (id: string, w = 1920) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75&w=${w}`;
@@ -112,6 +113,12 @@ async function main() {
       const out = renderSite(sampleSpec(d.key, variant), { agencyName: "HOPI", seedKey: `${d.key}-${variant}`, assetBase: "../public/site-assets/" });
       writeFileSync(`.samples/fam-${d.key}-${variant}.html`, out[0].content);
       console.log(`.samples/fam-${d.key}-${variant}.html  ${Math.round(out[0].content.length / 1024)} kB`);
+    }
+    // The family's own complete demo, when it has one.
+    if (SAMPLE_SITES[d.key]) {
+      const out = renderSite(SAMPLE_SITES[d.key], { agencyName: "HOPI", seedKey: d.key, assetBase: "../public/site-assets/" });
+      writeFileSync(`.samples/fam-${d.key}-demo.html`, out[0].content);
+      console.log(`.samples/fam-${d.key}-demo.html  ${Math.round(out[0].content.length / 1024)} kB`);
     }
   }
 }
